@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IEC // Innovation Showcase — IUS Engineering Portfolio</title>
+  <meta name="description" content="IUS Engineering Club official innovation portfolio. Scroll through flagship student engineering projects, IoT stations, hackathons, and AI labs.">
+  
+  <!-- Google Fonts: Instrument Sans (Editorial Body) & Space Grotesk (Architectural Headings) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="lang-tr theme-dark">
+
+  <!-- Ambient Sound Generator (Web Audio API) -->
+  <div id="audio-indicator" class="sound-pill" title="Ses Aç/Kapat" data-i18n-title="title_sound">
+    <span class="sound-wave">
+      <span></span><span></span><span></span><span></span>
+    </span>
+    <span class="sound-label" data-i18n="sound_label">Ses: Kapalı</span>
+  </div>
+
+  <!-- FLOATING TOP NAVIGATION -->
+  <header class="showcase-nav">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <a href="#hero" class="brand-link">
+          <span class="brand-title">IUS ENGINEERING CLUB</span>
+        </a>
+      </div>
+
+      <nav class="nav-center-menu">
+        <button class="nav-menu-btn" id="open-index-drawer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          <span data-i18n="all_projects">Tüm Projeler</span>
+          <span class="counter-chip" id="nav-project-count">5</span>
+        </button>
+      </nav>
+
+      <div class="nav-actions">
+        <!-- Global Palette Switcher Pill -->
+        <div class="palette-picker-inline" id="global-palette-picker">
+          <button class="btn-palette-trigger" type="button" id="btn-global-palette-trigger" title="Genel Renk Paleti" data-i18n-title="title_palette">
+            <div class="palette-dots-preview" id="global-palette-dots">
+              <span style="background: #000000"></span>
+              <span style="background: #D1D0D0"></span>
+              <span style="background: #988686"></span>
+              <span style="background: #5C4E4E"></span>
+            </div>
+            <span class="palette-name-label" id="global-palette-label">Gothic noir</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="palette-flyout-menu global-flyout" id="global-palette-flyout"></div>
+        </div>
+
+        <!-- Google Form submission button (Yönetim Fikir & Proje Havuzu) -->
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSeZ3RHZbw2BMaboNw4yS0xLALOv4KXzXdAg1gyF-434rMP5Ew/viewform" target="_blank" rel="noopener" class="btn-pill-primary" id="btn-submit-idea" title="Yeni Proje / Fikir Gönder" data-i18n-title="title_submit">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span data-i18n="btn_submit_idea">Fikir Gönder</span>
+        </a>
+
+        <!-- Language Switcher Pill -->
+        <div class="lang-switcher" id="lang-toggle-group">
+          <button class="lang-btn active" data-lang="tr">TR</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- VERTICAL RIGHT PROGRESS / DOT NAVIGATION -->
+  <nav class="side-progress-nav" id="side-nav" aria-label="Project Navigation">
+    <div class="progress-track">
+      <div class="progress-bar-fill" id="progress-bar-fill"></div>
+    </div>
+    <ul class="progress-dots" id="progress-dots-list">
+      <!-- Injected dynamically via JS -->
+    </ul>
+  </nav>
+
+  <!-- MAIN SCROLL CONTAINER -->
+  <main class="showcase-scroll-container" id="scroll-container">
+
+    <!-- HERO SECTION -->
+    <section class="snap-section hero-section" id="hero" data-index="0">
+      <div class="hero-backdrop-glow"></div>
+      <div class="hero-content">
+        <h1 class="hero-headline animate-slide-up">
+          <span class="gradient-text" data-i18n="hero_title_1">Kampüsü Değiştiren</span><br>
+          <span class="white-text" data-i18n="hero_title_2">Mühendislik Vizyonu.</span>
+        </h1>
+
+        <p class="hero-subtitle animate-slide-up delay-1" data-i18n="hero_subtitle">
+          Öğrenciler tarafından tasarlandı, geleceğe göre mühendisliği yapıldı. FENS amfilerinden teknoloji ekosistemine uzanan amiral gemisi donanım, yapay zeka ve yazılım inovasyonlarımız.
+        </p>
+
+        <div class="hero-cta-group animate-slide-up delay-2">
+          <a href="#project-0" class="btn-glow-primary" id="start-tour-btn">
+            <span data-i18n="hero_explore">Projeleri Keşfet</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+          </a>
+          <button class="btn-pill-secondary" id="hero-quick-filter-btn">
+            <span data-i18n="hero_flagships">Amiral Gemisi Donanımlar</span>
+          </button>
+        </div>
+
+        <div class="hero-stats-bar animate-fade-in delay-3">
+          <div class="stat-item">
+            <div class="stat-number">5+</div>
+            <div class="stat-label" data-i18n="stat_active_projects">Aktif Mühendislik Projesi</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-number" data-i18n="stat_budget_val">1.300 KM</div>
+            <div class="stat-label" data-i18n="stat_budget">Dengeli Bütçe Mimarisi</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-number">100%</div>
+            <div class="stat-label" data-i18n="stat_open_source">Öğrenci Üretimi & Açık Donanım</div>
+          </div>
+        </div>
+
+        <div class="scroll-down-hint">
+          <span data-i18n="scroll_hint">Aşağı Kaydırın</span>
+          <div class="mouse-icon">
+            <div class="wheel"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DYNAMIC PROJECT SECTIONS CONTAINER -->
+    <div id="projects-wrapper">
+      <!-- Injected dynamically by app.js -->
+    </div>
+
+  </main>
+
+  <!-- QUICK INDEX DRAWER (DRAWER MODAL) -->
+  <aside class="index-drawer" id="index-drawer" aria-hidden="true">
+    <div class="drawer-overlay" id="drawer-backdrop"></div>
+    <div class="drawer-panel">
+      <div class="drawer-header">
+        <div class="drawer-title-group">
+          <h3 data-i18n="drawer_title">Proje Kataloğu</h3>
+          <p data-i18n="drawer_subtitle">Doğrudan istediğiniz inovasyona atlayın</p>
+        </div>
+        <button class="drawer-close-btn" id="close-index-drawer" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="drawer-search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="drawer-search-input" placeholder="Proje, kategori veya etiket ara..." data-i18n-ph="search_placeholder">
+      </div>
+
+      <div class="drawer-list" id="drawer-projects-list">
+        <!-- Injected dynamically via JS -->
+      </div>
+    </div>
+  </aside>
+
+  <!-- IN-PLACE LIVE EDIT MODAL (DÜZENLEME PENCERESİ) -->
+  <div class="edit-modal-wrapper" id="edit-modal" aria-hidden="true">
+    <div class="edit-modal-overlay" id="edit-modal-backdrop"></div>
+    <div class="edit-modal-dialog">
+      <div class="edit-modal-header">
+        <h2 id="edit-modal-title" data-i18n="edit_modal_title">Projeyi Düzenle</h2>
+        <p class="modal-subtitle" data-i18n="edit_modal_desc">Metinleri, bütçeyi, görselleri ve teknik parametreleri anında değiştirin.</p>
+        <button class="modal-close-btn" id="close-edit-modal" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <form class="edit-modal-form" id="edit-project-form">
+        <input type="hidden" id="edit-project-id">
+
+        <div class="form-row two-cols">
+          <div class="form-group">
+            <label for="edit-title-tr" data-i18n="label_title_tr">Başlık (Türkçe)</label>
+            <input type="text" id="edit-title-tr" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-title-en" data-i18n="label_title_en">Title (English)</label>
+            <input type="text" id="edit-title-en" required>
+          </div>
+        </div>
+
+        <div class="form-row two-cols">
+          <div class="form-group">
+            <label for="edit-tagline-tr" data-i18n="label_tagline_tr">Slogan / Kısa Açıklama (Türkçe)</label>
+            <input type="text" id="edit-tagline-tr" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-tagline-en" data-i18n="label_tagline_en">Tagline (English)</label>
+            <input type="text" id="edit-tagline-en" required>
+          </div>
+        </div>
+
+        <div class="form-row three-cols">
+          <div class="form-group">
+            <label for="edit-category-tr" data-i18n="label_category_tr">Kategori (TR)</label>
+            <input type="text" id="edit-category-tr">
+          </div>
+          <div class="form-group">
+            <label for="edit-author" data-i18n="label_author">Öneren / Yazar</label>
+            <input type="text" id="edit-author">
+          </div>
+          <div class="form-group">
+            <label for="edit-budget" data-i18n="label_budget">Bütçe Planı</label>
+            <input type="text" id="edit-budget">
+          </div>
+        </div>
+
+        <div class="form-row two-cols">
+          <div class="form-group">
+            <label for="edit-difficulty" data-i18n="label_difficulty">Zorluk Seviyesi (1 - 5)</label>
+            <div class="range-slider-group">
+              <input type="range" id="edit-difficulty" min="1" max="5" value="3" step="1">
+              <span class="range-val" id="edit-difficulty-val">3/5</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="edit-ownership-tr" data-i18n="label_owner">Proje Sorumlusu / Ekip (TR)</label>
+            <input type="text" id="edit-ownership-tr">
+          </div>
+        </div>
+
+        <!-- Color Palette Selection in Modal -->
+        <div class="form-group">
+          <label data-i18n="label_palette">Renk Paleti (5 Resmi Seçenek)</label>
+          <div class="palette-modal-picker" id="modal-palette-picker"></div>
+          <input type="hidden" id="edit-palette" value="gothic-noir">
+        </div>
+
+        <!-- AI Image Picker / Visual Selector -->
+        <div class="form-group">
+          <label data-i18n="label_gallery">Konsept Görsel Seçimi</label>
+          <div class="image-gallery-picker" id="gallery-picker">
+            <div class="gallery-choice" data-src="assets/powerbank_station_hero.jpg">
+              <img src="assets/powerbank_station_hero.jpg" alt="PowerHub">
+              <span>IUS PowerHub</span>
+            </div>
+            <div class="gallery-choice" data-src="assets/hackathon_event_hero.jpg">
+              <img src="assets/hackathon_event_hero.jpg" alt="DevHack">
+              <span>DevHack 2027</span>
+            </div>
+            <div class="gallery-choice" data-src="assets/ai_lab_hero.jpg">
+              <img src="assets/ai_lab_hero.jpg" alt="AI Lab">
+              <span>AI Labs Station</span>
+            </div>
+            <div class="gallery-choice" data-src="assets/dining_app_hero.jpg">
+              <img src="assets/dining_app_hero.jpg" alt="Dining App">
+              <span>IUS Dining App</span>
+            </div>
+            <div class="gallery-choice" data-src="assets/engineering_summit_hero.jpg">
+              <img src="assets/engineering_summit_hero.jpg" alt="Summit">
+              <span>TechSummit Keynote</span>
+            </div>
+          </div>
+          <input type="text" id="edit-image-url" placeholder="veya Özel Görsel URL'si yapıştırın..." data-i18n-ph="ph_custom_url">
+        </div>
+
+        <div class="form-row two-cols">
+          <div class="form-group">
+            <label for="edit-problem-tr" data-i18n="label_problem_tr">Problem / Gerekçe (Türkçe)</label>
+            <textarea id="edit-problem-tr" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="edit-problem-en" data-i18n="label_problem_en">Problem / Motivation (English)</label>
+            <textarea id="edit-problem-en" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="form-row two-cols">
+          <div class="form-group">
+            <label for="edit-solution-tr" data-i18n="label_solution_tr">Çözüm & Mühendislik İşleyişi (Türkçe)</label>
+            <textarea id="edit-solution-tr" rows="4"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="edit-solution-en" data-i18n="label_solution_en">Solution & Technical Operation (English)</label>
+            <textarea id="edit-solution-en" rows="4"></textarea>
+          </div>
+        </div>
+
+        <div class="form-row two-cols">
+          <div class="form-group">
+            <label for="edit-first-step-tr" data-i18n="label_first_step_tr">İlk Somut Adım (Türkçe)</label>
+            <input type="text" id="edit-first-step-tr">
+          </div>
+          <div class="form-group">
+            <label for="edit-first-step-en" data-i18n="label_first_step_en">First Concrete Step (English)</label>
+            <input type="text" id="edit-first-step-en">
+          </div>
+        </div>
+
+        <div class="edit-modal-footer">
+          <button type="button" class="btn-text-danger" id="btn-reset-project-default">
+            <span data-i18n="btn_reset">Varsayılana Sıfırla</span>
+          </button>
+          <div class="footer-actions-right">
+            <button type="button" class="btn-pill-secondary" id="btn-copy-project-json">
+              <span data-i18n="btn_copy_json">JSON Kopyala</span>
+            </button>
+            <button type="button" class="btn-pill-secondary" id="btn-download-project-json">
+              <span data-i18n="btn_download_json">JSON İndir</span>
+            </button>
+            <button type="submit" class="btn-glow-primary" id="btn-save-project-edits">
+              <span data-i18n="btn_save_changes">Değişiklikleri Kaydet</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- LOAD DATASET & APP LOGIC -->
+  <script src="projects-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+# API Keys and sensitive credentials
+config/linear_config.json
+.env
+*.env
+
+# Local sensitive form and member data
+data/
+scripts/*.txt
+extracted_form.txt
+assets/*_b64.txt
+.agents/
+*.log
+.system_generated/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Virtual environments
+.venv/
+venv/
+
+# Next.js and Node
+node_modules/
+.next/
+out/
+.env*.local
+

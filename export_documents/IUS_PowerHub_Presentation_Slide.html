@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IUS PowerHub — Smart Campus Powerbank Station Flow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #071120;
+      --card-bg: rgba(13, 30, 56, 0.85);
+      --card-border: rgba(148, 163, 184, 0.2);
+      --gold: #F59E0B;
+      --gold-glow: rgba(245, 158, 11, 0.25);
+      --cyan: #38BDF8;
+      --purple: #8B5CF6;
+      --purple-bg: rgba(139, 92, 246, 0.15);
+      --emerald: #10B981;
+      --text: #FFFFFF;
+      --text-sub: #94A3B8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      overflow-x: hidden;
+      background-image: radial-gradient(ellipse at 50% 10%, #102544 0%, #071120 75%);
+    }
+
+    .slide-wrapper {
+      max-width: 1400px;
+      width: 100%;
+      background: rgba(10, 22, 41, 0.9);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 48px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+
+    .header-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 6px 16px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+
+    .slide-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .slide-title span { color: var(--gold); }
+
+    .slide-desc {
+      font-size: 1.15rem;
+      color: var(--text-sub);
+      max-width: 800px;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+
+    /* 4-STEP GRID */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .step-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 22px;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .step-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(245, 158, 11, 0.5);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), 0 0 20px var(--gold-glow);
+    }
+
+    .step-badge {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      background: var(--purple-bg);
+      border: 2px solid rgba(139, 92, 246, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 22px;
+      box-shadow: 0 8px 24px rgba(139, 92, 246, 0.25);
+    }
+
+    .step-number {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 6px;
+    }
+
+    .step-heading {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 12px;
+      line-height: 1.25;
+    }
+
+    .step-text {
+      font-size: 0.95rem;
+      color: var(--text-sub);
+      line-height: 1.55;
+    }
+
+    /* BOTTOM BANNER: ENGINEERING SPECS */
+    .specs-banner {
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 18px;
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .spec-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .spec-icon {
+      font-size: 1.5rem;
+    }
+    .spec-text strong {
+      display: block;
+      font-size: 0.95rem;
+      color: #FFFFFF;
+    }
+    .spec-text span {
+      font-size: 0.82rem;
+      color: var(--text-sub);
+    }
+
+    @media (max-width: 1024px) {
+      .steps-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .steps-grid { grid-template-columns: 1fr; }
+      .slide-wrapper { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="slide-wrapper">
+    <div class="header-tag">⚡ IUS Engineering Club • Campus Tech Initiative</div>
+    <h1 class="slide-title">IUS PowerHub: <span>Smart Campus Station Flow</span></h1>
+    <p class="slide-desc">
+      A completely student-engineered, RFID-authenticated powerbank network across IUS classrooms, the central library, and cafeterias. Zero commercial cost, self-charging, and circular campus technology.
+    </p>
+
+    <div class="steps-grid">
+      <!-- Step 1 -->
+      <div class="step-card">
+        <div class="step-badge">💳</div>
+        <div class="step-number">STEP 01</div>
+        <h3 class="step-heading">Tap IUS Card</h3>
+        <p class="step-text">
+          Hold your student ID card against the RFID/NFC sensor on the station. Instant cryptographic student UID verification.
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-card">
+        <div class="step-badge">🔓</div>
+        <div class="step-number">STEP 02</div>
+        <h3 class="step-heading">Instant Unlock</h3>
+        <p class="step-text">
+          Green LED status light illuminates. The electromagnetic solenoid lock clicks open, smoothly releasing a 100% charged powerbank.
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-card">
+        <div class="step-badge">⚡</div>
+        <div class="step-number">STEP 03</div>
+        <h3 class="step-heading">Charge Anywhere</h3>
+        <p class="step-text">
+          Take the slim battery pack to your lecture amphi, computer lab, or library desk. Fast-charging with integrated USB-C & Lightning cables.
+        </p>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step-card">
+        <div class="step-badge">🔄</div>
+        <div class="step-number">STEP 04</div>
+        <h3 class="step-heading">Return & Auto-Charge</h3>
+        <p class="step-text">
+          Snap the powerbank back into any open dock slot. Magnetic pogo-pin rails lock the unit and trigger automated high-efficiency recharge.
+        </p>
+      </div>
+    </div>
+
+    <!-- Specs Banner -->
+    <div class="specs-banner">
+      <div class="spec-item">
+        <span class="spec-icon">🛡️</span>
+        <div class="spec-text">
+          <strong>Smart Safety & BMS</strong>
+          <span>Thermal sensors, short-circuit & overcharge protection</span>
+        </div>
+      </div>
+      <div class="spec-item">
+        <span class="spec-icon">🤖</span>
+        <div class="spec-text">
+          <strong>ESP32 / IoT Backend</strong>
+          <span>Real-time station occupancy monitoring & web dashboard</span>
+        </div>
+      </div>
+      <div class="spec-item">
+        <span class="spec-icon">⏱️</span>
+        <div class="spec-text">
+          <strong>2-Hour Free Campus Session</strong>
+          <span>Sustainable circular rotation for all enrolled students</span>
+        </div>
+      </div>
+      <div class="spec-item">
+        <span class="spec-icon">🎓</span>
+        <div class="spec-text">
+          <strong>100% Student-Engineered</strong>
+          <span>EE (Circuits) • CS (Firmware/DB) • ME (3D Casing)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,2202 @@
+{
+  "ts": "2026-10-12T10:32:12.214Z",
+  "source": "auto-on-generation-start",
+  "contexts": [
+    {
+      "ctxId": "main",
+      "frameUrl": "vscode-file://vscode-app/c:/Users/Kaan/AppData/Local/Programs/Antigravity%20IDE/resources/app/out/vs/code/electron-browser/workbench/workbench.html",
+      "totalBtns": 55,
+      "inputBoxFound": true,
+      "inputBoxBtns": [
+        {
+          "aria": "Add context",
+          "title": "",
+          "cls": "p-1.5 rounded-full text-secondary-foreground hover:bg-secondary cursor-pointer",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" class=\"w-4 h-4\"><path d=\"M450-450H220v-60H450V-740h60v230H740v60H510v230H450V-450Z\"></path><",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "P0-3",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 905,
+            "y": 1001,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "aria": "Select model, current: Gemini 3.8 Flash High",
+          "title": "",
+          "cls": "flex min-w-0 max-w-full cursor-pointer items-center h-7 gap-1 rounded-lg pr-1 pl-2 text-xs outline-n",
+          "text": "Gemini 3.8 Flash High",
+          "innerHTML": "<span class=\"min-w-0 select-none overflow-hidden text-ellipsis whitespace-nowrap text-xs text-secondary-foreground\">Gemini 3.8 Flash<span class=\"opacity-70\"> High</span></span><svg xmlns=\"http://www.w",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "model-selector-trigger",
+            "data-tooltip-id": "P0-15",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 934,
+            "y": 1001,
+            "w": 135,
+            "h": 28
+          }
+        },
+        {
+          "aria": "Record voice memo",
+          "title": "",
+          "cls": "flex items-center rounded-full transition-colors cursor-pointer w-7 h-7 justify-center p-1.5 bg-tran",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" class=\"w-4 h-4 text-secondary-foreground\"><path d=\"M409.04-449.04Q380-478.08 380-520V-760q0-",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "input-send-button-record-tooltip"
+          },
+          "visible": true,
+          "rect": {
+            "x": 1631,
+            "y": 1001,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "aria": "Cancel (Ctrl+D)",
+          "title": "",
+          "cls": "bg-secondary hover:opacity-90 w-7 h-7 rounded-full cursor-pointer flex items-center justify-center t",
+          "text": "",
+          "innerHTML": "<div class=\"bg-red-500 w-[0.625rem] h-[0.625rem] rounded-[1px]\"></div>",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-tooltip-id": "input-send-button-cancel-tooltip"
+          },
+          "visible": true,
+          "rect": {
+            "x": 1663,
+            "y": 1001,
+            "w": 28,
+            "h": 28
+          }
+        }
+      ],
+      "buttons": [
+        {
+          "aria": "Customize Layout...",
+          "title": "",
+          "cls": "action-label codicon codicon-configure-layout-icon",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1345,
+            "y": 6,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Open in Cider",
+          "title": "",
+          "cls": "action-label disabled codicon codicon-code",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "Reload Window",
+          "title": "",
+          "cls": "action-label disabled codicon codicon-refresh",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "Quick Open",
+          "title": "",
+          "cls": "action-label codicon codicon-search",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1441,
+            "y": 6,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Open Browser (Preview)",
+          "title": "",
+          "cls": "action-label codicon codicon-chrome",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1474,
+            "y": 6,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Editor-Specific Settings",
+          "title": "",
+          "cls": "action-label codicon codicon-gear",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1498,
+            "y": 6,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Profile",
+          "title": "",
+          "cls": "action-item icon antigravity-profile",
+          "text": "",
+          "innerHTML": "<div class=\"antigravity-icon\" style=\"width: 14px; height: 14px; padding-right: 2px; display: none;\"><svg viewBox=\"0 0 84 77\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><mask id=\"mask0_15_47\" style",
+          "hasSvg": true,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1522,
+            "y": 4,
+            "w": 43,
+            "h": 26
+          }
+        },
+        {
+          "aria": "Close (Ctrl+F4)",
+          "title": "",
+          "cls": "action-label codicon codicon-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 187,
+            "y": 40,
+            "w": 20,
+            "h": 20
+          }
+        },
+        {
+          "aria": "Close (Ctrl+F4)",
+          "title": "",
+          "cls": "action-label codicon codicon-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 358,
+            "y": 40,
+            "w": 20,
+            "h": 20
+          }
+        },
+        {
+          "aria": "Close (Ctrl+F4)",
+          "title": "",
+          "cls": "action-label codicon codicon-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 528,
+            "y": 40,
+            "w": 20,
+            "h": 20
+          }
+        },
+        {
+          "aria": "Close (Ctrl+F4)",
+          "title": "",
+          "cls": "action-label codicon codicon-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 699,
+            "y": 40,
+            "w": 20,
+            "h": 20
+          }
+        },
+        {
+          "aria": "Open Antigravity CLI in Side Terminal",
+          "title": "",
+          "cls": "action-label icon",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 751,
+            "y": 39,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Split Editor Right (Ctrl+ç) [Alt] Split Editor Down",
+          "title": "",
+          "cls": "action-label codicon codicon-split-horizontal",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 777,
+            "y": 39,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Go Back (Alt+LeftArrow)",
+          "title": "",
+          "cls": "action-label codicon codicon-arrow-left",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 803,
+            "y": 39,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Go Forward (Alt+RightArrow)",
+          "title": "",
+          "cls": "action-label codicon codicon-arrow-right",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 829,
+            "y": 39,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "More Actions...",
+          "title": "",
+          "cls": "action-label codicon codicon-toolbar-more",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 855,
+            "y": 39,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Hide Panel (Ctrl+J)",
+          "title": "",
+          "cls": "action-label codicon codicon-panel-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "Maximize Secondary Side Bar Size",
+          "title": "",
+          "cls": "action-label codicon codicon-auxiliarybar-maximize",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "Hide Secondary Side Bar",
+          "title": "",
+          "cls": "action-label codicon codicon-auxiliarybar-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "Agent Section",
+          "title": "",
+          "cls": "pane-header expanded hidden",
+          "text": "Agent",
+          "innerHTML": "<div class=\"twisty-container codicon-view-pane-container-expanded codicon\"></div><div class=\"icon codicon codicon-default-view-icon\" custom-hover=\"true\" aria-label=\"Agent\" style=\"color: var(--vscode-s",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "remote",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "",
+          "innerHTML": "<span class=\"codicon codicon-remote\"></span>",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 7,
+            "y": 1044,
+            "w": 32,
+            "h": 22
+          }
+        },
+        {
+          "aria": "ius-engineering-events (Git) - main, Checkout Branch/Tag...",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "main",
+          "innerHTML": "<span class=\"codicon codicon-git-branch\"></span> main",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 44,
+            "y": 1044,
+            "w": 35,
+            "h": 22
+          }
+        },
+        {
+          "aria": "ius-engineering-events (Git) - Synchronize Changes",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "",
+          "innerHTML": "<span class=\"codicon codicon-sync\"></span>",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 79,
+            "y": 1044,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "dashboard Cockpit, Antigravity Cockpit",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "Cockpit",
+          "innerHTML": "<span class=\"codicon codicon-dashboard\"></span> Cockpit",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 109,
+            "y": 1044,
+            "w": 69,
+            "h": 22
+          }
+        },
+        {
+          "aria": "broadcast Link: 3000, Antigravity Link Server Running - Click to Show QR",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "Link: 3000",
+          "innerHTML": "<span class=\"codicon codicon-broadcast\"></span> Link: 3000",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 185,
+            "y": 1044,
+            "w": 82,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Errors: 5, Warnings: 6",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "5 6",
+          "innerHTML": "<span class=\"codicon codicon-error\"></span> 5 <span class=\"codicon codicon-warning\"></span> 6",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 273,
+            "y": 1044,
+            "w": 65,
+            "h": 22
+          }
+        },
+        {
+          "aria": "cloud Ogrenci Gorev, ProjectId: ogrenci-gorev Billing Project: ogrenci-gorev",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "Ogrenci Gorev",
+          "innerHTML": "<span class=\"codicon codicon-cloud\"></span> Ogrenci Gorev",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 344,
+            "y": 1044,
+            "w": 106,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Notifications",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "",
+          "innerHTML": "<span class=\"codicon codicon-bell-dot\"></span>",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1675,
+            "y": 1044,
+            "w": 32,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Antigravity - Settings",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "Antigravity - Settings",
+          "innerHTML": "Antigravity - Settings",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1551,
+            "y": 1044,
+            "w": 121,
+            "h": 22
+          }
+        },
+        {
+          "aria": "zap Auto Accept: ON, Auto Accept is on. Click to stop.",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "Auto Accept: ON",
+          "innerHTML": "<span class=\"codicon codicon-zap\"></span> Auto Accept: ON",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1426,
+            "y": 1044,
+            "w": 118,
+            "h": 22
+          }
+        },
+        {
+          "aria": "radio-tower AG Bridge :11435, Antigravity Bridge — Click for status",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "AG Bridge :11435",
+          "innerHTML": "<span class=\"codicon codicon-radio-tower\"></span> AG Bridge :11435",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1299,
+            "y": 1044,
+            "w": 121,
+            "h": 22
+          }
+        },
+        {
+          "aria": "🟡 Gemini 100% 4h 48m | 🟢 Claude 48% 5d 11h | 💿 613.3 MB | credit-card 0, | | | | | |:--|--:|:--:|:--| | 🟢 Gemini | 100% | | ⏱ 4h 48m | | 🟡 Gemini Weekly | 32% | | ⏱ 2d 1h | | 🟢 Claude | 48% | | ⏱ 5d 11h | | 🟢 Claude Weekly | 48% | | ⏱ 5d 11h | | 💿 Cache | 613.3 MB | | | | $(credit-card) Google One AI | 0 | | |",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "🟡 Gemini 100% 4h 48m | 🟢 Claude 48% 5d 11h | 💿 613.3 MB |",
+          "innerHTML": "🟡 Gemini 100% 4h 48m | 🟢 Claude 48% 5d 11h | 💿 613.3 MB | <span class=\"codicon codicon-credit-card\"></span> 0",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 905,
+            "y": 1044,
+            "w": 388,
+            "h": 22
+          }
+        },
+        {
+          "aria": "loading~spin, Select Python Interpreter",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "",
+          "innerHTML": "<span class=\"codicon codicon-loading codicon-modifier-spin\"></span>",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 873,
+            "y": 1044,
+            "w": 26,
+            "h": 22
+          }
+        },
+        {
+          "aria": "account ufukkarabulut35@gmail.com (Google), Signed in as ufukkarabulut35@gmail.com",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "ufukkarabulut35@gmail.com (Google)",
+          "innerHTML": "<span class=\"codicon codicon-account\"></span> ufukkarabulut35@gmail.com (Google)",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 636,
+            "y": 1044,
+            "w": 231,
+            "h": 22
+          }
+        },
+        {
+          "aria": "",
+          "title": "",
+          "cls": "popover-trigger-element",
+          "text": "",
+          "innerHTML": "<a data-tooltip-id=\"799c94e2-a4f8-43bc-983e-c02c7184a860\" class=\"group relative text-sm text-foreground font-medium min-w-[24px] min-h-[24px] flex items-center justify-center !hover:text-ide-icon-colo",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-base-ui-click-trigger": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 1641,
+            "y": 41,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "No more older messages, showing 8 of 8",
+          "title": "",
+          "cls": "sr-only opacity-0",
+          "text": "No more older messages",
+          "innerHTML": "No more older messages",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 905,
+            "y": -1457,
+            "w": 1,
+            "h": 1
+          }
+        },
+        {
+          "aria": "Copy",
+          "title": "",
+          "cls": "text-muted-foreground hover:text-secondary-foreground transition-opacity pointer-events-auto p-1 cur",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" class=\"w-4 h-4\"><path d=\"M362.31-260Q332-260 311-281t-21-51.31V-787.69Q290-818 311-839t51.31",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "copy-user-message-P0-21"
+          },
+          "visible": true,
+          "rect": {
+            "x": 1625,
+            "y": -613,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Undo changes up to this point",
+          "title": "",
+          "cls": "text-muted-foreground hover:text-secondary-foreground transition-opacity pointer-events-auto p-1 cur",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" class=\"w-4 h-4\"><path d=\"M288.08-220v-60H575.15q62.62,0 107.77-41.35t45.15-102.12T682.92-525",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "revert-button",
+            "data-tooltip-id": "undo-tooltip-P0-22"
+          },
+          "visible": true,
+          "rect": {
+            "x": 1649,
+            "y": -613,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "",
+          "title": "",
+          "cls": "group flex items-center gap-1 w-full text-left text-sm px-2 min-h-8 py-1 rounded-lg tabular-nums sel",
+          "text": "Thought for 11s",
+          "innerHTML": "<span class=\"text-secondary-foreground\">Thought for 11s</span><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" class=\"h-3.5 w-3.5 shrink-0 tr",
+          "hasSvg": true,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 906,
+            "y": -1386,
+            "w": 774,
+            "h": 32
+          }
+        },
+        {
+          "aria": "",
+          "title": "c:\\Users\\Kaan\\Desktop\\IEC\\01_Resmi_Basvuru_Formlari\\student_club_registration_form_f252.docx",
+          "cls": "select-none inline-flex items-center gap-0.5 rounded-md align-middle text-sm font-medium text-foregr",
+          "text": "student_club_registration_form_f252.docx",
+          "innerHTML": "<div class=\"flex shrink-0\"><img src=\"/c:/Users/Kaan/AppData/Local/Programs/Antigravity IDE/resources/app/extensions/theme-symbols/src/icons/files/document.svg\" width=\"16px\" height=\"16px\" style=\"min-wi",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1103,
+            "y": -1076,
+            "w": 287,
+            "h": 23
+          }
+        }
+      ]
+    },
+    {
+      "ctxId": 4,
+      "frameUrl": "vscode-file://vscode-app/c:/Users/Kaan/AppData/Local/Programs/Antigravity%20IDE/resources/app/out/vs/code/electron-browser/workbench/workbench.html",
+      "totalBtns": 55,
+      "inputBoxFound": true,
+      "inputBoxBtns": [
+        {
+          "aria": "Add context",
+          "title": "",
+          "cls": "p-1.5 rounded-full text-secondary-foreground hover:bg-secondary cursor-pointer",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" class=\"w-4 h-4\"><path d=\"M450-450H220v-60H450V-740h60v230H740v60H510v230H450V-450Z\"></path><",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "P0-3",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 905,
+            "y": 1001,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "aria": "Select model, current: Gemini 3.8 Flash High",
+          "title": "",
+          "cls": "flex min-w-0 max-w-full cursor-pointer items-center h-7 gap-1 rounded-lg pr-1 pl-2 text-xs outline-n",
+          "text": "Gemini 3.8 Flash High",
+          "innerHTML": "<span class=\"min-w-0 select-none overflow-hidden text-ellipsis whitespace-nowrap text-xs text-secondary-foreground\">Gemini 3.8 Flash<span class=\"opacity-70\"> High</span></span><svg xmlns=\"http://www.w",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "model-selector-trigger",
+            "data-tooltip-id": "P0-15",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 934,
+            "y": 1001,
+            "w": 135,
+            "h": 28
+          }
+        },
+        {
+          "aria": "Record voice memo",
+          "title": "",
+          "cls": "flex items-center rounded-full transition-colors cursor-pointer w-7 h-7 justify-center p-1.5 bg-tran",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" class=\"w-4 h-4 text-secondary-foreground\"><path d=\"M409.04-449.04Q380-478.08 380-520V-760q0-",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "input-send-button-record-tooltip"
+          },
+          "visible": true,
+          "rect": {
+            "x": 1631,
+            "y": 1001,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "aria": "Cancel (Ctrl+D)",
+          "title": "",
+          "cls": "bg-secondary hover:opacity-90 w-7 h-7 rounded-full cursor-pointer flex items-center justify-center t",
+          "text": "",
+          "innerHTML": "<div class=\"bg-red-500 w-[0.625rem] h-[0.625rem] rounded-[1px]\"></div>",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-tooltip-id": "input-send-button-cancel-tooltip"
+          },
+          "visible": true,
+          "rect": {
+            "x": 1663,
+            "y": 1001,
+            "w": 28,
+            "h": 28
+          }
+        }
+      ],
+      "buttons": [
+        {
+          "aria": "Customize Layout...",
+          "title": "",
+          "cls": "action-label codicon codicon-configure-layout-icon",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1345,
+            "y": 6,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Open in Cider",
+          "title": "",
+          "cls": "action-label disabled codicon codicon-code",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "Reload Window",
+          "title": "",
+          "cls": "action-label disabled codicon codicon-refresh",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "Quick Open",
+          "title": "",
+          "cls": "action-label codicon codicon-search",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1441,
+            "y": 6,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Open Browser (Preview)",
+          "title": "",
+          "cls": "action-label codicon codicon-chrome",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1474,
+            "y": 6,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Editor-Specific Settings",
+          "title": "",
+          "cls": "action-label codicon codicon-gear",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1498,
+            "y": 6,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Profile",
+          "title": "",
+          "cls": "action-item icon antigravity-profile",
+          "text": "",
+          "innerHTML": "<div class=\"antigravity-icon\" style=\"width: 14px; height: 14px; padding-right: 2px; display: none;\"><svg viewBox=\"0 0 84 77\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><mask id=\"mask0_15_47\" style",
+          "hasSvg": true,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1522,
+            "y": 4,
+            "w": 43,
+            "h": 26
+          }
+        },
+        {
+          "aria": "Close (Ctrl+F4)",
+          "title": "",
+          "cls": "action-label codicon codicon-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 187,
+            "y": 40,
+            "w": 20,
+            "h": 20
+          }
+        },
+        {
+          "aria": "Close (Ctrl+F4)",
+          "title": "",
+          "cls": "action-label codicon codicon-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 358,
+            "y": 40,
+            "w": 20,
+            "h": 20
+          }
+        },
+        {
+          "aria": "Close (Ctrl+F4)",
+          "title": "",
+          "cls": "action-label codicon codicon-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 528,
+            "y": 40,
+            "w": 20,
+            "h": 20
+          }
+        },
+        {
+          "aria": "Close (Ctrl+F4)",
+          "title": "",
+          "cls": "action-label codicon codicon-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 699,
+            "y": 40,
+            "w": 20,
+            "h": 20
+          }
+        },
+        {
+          "aria": "Open Antigravity CLI in Side Terminal",
+          "title": "",
+          "cls": "action-label icon",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 751,
+            "y": 39,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Split Editor Right (Ctrl+ç) [Alt] Split Editor Down",
+          "title": "",
+          "cls": "action-label codicon codicon-split-horizontal",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 777,
+            "y": 39,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Go Back (Alt+LeftArrow)",
+          "title": "",
+          "cls": "action-label codicon codicon-arrow-left",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 803,
+            "y": 39,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Go Forward (Alt+RightArrow)",
+          "title": "",
+          "cls": "action-label codicon codicon-arrow-right",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 829,
+            "y": 39,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "More Actions...",
+          "title": "",
+          "cls": "action-label codicon codicon-toolbar-more",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 855,
+            "y": 39,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Hide Panel (Ctrl+J)",
+          "title": "",
+          "cls": "action-label codicon codicon-panel-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "Maximize Secondary Side Bar Size",
+          "title": "",
+          "cls": "action-label codicon codicon-auxiliarybar-maximize",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "Hide Secondary Side Bar",
+          "title": "",
+          "cls": "action-label codicon codicon-auxiliarybar-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "Agent Section",
+          "title": "",
+          "cls": "pane-header expanded hidden",
+          "text": "Agent",
+          "innerHTML": "<div class=\"twisty-container codicon-view-pane-container-expanded codicon\"></div><div class=\"icon codicon codicon-default-view-icon\" custom-hover=\"true\" aria-label=\"Agent\" style=\"color: var(--vscode-s",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "remote",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "",
+          "innerHTML": "<span class=\"codicon codicon-remote\"></span>",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 7,
+            "y": 1044,
+            "w": 32,
+            "h": 22
+          }
+        },
+        {
+          "aria": "ius-engineering-events (Git) - main, Checkout Branch/Tag...",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "main",
+          "innerHTML": "<span class=\"codicon codicon-git-branch\"></span> main",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 44,
+            "y": 1044,
+            "w": 35,
+            "h": 22
+          }
+        },
+        {
+          "aria": "ius-engineering-events (Git) - Synchronize Changes",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "",
+          "innerHTML": "<span class=\"codicon codicon-sync\"></span>",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 79,
+            "y": 1044,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "dashboard Cockpit, Antigravity Cockpit",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "Cockpit",
+          "innerHTML": "<span class=\"codicon codicon-dashboard\"></span> Cockpit",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 109,
+            "y": 1044,
+            "w": 69,
+            "h": 22
+          }
+        },
+        {
+          "aria": "broadcast Link: 3000, Antigravity Link Server Running - Click to Show QR",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "Link: 3000",
+          "innerHTML": "<span class=\"codicon codicon-broadcast\"></span> Link: 3000",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 185,
+            "y": 1044,
+            "w": 82,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Errors: 5, Warnings: 6",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "5 6",
+          "innerHTML": "<span class=\"codicon codicon-error\"></span> 5 <span class=\"codicon codicon-warning\"></span> 6",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 273,
+            "y": 1044,
+            "w": 65,
+            "h": 22
+          }
+        },
+        {
+          "aria": "cloud Ogrenci Gorev, ProjectId: ogrenci-gorev Billing Project: ogrenci-gorev",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "Ogrenci Gorev",
+          "innerHTML": "<span class=\"codicon codicon-cloud\"></span> Ogrenci Gorev",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 344,
+            "y": 1044,
+            "w": 106,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Notifications",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "",
+          "innerHTML": "<span class=\"codicon codicon-bell-dot\"></span>",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1675,
+            "y": 1044,
+            "w": 32,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Antigravity - Settings",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "Antigravity - Settings",
+          "innerHTML": "Antigravity - Settings",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1551,
+            "y": 1044,
+            "w": 121,
+            "h": 22
+          }
+        },
+        {
+          "aria": "zap Auto Accept: ON, Auto Accept is on. Click to stop.",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "Auto Accept: ON",
+          "innerHTML": "<span class=\"codicon codicon-zap\"></span> Auto Accept: ON",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1426,
+            "y": 1044,
+            "w": 118,
+            "h": 22
+          }
+        },
+        {
+          "aria": "radio-tower AG Bridge :11435, Antigravity Bridge — Click for status",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "AG Bridge :11435",
+          "innerHTML": "<span class=\"codicon codicon-radio-tower\"></span> AG Bridge :11435",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1299,
+            "y": 1044,
+            "w": 121,
+            "h": 22
+          }
+        },
+        {
+          "aria": "🟡 Gemini 100% 4h 48m | 🟢 Claude 48% 5d 11h | 💿 613.3 MB | credit-card 0, | | | | | |:--|--:|:--:|:--| | 🟢 Gemini | 100% | | ⏱ 4h 48m | | 🟡 Gemini Weekly | 32% | | ⏱ 2d 1h | | 🟢 Claude | 48% | | ⏱ 5d 11h | | 🟢 Claude Weekly | 48% | | ⏱ 5d 11h | | 💿 Cache | 613.3 MB | | | | $(credit-card) Google One AI | 0 | | |",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "🟡 Gemini 100% 4h 48m | 🟢 Claude 48% 5d 11h | 💿 613.3 MB |",
+          "innerHTML": "🟡 Gemini 100% 4h 48m | 🟢 Claude 48% 5d 11h | 💿 613.3 MB | <span class=\"codicon codicon-credit-card\"></span> 0",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 905,
+            "y": 1044,
+            "w": 388,
+            "h": 22
+          }
+        },
+        {
+          "aria": "loading~spin, Select Python Interpreter",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "",
+          "innerHTML": "<span class=\"codicon codicon-loading codicon-modifier-spin\"></span>",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 873,
+            "y": 1044,
+            "w": 26,
+            "h": 22
+          }
+        },
+        {
+          "aria": "account ufukkarabulut35@gmail.com (Google), Signed in as ufukkarabulut35@gmail.com",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "ufukkarabulut35@gmail.com (Google)",
+          "innerHTML": "<span class=\"codicon codicon-account\"></span> ufukkarabulut35@gmail.com (Google)",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 636,
+            "y": 1044,
+            "w": 231,
+            "h": 22
+          }
+        },
+        {
+          "aria": "",
+          "title": "",
+          "cls": "popover-trigger-element",
+          "text": "",
+          "innerHTML": "<a data-tooltip-id=\"799c94e2-a4f8-43bc-983e-c02c7184a860\" class=\"group relative text-sm text-foreground font-medium min-w-[24px] min-h-[24px] flex items-center justify-center !hover:text-ide-icon-colo",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-base-ui-click-trigger": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 1641,
+            "y": 41,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "No more older messages, showing 8 of 8",
+          "title": "",
+          "cls": "sr-only opacity-0",
+          "text": "No more older messages",
+          "innerHTML": "No more older messages",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 905,
+            "y": -1457,
+            "w": 1,
+            "h": 1
+          }
+        },
+        {
+          "aria": "Copy",
+          "title": "",
+          "cls": "text-muted-foreground hover:text-secondary-foreground transition-opacity pointer-events-auto p-1 cur",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" class=\"w-4 h-4\"><path d=\"M362.31-260Q332-260 311-281t-21-51.31V-787.69Q290-818 311-839t51.31",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "copy-user-message-P0-21"
+          },
+          "visible": true,
+          "rect": {
+            "x": 1625,
+            "y": -613,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Undo changes up to this point",
+          "title": "",
+          "cls": "text-muted-foreground hover:text-secondary-foreground transition-opacity pointer-events-auto p-1 cur",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" class=\"w-4 h-4\"><path d=\"M288.08-220v-60H575.15q62.62,0 107.77-41.35t45.15-102.12T682.92-525",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "revert-button",
+            "data-tooltip-id": "undo-tooltip-P0-22"
+          },
+          "visible": true,
+          "rect": {
+            "x": 1649,
+            "y": -613,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "",
+          "title": "",
+          "cls": "group flex items-center gap-1 w-full text-left text-sm px-2 min-h-8 py-1 rounded-lg tabular-nums sel",
+          "text": "Thought for 11s",
+          "innerHTML": "<span class=\"text-secondary-foreground\">Thought for 11s</span><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" class=\"h-3.5 w-3.5 shrink-0 tr",
+          "hasSvg": true,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 906,
+            "y": -1386,
+            "w": 774,
+            "h": 32
+          }
+        },
+        {
+          "aria": "",
+          "title": "c:\\Users\\Kaan\\Desktop\\IEC\\01_Resmi_Basvuru_Formlari\\student_club_registration_form_f252.docx",
+          "cls": "select-none inline-flex items-center gap-0.5 rounded-md align-middle text-sm font-medium text-foregr",
+          "text": "student_club_registration_form_f252.docx",
+          "innerHTML": "<div class=\"flex shrink-0\"><img src=\"/c:/Users/Kaan/AppData/Local/Programs/Antigravity IDE/resources/app/extensions/theme-symbols/src/icons/files/document.svg\" width=\"16px\" height=\"16px\" style=\"min-wi",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1103,
+            "y": -1076,
+            "w": 287,
+            "h": 23
+          }
+        }
+      ]
+    },
+    {
+      "ctxId": 3,
+      "frameUrl": "vscode-file://vscode-app/c:/Users/Kaan/AppData/Local/Programs/Antigravity%20IDE/resources/app/out/vs/code/electron-browser/workbench/workbench.html",
+      "totalBtns": 55,
+      "inputBoxFound": true,
+      "inputBoxBtns": [
+        {
+          "aria": "Add context",
+          "title": "",
+          "cls": "p-1.5 rounded-full text-secondary-foreground hover:bg-secondary cursor-pointer",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" class=\"w-4 h-4\"><path d=\"M450-450H220v-60H450V-740h60v230H740v60H510v230H450V-450Z\"></path><",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "P0-3",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 905,
+            "y": 1001,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "aria": "Select model, current: Gemini 3.8 Flash High",
+          "title": "",
+          "cls": "flex min-w-0 max-w-full cursor-pointer items-center h-7 gap-1 rounded-lg pr-1 pl-2 text-xs outline-n",
+          "text": "Gemini 3.8 Flash High",
+          "innerHTML": "<span class=\"min-w-0 select-none overflow-hidden text-ellipsis whitespace-nowrap text-xs text-secondary-foreground\">Gemini 3.8 Flash<span class=\"opacity-70\"> High</span></span><svg xmlns=\"http://www.w",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "model-selector-trigger",
+            "data-tooltip-id": "P0-15",
+            "data-no-drag": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 934,
+            "y": 1001,
+            "w": 135,
+            "h": 28
+          }
+        },
+        {
+          "aria": "Record voice memo",
+          "title": "",
+          "cls": "flex items-center rounded-full transition-colors cursor-pointer w-7 h-7 justify-center p-1.5 bg-tran",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" class=\"w-4 h-4 text-secondary-foreground\"><path d=\"M409.04-449.04Q380-478.08 380-520V-760q0-",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "input-send-button-record-tooltip"
+          },
+          "visible": true,
+          "rect": {
+            "x": 1631,
+            "y": 1001,
+            "w": 28,
+            "h": 28
+          }
+        },
+        {
+          "aria": "Cancel (Ctrl+D)",
+          "title": "",
+          "cls": "bg-secondary hover:opacity-90 w-7 h-7 rounded-full cursor-pointer flex items-center justify-center t",
+          "text": "",
+          "innerHTML": "<div class=\"bg-red-500 w-[0.625rem] h-[0.625rem] rounded-[1px]\"></div>",
+          "hasSvg": false,
+          "dataAttrs": {
+            "data-tooltip-id": "input-send-button-cancel-tooltip"
+          },
+          "visible": true,
+          "rect": {
+            "x": 1663,
+            "y": 1001,
+            "w": 28,
+            "h": 28
+          }
+        }
+      ],
+      "buttons": [
+        {
+          "aria": "Customize Layout...",
+          "title": "",
+          "cls": "action-label codicon codicon-configure-layout-icon",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1345,
+            "y": 6,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Open in Cider",
+          "title": "",
+          "cls": "action-label disabled codicon codicon-code",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "Reload Window",
+          "title": "",
+          "cls": "action-label disabled codicon codicon-refresh",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "Quick Open",
+          "title": "",
+          "cls": "action-label codicon codicon-search",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1441,
+            "y": 6,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Open Browser (Preview)",
+          "title": "",
+          "cls": "action-label codicon codicon-chrome",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1474,
+            "y": 6,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Editor-Specific Settings",
+          "title": "",
+          "cls": "action-label codicon codicon-gear",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1498,
+            "y": 6,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Profile",
+          "title": "",
+          "cls": "action-item icon antigravity-profile",
+          "text": "",
+          "innerHTML": "<div class=\"antigravity-icon\" style=\"width: 14px; height: 14px; padding-right: 2px; display: none;\"><svg viewBox=\"0 0 84 77\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><mask id=\"mask0_15_47\" style",
+          "hasSvg": true,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1522,
+            "y": 4,
+            "w": 43,
+            "h": 26
+          }
+        },
+        {
+          "aria": "Close (Ctrl+F4)",
+          "title": "",
+          "cls": "action-label codicon codicon-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 187,
+            "y": 40,
+            "w": 20,
+            "h": 20
+          }
+        },
+        {
+          "aria": "Close (Ctrl+F4)",
+          "title": "",
+          "cls": "action-label codicon codicon-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 358,
+            "y": 40,
+            "w": 20,
+            "h": 20
+          }
+        },
+        {
+          "aria": "Close (Ctrl+F4)",
+          "title": "",
+          "cls": "action-label codicon codicon-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 528,
+            "y": 40,
+            "w": 20,
+            "h": 20
+          }
+        },
+        {
+          "aria": "Close (Ctrl+F4)",
+          "title": "",
+          "cls": "action-label codicon codicon-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 699,
+            "y": 40,
+            "w": 20,
+            "h": 20
+          }
+        },
+        {
+          "aria": "Open Antigravity CLI in Side Terminal",
+          "title": "",
+          "cls": "action-label icon",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 751,
+            "y": 39,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Split Editor Right (Ctrl+ç) [Alt] Split Editor Down",
+          "title": "",
+          "cls": "action-label codicon codicon-split-horizontal",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 777,
+            "y": 39,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Go Back (Alt+LeftArrow)",
+          "title": "",
+          "cls": "action-label codicon codicon-arrow-left",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 803,
+            "y": 39,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Go Forward (Alt+RightArrow)",
+          "title": "",
+          "cls": "action-label codicon codicon-arrow-right",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 829,
+            "y": 39,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "More Actions...",
+          "title": "",
+          "cls": "action-label codicon codicon-toolbar-more",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 855,
+            "y": 39,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Hide Panel (Ctrl+J)",
+          "title": "",
+          "cls": "action-label codicon codicon-panel-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "Maximize Secondary Side Bar Size",
+          "title": "",
+          "cls": "action-label codicon codicon-auxiliarybar-maximize",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "Hide Secondary Side Bar",
+          "title": "",
+          "cls": "action-label codicon codicon-auxiliarybar-close",
+          "text": "",
+          "innerHTML": "",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "Agent Section",
+          "title": "",
+          "cls": "pane-header expanded hidden",
+          "text": "Agent",
+          "innerHTML": "<div class=\"twisty-container codicon-view-pane-container-expanded codicon\"></div><div class=\"icon codicon codicon-default-view-icon\" custom-hover=\"true\" aria-label=\"Agent\" style=\"color: var(--vscode-s",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "aria": "remote",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "",
+          "innerHTML": "<span class=\"codicon codicon-remote\"></span>",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 7,
+            "y": 1044,
+            "w": 32,
+            "h": 22
+          }
+        },
+        {
+          "aria": "ius-engineering-events (Git) - main, Checkout Branch/Tag...",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "main",
+          "innerHTML": "<span class=\"codicon codicon-git-branch\"></span> main",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 44,
+            "y": 1044,
+            "w": 35,
+            "h": 22
+          }
+        },
+        {
+          "aria": "ius-engineering-events (Git) - Synchronize Changes",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "",
+          "innerHTML": "<span class=\"codicon codicon-sync\"></span>",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 79,
+            "y": 1044,
+            "w": 22,
+            "h": 22
+          }
+        },
+        {
+          "aria": "dashboard Cockpit, Antigravity Cockpit",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "Cockpit",
+          "innerHTML": "<span class=\"codicon codicon-dashboard\"></span> Cockpit",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 109,
+            "y": 1044,
+            "w": 69,
+            "h": 22
+          }
+        },
+        {
+          "aria": "broadcast Link: 3000, Antigravity Link Server Running - Click to Show QR",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "Link: 3000",
+          "innerHTML": "<span class=\"codicon codicon-broadcast\"></span> Link: 3000",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 185,
+            "y": 1044,
+            "w": 82,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Errors: 5, Warnings: 6",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "5 6",
+          "innerHTML": "<span class=\"codicon codicon-error\"></span> 5 <span class=\"codicon codicon-warning\"></span> 6",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 273,
+            "y": 1044,
+            "w": 65,
+            "h": 22
+          }
+        },
+        {
+          "aria": "cloud Ogrenci Gorev, ProjectId: ogrenci-gorev Billing Project: ogrenci-gorev",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "Ogrenci Gorev",
+          "innerHTML": "<span class=\"codicon codicon-cloud\"></span> Ogrenci Gorev",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 344,
+            "y": 1044,
+            "w": 106,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Notifications",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "",
+          "innerHTML": "<span class=\"codicon codicon-bell-dot\"></span>",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1675,
+            "y": 1044,
+            "w": 32,
+            "h": 22
+          }
+        },
+        {
+          "aria": "Antigravity - Settings",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "Antigravity - Settings",
+          "innerHTML": "Antigravity - Settings",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1551,
+            "y": 1044,
+            "w": 121,
+            "h": 22
+          }
+        },
+        {
+          "aria": "zap Auto Accept: ON, Auto Accept is on. Click to stop.",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "Auto Accept: ON",
+          "innerHTML": "<span class=\"codicon codicon-zap\"></span> Auto Accept: ON",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1426,
+            "y": 1044,
+            "w": 118,
+            "h": 22
+          }
+        },
+        {
+          "aria": "radio-tower AG Bridge :11435, Antigravity Bridge — Click for status",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "AG Bridge :11435",
+          "innerHTML": "<span class=\"codicon codicon-radio-tower\"></span> AG Bridge :11435",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1299,
+            "y": 1044,
+            "w": 121,
+            "h": 22
+          }
+        },
+        {
+          "aria": "🟡 Gemini 100% 4h 48m | 🟢 Claude 48% 5d 11h | 💿 613.3 MB | credit-card 0, | | | | | |:--|--:|:--:|:--| | 🟢 Gemini | 100% | | ⏱ 4h 48m | | 🟡 Gemini Weekly | 32% | | ⏱ 2d 1h | | 🟢 Claude | 48% | | ⏱ 5d 11h | | 🟢 Claude Weekly | 48% | | ⏱ 5d 11h | | 💿 Cache | 613.3 MB | | | | $(credit-card) Google One AI | 0 | | |",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "🟡 Gemini 100% 4h 48m | 🟢 Claude 48% 5d 11h | 💿 613.3 MB |",
+          "innerHTML": "🟡 Gemini 100% 4h 48m | 🟢 Claude 48% 5d 11h | 💿 613.3 MB | <span class=\"codicon codicon-credit-card\"></span> 0",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 905,
+            "y": 1044,
+            "w": 388,
+            "h": 22
+          }
+        },
+        {
+          "aria": "loading~spin, Select Python Interpreter",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "",
+          "innerHTML": "<span class=\"codicon codicon-loading codicon-modifier-spin\"></span>",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 873,
+            "y": 1044,
+            "w": 26,
+            "h": 22
+          }
+        },
+        {
+          "aria": "account ufukkarabulut35@gmail.com (Google), Signed in as ufukkarabulut35@gmail.com",
+          "title": "",
+          "cls": "statusbar-item-label",
+          "text": "ufukkarabulut35@gmail.com (Google)",
+          "innerHTML": "<span class=\"codicon codicon-account\"></span> ufukkarabulut35@gmail.com (Google)",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 636,
+            "y": 1044,
+            "w": 231,
+            "h": 22
+          }
+        },
+        {
+          "aria": "",
+          "title": "",
+          "cls": "popover-trigger-element",
+          "text": "",
+          "innerHTML": "<a data-tooltip-id=\"799c94e2-a4f8-43bc-983e-c02c7184a860\" class=\"group relative text-sm text-foreground font-medium min-w-[24px] min-h-[24px] flex items-center justify-center !hover:text-ide-icon-colo",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-base-ui-click-trigger": ""
+          },
+          "visible": true,
+          "rect": {
+            "x": 1641,
+            "y": 41,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "No more older messages, showing 8 of 8",
+          "title": "",
+          "cls": "sr-only opacity-0",
+          "text": "No more older messages",
+          "innerHTML": "No more older messages",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 905,
+            "y": -1457,
+            "w": 1,
+            "h": 1
+          }
+        },
+        {
+          "aria": "Copy",
+          "title": "",
+          "cls": "text-muted-foreground hover:text-secondary-foreground transition-opacity pointer-events-auto p-1 cur",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" class=\"w-4 h-4\"><path d=\"M362.31-260Q332-260 311-281t-21-51.31V-787.69Q290-818 311-839t51.31",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-tooltip-id": "copy-user-message-P0-21"
+          },
+          "visible": true,
+          "rect": {
+            "x": 1625,
+            "y": -613,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "Undo changes up to this point",
+          "title": "",
+          "cls": "text-muted-foreground hover:text-secondary-foreground transition-opacity pointer-events-auto p-1 cur",
+          "text": "",
+          "innerHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" class=\"w-4 h-4\"><path d=\"M288.08-220v-60H575.15q62.62,0 107.77-41.35t45.15-102.12T682.92-525",
+          "hasSvg": true,
+          "dataAttrs": {
+            "data-testid": "revert-button",
+            "data-tooltip-id": "undo-tooltip-P0-22"
+          },
+          "visible": true,
+          "rect": {
+            "x": 1649,
+            "y": -613,
+            "w": 24,
+            "h": 24
+          }
+        },
+        {
+          "aria": "",
+          "title": "",
+          "cls": "group flex items-center gap-1 w-full text-left text-sm px-2 min-h-8 py-1 rounded-lg tabular-nums sel",
+          "text": "Thought for 11s",
+          "innerHTML": "<span class=\"text-secondary-foreground\">Thought for 11s</span><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 -960 960 960\" fill=\"currentColor\" class=\"h-3.5 w-3.5 shrink-0 tr",
+          "hasSvg": true,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 906,
+            "y": -1386,
+            "w": 774,
+            "h": 32
+          }
+        },
+        {
+          "aria": "",
+          "title": "c:\\Users\\Kaan\\Desktop\\IEC\\01_Resmi_Basvuru_Formlari\\student_club_registration_form_f252.docx",
+          "cls": "select-none inline-flex items-center gap-0.5 rounded-md align-middle text-sm font-medium text-foregr",
+          "text": "student_club_registration_form_f252.docx",
+          "innerHTML": "<div class=\"flex shrink-0\"><img src=\"/c:/Users/Kaan/AppData/Local/Programs/Antigravity IDE/resources/app/extensions/theme-symbols/src/icons/files/document.svg\" width=\"16px\" height=\"16px\" style=\"min-wi",
+          "hasSvg": false,
+          "dataAttrs": {},
+          "visible": true,
+          "rect": {
+            "x": 1103,
+            "y": -1076,
+            "w": 287,
+            "h": 23
+          }
+        }
+      ]
+    }
+  ]
+}

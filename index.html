@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IEC // Deep Space Observatory - Knowledge Graph</title>
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070913;
+      --panel-bg: rgba(13, 17, 34, 0.84);
+      --panel-border: rgba(0, 242, 254, 0.28);
+      --cyan-neon: #00f2fe;
+      --purple-neon: #9d4edd;
+      --pink-neon: #ff007f;
+      --gold-neon: #ffd166;
+      --green-neon: #06d6a0;
+      --blue-neon: #3a86ff;
+      --orange-neon: #fb5607;
+      --text-main: #e0f2fe;
+      --text-dim: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body, html {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-main);
+    }
+
+    #space-canvas {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    #network-container {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 1;
+    }
+
+    /* TOP HUD BAR */
+    .hud-bar {
+      position: absolute;
+      top: 16px; left: 20px; right: 20px;
+      height: 64px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 242, 254, 0.12), inset 0 0 12px rgba(0, 242, 254, 0.05);
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #00f2fe 0%, #ff007f 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+    }
+    .brand-sub {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      border-left: 1px solid rgba(255,255,255,0.15);
+      padding-left: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-counters {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .stat-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.74rem;
+      background: rgba(0, 242, 254, 0.06);
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 242, 254, 0.15);
+      white-space: nowrap;
+    }
+    .stat-pill span.num {
+      color: var(--cyan-neon);
+      font-weight: 800;
+      font-family: 'Orbitron', sans-serif;
+    }
+    .stat-pill.special-pill {
+      background: rgba(255, 0, 127, 0.08);
+      border-color: rgba(255, 0, 127, 0.25);
+    }
+    .stat-pill.special-pill span.num {
+      color: var(--pink-neon);
+    }
+    .stat-pill.tasks-pill {
+      background: rgba(6, 214, 160, 0.08);
+      border-color: rgba(6, 214, 160, 0.25);
+    }
+    .stat-pill.tasks-pill span.num {
+      color: var(--green-neon);
+    }
+
+    /* ACTION CONTROLS */
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cyber-btn {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      color: var(--text-main);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none;
+      white-space: nowrap;
+    }
+    .cyber-btn:hover {
+      background: rgba(0, 242, 254, 0.18);
+      border-color: var(--cyan-neon);
+      box-shadow: 0 0 16px rgba(0, 242, 254, 0.4);
+      transform: translateY(-1px);
+    }
+    .cyber-btn.active {
+      background: rgba(255, 209, 102, 0.25);
+      border-color: var(--gold-neon);
+      color: var(--gold-neon);
+      box-shadow: 0 0 18px rgba(255, 209, 102, 0.45);
+    }
+    .cyber-btn.pink-active {
+      background: rgba(255, 0, 127, 0.25);
+      border-color: var(--pink-neon);
+      color: var(--pink-neon);
+      box-shadow: 0 0 18px rgba(255, 0, 127, 0.45);
+    }
+
+    /* SEARCH BAR (CTRL+K) */
+    .search-wrapper {
+      position: absolute;
+      top: 90px;
+      left: 20px;
+      width: 340px;
+      z-index: 10;
+    }
+    .search-input-box {
+      width: 100%;
+      background: var(--panel-bg);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      outline: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      transition: all 0.2s;
+    }
+    .search-input-box:focus {
+      border-color: var(--cyan-neon);
+      box-shadow: 0 0 16px rgba(0, 242, 254, 0.35);
+    }
+    .search-results {
+      position: absolute;
+      top: 48px; left: 0; width: 100%;
+      background: rgba(10, 15, 30, 0.96);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      max-height: 320px;
+      overflow-y: auto;
+      display: none;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    }
+    .search-item {
+      padding: 10px 14px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: background 0.15s;
+    }
+    .search-item:hover {
+      background: rgba(0, 242, 254, 0.15);
+      color: var(--cyan-neon);
+    }
+
+    /* SECTOR NAV BAR */
+    .sector-bar {
+      position: absolute;
+      top: 90px;
+      left: 375px;
+      height: 42px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 12px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    .sector-bar-title {
+      font-size: 0.65rem;
+      color: var(--cyan-neon);
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-right: 4px;
+      white-space: nowrap;
+    }
+    .sector-pill {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(0, 242, 254, 0.25);
+      color: var(--text-main);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.70rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .sector-pill:hover {
+      background: rgba(0, 242, 254, 0.2);
+      border-color: var(--cyan-neon);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .sector-pill.active {
+      background: rgba(157, 78, 221, 0.35);
+      border-color: var(--purple-neon);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(157, 78, 221, 0.5);
+    }
+
+    /* RIGHT HOLOGRAPHIC DETAIL PANEL */
+    .hologram-panel {
+      position: absolute;
+      top: 90px;
+      right: 20px;
+      bottom: 20px;
+      width: 440px;
+      z-index: 10;
+      background: var(--panel-bg);
+      backdrop-filter: blur(24px);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(0, 242, 254, 0.04);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(480px);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .hologram-panel.open {
+      transform: translateX(0);
+    }
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(0, 242, 254, 0.2);
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+    }
+    .panel-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.05rem;
+      color: #fff;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .badge-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+    .panel-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .state-badge {
+      font-size: 0.65rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+    .state-todo { background: rgba(255, 209, 102, 0.2); border: 1px solid #ffd166; color: #ffd166; }
+    .state-in-progress { background: rgba(6, 214, 160, 0.2); border: 1px solid #06d6a0; color: #06d6a0; }
+    .state-backlog { background: rgba(0, 242, 254, 0.15); border: 1px solid #00f2fe; color: #00f2fe; }
+    .state-done { background: rgba(167, 139, 250, 0.2); border: 1px solid #a78bfa; color: #a78bfa; }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1.3rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+    }
+    .close-btn:hover { color: #fff; }
+
+    .panel-body {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-right: 4px;
+    }
+    .prop-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .prop-label {
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      color: var(--cyan-neon);
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+    .prop-val {
+      font-size: 0.78rem;
+      color: var(--text-main);
+      line-height: 1.45;
+      white-space: pre-line;
+    }
+    .file-chip {
+      background: rgba(0, 242, 254, 0.08);
+      border: 1px solid rgba(0, 242, 254, 0.2);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      color: var(--cyan-neon);
+      word-break: break-all;
+    }
+    .chips-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .conn-chip {
+      background: rgba(157, 78, 221, 0.15);
+      border: 1px solid rgba(157, 78, 221, 0.35);
+      color: #e0aaff;
+      padding: 4px 9px;
+      border-radius: 6px;
+      font-size: 0.68rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .conn-chip:hover {
+      background: rgba(157, 78, 221, 0.35);
+      border-color: #c77dff;
+      transform: translateY(-1px);
+    }
+    .task-conn-chip {
+      background: rgba(0, 242, 254, 0.12);
+      border: 1px solid rgba(0, 242, 254, 0.35);
+      color: var(--cyan-neon);
+      padding: 4px 9px;
+      border-radius: 6px;
+      font-size: 0.68rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .task-conn-chip:hover {
+      background: rgba(0, 242, 254, 0.3);
+      border-color: #fff;
+    }
+
+    .linear-open-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #5e6ad2 0%, #4b52b2 100%);
+      border: 1px solid #7d89f5;
+      color: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 6px;
+      transition: all 0.2s;
+    }
+    .linear-open-btn:hover {
+      box-shadow: 0 0 18px rgba(94, 106, 210, 0.6);
+      transform: translateY(-1px);
+      filter: brightness(1.15);
+    }
+
+    .isolate-btn {
+      margin-top: 10px;
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(79, 172, 254, 0.2) 100%);
+      border: 1px solid var(--cyan-neon);
+      color: var(--cyan-neon);
+      padding: 11px;
+      border-radius: 8px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+    .isolate-btn:hover {
+      background: var(--cyan-neon);
+      color: #000;
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
+    }
+    .isolate-btn.active {
+      background: var(--pink-neon);
+      border-color: var(--pink-neon);
+      color: #fff;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+    ::-webkit-scrollbar-thumb { background: rgba(0, 242, 254, 0.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--cyan-neon); }
+  </style>
+<script>window.EMBEDDED_GRAPH_DATA = {"project": "IUS Engineering Club", "generated_at": "2026-10-12T22:25:46.199206", "stats": {"total_nodes": 34, "total_edges": 84, "linear_tasks": 9, "completed_tasks": 4, "registered_members": 16, "board_members": 4}, "nodes": [{"id": "platform_linear", "label": "Linear.app Task Hub", "cluster": "Infrastructure", "isGodNode": true, "type": "Software", "file": "scripts/linear_manager.py", "url": "https://linear.app/ius-engineering-events", "details": "Merkezi görev ve sprint motoru. Antigravity IDE ile çift yönlü GraphQL API senkronizasyonu (13 aktif görev kayıtlı).", "x": 0, "y": -220}, {"id": "tool_ide", "label": "Antigravity IDE & Automation", "cluster": "Infrastructure", "isGodNode": false, "type": "Engine", "file": "scripts/sync_observatory.py", "details": "Google DeepMind Antigravity IDE ortamı. Canlı veri çekiciler, Python otomasyonları ve Observatory harita jeneratörü.", "x": -260, "y": -220}, {"id": "sheet_responses", "label": "Google Sheets (22 Kayıt / 16 Normal Üye)", "cluster": "Data", "isGodNode": false, "type": "Dataset", "file": "data/form_responses.csv", "url": "https://docs.google.com/spreadsheets/d/1pLeiQpBNSfDFPGa5IqLbSGoz0Z2Lm3Olu-mq3XZhzbQ/edit?usp=sharing", "details": "Canlı Google Form yanıt tablosu. Mahmut İhsan ve scriptler tarafından izlenir. 16 onaylı aktif üye kayıtlı.", "x": 520, "y": -60}, {"id": "advisor", "label": "Prof. Dr. Leila Miller (Faculty Advisor - Onaylandı)", "cluster": "Governance", "isGodNode": true, "type": "Academic", "file": "templates/ACADEMIC_ADVISOR_INVITATION.md", "email": "lmiller@ius.edu.ba", "details": "FENS Fakültesinden resmi kulüp akademik danışmanı (Full Professor Dr.). Rektörlük, dekanlık ve SCC nezdinde kurumsal akademik güvence sağlar. Form F252 için tek fiziki ıslak imzası alınacaktır (Salı 11:50 Calculus çıkışı, A F2.14). Asistan: Ilma Papić (itarhanis-papic@ius.edu.ba).", "x": -740, "y": -200}, {"id": "sks", "label": "IUS Student Affairs (SKS / SCC)", "cluster": "Governance", "isGodNode": false, "type": "University", "file": "templates/IUS_SKS_APPLICATION_PETITION.md", "details": "Kulüp resmiyetini onaylayan, amfi ve stant izinlerini veren IUS Öğrenci Kulüpleri Komisyonu.", "x": -740, "y": 50}, {"id": "comm_software", "label": "Software & AI Committee", "cluster": "Committees", "isGodNode": true, "type": "Committee", "file": "organization/ORGANIZATIONAL_STRUCTURE.md", "details": "Yapay zeka atölyeleri, Cursor/Copilot pratikleri, modern web mimarisi ve kodlama kampları yürütücüsü.", "x": -510, "y": -90}, {"id": "comm_multi", "label": "Multidisciplinary Eng Committee", "cluster": "Committees", "isGodNode": false, "type": "Committee", "file": "organization/ORGANIZATIONAL_STRUCTURE.md", "details": "Bilgisayar, Elektrik-Elektronik, Makine ve Endüstri mühendisliğini donanım/IoT projelerinde birleştirir.", "x": -510, "y": 100}, {"id": "comm_ops", "label": "Event Ops & Logistics", "cluster": "Committees", "isGodNode": false, "type": "Committee", "file": "organization/ROLE_DESCRIPTIONS.md", "details": "Amfi rezervasyonları, mikrofon/projeksiyon ses sistemleri, akış kontrolü ve ikram lojistiği.", "x": -510, "y": 270}, {"id": "comm_social", "label": "PR & Social Media Committee", "cluster": "Committees", "isGodNode": true, "type": "Committee", "file": "organization/ROLE_DESCRIPTIONS.md", "details": "Lider: Muhammed Efe Ural (PR & Medya Lideri). Kulübün açılacak resmi Instagram hesabı yönetimi, etkinlik afişi ve kreatif tasarımlar (Marshmallow Challenge posteri) ile şirket sponsorluk ilişkileri (Bekir Enes ile ortak koordinasyon).", "x": -510, "y": 420}, {"id": "comm_whatsapp", "label": "WhatsApp Official Community", "cluster": "Community", "isGodNode": false, "type": "Platform", "file": "community/WHATSAPP_TELEGRAM_COMMUNITY_GUIDE.md", "url": "https://chat.whatsapp.com/LKMpyfm7K5R3F0rXezcXXN", "details": "Üye koordinasyonu ve hızlı anlık duyurular için resmi WhatsApp grubu.", "x": 520, "y": 110}, {"id": "doc_constitution", "label": "📄 IEC Kulüp Tüzüğü", "cluster": "Documents", "isGodNode": true, "type": "Doc", "file": "constitution/CONSTITUTION.md", "details": "Resmi kulüp anayasası ve tüzüğü (İngilizce). 9 Bölüm, seçim kuralları ve komite ilkeleri.", "x": -410, "y": 550}, {"id": "doc_founding", "label": "📄 SCC Kurucu Üye Listesi (16/10)", "cluster": "Documents", "isGodNode": true, "type": "Doc", "file": "templates/SCC_FOUNDING_10_MEMBERS.md", "details": "Resmi yönetim kadrosu: 4 Asil Lider (Başkan: Hasan Kaan, Bşk Yrd: Mahmut İhsan, Sayman: Bekir Enes, PR Lead: Muhammed Efe Ural) | 16 Kurucu Normal Üye Kayıtlı (10/10 Kotası Tamamlandı).", "x": -140, "y": 570}, {"id": "doc_annual_plan", "label": "📄 SCC Yıllık Faaliyet Planı", "cluster": "Documents", "isGodNode": false, "type": "Doc", "file": "templates/SCC_ANNUAL_ACTIVITY_PLAN.md", "details": "4 Temel Sütun: Haftalık AI Atölyeleri, Kampüs Konuşmacıları, Online Tech-Talks ve DevHack 2027.", "x": 140, "y": 570}, {"id": "doc_budget", "label": "📄 SCC Taslak Bütçe (1.300 KM)", "cluster": "Documents", "isGodNode": false, "type": "Doc", "file": "templates/SCC_DRAFT_BUDGET.md", "details": "3 Katmanlı Güvenli Finans Modeli: Şirket sponsorlukları (800 KM) + Üniversite/SCC faaliyet ödeneği (300 KM) + Güvence amaçlı cüzi katılım payı (200 KM - DevHack için 5 KM).", "x": 410, "y": 550}, {"id": "doc_sponsorship", "label": "📄 Kurumsal Sponsorluk Paketi", "cluster": "Documents", "isGodNode": false, "type": "Doc", "file": "sponsorship/SPONSORSHIP_PACKAGE.md", "details": "Saraybosna yazılım firmalarına sunulan sponsorluk paketi (Platin, Altın, Gümüş, Bronz).", "x": 680, "y": 520}, {"id": "platform_linkedin", "label": "LinkedIn Şirket Sayfası (Canlı)", "cluster": "PR & Media", "isGodNode": true, "type": "Platform", "url": "https://www.linkedin.com/company/ius-engineering-club", "file": "pr_and_branding/LINKEDIN_PAGE_SETUP.md", "details": "Resmi kurumsal LinkedIn şirketi. Logo, 1128x191 banner, FENS kampüs konumu (Hrasnička Cesta 15) ve About metni ile canlıda. 6 kişilik yönetim kurulu ve kişisel profil rozetleri bağlı.", "x": 260, "y": -220}, {"id": "event_launch", "label": "🎪 Kickoff: Marshmallow Challenge", "cluster": "Events", "isGodNode": true, "type": "Milestone", "file": "roadmap/MARSHMALLOW_CHALLENGE_KICKOFF.md", "details": "İlk büyük tanışma toplantısı! Moderasyon: IEC Yönetim Kurulu & Kurucu Ekip (Kurul Üyeleri ile Birlikte). 20 spagetti, ip, bant ve marshmallow ile 18 dakikalık kule inşa etme turnuvası (Icebreaker, Hızlı Prototipleme & Multidisipliner Mühendislik).", "x": 750, "y": -250}, {"id": "event_hackathon", "label": "IUS DevHack 2026/2027 (24h)", "cluster": "Events", "isGodNode": true, "type": "Flagship", "file": "roadmap/FLAGSHIP_EVENTS.md", "details": "24 saatlik büyük IUS yazılım ve inovasyon maratonu. Nakit ödüller ve şirket mentörleri.", "x": 980, "y": -290}, {"id": "ext_industry", "label": "Sarajevo Tech Ecosystem", "cluster": "External", "isGodNode": false, "type": "Partner", "file": "roadmap/FLAGSHIP_EVENTS.md", "details": "Bit Alliance ve Saraybosna yazılım şirketleri (Sponsorluk ve konuşmacı havuzu).", "x": 980, "y": -120}, {"id": "project_powerhub", "label": "⚡ IUS PowerHub (RFID İstasyonları)", "cluster": "Projects", "isGodNode": true, "type": "HardwareIoT", "file": "roadmap/CAMPUS_PROJECTS_PROPOSAL.md", "details": "Öğrenci kartı (RFID) ile alınabilen, pogo-pin ile otomatik şarj olan akıllı kampüs powerbank istasyonları. EE/CS/ME ortak donanım & IoT amiral gemisi projesi.", "x": -740, "y": 180}, {"id": "board_hasan_kaan", "label": "Hasan Kaan (👑 Kurucu Ortak & Başkan)", "cluster": "Leadership", "isGodNode": true, "type": "BoardMember", "file": "organization/ROLE_DESCRIPTIONS.md", "role_title": "👑 Kurucu Ortak & Başkan (Co-Founder & President)", "student_id": "250302195", "dept": "FENS (1. Sınıf)", "duties": "Kulübün kurucu ortağı ve başkanı. Yönetim Kurulu üyeleri ile birlikte kulübün vizyonunu, teknik yapılanmasını, Linear sprintlerini, atölyeleri ve DevHack 2027 maratonunu koordine eder; takım ruhunu ön planda tutar.", "tools": ["Linear.app Task Hub", "Antigravity IDE & Python Automation", "WhatsApp Community Hub", "AI/LLM Workshop Stacks", "Tüm Stratejik Kararlar"], "collaborates": ["Mahmut İhsan (Kurucu Ortak & Bşk. Yrd.)", "Bekir Enes (Sayman)", "Muhammed Efe Ural (PR & Medya Lideri)", "Komiteler & Takımlar"], "details": "[👑 Kurucu Ortak & Başkan (Co-Founder & President)] FENS (1. Sınıf) - No: 250302195\nGörevler: Kulübün kurucu ortağı ve başkanı. Yönetim Kurulu üyeleri ile birlikte kulübün vizyonunu, teknik yapılanmasını, Linear sprintlerini, atölyeleri ve DevHack 2027 maratonunu koordine eder; takım ruhunu ön planda tutar.", "x": 0, "y": -40}, {"id": "board_mahmut_ihsan", "label": "Mahmut İhsan Avcı (🚀 Kurucu Ortak & Başkan Yrd.)", "cluster": "Leadership", "isGodNode": true, "type": "BoardMember", "file": "organization/ROLE_DESCRIPTIONS.md", "role_title": "🚀 Kurucu Ortak & Başkan Yrd. (Co-Founder & Vice President)", "student_id": "250302233", "dept": "FENS (1. Sınıf)", "duties": "Kulübün kurucu ortağı, başkan yardımcısı ve operasyonel sağ kolu. Üye alımları, topluluk moderasyonu, resmi toplantı kayıtları ve idari/lojistik operasyonların yöneticisi.", "tools": ["Google Sheets Live Ingestion", "WhatsApp Community Hub", "Resmi Toplantı Tutanakları", "Üye Kayıt Takibi"], "collaborates": ["Hasan Kaan (Başkan)", "Bekir Enes (Sayman)", "Muhammed Efe Ural (PR Lead)", "Kayıtlı Üyeler"], "details": "[🚀 Kurucu Ortak & Başkan Yrd. (Co-Founder & Vice President)] FENS (1. Sınıf) - No: 250302233\nGörevler: Kulübün kurucu ortağı, başkan yardımcısı ve operasyonel sağ kolu. Üye alımları, topluluk moderasyonu, resmi toplantı kayıtları ve idari/lojistik operasyonların yöneticisi.", "x": -220, "y": 40}, {"id": "board_bekir_enes", "label": "Bekir Enes Çokbekler (💰 Sayman & Finans Lideri)", "cluster": "Leadership", "isGodNode": true, "type": "BoardMember", "file": "organization/ROLE_DESCRIPTIONS.md", "role_title": "💰 Sayman & Finans Lideri (Treasurer & Finance Lead)", "student_id": "250302229", "dept": "FENS (1. Sınıf)", "duties": "Bütçe ve finans lideri. SCC 1.300 KM taslak bütçe ve 3 katmanlı sürdürülebilir finans modelini (Şirket sponsorlukları 800 KM, Üniversite/SCC hibe desteği 300 KM, DevHack cüzi katılım payı 200 KM) yönetir. Saraybosna teknoloji ekosistemi şirketleriyle görüşmeler yürütür. Muhammed Efe Ural ile sponsorluk paketlerini koordine eder.", "tools": ["Corporate Sponsorship Package", "1.300 KM 3-Katmanlı Bütçe Tablosu", "Promotion Day Afiş & Roll-up Materyalleri"], "collaborates": ["Hasan Kaan (Başkan)", "Mahmut İhsan (Bşk. Yrd.)", "Muhammed Efe Ural (PR & Medya)", "Saraybosna Şirketleri"], "details": "[💰 Sayman & Finans Lideri (Treasurer & Finance Lead)] FENS (1. Sınıf) - No: 250302229\nGörevler: Bütçe ve finans lideri. SCC 1.300 KM taslak bütçe ve 3 katmanlı sürdürülebilir finans modelini (Şirket sponsorlukları 800 KM, Üniversite/SCC hibe desteği 300 KM, DevHack cüzi katılım payı 200 KM) yönetir. Saraybosna teknoloji ekosistemi şirketleriyle görüşmeler yürütür. Muhammed Efe Ural ile sponsorluk paketlerini koordine eder.", "x": 0, "y": 140}, {"id": "board_efe_ural", "label": "Muhammed Efe Ural (📣 PR & Medya / Sponsorluk Lideri)", "cluster": "Leadership", "isGodNode": true, "type": "BoardMember", "file": "organization/ROLE_DESCRIPTIONS.md", "role_title": "📣 PR & Medya / Sponsorluk Lideri (PR & Media Lead)", "student_id": "240302169", "dept": "FENS (2. Sınıf)", "duties": "Kulübün ASIL PR ve Medya Lideri. Kulübün açılacak resmi Instagram hesabının tam mülkiyeti, görsel tasarım & afiş hazırlığı (Marshmallow Challenge & etkinlik posterleri), LinkedIn şirket içerikleri, viral reels paylaşımları ve Bekir Enes ile şirket kurumsal sponsorluk ortaklığı.", "tools": ["Instagram Resmi Hesabı (Stealth/Lansman)", "Etkinlik Afişi & Grafik Tasarım", "LinkedIn Şirket Sayfası", "Sponsorluk Ortaklıkları"], "collaborates": ["Hasan Kaan (Başkan)", "Mahmut İhsan (Bşk. Yrd.)", "Bekir Enes (Sayman)", "Tüm Komiteler"], "details": "[📣 PR & Medya / Sponsorluk Lideri (PR & Media Lead)] FENS (2. Sınıf) - No: 240302169\nGörevler: Kulübün ASIL PR ve Medya Lideri. Kulübün açılacak resmi Instagram hesabının tam mülkiyeti, görsel tasarım & afiş hazırlığı (Marshmallow Challenge & etkinlik posterleri), LinkedIn şirket içerikleri, viral reels paylaşımları ve Bekir Enes ile şirket kurumsal sponsorluk ortaklığı.", "x": 220, "y": 40}, {"id": "linear_task_IUS-6", "label": "[IUS-6] SCC Faaliyet Planı & Bütçe", "cluster": "Linear Tasks", "isGodNode": true, "type": "LinearTask", "task_ident": "IUS-6", "task_state": "Todo", "task_priority": 1, "task_assignee": "Bekir Enes", "url": "https://linear.app/ius-engineering-events/issue/IUS-6/scc-yillik-faaliyet-plani-ve-taslak-butce-dosyalamasi", "file": "scripts/linear_ops.py", "x": -760, "y": -505, "details": "[IUS-6] SCC Yıllık Faaliyet Planı ve Taslak Bütçe Dosyalaması\nDurum: Todo | Sorumlu: Bekir Enes\nÖncelik: 1\nURL: https://linear.app/ius-engineering-events/issue/IUS-6/scc-yillik-faaliyet-plani-ve-taslak-butce-dosyalamasi\n\nÖzet: ### 🎯 Görev Amacı:\n\nSCC'nin istediği faaliyet planı ve tahmini bütçe evraklarını eksiksiz hazır hale getirmek.\n\n### 📄 Doğrudan Açılabilir Resmi Belgeler:\n\n1. 👉 [**🔗 TIKLAYIN: SCC Yıllık Faaliyet Planı (2026/2027)**](<https://linear.app/ius-engineering-events/document/scc-yillik-f..."}, {"id": "linear_task_IUS-9", "label": "[IUS-9] Kampüs Standı & Afişler", "cluster": "Linear Tasks", "isGodNode": true, "type": "LinearTask", "task_ident": "IUS-9", "task_state": "Todo", "task_priority": 1, "task_assignee": "Bekir Enes", "url": "https://linear.app/ius-engineering-events/issue/IUS-9/aralik-1-hafta-promotion-day-kampus-standi-ve-afis-hazirligi", "file": "scripts/linear_ops.py", "x": -570, "y": -517, "details": "[IUS-9] ⏸️ [Aralık 1. Hafta] Promotion Day: Kampüs Standı ve Afiş Hazırlığı\nDurum: Todo | Sorumlu: Bekir Enes\nÖncelik: 1\nURL: https://linear.app/ius-engineering-events/issue/IUS-9/aralik-1-hafta-promotion-day-kampus-standi-ve-afis-hazirligi\n\nÖzet: ### 🛑 DURUM: BEKLEMEDE (ONAY SONRASINA ERTELENDİ)\n\n⚠️ **Kural:** IUS SCC resmi kulüp onayı çıkana kadar kampüste veya sosyal medyada **kamuya açık hiçbir paylaşım yapılmayacaktır**.\n\n### 🎯 Görev Amacı:\n\nKulüp resmiyet kazandıktan sonra (Kasım sonu / Aralık başı) yapılacak \"Studen..."}, {"id": "linear_task_IUS-10", "label": "[IUS-10] AI & Prompt Atölyeleri", "cluster": "Linear Tasks", "isGodNode": false, "type": "LinearTask", "task_ident": "IUS-10", "task_state": "Backlog", "task_priority": 2, "task_assignee": "Hasan Kaan", "url": "https://linear.app/ius-engineering-events/issue/IUS-10/aralik-2-hafta-haftalik-yapay-zeka-and-prompt-atolyeleri-mufredat-ve", "file": "scripts/linear_ops.py", "x": -380, "y": -528, "details": "[IUS-10] 🤖 [Aralık 2. Hafta] Haftalık Yapay Zeka & Prompt Atölyeleri: Müfredat ve Eğitmen Ağı\nDurum: Backlog | Sorumlu: Hasan Kaan\nÖncelik: 2\nURL: https://linear.app/ius-engineering-events/issue/IUS-10/aralik-2-hafta-haftalik-yapay-zeka-and-prompt-atolyeleri-mufredat-ve\n\nÖzet: ### 🎯 Faaliyet Amacı:\n\nÖğrencilere pratik yapay zeka kullanımı, prompt mühendisliği ve modern AI araçları (Cursor, Claude, Copilot) üzerine **her hafta düzenli atölye** sunmak. Taze bir kulüp yapısı olduğumuz için süreci sürdürülebilir kılmak adına akran eğitimi ve gönüllü eğitme..."}, {"id": "linear_task_IUS-11", "label": "[IUS-11] Haftalık Online Tech-Talks", "cluster": "Linear Tasks", "isGodNode": false, "type": "LinearTask", "task_ident": "IUS-11", "task_state": "Backlog", "task_priority": 2, "task_assignee": "Hasan Kaan", "url": "https://linear.app/ius-engineering-events/issue/IUS-11/aralik-3-hafta-haftalik-online-tech-talks-google-meet-format-ve-konuk", "file": "scripts/linear_ops.py", "x": -190, "y": -539, "details": "[IUS-11] 🌐 [Aralık 3. Hafta] Haftalık Online Tech-Talks (Google Meet): Format ve Konuk Daveti\nDurum: Backlog | Sorumlu: Hasan Kaan\nÖncelik: 2\nURL: https://linear.app/ius-engineering-events/issue/IUS-11/aralik-3-hafta-haftalik-online-tech-talks-google-meet-format-ve-konuk\n\nÖzet: ### 🎯 Faaliyet Amacı:\n\nHer hafta tanınmış, sektörde deneyimli yerli ve yabancı teknoloji uzmanları ile Google Meet webinar formatında samimi, interaktif online söyleşi (fireside chat) ve mentorluk seansları yapmak.\n\n### 📋 Yapılacaklar:\n\n- [ ] **Topluluk Platformu:** Google Meet w..."}, {"id": "linear_task_IUS-12", "label": "[IUS-12] Kampüs Konuşmacıları", "cluster": "Linear Tasks", "isGodNode": false, "type": "LinearTask", "task_ident": "IUS-12", "task_state": "Backlog", "task_priority": 3, "task_assignee": "Mahmut ihsan avcı", "url": "https://linear.app/ius-engineering-events/issue/IUS-12/aralik-4-hafta-aylik-kampus-teknoloji-konusmacilari-konuk-havuzu-ve", "file": "scripts/linear_ops.py", "x": 0, "y": -550, "details": "[IUS-12] 🎙️ [Aralık 4. Hafta] Aylık Kampüs Teknoloji Konuşmacıları: Konuk Havuzu ve Salon\nDurum: Backlog | Sorumlu: Mahmut ihsan avcı\nÖncelik: 3\nURL: https://linear.app/ius-engineering-events/issue/IUS-12/aralik-4-hafta-aylik-kampus-teknoloji-konusmacilari-konuk-havuzu-ve\n\nÖzet: ### 🎯 Faaliyet Amacı:\n\n**Minimum ayda 1 kez** teknoloji alanında öncü bir ismi, yazılım mimarını veya şirket kurucusunu IUS kampüsüne davet edip amfide yüz yüze seminer ve networking düzenlemek.\n\n### 📋 Yapılacaklar:\n\n- [ ] **Potansiyel Şirket & Konuk Listesi:** Sarajevo'daki tekn..."}, {"id": "linear_task_IUS-13", "label": "[IUS-13] DevHack 2027 Hackathonu", "cluster": "Linear Tasks", "isGodNode": false, "type": "LinearTask", "task_ident": "IUS-13", "task_state": "Backlog", "task_priority": 4, "task_assignee": "Hasan Kaan", "url": "https://linear.app/ius-engineering-events/issue/IUS-13/bahar-2027-nisan-ius-yillik-kampus-hackathonu-devhack-konsept-ve", "file": "scripts/linear_ops.py", "x": 190, "y": -539, "details": "[IUS-13] ⚡ [Bahar 2027 / Nisan] IUS Yıllık Kampüs Hackathonu (DevHack): Konsept ve Sponsorluk\nDurum: Backlog | Sorumlu: Hasan Kaan\nÖncelik: 4\nURL: https://linear.app/ius-engineering-events/issue/IUS-13/bahar-2027-nisan-ius-yillik-kampus-hackathonu-devhack-konsept-ve\n\nÖzet: ### 🎯 Faaliyet Amacı:\n\nBu yıl içinde IUS kampüsünde gerçekleştireceğimiz **24 saatlik büyük yazılım ve mühendislik hackathonunu (IUS DevHack)** planlamak.\n\n### 📋 Yapılacaklar:\n\n- [ ] **Hedef Dönem:** Bahar 2027 (Nisan 2. haftası - vize sonrası, finaller öncesi).\n- [ ] **Gece Kalm..."}, {"id": "linear_task_IUS-14", "label": "[IUS-14] TechSummit 2027 Zirvesi", "cluster": "Linear Tasks", "isGodNode": false, "type": "LinearTask", "task_ident": "IUS-14", "task_state": "Backlog", "task_priority": 2, "task_assignee": "Hasan Kaan", "url": "https://linear.app/ius-engineering-events/issue/IUS-14/bahar-2027-mayis-ius-yillik-teknoloji-zirvesi-ius-techsummit-2027", "file": "scripts/linear_ops.py", "x": 380, "y": -528, "details": "[IUS-14] 🏛️ [Bahar 2027 / Mayıs] IUS Yıllık Teknoloji Zirvesi (IUS TechSummit 2027): Konsept, Konuşmacılar ve Stantlar\nDurum: Backlog | Sorumlu: Hasan Kaan\nÖncelik: 2\nURL: https://linear.app/ius-engineering-events/issue/IUS-14/bahar-2027-mayis-ius-yillik-teknoloji-zirvesi-ius-techsummit-2027\n\nÖzet: ### 🎯 Faaliyet Amacı:\n\nBahar döneminde (Mayıs ayı 2. haftası) IUS kampüsünde tüm üniversiteyi ve Saraybosna teknoloji ekosistemini bir araya getirecek tam günlük **Yıllık Teknoloji Zirvesini (IUS TechSummit 2027)** organize etmek.\n\n---\n\n### 📋 Zirve Mimarisi ve Yapılacaklar:\n\n- [ ..."}, {"id": "linear_task_IUS-15", "label": "[IUS-15] 🎪 Kickoff: Marshmallow Challenge", "cluster": "Linear Tasks", "isGodNode": true, "type": "LinearTask", "task_ident": "IUS-15", "task_state": "Todo", "task_priority": 1, "task_assignee": "Hasan Kaan", "url": "https://linear.app/ius-engineering-events/issue/IUS-15/tba-tarih-belirlenecek-iec-buyuk-tanisma-toplantisi-the-marshmallow", "file": "scripts/linear_ops.py", "x": 570, "y": -517, "details": "[IUS-15] 🎪 [TBA / Tarih Belirlenecek] IEC Büyük Tanışma Toplantısı: The Marshmallow Challenge (Icebreaker & Spagetti Kuleleri)\nDurum: Todo | Sorumlu: Hasan Kaan\nÖncelik: 1\nURL: https://linear.app/ius-engineering-events/issue/IUS-15/tba-tarih-belirlenecek-iec-buyuk-tanisma-toplantisi-the-marshmallow\n\nÖzet: ### 🎪 Etkinlik Amacı & Konsept:\n\nIUS Engineering Club (IEC) resmi kuruluş lansmanı ve tüm FENS öğrencileri için ilk büyük tanışma toplantısı! Klasik ve sıkıcı amfi sunumları yerine, dünya çapında (Stanford, Google, TED) uygulanan **Marshmallow Challenge** ile mühendislik ruhunu a..."}, {"id": "linear_task_IUS-17", "label": "[IUS-17] 🤫 Instagram Lansmanı (Stealth)", "cluster": "Linear Tasks", "isGodNode": false, "type": "LinearTask", "task_ident": "IUS-17", "task_state": "Backlog", "task_priority": 2, "task_assignee": "Hasan Kaan", "url": "https://linear.app/ius-engineering-events/issue/IUS-17/resmi-onay-sonrasi-resmi-kulup-instagram-and-ortak-e-posta-lansmani", "file": "scripts/linear_ops.py", "x": 760, "y": -505, "details": "[IUS-17] 🤫 [Resmi Onay Sonrası] Resmi Kulüp Instagram & Ortak E-posta Lansmanı (Stealth Mod - M. Efe Ural)\nDurum: Backlog | Sorumlu: Hasan Kaan\nÖncelik: 2\nURL: https://linear.app/ius-engineering-events/issue/IUS-17/resmi-onay-sonrasi-resmi-kulup-instagram-and-ortak-e-posta-lansmani\n\nÖzet: ### 🤫 Resmi Kulüp Instagram & Ortak E-posta Lansmanı (Stealth Mod - M. Efe Ural)\n\nKulüp için Instagram hesabının oluşturulması, stratejik olarak **resmi SCC ve Rektörlük onayı çıkana kadar dondurulmuştur (Stealth Mod Embargo)**.\n\n#### 🎯 Stratejik Kararlar:\n\n1. **Şahsi E-posta / T..."}, {"id": "members_cohort", "label": "👥 Kayıtlı Üye Topluluğu (16 Öğrenci)", "cluster": "Community", "isGodNode": false, "type": "CommunityBase", "file": "data/form_responses.csv", "url": "https://docs.google.com/spreadsheets/d/1pLeiQpBNSfDFPGa5IqLbSGoz0Z2Lm3Olu-mq3XZhzbQ/edit?usp=sharing", "details": "Kulübün kayıtlı üye topluluğu (16 onaylı başvuru).\nGoogle Form üzerinden kayıt olmuş ve WhatsApp komünitesine dahil edilmiştir.\nTüzük 10 kurucu üye kotası (%100 tamamlandı).\nFENS (CSE, EE, Makine vb.) ve diğer fakültelerden çok disiplinli mühendislik öğrencileri.", "x": 750, "y": 110}], "edges": [{"source": "fetch_tool", "target": "sheet_responses", "relation": "SYNCS_CSV_FROM"}, {"source": "board_hasan_kaan", "target": "board_mahmut_ihsan", "relation": "KURUCU_ORTAKLAR"}, {"source": "board_mahmut_ihsan", "target": "board_hasan_kaan", "relation": "BASKAN_YARDIMCISI"}, {"source": "board_bekir_enes", "target": "board_hasan_kaan", "relation": "FINANS_KOORDINASYONU"}, {"source": "board_efe_ural", "target": "board_hasan_kaan", "relation": "PR_VE_MEDYA_LIDERI"}, {"source": "board_efe_ural", "target": "board_bekir_enes", "relation": "SPONSORLUK_ORTAKLIGI"}, {"source": "board_efe_ural", "target": "board_mahmut_ihsan", "relation": "DUYURU_VE_ILETISIM"}, {"source": "board_bekir_enes", "target": "board_mahmut_ihsan", "relation": "BUTCE_VE_OPERASYON"}, {"source": "board_hasan_kaan", "target": "advisor", "relation": "ACADEMIC_LIAISON"}, {"source": "advisor", "target": "board_hasan_kaan", "relation": "MENTORS_PRESIDENT"}, {"source": "board_hasan_kaan", "target": "sks", "relation": "OFFICIAL_PRESIDENT_LIAISON"}, {"source": "board_hasan_kaan", "target": "doc_constitution", "relation": "LEAD_AUTHOR"}, {"source": "board_hasan_kaan", "target": "event_launch", "relation": "LIDERLIK_EDER"}, {"source": "board_hasan_kaan", "target": "platform_linear", "relation": "ORCHESTRATES_TASKS"}, {"source": "board_hasan_kaan", "target": "tool_ide", "relation": "AUTOMATES_WITH"}, {"source": "board_hasan_kaan", "target": "comm_software", "relation": "DIRECTS_COMMITTEE"}, {"source": "board_hasan_kaan", "target": "comm_multi", "relation": "DIRECTS_COMMITTEE"}, {"source": "board_mahmut_ihsan", "target": "sheet_responses", "relation": "MONITORS_FORM"}, {"source": "board_mahmut_ihsan", "target": "comm_whatsapp", "relation": "MODERATES_COMMUNITY"}, {"source": "board_mahmut_ihsan", "target": "doc_founding", "relation": "COMPILES_ROSTER"}, {"source": "board_bekir_enes", "target": "doc_sponsorship", "relation": "AUTHORS_PACKAGE"}, {"source": "board_bekir_enes", "target": "doc_budget", "relation": "MANAGES_1300KM_BUDGET"}, {"source": "board_bekir_enes", "target": "ext_industry", "relation": "PITCHES_SPONSORSHIPS"}, {"source": "sks", "target": "doc_budget", "relation": "FUNDS_GRANT_SUPPORT"}, {"source": "ext_industry", "target": "doc_budget", "relation": "SPONSORS_800KM"}, {"source": "board_efe_ural", "target": "platform_linkedin", "relation": "CONTENT_ADMIN"}, {"source": "board_efe_ural", "target": "event_launch", "relation": "DESIGNS_POSTER_PROMO"}, {"source": "board_efe_ural", "target": "comm_social", "relation": "DIRECTS_COMMITTEE"}, {"source": "board_efe_ural", "target": "doc_sponsorship", "relation": "CO_AUTHORS_SPONSORSHIP"}, {"source": "board_efe_ural", "target": "ext_industry", "relation": "CORPORATE_MEDIA_REACH"}, {"source": "comm_social", "target": "event_launch", "relation": "PROMOTES_KICKOFF"}, {"source": "event_launch", "target": "advisor", "relation": "HONOR_JURY"}, {"source": "advisor", "target": "sks", "relation": "RESMI_FAKULTE_ONAYI"}, {"source": "advisor", "target": "doc_founding", "relation": "TEK_ISLAK_IMZA"}, {"source": "board_hasan_kaan", "target": "platform_linkedin", "relation": "FOUNDER_AND_SUPER_ADMIN"}, {"source": "board_mahmut_ihsan", "target": "platform_linkedin", "relation": "SUPER_ADMIN"}, {"source": "platform_linkedin", "target": "ext_industry", "relation": "CORPORATE_BRIDGE"}, {"source": "comm_software", "target": "event_hackathon", "relation": "LEADS_TECHNICAL"}, {"source": "ext_industry", "target": "event_hackathon", "relation": "SPONSORS"}, {"source": "doc_founding", "target": "sks", "relation": "SUBMITTED_TO"}, {"source": "comm_whatsapp", "target": "sheet_responses", "relation": "FUNNELS_REGISTRATIONS"}, {"source": "comm_multi", "target": "project_powerhub", "relation": "BUILDS_HARDWARE"}, {"source": "comm_software", "target": "project_powerhub", "relation": "DEVELOPS_FIRMWARE"}, {"source": "board_hasan_kaan", "target": "project_powerhub", "relation": "PROJECT_LEAD"}, {"source": "linear_task_IUS-6", "target": "platform_linear", "relation": "TRACKED_IN"}, {"source": "board_bekir_enes", "target": "linear_task_IUS-6", "relation": "LEADS_TODO"}, {"source": "linear_task_IUS-6", "target": "doc_annual_plan", "relation": "DELIVERS_PLAN"}, {"source": "linear_task_IUS-6", "target": "doc_budget", "relation": "DELIVERS_BUDGET"}, {"source": "linear_task_IUS-6", "target": "sks", "relation": "SUBMITS_TO"}, {"source": "linear_task_IUS-9", "target": "platform_linear", "relation": "TRACKED_IN"}, {"source": "board_bekir_enes", "target": "linear_task_IUS-9", "relation": "LEADS_TODO"}, {"source": "linear_task_IUS-9", "target": "event_launch", "relation": "PREPARES_STAND"}, {"source": "linear_task_IUS-9", "target": "board_efe_ural", "relation": "DELEGATES_PROMO"}, {"source": "linear_task_IUS-10", "target": "platform_linear", "relation": "TRACKED_IN"}, {"source": "board_hasan_kaan", "target": "linear_task_IUS-10", "relation": "LEADS_BACKLOG"}, {"source": "linear_task_IUS-10", "target": "comm_software", "relation": "CURATES_CURRICULUM"}, {"source": "linear_task_IUS-11", "target": "platform_linear", "relation": "TRACKED_IN"}, {"source": "board_hasan_kaan", "target": "linear_task_IUS-11", "relation": "LEADS_BACKLOG"}, {"source": "linear_task_IUS-11", "target": "comm_whatsapp", "relation": "ANNOUNCES_ON"}, {"source": "linear_task_IUS-11", "target": "comm_software", "relation": "HOSTED_BY"}, {"source": "linear_task_IUS-12", "target": "platform_linear", "relation": "TRACKED_IN"}, {"source": "board_mahmut_ihsan", "target": "linear_task_IUS-12", "relation": "LEADS_BACKLOG"}, {"source": "linear_task_IUS-12", "target": "ext_industry", "relation": "INVITES_SPEAKERS"}, {"source": "linear_task_IUS-12", "target": "event_launch", "relation": "HOSTS_IN_AMPHI"}, {"source": "linear_task_IUS-13", "target": "platform_linear", "relation": "TRACKED_IN"}, {"source": "board_hasan_kaan", "target": "linear_task_IUS-13", "relation": "LEADS_BACKLOG"}, {"source": "linear_task_IUS-13", "target": "event_hackathon", "relation": "PLANS_HACKATHON"}, {"source": "linear_task_IUS-13", "target": "doc_sponsorship", "relation": "SEEKS_SPONSORS"}, {"source": "linear_task_IUS-14", "target": "platform_linear", "relation": "TRACKED_IN"}, {"source": "board_hasan_kaan", "target": "linear_task_IUS-14", "relation": "LEADS_BACKLOG"}, {"source": "linear_task_IUS-14", "target": "ext_industry", "relation": "ORGANIZES_SUMMIT"}, {"source": "linear_task_IUS-14", "target": "doc_sponsorship", "relation": "CORPORATE_BOOTHS"}, {"source": "linear_task_IUS-15", "target": "platform_linear", "relation": "TRACKED_IN"}, {"source": "board_hasan_kaan", "target": "linear_task_IUS-15", "relation": "LEADS_TODO"}, {"source": "linear_task_IUS-15", "target": "advisor", "relation": "TARGETS_PROFESSOR"}, {"source": "linear_task_IUS-15", "target": "doc_advisor_letter", "relation": "USES_OFFICIAL_LETTER"}, {"source": "linear_task_IUS-17", "target": "platform_linear", "relation": "TRACKED_IN"}, {"source": "board_hasan_kaan", "target": "linear_task_IUS-17", "relation": "LEADS_BACKLOG"}, {"source": "linear_task_IUS-17", "target": "board_efe_ural", "relation": "CONFIRMS_LEADERSHIP"}, {"source": "linear_task_IUS-17", "target": "doc_founding", "relation": "COMPLETES_BOARD"}, {"source": "sheet_responses", "target": "members_cohort", "relation": "INGESTS_APPLICATIONS"}, {"source": "members_cohort", "target": "comm_whatsapp", "relation": "ACTIVE_MEMBERS"}, {"source": "members_cohort", "target": "doc_founding", "relation": "ROSTER_DOCUMENTED"}, {"source": "members_cohort", "target": "event_launch", "relation": "ATTENDS_LAUNCH"}]};</script>
+</head>
+<body>
+
+  <canvas id="space-canvas"></canvas>
+  <div id="network-container"></div>
+
+  <!-- TOP HUD -->
+  <header class="hud-bar">
+    <div class="brand-section">
+      <div class="brand-logo">IEC // OBSERVATORY</div>
+      <div class="brand-sub">IUS Engineering Events</div>
+    </div>
+
+    <div class="stat-counters">
+      <div class="stat-pill special-pill">👑 YÖNETİM <span class="num" id="board-count">4/4</span></div>
+      <div class="stat-pill">👥 ÜYELER <span class="num" id="members-count">12/10</span></div>
+      <div class="stat-pill tasks-pill">📋 AKTİF GÖREV <span class="num" id="tasks-count">10</span></div>
+    </div>
+
+    <div class="controls-group">
+      <a href="projects/index.html" class="cyber-btn" style="text-decoration:none; color:#ffffff;" title="Projeler Vitrini">✨ Projeler Vitrini</a>
+      <a href="verify/index.html" class="cyber-btn" style="text-decoration:none;" title="Doğrulama Portalı">🛡️ Sertifikalar</a>
+      <button class="cyber-btn active" id="btn-focus" title="Yalnızca seçilen baloncuk için bağlantıları gösterir">🪐 Odak Modu: Açık</button>
+      <button class="cyber-btn" id="btn-reset">🎯 Sıfırla</button>
+      <button class="cyber-btn" id="btn-sfx">🔊 Ses</button>
+    </div>
+  </header>
+
+  <!-- QUICK SEARCH (CTRL+K) -->
+  <div class="search-wrapper">
+    <input type="text" id="search-input" class="search-input-box" placeholder="Quick Search (Ctrl + K) - Search tasks, leaders, docs..." autocomplete="off" />
+    <div id="search-results" class="search-results"></div>
+  </div>
+
+  <!-- SECTOR NAVIGATOR -->
+  <div class="sector-bar">
+    <span class="sector-bar-title">HIZLI SEKTÖR:</span>
+    <button class="sector-pill active" id="sec-docs">📄 Şablonlar & Belgeler</button>
+    <button class="sector-pill" id="sec-tasks">📋 Linear Görevleri</button>
+    <button class="sector-pill" id="sec-board">👑 Yönetim Kurulu</button>
+    <button class="sector-pill" id="sec-comm">🏛️ Komiteler</button>
+    <button class="sector-pill" id="sec-members">👥 Üyeler & Form</button>
+    <button class="sector-pill" id="sec-events">🚀 Etkinlikler</button>
+    <button class="sector-pill" id="sec-all">🎯 Genel Bakış</button>
+  </div>
+
+  <!-- RIGHT HOLOGRAPHIC DETAIL PANEL -->
+  <aside class="hologram-panel" id="detail-panel">
+    <div class="panel-header">
+      <div>
+        <h2 class="panel-title" id="panel-node-title">Node Selected</h2>
+        <div class="badge-row">
+          <span class="panel-badge" id="panel-node-type">TYPE</span>
+          <span class="state-badge" id="panel-node-state" style="display:none;">STATUS</span>
+          <span class="panel-badge" id="panel-node-priority" style="display:none; background:rgba(255,209,102,0.2); color:#ffd166;">PRIORITY</span>
+        </div>
+      </div>
+      <button class="close-btn" id="panel-close">&times;</button>
+    </div>
+
+    <div class="panel-body">
+      <div class="prop-group" id="group-file">
+        <div class="prop-label">File / System Reference</div>
+        <div class="file-chip" id="panel-node-file">file/path</div>
+      </div>
+
+      <div class="prop-group" id="group-linear-btn" style="display:none;">
+        <div class="prop-label">Linear Management</div>
+        <a href="#" target="_blank" class="linear-open-btn" id="panel-linear-link">🚀 Open in Linear.app</a>
+      </div>
+
+      <div class="prop-group">
+        <div class="prop-label">Description / Mandate</div>
+        <div class="prop-val" id="panel-node-desc">Information details...</div>
+      </div>
+
+      <div class="prop-group" id="group-assigned-tasks" style="display:none;">
+        <div class="prop-label">📋 Sorumlu Olduğu Linear Görevleri</div>
+        <div class="chips-container" id="panel-assigned-tasks-chips"></div>
+      </div>
+
+      <div class="prop-group" id="group-tools" style="display:none;">
+        <div class="prop-label">🛠️ Kullandığı Araç ve Sistemler</div>
+        <div class="chips-container" id="panel-tools-chips"></div>
+      </div>
+
+      <div class="prop-group" id="group-collabs" style="display:none;">
+        <div class="prop-label">🤝 Doğrudan Koordinasyon & İşbirlikleri</div>
+        <div class="chips-container" id="panel-collabs-chips"></div>
+      </div>
+
+      <div class="prop-group">
+        <div class="prop-label">Connected Inputs (Incoming)</div>
+        <div class="chips-container" id="panel-incoming-chips"></div>
+      </div>
+
+      <div class="prop-group">
+        <div class="prop-label">Delegations & Targets (Outgoing)</div>
+        <div class="chips-container" id="panel-outgoing-chips"></div>
+      </div>
+    </div>
+
+    <button class="isolate-btn" id="btn-isolate">🌐 Isolate Connected Subgraph</button>
+  </aside>
+
+  <script>
+    // --- CYBER AUDIO SFX (Web Audio API) ---
+    class CyberAudio {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+      }
+      beep(freq, duration, type = 'sine', gainVal = 0.05) {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          if (this.ctx.state === 'suspended') this.ctx.resume();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {}
+      }
+      click() { this.beep(880, 0.06, 'triangle', 0.06); }
+      hover() { this.beep(440, 0.03, 'sine', 0.02); }
+      highlight() {
+        if (!this.enabled) return;
+        this.beep(659, 0.08, 'sine', 0.05);
+        setTimeout(() => this.beep(987, 0.12, 'triangle', 0.05), 60);
+      }
+    }
+    const audio = new CyberAudio();
+
+    // --- CANVAS STARFIELD & SPACE GRID ---
+    const spaceCanvas = document.getElementById('space-canvas');
+    const sCtx = spaceCanvas.getContext('2d');
+    let stars = [];
+
+    function resizeCanvas() {
+      spaceCanvas.width = window.innerWidth;
+      spaceCanvas.height = window.innerHeight;
+      initStars();
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    function initStars() {
+      stars = [];
+      const numStars = Math.floor((spaceCanvas.width * spaceCanvas.height) / 3800);
+      for (let i = 0; i < numStars; i++) {
+        stars.push({
+          x: Math.random() * spaceCanvas.width,
+          y: Math.random() * spaceCanvas.height,
+          size: Math.random() * 1.5 + 0.3,
+          alpha: Math.random() * 0.7 + 0.2,
+          speed: Math.random() * 0.002 + 0.0005
+        });
+      }
+    }
+    resizeCanvas();
+
+    function drawSpace() {
+      sCtx.clearRect(0, 0, spaceCanvas.width, spaceCanvas.height);
+      // Cyberpunk Grid
+      sCtx.strokeStyle = 'rgba(0, 242, 254, 0.025)';
+      sCtx.lineWidth = 1;
+      const gridSize = 60;
+      for (let x = 0; x < spaceCanvas.width; x += gridSize) {
+        sCtx.beginPath(); sCtx.moveTo(x, 0); sCtx.lineTo(x, spaceCanvas.height); sCtx.stroke();
+      }
+      for (let y = 0; y < spaceCanvas.height; y += gridSize) {
+        sCtx.beginPath(); sCtx.moveTo(0, y); sCtx.lineTo(spaceCanvas.width, y); sCtx.stroke();
+      }
+      // Stars
+      for (const s of stars) {
+        s.alpha += Math.sin(Date.now() * s.speed) * 0.01;
+        const boundedAlpha = Math.max(0.1, Math.min(0.9, s.alpha));
+        sCtx.fillStyle = `rgba(165, 243, 252, ${boundedAlpha})`;
+        sCtx.beginPath();
+        sCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        sCtx.fill();
+      }
+      requestAnimationFrame(drawSpace);
+    }
+    drawSpace();
+
+    // --- CLUSTER PALETTE & VISUAL STYLES ---
+    const clusterColors = {
+      'Leadership': { background: '#240046', border: '#ff007f', highlight: { background: '#ff007f', border: '#fff' } },
+      'Linear Tasks': { background: '#071e3d', border: '#00f2fe', highlight: { background: '#00f2fe', border: '#fff' } },
+      'Committees': { background: '#0b2518', border: '#06d6a0', highlight: { background: '#06d6a0', border: '#fff' } },
+      'Events': { background: '#2e1c0c', border: '#ffd166', highlight: { background: '#ffd166', border: '#fff' } },
+      'Documents': { background: '#1b1130', border: '#9d4edd', highlight: { background: '#9d4edd', border: '#fff' } },
+      'Governance': { background: '#092327', border: '#4cc9f0', highlight: { background: '#4cc9f0', border: '#fff' } },
+      'Infrastructure': { background: '#25091e', border: '#f72585', highlight: { background: '#f72585', border: '#fff' } },
+      'Data': { background: '#001845', border: '#00b4d8', highlight: { background: '#00b4d8', border: '#fff' } },
+      'Community': { background: '#1e0836', border: '#7209b7', highlight: { background: '#7209b7', border: '#fff' } },
+      'Members': { background: '#081c3b', border: '#3a86ff', highlight: { background: '#3a86ff', border: '#fff' } },
+      'External': { background: '#2c1200', border: '#fb5607', highlight: { background: '#fb5607', border: '#fff' } }
+    };
+
+    // --- GRAPH DATA & CONTROLS ---
+    let network = null;
+    let rawData = null;
+    let nodesDataSet = null;
+    let edgesDataSet = null;
+    let isFrozen = false;
+    let isGodHighlighted = false;
+    let isTasksHighlighted = false;
+    let isBoardHighlighted = false;
+    let isIsolated = false;
+    let currentSelectedNodeId = null;
+
+    // Load data
+    function loadGraphData() {
+      fetch('graph.json?t=' + Date.now())
+        .then(res => res.json())
+        .then(data => {
+          rawData = data;
+          initGraph(data);
+        })
+        .catch(err => {
+          console.warn("Could not fetch graph.json directly, checking embedded data...", err);
+          if (window.EMBEDDED_GRAPH_DATA) {
+            rawData = window.EMBEDDED_GRAPH_DATA;
+            initGraph(rawData);
+          }
+        });
+    }
+
+    loadGraphData();
+
+    function initGraph(data) {
+      // Top HUD Counters (Sade ve Anlaşılır)
+      const elBoard = document.getElementById('board-count');
+      if (elBoard) elBoard.innerText = `${(data.stats && data.stats.board_members) || 4}/4`;
+
+      const elMembers = document.getElementById('members-count');
+      if (elMembers) elMembers.innerText = `${(data.stats && data.stats.registered_members) || 12}/10`;
+
+      const elTasks = document.getElementById('tasks-count');
+      if (elTasks) elTasks.innerText = (data.stats && data.stats.linear_tasks) || data.nodes.filter(n => n.cluster === 'Linear Tasks').length;
+
+      const visNodes = data.nodes.map(n => {
+        const cStyle = clusterColors[n.cluster] || { background: '#111827', border: '#00f2fe' };
+        
+        // Shape determination
+        let shape = 'dot';
+        let size = 20;
+
+        if (n.cluster === 'Leadership') {
+          shape = 'diamond';
+          size = 32;
+        } else if (n.cluster === 'Linear Tasks') {
+          shape = 'box';
+          size = 24;
+        } else if (n.cluster === 'Committees') {
+          shape = 'hexagon';
+          size = 28;
+        } else if (n.cluster === 'Events') {
+          shape = 'diamond';
+          size = 30;
+        } else if (n.cluster === 'Documents') {
+          shape = 'box';
+          size = 20;
+        } else if (n.cluster === 'Members') {
+          shape = 'dot';
+          size = 18;
+        }
+
+        if (n.isGodNode) {
+          size += 6;
+        }
+
+        // Color override for task status
+        let borderColor = cStyle.border;
+        let bgColor = cStyle.background;
+        if (n.task_state === 'In Progress') {
+          borderColor = '#06d6a0';
+        } else if (n.task_state === 'Todo') {
+          borderColor = '#ffd166';
+        } else if (n.task_state === 'Done') {
+          borderColor = '#a78bfa';
+        }
+
+        return {
+          id: n.id,
+          label: n.label,
+          x: n.x !== undefined ? n.x : undefined,
+          y: n.y !== undefined ? n.y : undefined,
+          shape: shape,
+          size: size,
+          color: {
+            background: bgColor,
+            border: borderColor,
+            highlight: { background: borderColor, border: '#ffffff' }
+          },
+          borderWidth: n.isGodNode ? 4 : 2,
+          font: {
+            color: '#e2e8f0',
+            face: 'JetBrains Mono',
+            size: n.isGodNode ? 13 : 11,
+            strokeWidth: 3,
+            strokeColor: '#070913'
+          },
+          margin: 10,
+          shadow: {
+            enabled: true,
+            color: borderColor,
+            size: n.isGodNode ? 24 : 10,
+            x: 0, y: 0
+          },
+          data: n
+        };
+      });
+
+      const visEdges = data.edges.map(e => {
+        let edgeColor = 'rgba(0, 242, 254, 0.85)';
+        let edgeWidth = 2.0;
+
+        if (e.relation.includes('LEADS') || e.relation.includes('DIRECTS') || e.relation.includes('COORDINATES') || e.relation.includes('FOUNDER')) {
+          edgeColor = 'rgba(255, 0, 127, 0.9)';
+          edgeWidth = 2.6;
+        } else if (e.relation.includes('TRACKED_IN') || e.relation.includes('DELIVERS')) {
+          edgeColor = 'rgba(0, 242, 254, 0.85)';
+          edgeWidth = 2.2;
+        }
+
+        return {
+          id: `${e.source}->${e.target}`,
+          from: e.source,
+          to: e.target,
+          label: e.relation,
+          arrows: 'to',
+          hidden: true, // SADE VE KORKUTMAYAN GÖRÜNÜM: BAĞLANTILAR VARSAYILAN OLARAK GİZLİ
+          font: {
+            color: '#00f2fe',
+            size: 9,
+            face: 'JetBrains Mono',
+            strokeWidth: 3,
+            strokeColor: '#070913'
+          },
+          color: {
+            color: edgeColor,
+            highlight: '#00f2fe',
+            hover: '#00f2fe'
+          },
+          width: edgeWidth,
+          smooth: {
+            enabled: true,
+            type: 'continuous',
+            roundness: 0.35
+          }
+        };
+      });
+
+      nodesDataSet = new vis.DataSet(visNodes);
+      edgesDataSet = new vis.DataSet(visEdges);
+
+      const container = document.getElementById('network-container');
+      const networkData = { nodes: nodesDataSet, edges: edgesDataSet };
+      const options = {
+        physics: {
+          enabled: false, // Clean spatial sector architecture by default
+          solver: 'forceAtlas2Based',
+          forceAtlas2Based: {
+            gravitationalConstant: -28,
+            centralGravity: 0.002,
+            springLength: 220,
+            springConstant: 0.03,
+            damping: 0.95,
+            avoidOverlap: 1.0
+          }
+        },
+        interaction: {
+          hover: true,
+          tooltipDelay: 100,
+          dragNodes: true,
+          zoomView: true
+        }
+      };
+
+      network = new vis.Network(container, networkData, options);
+
+      // --- CANVAS SECTOR ZONES DRAWING ---
+      network.on('beforeDrawing', ctx => {
+        // Sector 01: Linear Tasks Orbit (Top Arc)
+        drawSectorZone(ctx, -880, -640, 1760, 200, "SEKTÖR 01 // LINEAR SPRINT & GÖREV YÖRÜNGESİ", "rgba(0, 242, 254, 0.03)", "rgba(0, 242, 254, 0.35)");
+
+        // Sector 02: Core Leadership Nexus (Center)
+        drawSectorZone(ctx, -380, -290, 760, 540, "SEKTÖR 02 // YÖNETİM KURULU & KARAR MERKEZİ", "rgba(255, 0, 127, 0.03)", "rgba(255, 0, 127, 0.35)");
+
+        // Sector 03: Templates & Official Documents Archive (Bottom Shelf)
+        drawSectorZone(ctx, -820, 420, 1640, 220, "SEKTÖR 03 // RESMİ ŞABLONLAR & TÜZÜK ARŞİVİ", "rgba(157, 78, 221, 0.05)", "rgba(157, 78, 221, 0.4)");
+
+        // Sector 04: Academic Governance & Committees (Left Flank)
+        drawSectorZone(ctx, -850, -260, 420, 590, "SEKTÖR 04 // AKADEMİK KURUL & KOMİTELER", "rgba(6, 214, 160, 0.03)", "rgba(6, 214, 160, 0.3)");
+
+        // Sector 05: Community & Member Ingestion (Right Flank)
+        drawSectorZone(ctx, 420, -120, 490, 510, "SEKTÖR 05 // TOPLULUK & ÜYE KAYITLARI", "rgba(58, 134, 255, 0.03)", "rgba(58, 134, 255, 0.3)");
+
+        // Sector 06: Flagship Events & Industry (Top-Right)
+        drawSectorZone(ctx, 670, -360, 450, 220, "SEKTÖR 06 // ETKİNLİKLER & SPONSORLUK", "rgba(251, 86, 7, 0.03)", "rgba(251, 86, 7, 0.3)");
+      });
+
+      function drawSectorZone(ctx, x, y, w, h, title, fillCol, borderCol) {
+        ctx.save();
+        ctx.fillStyle = fillCol;
+        ctx.strokeStyle = borderCol;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 5]);
+        const r = 14;
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.setLineDash([]);
+        ctx.fillStyle = borderCol;
+        ctx.font = 'bold 10px "Orbitron", sans-serif';
+        ctx.fillText(title, x + 16, y + 22);
+        ctx.restore();
+      }
+
+      network.on('click', params => {
+        if (params.nodes.length > 0) {
+          const nodeId = params.nodes[0];
+          selectNode(nodeId);
+          audio.click();
+        } else {
+          closePanel();
+          updateEdgeVisibility(null);
+        }
+      });
+
+      network.on('hoverNode', () => audio.hover());
+    }
+
+    // --- FOCUS MODE & EDGE VISIBILITY (BAĞLANTI GİZLEME / ODAK MODU) ---
+    // Yalnızca tıklanan baloncuk için bağlantıları gösterir, diğer zamanlarda sade ve temiz tutar
+    let isFocusMode = true;
+
+    function updateEdgeVisibility(selectedNodeId) {
+      if (!edgesDataSet || !nodesDataSet) return;
+
+      if (!isFocusMode) {
+        const allEdges = edgesDataSet.get().map(e => ({ id: e.id, hidden: false }));
+        edgesDataSet.update(allEdges);
+        const allNodes = nodesDataSet.get().map(n => ({ id: n.id, opacity: 1.0 }));
+        nodesDataSet.update(allNodes);
+        return;
+      }
+
+      if (!selectedNodeId) {
+        // Seçim yokken tüm bağlantıları gizle - Sade ve ferah görünüm
+        const hideAll = edgesDataSet.get().map(e => ({ id: e.id, hidden: true }));
+        edgesDataSet.update(hideAll);
+        const resetNodes = nodesDataSet.get().map(n => ({ id: n.id, opacity: 1.0 }));
+        nodesDataSet.update(resetNodes);
+        return;
+      }
+
+      const connectedEdgeIds = new Set();
+      const connectedNodeIds = new Set([selectedNodeId]);
+
+      rawData.edges.forEach(e => {
+        if (e.source === selectedNodeId) {
+          connectedEdgeIds.add(`${e.source}->${e.target}`);
+          connectedNodeIds.add(e.target);
+        }
+        if (e.target === selectedNodeId) {
+          connectedEdgeIds.add(`${e.source}->${e.target}`);
+          connectedNodeIds.add(e.source);
+        }
+      });
+
+      const edgeUpdates = edgesDataSet.get().map(e => ({
+        id: e.id,
+        hidden: !connectedEdgeIds.has(e.id)
+      }));
+      edgesDataSet.update(edgeUpdates);
+
+      const nodeUpdates = nodesDataSet.get().map(n => ({
+        id: n.id,
+        opacity: connectedNodeIds.has(n.id) ? 1.0 : 0.25
+      }));
+      nodesDataSet.update(nodeUpdates);
+    }
+
+    // --- PANEL INTERACTIONS ---
+    const panel = document.getElementById('detail-panel');
+    const panelTitle = document.getElementById('panel-node-title');
+    const panelType = document.getElementById('panel-node-type');
+    const panelState = document.getElementById('panel-node-state');
+    const panelPriority = document.getElementById('panel-node-priority');
+    const panelFile = document.getElementById('panel-node-file');
+    const panelDesc = document.getElementById('panel-node-desc');
+    const panelIncoming = document.getElementById('panel-incoming-chips');
+    const panelOutgoing = document.getElementById('panel-outgoing-chips');
+    const groupLinearBtn = document.getElementById('group-linear-btn');
+    const panelLinearLink = document.getElementById('panel-linear-link');
+    const groupAssignedTasks = document.getElementById('group-assigned-tasks');
+    const panelAssignedTasks = document.getElementById('panel-assigned-tasks-chips');
+    const groupTools = document.getElementById('group-tools');
+    const panelTools = document.getElementById('panel-tools-chips');
+    const groupCollabs = document.getElementById('group-collabs');
+    const panelCollabs = document.getElementById('panel-collabs-chips');
+
+    function selectNode(nodeId) {
+      currentSelectedNodeId = nodeId;
+      updateEdgeVisibility(nodeId);
+      const n = rawData.nodes.find(item => item.id === nodeId);
+      if (!n) return;
+
+      panelTitle.innerText = n.label;
+      panelType.innerText = n.cluster;
+      panelType.style.backgroundColor = (clusterColors[n.cluster] || {}).border || '#00f2fe';
+      panelType.style.color = '#000';
+
+      panelFile.innerText = n.file || 'System Internal';
+      panelDesc.innerText = n.details || 'No extended mandate description available.';
+
+      // Linear Task specific UI
+      if (n.cluster === 'Linear Tasks' || n.type === 'LinearTask') {
+        panelState.style.display = 'inline-block';
+        panelState.innerText = n.task_state || 'TODO';
+        panelState.className = 'state-badge ' + (
+          n.task_state === 'In Progress' ? 'state-in-progress' :
+          n.task_state === 'Todo' ? 'state-todo' :
+          n.task_state === 'Done' ? 'state-done' : 'state-backlog'
+        );
+
+        if (n.task_priority) {
+          panelPriority.style.display = 'inline-block';
+          panelPriority.innerText = `P${n.task_priority} PRIORITY`;
+        } else {
+          panelPriority.style.display = 'none';
+        }
+
+        if (n.url) {
+          groupLinearBtn.style.display = 'block';
+          panelLinearLink.href = n.url;
+        } else {
+          groupLinearBtn.style.display = 'none';
+        }
+      } else {
+        panelState.style.display = 'none';
+        panelPriority.style.display = 'none';
+        groupLinearBtn.style.display = 'none';
+      }
+
+      // Board Member specific UI
+      if (n.cluster === 'Leadership' || n.type === 'BoardMember') {
+        // Find assigned tasks
+        const assignedEdges = rawData.edges.filter(e => e.source === n.id && (e.relation.includes('LEADS') || e.relation.includes('ASSIGNED')));
+        const taskNodes = assignedEdges.map(e => rawData.nodes.find(node => node.id === e.target)).filter(Boolean);
+
+        if (taskNodes.length > 0) {
+          groupAssignedTasks.style.display = 'block';
+          panelAssignedTasks.innerHTML = '';
+          taskNodes.forEach(t => {
+            const chip = document.createElement('div');
+            chip.className = 'task-conn-chip';
+            chip.innerText = `${t.task_ident || t.label} [${t.task_state || 'Active'}]`;
+            chip.onclick = () => focusNode(t.id);
+            panelAssignedTasks.appendChild(chip);
+          });
+        } else {
+          groupAssignedTasks.style.display = 'none';
+        }
+
+        // Tools
+        if (n.tools && n.tools.length > 0) {
+          groupTools.style.display = 'block';
+          panelTools.innerHTML = '';
+          n.tools.forEach(tool => {
+            const chip = document.createElement('div');
+            chip.className = 'conn-chip';
+            chip.innerText = tool;
+            panelTools.appendChild(chip);
+          });
+        } else {
+          groupTools.style.display = 'none';
+        }
+
+        // Collaborators
+        if (n.collaborates && n.collaborates.length > 0) {
+          groupCollabs.style.display = 'block';
+          panelCollabs.innerHTML = '';
+          n.collaborates.forEach(collab => {
+            const chip = document.createElement('div');
+            chip.className = 'conn-chip';
+            chip.innerText = `🤝 ${collab}`;
+            panelCollabs.appendChild(chip);
+          });
+        } else {
+          groupCollabs.style.display = 'none';
+        }
+      } else {
+        groupAssignedTasks.style.display = 'none';
+        groupTools.style.display = 'none';
+        groupCollabs.style.display = 'none';
+      }
+
+      // Incoming & Outgoing chips
+      panelIncoming.innerHTML = '';
+      const inEdges = rawData.edges.filter(e => e.target === nodeId);
+      inEdges.forEach(e => {
+        const srcNode = rawData.nodes.find(node => node.id === e.source);
+        if (srcNode) {
+          const chip = document.createElement('div');
+          chip.className = 'conn-chip';
+          chip.innerText = `← ${srcNode.label} (${e.relation})`;
+          chip.onclick = () => focusNode(srcNode.id);
+          panelIncoming.appendChild(chip);
+        }
+      });
+
+      panelOutgoing.innerHTML = '';
+      const outEdges = rawData.edges.filter(e => e.source === nodeId);
+      outEdges.forEach(e => {
+        const tgtNode = rawData.nodes.find(node => node.id === e.target);
+        if (tgtNode) {
+          const chip = document.createElement('div');
+          chip.className = 'conn-chip';
+          chip.innerText = `→ ${tgtNode.label} (${e.relation})`;
+          chip.onclick = () => focusNode(tgtNode.id);
+          panelOutgoing.appendChild(chip);
+        }
+      });
+
+      panel.classList.add('open');
+    }
+
+    function closePanel() {
+      panel.classList.remove('open');
+      currentSelectedNodeId = null;
+      updateEdgeVisibility(null);
+    }
+    document.getElementById('panel-close').onclick = closePanel;
+
+    function focusNode(nodeId) {
+      audio.click();
+      network.focus(nodeId, {
+        scale: 1.25,
+        animation: { duration: 600, easingFunction: 'easeInOutQuad' }
+      });
+      selectNode(nodeId);
+    }
+
+    // --- BUTTON CONTROLS ---
+
+    // 🪐 Focus Mode Toggle (Sade Görünüm)
+    const btnFocus = document.getElementById('btn-focus');
+    if (btnFocus) {
+      btnFocus.onclick = () => {
+        isFocusMode = !isFocusMode;
+        btnFocus.classList.toggle('active', isFocusMode);
+        btnFocus.innerText = isFocusMode ? '🪐 Odak Modu: Açık' : '🕸️ Tüm Bağlantılar';
+        audio.click();
+        updateEdgeVisibility(currentSelectedNodeId);
+      };
+    }
+
+    // 🎯 Reset View & Restore Sector Positions
+    const btnReset = document.getElementById('btn-reset');
+    btnReset.onclick = () => {
+      audio.click();
+      resetIsolation();
+      const updates = rawData.nodes.map(n => ({
+        id: n.id,
+        x: n.x,
+        y: n.y
+      }));
+      nodesDataSet.update(updates);
+      network.fit({ animation: { duration: 800, easingFunction: 'easeInOutQuad' } });
+      closePanel();
+    };
+
+    // --- HIZLI SEKTÖR GEÇİŞ FONKSİYONU ---
+    function jumpToSector(sec) {
+      audio.click();
+      document.querySelectorAll('.sector-pill').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById(`sec-${sec}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (sec === 'docs') {
+        network.moveTo({ position: { x: 0, y: 530 }, scale: 0.9, animation: { duration: 650, easingFunction: 'easeInOutQuad' } });
+      } else if (sec === 'tasks') {
+        network.moveTo({ position: { x: 0, y: -520 }, scale: 0.85, animation: { duration: 650, easingFunction: 'easeInOutQuad' } });
+      } else if (sec === 'board') {
+        network.moveTo({ position: { x: 0, y: 0 }, scale: 1.05, animation: { duration: 650, easingFunction: 'easeInOutQuad' } });
+      } else if (sec === 'comm') {
+        network.moveTo({ position: { x: -620, y: 30 }, scale: 0.9, animation: { duration: 650, easingFunction: 'easeInOutQuad' } });
+      } else if (sec === 'members') {
+        network.moveTo({ position: { x: 650, y: 80 }, scale: 0.9, animation: { duration: 650, easingFunction: 'easeInOutQuad' } });
+      } else if (sec === 'events') {
+        network.moveTo({ position: { x: 860, y: -220 }, scale: 0.95, animation: { duration: 650, easingFunction: 'easeInOutQuad' } });
+      } else if (sec === 'all') {
+        network.fit({ animation: { duration: 750, easingFunction: 'easeInOutQuad' } });
+      }
+    }
+
+    document.getElementById('sec-docs').onclick = () => jumpToSector('docs');
+    document.getElementById('sec-tasks').onclick = () => jumpToSector('tasks');
+    document.getElementById('sec-board').onclick = () => jumpToSector('board');
+    document.getElementById('sec-comm').onclick = () => jumpToSector('comm');
+    document.getElementById('sec-members').onclick = () => jumpToSector('members');
+    document.getElementById('sec-events').onclick = () => jumpToSector('events');
+    document.getElementById('sec-all').onclick = () => jumpToSector('all');
+
+    // 🔄 Live Refresh
+    const btnRefresh = document.getElementById('btn-refresh');
+    btnRefresh.onclick = () => {
+      audio.click();
+      btnRefresh.innerText = '🔄 Syncing...';
+      loadGraphData();
+      setTimeout(() => {
+        btnRefresh.innerText = '🔄 Live Refresh';
+      }, 1000);
+    };
+
+    // 🔊 Audio SFX
+    const btnSfx = document.getElementById('btn-sfx');
+    btnSfx.onclick = () => {
+      audio.enabled = !audio.enabled;
+      btnSfx.innerText = audio.enabled ? '🔊 Audio ON' : '🔇 Audio OFF';
+      btnSfx.classList.toggle('active', !audio.enabled);
+    };
+
+    // 🌐 Isolate Subgraph
+    const btnIsolate = document.getElementById('btn-isolate');
+    btnIsolate.onclick = () => {
+      if (!currentSelectedNodeId) return;
+      audio.click();
+      if (!isIsolated) {
+        isolateSubgraph(currentSelectedNodeId);
+      } else {
+        resetIsolation();
+      }
+    };
+
+    function isolateSubgraph(nodeId) {
+      isIsolated = true;
+      btnIsolate.innerText = '↺ Restore Full Graph';
+      btnIsolate.classList.add('active');
+
+      const connectedNodeIds = new Set(network.getConnectedNodes(nodeId));
+      connectedNodeIds.add(nodeId);
+
+      const nodeUpdates = [];
+      rawData.nodes.forEach(n => {
+        if (connectedNodeIds.has(n.id)) {
+          nodeUpdates.push({ id: n.id, opacity: 1.0, hidden: false });
+        } else {
+          nodeUpdates.push({ id: n.id, opacity: 0.12 });
+        }
+      });
+      nodesDataSet.update(nodeUpdates);
+    }
+
+    function resetIsolation() {
+      isIsolated = false;
+      btnIsolate.innerText = '🌐 Isolate Connected Subgraph';
+      btnIsolate.classList.remove('active');
+      if (btnTasks.classList.contains('active')) btnTasks.classList.remove('active');
+      if (btnBoard.classList.contains('pink-active')) btnBoard.classList.remove('pink-active');
+      const nodeUpdates = rawData.nodes.map(n => ({ id: n.id, opacity: 1.0, hidden: false }));
+      nodesDataSet.update(nodeUpdates);
+    }
+
+    // --- QUICK SEARCH (CTRL + K) ---
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+
+    window.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        searchInput.focus();
+        audio.click();
+      }
+    });
+
+    searchInput.addEventListener('input', e => {
+      const q = e.target.value.toLowerCase().trim();
+      if (!q) {
+        searchResults.style.display = 'none';
+        return;
+      }
+      const matches = rawData.nodes.filter(n =>
+        n.label.toLowerCase().includes(q) ||
+        n.cluster.toLowerCase().includes(q) ||
+        (n.type && n.type.toLowerCase().includes(q)) ||
+        (n.task_ident && n.task_ident.toLowerCase().includes(q)) ||
+        (n.task_assignee && n.task_assignee.toLowerCase().includes(q))
+      );
+
+      searchResults.innerHTML = '';
+      if (matches.length === 0) {
+        searchResults.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:#64748b;">No matching entities</div>';
+      } else {
+        matches.slice(0, 10).forEach(m => {
+          const item = document.createElement('div');
+          item.className = 'search-item';
+          item.innerHTML = `<span>${m.label}</span> <span style="color:#00f2fe; font-size:0.65rem; border:1px solid rgba(0,242,254,0.3); padding:2px 6px; border-radius:4px;">${m.cluster}</span>`;
+          item.onclick = () => {
+            searchInput.value = '';
+            searchResults.style.display = 'none';
+            focusNode(m.id);
+          };
+          searchResults.appendChild(item);
+        });
+      }
+      searchResults.style.display = 'block';
+    });
+
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.search-wrapper')) {
+        searchResults.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate Verification Portal // IUS Engineering Club</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=JetBrains+Mono:wght@300;400;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070913;
+      --panel-bg: rgba(13, 17, 34, 0.88);
+      --panel-border: rgba(0, 242, 254, 0.35);
+      --cyan-neon: #00f2fe;
+      --gold-neon: #ffd166;
+      --green-neon: #06d6a0;
+      --blue-neon: #3a86ff;
+      --text-main: #f1f5f9;
+      --text-dim: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 50% 10%, rgba(58, 134, 255, 0.15) 0%, transparent 60%),
+        linear-gradient(rgba(7, 9, 19, 0.85), rgba(7, 9, 19, 0.85));
+      font-family: 'Montserrat', sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+    }
+
+    /* CONTAINER */
+    .portal-card {
+      width: 100%;
+      max-width: 680px;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 0 40px rgba(0, 242, 254, 0.15), 0 20px 30px rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .portal-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #00f2fe, #3a86ff, #ffd166);
+    }
+
+    /* HEADER */
+    .header-block {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .badge-top {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 242, 254, 0.1);
+      border: 1px solid rgba(0, 242, 254, 0.4);
+      color: var(--cyan-neon);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .badge-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green-neon);
+      box-shadow: 0 0 8px var(--green-neon);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .sub-title {
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* SEARCH INPUT */
+    .search-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .search-input {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid #334155;
+      padding: 14px 18px;
+      border-radius: 10px;
+      color: #ffffff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--cyan-neon);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+    }
+
+    .btn-verify {
+      background: linear-gradient(135deg, #00f2fe, #3a86ff);
+      color: #050814;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-verify:hover {
+      filter: brightness(1.15);
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+    }
+
+    /* VERIFICATION RESULT CARD */
+    .result-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(6, 214, 160, 0.4);
+      border-radius: 12px;
+      padding: 24px;
+      position: relative;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(6, 214, 160, 0.15);
+      border: 1px solid var(--green-neon);
+      color: var(--green-neon);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+      font-size: 14px;
+    }
+
+    .info-label {
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+
+    .info-val {
+      font-weight: 600;
+      color: #ffffff;
+      text-align: right;
+    }
+
+    .highlight-name {
+      font-family: 'Cinzel', serif;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--gold-neon);
+    }
+
+    /* ACTION BUTTONS */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-li {
+      background: #0a66c2;
+      color: #ffffff;
+      border: none;
+    }
+    .btn-li:hover {
+      background: #004182;
+      box-shadow: 0 4px 14px rgba(10, 102, 194, 0.4);
+    }
+
+    .btn-pdf {
+      background: transparent;
+      border: 1px solid #334155;
+      color: var(--text-main);
+    }
+    .btn-pdf:hover {
+      border-color: var(--cyan-neon);
+      color: var(--cyan-neon);
+    }
+
+    /* FOOTER */
+    .footer-note {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+    .footer-note a {
+      color: var(--cyan-neon);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="portal-card">
+    <div class="header-block">
+      <div class="badge-top">
+        <span class="badge-pulse"></span>
+        SECURE CREDENTIAL REGISTRY
+      </div>
+      <h1>IUS ENGINEERING CLUB</h1>
+      <div class="sub-title">Official Certificate & Credential Verification</div>
+    </div>
+
+    <!-- SEARCH BOX -->
+    <div class="search-box">
+      <input type="text" id="certInput" class="search-input" placeholder="Enter Certificate ID (e.g. IEC-2026-AI01-0042)">
+      <button class="btn-verify" onclick="verifyCertificate()">Verify</button>
+    </div>
+
+    <!-- RESULT CONTAINER -->
+    <div id="resultBox">
+      <!-- Injected via JavaScript -->
+    </div>
+
+    <div class="footer-note">
+      Issued by International University of Sarajevo • Faculty of Engineering and Natural Sciences (FENS)<br>
+      Return to <a href="../">Observatory Home</a> • <a href="https://chat.whatsapp.com/LKMpyfm7K5R3F0rXezcXXN">Official Community</a>
+    </div>
+  </div>
+
+  <script>
+    // Demo Database for Standalone Query Resolution
+    const DEMO_DATABASE = {
+      "IEC-2026-AI01-0042": {
+        name: "Ahmed Hadzimurati",
+        event: "Modern AI & Prompt Engineering Masterclass",
+        date: "October 2026",
+        advisor: "Prof. Dr. Leila Miller (FENS)",
+        president: "Hasan Kaan",
+        status: "VERIFIED ACTIVE"
+      },
+      "IEC-2026-MC01-0012": {
+        name: "Nazlıcan Cebeci",
+        event: "Marshmallow Challenge & Engineering Team Dynamics",
+        date: "October 2026",
+        advisor: "Prof. Dr. Leila Miller (FENS)",
+        president: "Hasan Kaan",
+        status: "VERIFIED ACTIVE"
+      },
+      "IEC-TEST-2026-0001": {
+        name: "Kaan Mete Şenyıldız",
+        event: "Modern AI & Prompt Engineering Masterclass",
+        date: "October 2026",
+        advisor: "Prof. Dr. Leila Miller (FENS)",
+        president: "Hasan Kaan",
+        status: "VERIFIED ACTIVE"
+      }
+    };
+
+    function getQueryParams() {
+      const params = {};
+      const search = window.location.search.substring(1);
+      if (!search) return params;
+      search.split("&").forEach(pair => {
+        const [key, value] = pair.split("=");
+        params[decodeURIComponent(key)] = decodeURIComponent(value || "");
+      });
+      return params;
+    }
+
+    function verifyCertificate(manualId) {
+      const inputVal = (manualId || document.getElementById("certInput").value || "").trim();
+      const params = getQueryParams();
+      
+      const idToSearch = inputVal || params.id || "IEC-2026-AI01-0042";
+      document.getElementById("certInput").value = idToSearch;
+
+      const record = DEMO_DATABASE[idToSearch] || {
+        name: params.name || "Verified Student Member",
+        event: params.event || "Engineering Workshop & Leadership Summit",
+        date: params.date || "Academic Year 2026/2027",
+        advisor: "Prof. Dr. Leila Miller (FENS)",
+        president: "Hasan Kaan",
+        status: "VERIFIED ACTIVE"
+      };
+
+      const linkedInAddUrl = "https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME" +
+        "&name=" + encodeURIComponent(record.event) +
+        "&organizationName=IUS+Engineering+Club" +
+        "&issueYear=2026" +
+        "&issueMonth=10" +
+        "&certUrl=" + encodeURIComponent(window.location.href) +
+        "&certId=" + encodeURIComponent(idToSearch);
+
+      const html = `
+        <div class="result-card">
+          <div class="status-badge">
+            <span class="badge-pulse"></span>
+            ✓ Authenticated & Verified Credential
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Credential ID:</span>
+            <span class="info-val"><code style="color: #00f2fe;">${idToSearch}</code></span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Awarded To:</span>
+            <span class="info-val highlight-name">${record.name}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Event / Program:</span>
+            <span class="info-val" style="color: #ffffff;">${record.event}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Issuing Authority:</span>
+            <span class="info-val">IUS Engineering Club & FENS</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Faculty Advisor:</span>
+            <span class="info-val">${record.advisor}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Club President:</span>
+            <span class="info-val">${record.president}</span>
+          </div>
+
+          <div class="info-row" style="border: none;">
+            <span class="info-label">Date of Issuance:</span>
+            <span class="info-val">${record.date}</span>
+          </div>
+
+          <div class="actions-grid">
+            <a href="${linkedInAddUrl}" target="_blank" class="action-btn btn-li">
+              🚀 Add to LinkedIn
+            </a>
+            <a href="../export_documents/IEC_Official_Certificate_Sample.html" target="_blank" class="action-btn btn-pdf">
+              📜 View Certificate
+            </a>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("resultBox").innerHTML = html;
+    }
+
+    // Auto verify on page load
+    window.onload = function() {
+      const params = getQueryParams();
+      verifyCertificate(params.id);
+    };
+  </script>
+</body>
+</html>

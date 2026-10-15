@@ -4,7 +4,7 @@ config/linear_config.json
 *.env
 
 # Local sensitive form and member data
-data/
+/data/
 scripts/*.txt
 extracted_form.txt
 assets/*_b64.txt

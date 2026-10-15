@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: "npm"
 
       - name: Install dependencies
@@ -26,4 +26,4 @@ jobs:
       - name: Build Next.js Application
         run: npm run build
         env:
-          NEXT_PUBLIC_SITE_URL: "https://hasankaan28.github.io/IEC-PORTAL"
+          NEXT_PUBLIC_SITE_URL: "https://hasankaan28.github.io/IEC-PORTAL-2"

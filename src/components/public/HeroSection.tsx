@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, Sparkles, Cpu, Award, Users, Terminal } from "lucide-react";
+import { ArrowRight, Sparkles, Cpu, Users, Terminal } from "lucide-react";
 import HeroBackground from "./HeroBackground";
 import { useLocale } from "@/lib/i18n/locale-context";
 
@@ -11,7 +11,6 @@ export default function HeroSection() {
 
   const metrics = [
     { label: t.metrics.projectsLabel, value: t.metrics.projectsValue, note: t.metrics.projectsNote, Icon: Cpu, iconClass: "text-cyan-400" },
-    { label: t.metrics.budgetLabel, value: t.metrics.budgetValue, note: t.metrics.budgetNote, Icon: Award, iconClass: "text-blue-400" },
     { label: t.metrics.foundersLabel, value: t.metrics.foundersValue, note: t.metrics.foundersNote, Icon: Users, iconClass: "text-emerald-400" },
     { label: t.metrics.advisorLabel, value: t.metrics.advisorValue, note: t.metrics.advisorNote, Icon: Sparkles, iconClass: "text-purple-400" },
   ];
@@ -67,7 +66,7 @@ export default function HeroSection() {
           </Link>
         </div>
 
-        <dl aria-label={t.metrics.label} className="mt-16 w-full max-w-4xl grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 text-left">
+        <dl aria-label={t.metrics.label} className="mt-16 w-full max-w-3xl grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-left">
           {metrics.map(({ label, value, note, Icon, iconClass }) => (
             <div key={label} className="glass-panel p-4 rounded-xl border border-slate-800/80">
               <dt className="flex items-center justify-between mb-1">

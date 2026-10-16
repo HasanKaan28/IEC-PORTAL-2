@@ -78,15 +78,9 @@ export default function ProjectDetailDialog({ project, onClose }: ProjectDetailD
             <p className="text-slate-300 leading-relaxed">{project.solution[locale]}</p>
           </div>
 
-          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="p-3 rounded-lg bg-slate-950 border border-slate-800">
-              <dt className="text-xs text-slate-400">{t.projects.owner}</dt>
-              <dd className="text-sm font-medium text-white mt-0.5">{project.ownership[locale]}</dd>
-            </div>
-            <div className="p-3 rounded-lg bg-slate-950 border border-slate-800">
-              <dt className="text-xs text-slate-400">{t.projects.budget}</dt>
-              <dd className="text-sm font-medium text-white mt-0.5">{project.budget[locale]}</dd>
-            </div>
+          <dl className="p-3 rounded-lg bg-slate-950 border border-slate-800">
+            <dt className="text-xs text-slate-400">{t.projects.owner}</dt>
+            <dd className="text-sm font-medium text-white mt-0.5">{project.ownership[locale]}</dd>
           </dl>
         </div>
 

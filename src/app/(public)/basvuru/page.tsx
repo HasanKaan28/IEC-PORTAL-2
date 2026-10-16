@@ -70,8 +70,8 @@ export default function ApplicationPage() {
             <h1 className="text-3xl sm:text-4xl font-extrabold text-white font-display tracking-tight">
               Kulüp Üyelik & Proje Başvuru Formu
             </h1>
-            <p className="mt-3 text-slate-400 text-xs sm:text-sm leading-relaxed">
-              Mühendislik topluluğumuza katılarak kampüs projelerinde, hackathonlarda ve teknik atölyelerde aktif rol alabilirsiniz.
+            <p className="mt-3 text-slate-300 text-sm leading-relaxed">
+              Kulübe katılmak ve projelerde, hackathonlarda ya da atölyelerde yer almak için formu doldur.
             </p>
           </div>
 
@@ -82,9 +82,9 @@ export default function ApplicationPage() {
                 <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto shadow-glow">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h3 className="text-xl font-bold text-white">Başvurunuz Başarıyla Alındı!</h3>
-                <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-                  Başvurunuz yönetim kurulumuz ve ilgili komite liderleri tarafından incelenecek. Belirttiğiniz e-posta veya telefon üzerinden sizinle iletişime geçeceğiz.
+                <h3 className="text-xl font-bold text-white">Başvurun alındı</h3>
+                <p className="text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
+                  Yönetim kurulu ve ilgili komite başvurunu inceleyecek. Sana e-posta ya da telefonla dönüş yapacağız.
                 </p>
                 <div className="pt-4 flex justify-center gap-3">
                   <Link

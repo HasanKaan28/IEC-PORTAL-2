@@ -28,7 +28,7 @@ export async function generateMetadata({
 
   if (!post) {
     return {
-      title: "Yazı Bulunamadı | IUS Engineering Club",
+      title: "Yazı Bulunamadı",
     };
   }
 

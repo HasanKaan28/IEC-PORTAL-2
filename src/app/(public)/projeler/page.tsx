@@ -6,7 +6,7 @@ import Link from "next/link";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import { PROJECTS_DATA, ProjectItem } from "@/lib/data/projects";
-import { Layers, Search, Cpu, ArrowRight, Sparkles, Filter, CheckCircle2 } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 
 export default function ProjectsCatalogPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,15 +34,11 @@ export default function ProjectsCatalogPage() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-blue-500/10 border border-blue-500/20 text-xs font-mono text-cyan-400 mb-4">
-              <Layers className="w-3.5 h-3.5" />
-              <span>FENS TEKNOLOJİ PORTFÖYÜ</span>
-            </div>
             <h1 className="text-3xl sm:text-5xl font-extrabold text-white font-display tracking-tight">
-              Mühendislik Projelerimiz
+              Projelerimiz
             </h1>
-            <p className="mt-4 text-slate-400 text-sm sm:text-base leading-relaxed">
-              Öğrencilerimiz tarafından tasarlanan, donanım devrelerinden bulut yazılımlarına kadar tüm teknik mimarisi açık kaynaklı kampüs inovasyonları.
+            <p className="mt-4 text-slate-300 text-sm sm:text-base leading-relaxed">
+              Üyelerimizin üzerinde çalıştığı donanım ve yazılım projeleri ile planladığımız etkinlikler.
             </p>
           </div>
 
@@ -112,7 +108,7 @@ export default function ProjectsCatalogPage() {
                     {project.isFlagship && (
                       <span className="px-2.5 py-1 rounded text-[10px] font-mono font-semibold text-amber-300 bg-amber-500/20 border border-amber-500/40 backdrop-blur-md flex items-center gap-1">
                         <Sparkles className="w-3 h-3 text-amber-400" />
-                        Amiral Gemisi
+                        Öne çıkan
                       </span>
                     )}
                   </div>
@@ -144,7 +140,7 @@ export default function ProjectsCatalogPage() {
 
                     <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80">
                       <span className="font-semibold text-emerald-300 block mb-1 text-[11px] uppercase tracking-wider font-mono">
-                        Mühendislik Çözümü
+                        Çözüm
                       </span>
                       <p className="text-slate-400 leading-relaxed">
                         {project.solution.tr}
@@ -169,9 +165,6 @@ export default function ProjectsCatalogPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="font-mono text-slate-400 text-[11px]">
-                        Bütçe: <strong className="text-white">{project.budget.tr}</strong>
-                      </span>
                       <Link
                         href="/basvuru"
                         className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-glow transition-all"

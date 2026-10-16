@@ -58,11 +58,11 @@ const tr = {
   },
   hero: {
     eyebrow: "FENS // ULUSLARARASI SARAYBOSNA ÜNİVERSİTESİ",
-    titleStart: "Mühendislik Teorisini",
-    titleHighlight: "Kampüs İnovasyonuna",
+    titleStart: "Derste Öğrendiğimizi",
+    titleHighlight: "Gerçek Projelere",
     titleEnd: "Dönüştürüyoruz.",
     description:
-      "Amfilerdeki teorik bilgiyi gerçek donanım prototiplerine, yapay zekâ modellerine ve amiral gemisi öğrenci hackathonlarına taşıyan IUS Mühendislik Topluluğu.",
+      "Donanım prototipleri, yapay zekâ projeleri ve hackathonlar üzerinde çalışan IUS öğrenci kulübü.",
     primaryCta: "Projelerimizi Keşfet",
     portalLink: "Üye Portalı Girişi",
   },
@@ -70,112 +70,74 @@ const tr = {
     label: "Kulüp özeti",
     projectsLabel: "Projeler",
     projectsValue: "5+",
-    projectsNote: "Aktif kampüs inovasyonu",
-    budgetLabel: "Taslak Bütçe",
-    budgetValue: "1.300 KM",
-    budgetNote: "Dengeli 3-katmanlı model",
+    projectsNote: "Üzerinde çalışılan proje ve etkinlik",
     foundersLabel: "Kurucu Kadro",
     foundersValue: "12+ Üye",
-    foundersNote: "Multidisipliner mühendislik",
-    advisorLabel: "Akademik Destek",
-    advisorValue: "Prof. Dr. Leila",
-    advisorNote: "FENS Fakülte Danışmanı",
+    foundersNote: "Farklı mühendislik bölümlerinden",
+    advisorLabel: "Akademik Danışman",
+    advisorValue: "Prof. Dr. Leila Miller",
+    advisorNote: "FENS öğretim üyesi",
   },
   projects: {
-    title: "Amiral Gemisi Projelerimiz",
+    title: "Projelerimiz",
     description:
-      "FENS amfilerinden teknoloji ekosistemine uzanan donanım, yapay zekâ ve yazılım inovasyonlarımız.",
+      "Üyelerimizin üzerinde çalıştığı donanım, yazılım ve yapay zekâ projeleri ile planladığımız etkinlikler.",
     filterLabel: "Projeleri kategoriye göre filtrele",
-    categoryAll: "Tüm İnovasyonlar",
+    categoryAll: "Tümü",
     categoryHardware: "Donanım & IoT",
     categorySoftware: "Yazılım & Web",
     categoryHackathon: "Hackathon & Etkinlik",
     categoryAi: "Yapay Zekâ",
-    flagship: "Amiral Gemisi",
+    flagship: "Öne çıkan",
     viewDetails: "Detayları Gör",
-    viewAll: "Tüm Projeleri ve Teknik Mimarileri İncele",
+    viewAll: "Tüm projeleri gör",
     empty: "Bu kategoride henüz proje yok.",
-    problem: "Karşılaşılan Problem & İhtiyaç",
-    solution: "Mühendislik Çözümümüz",
+    problem: "Sorun",
+    solution: "Çözümümüz",
     owner: "Proje Sorumlusu",
-    budget: "Finansal Mimari",
     difficulty: "Zorluk Derecesi",
-    joinProject: "Bu Projede Görev Al",
+    joinProject: "Bu projeye katıl",
   },
   about: {
-    titleStart: "Mühendisliği Yalnızca Okumuyor,",
-    titleHighlight: "Üretiyoruz.",
+    titleStart: "Mühendisliği",
+    titleHighlight: "uygulayarak öğreniyoruz.",
     paragraph1:
-      "IUS Engineering Club (IEC), Uluslararası Saraybosna Üniversitesi Mühendislik ve Doğa Bilimleri Fakültesi (FENS) öğrencileri tarafından, teorik müfredat ile küresel teknoloji endüstrisi arasındaki boşluğu kapatmak amacıyla kuruldu.",
+      "IUS Engineering Club (IEC), Uluslararası Saraybosna Üniversitesi Mühendislik ve Doğa Bilimleri Fakültesi (FENS) öğrencilerinin kurduğu bir kulüp. Amacımız derste öğrendiklerimizi gerçek projelerde kullanmak ve sektördeki mühendislerle tanışmak.",
     paragraph2:
-      "Kulübümüz, hiyerarşik pasif üyelik yerine Linear tabanlı modern sprintler, açık kaynaklı kod depoları ve üniversite donanım istasyonları ile her üyesine doğrudan üretim sorumluluğu verir.",
-    link: "Tüzük, Yönetim Kurulu ve 12 Haftalık Planı İncele",
+      "Görevleri Linear üzerinden takip ediyor, kodumuzu açık depolarda paylaşıyor ve üniversitenin laboratuvarlarında çalışıyoruz. Üyelerimiz projelerde doğrudan sorumluluk alıyor.",
+    link: "Yönetim kurulu ve dönem planı",
     pillars: [
       {
-        title: "Multidisipliner Mühendislik",
+        title: "Bölümler arası projeler",
         description:
-          "Bilgisayar (CSE), Yazılım (SE), Elektrik-Elektronik (EE) ve Endüstri (IE) disiplinlerini tek ortak donanım-yazılım prototipleme çemberinde buluşturuyoruz.",
+          "Bilgisayar, yazılım, elektrik-elektronik ve endüstri mühendisliği öğrencileri aynı donanım ve yazılım projelerinde birlikte çalışıyor.",
       },
       {
         title: "Yazılım & Yapay Zekâ Komitesi",
         description:
-          "Modern bulut mimarileri, büyük dil modelleri (LLMs), RAG pipeline'ları ve production-grade full-stack web standartları üzerine haftalık laboratuvarlar düzenliyoruz.",
+          "Bulut sistemleri, büyük dil modelleri, RAG ve web geliştirme üzerine haftalık atölyeler yapıyoruz.",
       },
       {
-        title: "Amiral Gemisi Hackathonlar",
+        title: "Hackathon ve zirve",
         description:
-          "Saraybosna genelindeki üniversiteleri IUS çatısı altında buluşturan 24 saatlik kesintisiz DevHack maratonları ve yıllık teknoloji zirveleri organize ediyoruz.",
+          "Saraybosna'daki üniversite öğrencilerini IUS'ta buluşturacak 24 saatlik DevHack'i ve yıllık bir teknoloji zirvesini planlıyoruz.",
       },
       {
-        title: "Akademik & Endüstriyel Köprü",
+        title: "Akademi ve sektörle bağ",
         description:
-          "Prof. Dr. Leila Miller danışmanlığında, FENS dekanlığı ve Saraybosna teknoloji ekosistemi (Bit Alliance firmaları) ile doğrudan staj ve mentorluk ağı kuruyoruz.",
-      },
-    ],
-  },
-  blog: {
-    title: "Öğrencilerimizden Teknik Makaleler",
-    description:
-      "Kulüp projelerimizdeki mühendislik zorlukları, donanım mimarileri ve yapay zekâ deneyleri.",
-    viewAll: "Tüm Makaleleri Gör",
-    minutesRead: "dk okuma",
-    languageNote: "",
-    posts: [
-      {
-        title: "ESP32 ve RFID ile Otonom Güç İstasyonu Mimarisi",
-        excerpt:
-          "IUS PowerHub projesinde SPI bus yönetimi, MQTT telemetrisi ve öğrenci kartı yetkilendirme katmanını nasıl tasarladık?",
-        author: "Hasan Kaan Karabulut",
-        role: "Donanım Lideri",
-        category: "Gömülü Sistemler",
-      },
-      {
-        title: "Öğrenci Kulübünü Modern Bir Teknoloji Şirketi Gibi Yönetmek",
-        excerpt:
-          "WhatsApp kaosundan Linear sprintlerine geçiş: Görev atama, pull request takibi ve şeffaf bütçe mimarisi.",
-        author: "Mahmut İhsan Avcı",
-        role: "Başkan Yardımcısı",
-        category: "Mühendislik Kültürü",
-      },
-      {
-        title: "FENS Laboratuvarlarında Yerel LLM ve RAG Kurulum Rehberi",
-        excerpt:
-          "RTX GPU'lar üzerinde Qwen 2.5 Coder ve Ollama ile kampüs içi gizli veri analiz istasyonu oluşturma adımları.",
-        author: "Yazılım & AI Komitesi",
-        role: "Araştırma Grubu",
-        category: "Yapay Zekâ",
+          "Danışmanımız Prof. Dr. Leila Miller ile birlikte FENS dekanlığı ve Saraybosna'daki teknoloji şirketleriyle (Bit Alliance üyeleri) staj ve mentorluk bağlantıları kuruyoruz.",
       },
     ],
   },
   joinCta: {
     badge: "2026/2027 güz dönemi kayıtları açık",
-    title: "Geleceğin Mühendislik Ekibinde Yerini Al",
+    title: "Ekibimize katıl",
     description:
-      "İster yazılım, ister gömülü donanım, ister etkinlik organizasyonu olsun; yeteneğine uygun komitede gerçek projelere imza at.",
+      "Yazılım, gömülü sistemler veya etkinlik organizasyonu: ilgini çeken komiteyi seç ve bir projede yer al.",
   },
   footer: {
     description:
-      "International University of Sarajevo (IUS) Mühendislik ve Doğa Bilimleri Fakültesi (FENS) bünyesinde faaliyet gösteren resmi öğrenci mühendislik topluluğu.",
+      "Uluslararası Saraybosna Üniversitesi (IUS) Mühendislik ve Doğa Bilimleri Fakültesi (FENS) öğrenci mühendislik kulübü.",
     country: "Bosna-Hersek",
     sourceCode: "Sitenin kaynak kodu (GitHub)",
     whatsapp: "WhatsApp topluluğu",
@@ -274,11 +236,11 @@ const en: Dictionary = {
   },
   hero: {
     eyebrow: "FENS // INTERNATIONAL UNIVERSITY OF SARAJEVO",
-    titleStart: "We Turn Engineering Theory",
-    titleHighlight: "Into Campus Innovation.",
+    titleStart: "We Turn What We Learn in Class",
+    titleHighlight: "Into Real Projects.",
     titleEnd: "",
     description:
-      "The IUS engineering community taking classroom theory into real hardware prototypes, AI models and flagship student hackathons.",
+      "An IUS student club working on hardware prototypes, AI projects and hackathons.",
     primaryCta: "Explore Our Projects",
     portalLink: "Member Portal Sign-in",
   },
@@ -286,111 +248,73 @@ const en: Dictionary = {
     label: "Club at a glance",
     projectsLabel: "Projects",
     projectsValue: "5+",
-    projectsNote: "Active campus innovations",
-    budgetLabel: "Draft Budget",
-    budgetValue: "1,300 KM",
-    budgetNote: "Balanced 3-tier model",
+    projectsNote: "Projects and events in progress",
     foundersLabel: "Founding Team",
     foundersValue: "12+ Members",
-    foundersNote: "Multidisciplinary engineering",
-    advisorLabel: "Academic Support",
-    advisorValue: "Prof. Dr. Leila",
-    advisorNote: "FENS Faculty Advisor",
+    foundersNote: "From several engineering departments",
+    advisorLabel: "Faculty Advisor",
+    advisorValue: "Prof. Dr. Leila Miller",
+    advisorNote: "FENS faculty member",
   },
   projects: {
-    title: "Our Flagship Projects",
+    title: "Our Projects",
     description:
-      "Hardware, AI and software innovation that starts in FENS lecture halls and reaches the tech ecosystem.",
+      "The hardware, software and AI projects our members are working on, plus the events we are planning.",
     filterLabel: "Filter projects by category",
-    categoryAll: "All Projects",
+    categoryAll: "All",
     categoryHardware: "Hardware & IoT",
     categorySoftware: "Software & Web",
     categoryHackathon: "Hackathons & Events",
     categoryAi: "Artificial Intelligence",
-    flagship: "Flagship",
+    flagship: "Featured",
     viewDetails: "View Details",
-    viewAll: "See All Projects and Technical Details",
+    viewAll: "See all projects",
     empty: "No projects in this category yet.",
-    problem: "Problem & Need",
-    solution: "Our Engineering Solution",
+    problem: "Problem",
+    solution: "Our solution",
     owner: "Project Lead",
-    budget: "Funding",
     difficulty: "Difficulty",
-    joinProject: "Join This Project",
+    joinProject: "Join this project",
   },
   about: {
-    titleStart: "We Don't Just Study Engineering.",
-    titleHighlight: "We Build It.",
+    titleStart: "We learn engineering",
+    titleHighlight: "by building.",
     paragraph1:
-      "IUS Engineering Club (IEC) was founded by students of the Faculty of Engineering and Natural Sciences (FENS) at the International University of Sarajevo to close the gap between the academic curriculum and the global technology industry.",
+      "IUS Engineering Club (IEC) is a club founded by students of the Faculty of Engineering and Natural Sciences (FENS) at the International University of Sarajevo. We want to use what we learn in class on real projects and meet engineers working in the industry.",
     paragraph2:
-      "Instead of passive, hierarchical membership, the club gives every member direct ownership through Linear-based sprints, open-source repositories and university hardware stations.",
-    link: "Read the Constitution, Board and 12-Week Plan",
+      "We track tasks in Linear, share our code in open repositories and work in the university labs. Members take direct responsibility for the projects they join.",
+    link: "Board and semester plan",
     pillars: [
       {
-        title: "Multidisciplinary Engineering",
+        title: "Cross-department projects",
         description:
-          "We bring Computer (CSE), Software (SE), Electrical and Electronics (EE) and Industrial (IE) engineering together in one shared hardware and software prototyping circle.",
+          "Computer, software, electrical and electronics, and industrial engineering students work together on the same hardware and software projects.",
       },
       {
         title: "Software & AI Committee",
+        description: "We run weekly workshops on cloud systems, large language models, RAG and web development.",
+      },
+      {
+        title: "Hackathon and summit",
         description:
-          "We run weekly labs on modern cloud architecture, large language models (LLMs), RAG pipelines and production-grade full-stack web standards.",
+          "We are planning DevHack, a 24-hour hackathon for university students across Sarajevo, and an annual technology summit at IUS.",
       },
       {
-        title: "Flagship Hackathons",
+        title: "Links with faculty and industry",
         description:
-          "We organize 24-hour DevHack marathons and an annual technology summit that bring universities across Sarajevo together at IUS.",
-      },
-      {
-        title: "Academic & Industry Bridge",
-        description:
-          "Advised by Prof. Dr. Leila Miller, we are building an internship and mentoring network with the FENS dean's office and Sarajevo's tech ecosystem (Bit Alliance companies).",
-      },
-    ],
-  },
-  blog: {
-    title: "Technical Writing From Our Students",
-    description: "Engineering challenges, hardware architectures and AI experiments from our club projects.",
-    viewAll: "View All Articles",
-    minutesRead: "min read",
-    languageNote: "Articles are currently published in Turkish.",
-    posts: [
-      {
-        title: "Building an Autonomous Power Station With ESP32 and RFID",
-        excerpt:
-          "How we designed SPI bus management, MQTT telemetry and the student ID authorization layer for the IUS PowerHub project.",
-        author: "Hasan Kaan Karabulut",
-        role: "Hardware Lead",
-        category: "Embedded Systems",
-      },
-      {
-        title: "Running a Student Club Like a Modern Tech Company",
-        excerpt:
-          "Moving from WhatsApp chaos to Linear sprints: task assignment, pull request tracking and a transparent budget.",
-        author: "Mahmut İhsan Avcı",
-        role: "Vice President",
-        category: "Engineering Culture",
-      },
-      {
-        title: "Setting Up a Local LLM and RAG Stack in FENS Labs",
-        excerpt:
-          "Steps for building a private on-campus data analysis station with Qwen 2.5 Coder and Ollama on RTX GPUs.",
-        author: "Software & AI Committee",
-        role: "Research Group",
-        category: "Artificial Intelligence",
+          "Together with our advisor Prof. Dr. Leila Miller, we are building internship and mentoring links with the FENS dean's office and Sarajevo tech companies (Bit Alliance members).",
       },
     ],
   },
   joinCta: {
     badge: "Fall 2026/2027 applications are open",
-    title: "Take Your Place in Tomorrow's Engineering Team",
+    title: "Join the team",
     description:
-      "Software, embedded hardware or event operations: join the committee that fits your skills and put your name on real projects.",
+      "Software, embedded systems or event organization: pick the committee that interests you and join a project.",
   },
   footer: {
     description:
-      "The official student engineering community of the Faculty of Engineering and Natural Sciences (FENS) at the International University of Sarajevo (IUS).",
+      "The student engineering club of the Faculty of Engineering and Natural Sciences (FENS) at the International University of Sarajevo (IUS).",
     country: "Bosnia and Herzegovina",
     sourceCode: "Website source code (GitHub)",
     whatsapp: "WhatsApp community",

@@ -4,7 +4,7 @@ import CertificatesPortalClient from "@/components/portal/certificates/Certifica
 import { getUserCertificates } from "@/lib/events/event-queries";
 
 export const metadata: Metadata = {
-  title: "Sertifikalarım | IUS Engineering Club",
+  title: "Sertifikalarım",
   description:
     "Etkinlik başarı ve katılım sertifikaları, doğrulanabilir dijital kimlikler, PDF indirme ve LinkedIn profil entegrasyonu.",
 };

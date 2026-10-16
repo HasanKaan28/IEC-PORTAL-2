@@ -6,11 +6,11 @@ import BlogCatalogView from "@/components/public/BlogCatalogView";
 import { getBlogPosts } from "@/lib/blog/blog-queries";
 
 export const metadata: Metadata = {
-  title: "Teknik Mühendislik Blogu | IUS Engineering Club",
+  title: "Blog",
   description:
     "FENS öğrencilerinin kampüs donanım projeleri, açık kaynak yazılımlar, yapay zekâ deneyleri ve hackathon stratejileri.",
   openGraph: {
-    title: "Mühendislik Yazıları | IUS Engineering Club",
+    title: "Blog | IUS Engineering Club",
     description:
       "FENS öğrencilerinin kampüs donanım projeleri, açık kaynak yazılımlar ve yapay zekâ deneyleri.",
     url: "https://iec.ius.edu.ba/blog",

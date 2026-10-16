@@ -1,7 +1,7 @@
 import React from "react";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
-import { ShieldCheck, Users, Target, Calendar, ArrowRight, Award, GraduationCap } from "lucide-react";
+import { ArrowRight, GraduationCap } from "lucide-react";
 import Link from "next/link";
 
 export default function AboutPage() {
@@ -10,54 +10,54 @@ export default function AboutPage() {
       name: "Hasan Kaan Karabulut",
       role: "Kurucu Ortak & Başkan",
       dept: "Bilgisayar Bilimleri (FENS)",
-      focus: "Teknik Mimari, Donanım Projeleri (PowerHub) & Topluluk Koordinasyonu",
+      focus: "Teknik altyapı, PowerHub donanım projesi ve topluluk koordinasyonu",
     },
     {
       name: "Mahmut İhsan Avcı",
       role: "Kurucu Ortak & Başkan Yardımcısı",
       dept: "Yazılım Mühendisliği (FENS)",
-      focus: "Operasyonel Süreçler, Linear Yönetimi & Bürokratik Yazışmalar",
+      focus: "Operasyon, Linear üzerinden görev takibi ve resmi yazışmalar",
     },
     {
       name: "Bekir Enes Çokbekler",
-      role: "Sayman & Finans Lideri",
+      role: "Sayman",
       dept: "Mühendislik & Doğa Bilimleri (FENS)",
-      focus: "Bütçe Mimarisi, Şirket Sponsorlukları & Finansal Raporlama",
+      focus: "Şirket sponsorlukları ve finansal raporlama",
     },
     {
       name: "Muhammed Efe Ural",
-      role: "PR & Medya / Sponsorluk Lideri",
+      role: "PR ve Sponsorluk Sorumlusu",
       dept: "Mühendislik Fakültesi (FENS)",
-      focus: "Instagram & Sosyal Medya, Görsel Tasarımlar & Kurumsal Ortaklıklar",
+      focus: "Instagram, görsel tasarım ve kurumsal ortaklıklar",
     },
   ];
 
   const milestones = [
     {
-      phase: "Milestone 1 (Hafta 1–2)",
-      title: "Akademik Danışman & SKS Resmi Kayıt",
-      desc: "Prof. Dr. Leila Miller danışmanlığında Form F252 ve kurucu 12 üye imzasıyla Öğrenci İşleri (SKS/SCC) başvurusu.",
+      phase: "Hafta 1-2",
+      title: "Akademik danışman ve SKS kaydı",
+      desc: "Prof. Dr. Leila Miller'ın danışmanlığında, Form F252 ve 12 kurucu üyenin imzasıyla Öğrenci İşleri'ne (SKS/SCC) başvuru.",
       status: "Tamamlandı",
       active: true,
     },
     {
-      phase: "Milestone 2 (Hafta 3–4)",
-      title: "Linear Çalışma Alanı & Tanışma Etkinliği",
-      desc: "Tüm üyelerin Linear platformuna entegrasyonu ve IUS Büyük Amfide Marshmallow Challenge açılış etkinliği.",
+      phase: "Hafta 3-4",
+      title: "Linear ve tanışma etkinliği",
+      desc: "Üyelerin Linear'a eklenmesi ve IUS Büyük Amfi'de Marshmallow Challenge ile açılış etkinliği.",
       status: "Devam Ediyor",
       active: true,
     },
     {
-      phase: "Milestone 3 (Hafta 5–8)",
-      title: "Haftalık AI Labs & Kampüs Konferansları",
-      desc: "FENS laboratuvarlarında uygulamalı prompt mühendisliği, gömülü sistem atölyeleri ve yerel LLM oturumları.",
+      phase: "Hafta 5-8",
+      title: "Haftalık atölyeler ve kampüs konuşmaları",
+      desc: "FENS laboratuvarlarında yapay zekâ, gömülü sistemler ve yerel dil modelleri üzerine atölyeler.",
       status: "Planlandı",
       active: false,
     },
     {
-      phase: "Milestone 4 (Hafta 9–12)",
-      title: "DevHack 2027 & Mühendislik Zirvesi",
-      desc: "24 saatlik yatılı üniversiteler arası hackathon maratonu ve Saraybosna IT şirketleri katılımıyla TechSummit 2027.",
+      phase: "Hafta 9-12",
+      title: "DevHack 2027 ve Mühendislik Zirvesi",
+      desc: "Üniversiteler arası 24 saatlik hackathon ve Saraybosna'daki teknoloji şirketlerinin katılacağı TechSummit 2027.",
       status: "Planlandı",
       active: false,
     },
@@ -71,15 +71,11 @@ export default function AboutPage() {
         <div className="max-w-6xl mx-auto space-y-20">
           {/* Header */}
           <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-blue-500/10 border border-blue-500/20 text-xs font-mono text-cyan-400 mb-4">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>KURUMSAL KİMLİK & MİSYON</span>
-            </div>
             <h1 className="text-3xl sm:text-5xl font-extrabold text-white font-display tracking-tight">
               IUS Engineering Club Hakkında
             </h1>
-            <p className="mt-4 text-slate-400 text-sm sm:text-base leading-relaxed">
-              Uluslararası Saraybosna Üniversitesi Mühendislik ve Doğa Bilimleri Fakültesi (FENS) çatısı altında kurulan, üretimi ve inovasyonu merkeze alan öğrenci platformu.
+            <p className="mt-4 text-slate-300 text-sm sm:text-base leading-relaxed">
+              Uluslararası Saraybosna Üniversitesi Mühendislik ve Doğa Bilimleri Fakültesi (FENS) öğrencilerinin kurduğu mühendislik kulübü.
             </p>
           </div>
 
@@ -99,7 +95,7 @@ export default function AboutPage() {
                 Full Professor Dr. • Faculty of Engineering and Natural Sciences (FENS)
               </p>
               <p className="text-xs text-slate-400 mt-3 leading-relaxed">
-                Kulübümüzün tüm akademik doğrulamaları, laboratuvar kullanımı izinleri ve üniversite yönetim kurulu koordinasyonu Prof. Dr. Leila Miller rehberliğinde yürütülmektedir.
+                Laboratuvar izinleri ve üniversiteyle yazışmalar Prof. Dr. Leila Miller'ın danışmanlığında yürütülüyor.
               </p>
             </div>
           </div>
@@ -108,11 +104,8 @@ export default function AboutPage() {
           <div>
             <div className="text-center mb-10">
               <h2 className="text-2xl sm:text-3xl font-bold text-white font-display">
-                Yönetim Kurulu Kadromuz
+                Yönetim Kurulu
               </h2>
-              <p className="text-slate-400 text-xs mt-1">
-                Kolektif karar alma ve çevik görev dağılımı ile yönetilen kurucu çekirdek ekip.
-              </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -147,10 +140,10 @@ export default function AboutPage() {
           <div>
             <div className="text-center mb-10">
               <h2 className="text-2xl sm:text-3xl font-bold text-white font-display">
-                12 Haftalık Dönem Faaliyet Planı
+                12 Haftalık Dönem Planı
               </h2>
-              <p className="text-slate-400 text-xs mt-1">
-                Tüzükte ve resmi SKS başvurusunda yer alan doğrulanmış operasyonel kilometre taşları.
+              <p className="text-slate-400 text-sm mt-1">
+                SKS başvurusunda yer alan dönem planı.
               </p>
             </div>
 
@@ -189,16 +182,16 @@ export default function AboutPage() {
 
           {/* Bottom CTA */}
           <div className="text-center pt-8 border-t border-slate-900">
-            <h3 className="text-xl font-bold text-white">Topluluğumuza Katılmak İster misin?</h3>
-            <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
-              Tüm IUS öğrencilerine kapımız açıktır. Formu doldurarak ilk toplantımıza davet alabilirsin.
+            <h3 className="text-xl font-bold text-white">Kulübe katılmak ister misin?</h3>
+            <p className="text-sm text-slate-400 mt-1 max-w-md mx-auto">
+              Kulüp tüm IUS öğrencilerine açık. Formu doldurursan ilk toplantıya davet edilirsin.
             </p>
             <div className="mt-5">
               <Link
                 href="/basvuru"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-glow transition-all"
               >
-                <span>Hemen Başvuru Formunu Aç</span>
+                <span>Başvuru formunu aç</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>

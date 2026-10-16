@@ -4,7 +4,7 @@ import EventsPortalClient from "@/components/portal/events/EventsPortalClient";
 import { getEvents } from "@/lib/events/event-queries";
 
 export const metadata: Metadata = {
-  title: "Etkinlikler & Atölyeler | IUS Engineering Club",
+  title: "Etkinlikler & Atölyeler",
   description:
     "Mühendislik atölyeleri, teknoloji seminerleri, hackathonlar ve dinamik QR yoklama sistemi.",
 };

@@ -5,7 +5,7 @@ import { getContacts, getDirectMessages } from "@/lib/messages/message-queries";
 import { DirectMessageItem } from "@/lib/messages/message-types";
 
 export const metadata: Metadata = {
-  title: "Mesajlaşma (DM) | IUS Engineering Club",
+  title: "Mesajlaşma (DM)",
   description:
     "Kulüp üyeleri, takım arkadaşları ve proje yürütücüleri ile birebir anlık şifreli mesajlaşma.",
 };

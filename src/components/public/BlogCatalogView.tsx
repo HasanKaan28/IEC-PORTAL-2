@@ -104,15 +104,11 @@ export default function BlogCatalogView({
     <div className="space-y-12">
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-purple-500/10 border border-purple-500/20 text-xs font-mono text-purple-400">
-          <BookOpen className="w-3.5 h-3.5" />
-          <span>TEKNİK BÜLTEN & MÜHENDİSLİK BLOGU</span>
-        </div>
         <h1 className="text-3xl sm:text-5xl font-extrabold text-white font-display tracking-tight">
-          Mühendislik Yazıları
+          Blog
         </h1>
-        <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
-          FENS öğrencilerinin gerçek kampüs donanım projeleri, açık kaynak yazılımlar ve yapay zekâ deneyleri hakkındaki teknik dokümantasyonları.
+        <p className="text-slate-300 text-sm leading-relaxed">
+          Kulüp üyelerinin projeleri ve etkinlikleri hakkında yazdıkları.
         </p>
 
         <div className="pt-2 flex items-center justify-center gap-3">
@@ -136,6 +132,14 @@ export default function BlogCatalogView({
         </div>
       </div>
 
+      {initialPosts.length === 0 ? (
+        <div className="text-center py-20 border border-dashed border-slate-800 rounded-2xl max-w-xl mx-auto space-y-2">
+          <BookOpen className="w-8 h-8 text-slate-500 mx-auto" aria-hidden="true" />
+          <h2 className="text-base font-semibold text-slate-200">Henüz yayınlanmış yazı yok</h2>
+          <p className="text-sm text-slate-400">Üyelerimizin ilk yazıları yakında burada olacak.</p>
+        </div>
+      ) : (
+      <>
       {/* Search & Category Filter Controls */}
       <div className="space-y-4 max-w-4xl mx-auto">
         <div className="relative">
@@ -301,6 +305,8 @@ export default function BlogCatalogView({
             </Link>
           ))}
         </div>
+      )}
+      </>
       )}
     </div>
   );

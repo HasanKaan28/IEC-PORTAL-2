@@ -24,10 +24,6 @@ export interface ProjectItem {
     tr: string;
     en: string;
   };
-  budget: {
-    tr: string;
-    en: string;
-  };
   difficulty: number;
   image: string;
   problem: {
@@ -45,6 +41,8 @@ export interface ProjectItem {
   accentColor: string;
 }
 
+// Category filters on the site match the Turkish category labels ("Donanım", "Yazılım",
+// "Hackathon"/"Zirve", "Zekâ"), so keep those words when editing categories.
 export const PROJECTS_DATA: ProjectItem[] = [
   {
     id: "powerbank-station",
@@ -52,39 +50,35 @@ export const PROJECTS_DATA: ProjectItem[] = [
     isFlagship: true,
     isFeatured: true,
     category: {
-      tr: "Donanım & IoT Kampüs İnovasyonu",
-      en: "Hardware & IoT Campus Innovation",
+      tr: "Donanım & IoT",
+      en: "Hardware & IoT",
     },
     badge: {
       tr: "Öğrenci Projesi",
-      en: "Student Initiative",
+      en: "Student Project",
     },
     title: {
       tr: "IUS PowerHub (Akıllı Powerbank İstasyonu)",
-      en: "IUS PowerHub (Smart Campus Powerbank Station)",
+      en: "IUS PowerHub (Smart Powerbank Station)",
     },
     tagline: {
-      tr: "Öğrenci kartı (RFID) ile tek dokunuşta taşınabilir kampüs enerjisi.",
-      en: "One-tap portable energy powered by IUS Student RFID IDs.",
+      tr: "Öğrenci kartını okutunca şarjlı powerbank veren istasyon.",
+      en: "A station that hands out a charged powerbank when you tap your student card.",
     },
     author: "Hasan Kaan Karabulut (Başkan)",
     ownership: {
       tr: "Hasan Kaan Karabulut (Proje Lideri & Donanım)",
       en: "Hasan Kaan Karabulut (Project Lead & Hardware)",
     },
-    budget: {
-      tr: "Tahmini 400+ KM (Şirket Sponsorluğu Destekli)",
-      en: "Est. 400+ KM (Corporate Sponsorship Required)",
-    },
     difficulty: 5,
     image: "/assets/projects/powerbank_station_hero.jpg",
     problem: {
-      tr: "Amfilerde, kütüphanede ve kafeteryada priz yetersizliği sebebiyle öğrencilerin ders aralarında cihazlarının şarjsız kalması ve priz arama karmaşası.",
-      en: "Shortage of accessible wall outlets across lecture halls, the library, and cafeterias leads to depleted student devices and disrupted study sessions.",
+      tr: "Amfilerde, kütüphanede ve kafeteryada priz az olduğu için öğrencilerin cihazları ders aralarında şarjsız kalıyor.",
+      en: "Lecture halls, the library and the cafeteria have few outlets, so student devices run out of charge between classes.",
     },
     solution: {
-      tr: "Öğrencilerin IUS kartını okutarak otomatik şarj olan powerbank alabileceği, her blokta giriş katına yerleştirilecek 3 adet otonom manyetik şarj istasyonu.",
-      en: "Students tap their university RFID card to instantly release the fullest powerbank from smart magnetic charging docks deployed across campus building lobbies.",
+      tr: "Binaların giriş katlarına 3 şarj istasyonu yerleştirilecek. Öğrenci IUS kartını okutunca istasyon şarjlı bir powerbank verir.",
+      en: "Three charging stations will go on the ground floors of campus buildings. A student taps their IUS card and the station releases a charged powerbank.",
     },
     specs: [
       {
@@ -93,7 +87,7 @@ export const PROJECTS_DATA: ProjectItem[] = [
       },
       {
         label: { tr: "Protokol", en: "Protocol" },
-        value: { tr: "MQTT & WebSocket Telemetry", en: "MQTT & WebSocket Telemetry" },
+        value: { tr: "MQTT & WebSocket", en: "MQTT & WebSocket" },
       },
       {
         label: { tr: "Kart Okuyucu", en: "RFID Module" },
@@ -117,30 +111,26 @@ export const PROJECTS_DATA: ProjectItem[] = [
     },
     title: {
       tr: "IUS Dining App (Yemekhane Menü & Geri Bildirim)",
-      en: "IUS Dining App (Cafeteria Menu & Feedback Hub)",
+      en: "IUS Dining App (Cafeteria Menu & Feedback)",
     },
     tagline: {
-      tr: "Günlük yemekhane menüsü, kalori takibi ve anlık öğrenci geri bildirim platformu.",
-      en: "Daily cafeteria menu, nutrition tracking, and real-time student dining satisfaction ratings.",
+      tr: "Günlük yemekhane menüsü, kalori bilgisi ve öğrenci geri bildirimi tek uygulamada.",
+      en: "The daily cafeteria menu, calorie information and student feedback in one app.",
     },
     author: "Mahmut İhsan Avcı (Başkan Yrd.)",
     ownership: {
       tr: "Mahmut İhsan Avcı & Yazılım Komitesi",
       en: "Mahmut İhsan Avcı & Software Committee",
     },
-    budget: {
-      tr: "0 KM (Kulüp Açık Kaynak Geliştirmesi)",
-      en: "0 KM (In-house Open Source)",
-    },
     difficulty: 2,
     image: "/assets/projects/dining_app_hero.jpg",
     problem: {
-      tr: "Yemekhane menüsünün öğrencilere düzenli ulaşmaması, yemek kalitesi hakkında anlık geri bildirim mekanizmasının eksikliği.",
-      en: "Students frequently lack clear visibility into daily cafeteria lunch items and have no direct channel to submit meal feedback.",
+      tr: "Yemekhane menüsü öğrencilere düzenli ulaşmıyor ve yemekler hakkında geri bildirim verecek bir kanal yok.",
+      en: "Students rarely see the cafeteria menu in advance and have no way to give feedback on the meals.",
     },
     solution: {
-      tr: "Web ve mobil uyumlu PWA uygulaması ile haftalık menü gösterimi, alerjen filtreleme ve yemekhane yönetimine anonim puanlama kanalı.",
-      en: "A lightweight responsive PWA showing weekly menus, nutritional values, and verified student rating dashboards.",
+      tr: "Haftalık menüyü gösteren, alerjen filtresi olan ve yemekhane yönetimine anonim puan gönderen bir web uygulaması (PWA).",
+      en: "A web app (PWA) that shows the weekly menu, filters allergens and sends anonymous ratings to the cafeteria management.",
     },
     specs: [
       {
@@ -160,44 +150,40 @@ export const PROJECTS_DATA: ProjectItem[] = [
     isFlagship: true,
     isFeatured: true,
     category: {
-      tr: "Amiral Gemisi Hackathon",
-      en: "Flagship Hackathon",
+      tr: "Hackathon",
+      en: "Hackathon",
     },
     badge: {
-      tr: "24 Saatlik Maraton",
-      en: "24-Hour Marathon",
+      tr: "24 Saatlik Hackathon",
+      en: "24-Hour Hackathon",
     },
     title: {
       tr: "DevHack 2027 (IUS 24 Saatlik Mühendislik Hackathonu)",
       en: "DevHack 2027 (IUS 24-Hour Engineering Hackathon)",
     },
     tagline: {
-      tr: "Saraybosna genelinde üniversite öğrencilerini buluşturan 24 saatlik kodlama maratonu.",
-      en: "Sarajevo-wide 24-hour sprint uniting computer science, electrical, and mechanical students.",
+      tr: "Saraybosna'daki üniversite öğrencilerini bir araya getirecek 24 saatlik hackathon.",
+      en: "A 24-hour hackathon for university students from across Sarajevo.",
     },
-    author: "Yönetim Kurulu Ortak Girişimi",
+    author: "Yönetim Kurulu",
     ownership: {
       tr: "Etkinlik & Operasyon Komitesi",
-      en: "Operations & Events Committee",
-    },
-    budget: {
-      tr: "700 KM (Tier 1 Şirket Sponsorlukları Destekli)",
-      en: "700 KM (Tier 1 Corporate Sponsorship Supported)",
+      en: "Events & Operations Committee",
     },
     difficulty: 4,
     image: "/assets/projects/hackathon_event_hero.jpg",
     problem: {
-      tr: "Mühendislik öğrencilerinin teorik dersler haricinde endüstri standardı gerçek sorunlara multidisipliner takımlarla çözüm üretme pratiğinin az olması.",
-      en: "Engineering students need intense collaborative opportunities to transform theoretical classroom knowledge into production prototypes.",
+      tr: "Mühendislik öğrencileri ders dışında, farklı bölümlerden kişilerle gerçek problemler üzerinde çalışma fırsatını az buluyor.",
+      en: "Outside class, engineering students rarely get to work on real problems with people from other departments.",
     },
     solution: {
-      tr: "FENS laboratuvarlarında gerçekleşecek, mentorluk seansları, sponsor jüri üyeleri ve canlı sunumlarla desteklenen 24 saatlik hackathon.",
-      en: "An intensive on-campus weekend hackathon featuring industry mentors, corporate problem statements, and real-time project judging.",
+      tr: "FENS laboratuvarlarında mentorların, sponsor jürisinin ve canlı sunumların olacağı 24 saatlik bir hackathon.",
+      en: "A 24-hour hackathon in the FENS labs with mentors, a sponsor jury and live demos.",
     },
     specs: [
       {
         label: { tr: "Format", en: "Format" },
-        value: { tr: "24 Saat Kesintisiz Maraton", en: "24-Hour Non-stop Sprint" },
+        value: { tr: "24 saat", en: "24 hours" },
       },
       {
         label: { tr: "Kapasite", en: "Capacity" },
@@ -213,38 +199,34 @@ export const PROJECTS_DATA: ProjectItem[] = [
     isFeatured: true,
     category: {
       tr: "Yapay Zekâ & Makine Öğrenimi",
-      en: "Artificial Intelligence & ML",
+      en: "AI & Machine Learning",
     },
     badge: {
       tr: "Haftalık Atölye",
       en: "Weekly Workshop",
     },
     title: {
-      tr: "AI Prompt & Evaluation Labs (Uygulamalı LLM İstasyonu)",
-      en: "AI Prompt & Evaluation Labs (Hands-on LLM Lab)",
+      tr: "AI Prompt & Evaluation Labs (Uygulamalı LLM Atölyesi)",
+      en: "AI Prompt & Evaluation Labs (Hands-on LLM Workshop)",
     },
     tagline: {
-      tr: "Modern büyük dil modelleri ve yerel AI ajanları ile uygulamalı haftalık atölye dizisi.",
-      en: "Weekly hands-on laboratory sessions exploring LLM orchestration, evaluation pipelines, and local AI agent tooling.",
+      tr: "Büyük dil modelleri ve yapay zekâ ajanları üzerine haftalık uygulamalı atölye.",
+      en: "A weekly hands-on workshop on large language models and AI agents.",
     },
     author: "Yazılım & AI Komitesi",
     ownership: {
-      tr: "Yazılım Komitesi & AI Çalışma Grubu",
+      tr: "Yazılım & AI Komitesi",
       en: "Software & AI Committee",
-    },
-    budget: {
-      tr: "100 KM (Materyal & Sunucu Giderleri)",
-      en: "100 KM (Compute & Material Grants)",
     },
     difficulty: 3,
     image: "/assets/projects/ai_lab_hero.jpg",
     problem: {
-      tr: "Yapay zekâ araçlarının öğrenciler tarafından yalnızca yüzeysel kullanılması; prompt mühendisliği ve LLM mimarisinin derinlemesine bilinmemesi.",
-      en: "Students often use generative AI superficially without understanding orchestration, token dynamics, or local deployment pipelines.",
+      tr: "Öğrencilerin çoğu yapay zekâ araçlarını kullanıyor ama dil modellerinin nasıl çalıştığını ve nasıl değerlendirileceğini bilmiyor.",
+      en: "Most students use AI tools without knowing how language models work or how to evaluate them.",
     },
     solution: {
-      tr: "Haftalık kodlama laboratuvarları: RAG mimarileri, Ollama ile yerel model optimizasyonu ve üretim ortamı AI pipeline geliştirme.",
-      en: "Weekly hands-on coding labs covering retrieval augmented generation (RAG), local model deployment, and production agent frameworks.",
+      tr: "RAG, yerel modelleri çalıştırma ve yapay zekâ uygulamalarını yayına alma üzerine haftalık kodlama atölyeleri.",
+      en: "Weekly coding workshops on RAG, running local models and deploying AI applications.",
     },
     specs: [
       {
@@ -252,8 +234,8 @@ export const PROJECTS_DATA: ProjectItem[] = [
         value: { tr: "PyTorch / Ollama / Next.js", en: "PyTorch / Ollama / Next.js" },
       },
       {
-        label: { tr: "Format", en: "Frequency" },
-        value: { tr: "Haftalık 2 Saatlik Laboratuvar", en: "Weekly 2-Hour Practical Lab" },
+        label: { tr: "Sıklık", en: "Frequency" },
+        value: { tr: "Haftada 2 saat", en: "2 hours per week" },
       },
     ],
     accentColor: "#8b5cf6",
@@ -276,32 +258,28 @@ export const PROJECTS_DATA: ProjectItem[] = [
       en: "IUS Engineering Summit 2027 (Career & Tech Summit)",
     },
     tagline: {
-      tr: "Saraybosna teknoloji ekosistemi ve uluslararası mühendislik liderlerini IUS kampüsünde buluşturan zirve.",
-      en: "Flagship annual conference bringing tech leaders and Bosnian engineering innovators to the IUS Amphitheater.",
+      tr: "Saraybosna'daki teknoloji şirketlerini ve mühendisleri IUS öğrencileriyle buluşturacak yıllık zirve.",
+      en: "An annual summit where Sarajevo tech companies and engineers meet IUS students.",
     },
     author: "PR & Dış İlişkiler",
     ownership: {
-      tr: "PR & Sponsorluk Masası (Muhammed Efe Ural)",
-      en: "PR & Sponsorship Desk",
-    },
-    budget: {
-      tr: "500 KM (Şirket Stant & Sponsorluk Geliri)",
-      en: "500 KM (Corporate Booths & Sponsorships)",
+      tr: "PR & Sponsorluk (Muhammed Efe Ural)",
+      en: "PR & Sponsorship (Muhammed Efe Ural)",
     },
     difficulty: 4,
     image: "/assets/projects/engineering_summit_hero.jpg",
     problem: {
-      tr: "Öğrencilerin Saraybosna ve bölgesel IT/Mühendislik firmalarıyla doğrudan staj ve kariyer iletişimi kurabilme fırsatlarının sınırlı olması.",
-      en: "Engineering students face networking friction connecting with top software, automotive, and automation employers in Bosnia.",
+      tr: "Öğrencilerin Saraybosna'daki yazılım ve mühendislik şirketleriyle staj ve iş için doğrudan tanışma fırsatı az.",
+      en: "Students have few direct ways to meet Sarajevo software and engineering companies about internships and jobs.",
     },
     solution: {
-      tr: "IUS Büyük Amfide düzenlenecek panel oturumları, şirket fuar stantları, CV inceleme masaları ve teknik keynote sunumları.",
-      en: "A high-profile annual summit hosted in the main amphitheater featuring corporate booths, technical keynotes, and speed interviewing.",
+      tr: "IUS Büyük Amfi'de paneller, şirket stantları, CV inceleme masaları ve teknik konuşmalar.",
+      en: "Panels, company booths, CV review desks and technical talks in the IUS main amphitheater.",
     },
     specs: [
       {
-        label: { tr: "Lokasyon", en: "Location" },
-        value: { tr: "IUS Büyük Amfi & B-Blok Fuaye", en: "IUS Main Amphitheater & Foyer" },
+        label: { tr: "Yer", en: "Location" },
+        value: { tr: "IUS Büyük Amfi & B-Blok Fuaye", en: "IUS Main Amphitheater & B-Block Foyer" },
       },
       {
         label: { tr: "Hedef Kitle", en: "Audience" },

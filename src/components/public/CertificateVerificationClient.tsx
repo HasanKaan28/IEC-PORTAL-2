@@ -66,15 +66,11 @@ export default function CertificateVerificationClient() {
     <div className="max-w-3xl mx-auto space-y-8">
       {/* Title */}
       <div className="text-center space-y-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-mono text-cyan-400">
-          <ShieldCheck className="w-3.5 h-3.5" />
-          <span>RESMİ DİJİTAL DOĞRULAMA PORTALI</span>
-        </div>
         <h1 className="text-3xl sm:text-4xl font-black text-white font-display tracking-tight">
-          Sertifika Doğrulama Portalı
+          Sertifika Doğrulama
         </h1>
-        <p className="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
-          IUS Engineering Club ve FENS tarafından verilen etkinlik, atölye ve hackathon sertifikalarının geçerliliğini benzersiz kod ile anında sorgulayın.
+        <p className="text-slate-300 text-sm max-w-xl mx-auto leading-relaxed">
+          IUS Engineering Club'ın verdiği etkinlik, atölye ve hackathon sertifikalarını üzerindeki kodla doğrulayabilirsiniz.
         </p>
       </div>
 
@@ -83,7 +79,7 @@ export default function CertificateVerificationClient() {
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-medium text-slate-300 mb-2 font-mono">
-              SERTİFİKA DOĞRULAMA KODU:
+              Sertifika kodu
             </label>
             <div className="relative">
               <input
@@ -118,17 +114,13 @@ export default function CertificateVerificationClient() {
                     </div>
                     <div>
                       <h4 className="text-base font-bold text-white font-display">
-                        Sertifika Resmi Olarak Doğrulandı & Geçerli
+                        Sertifika doğrulandı
                       </h4>
                       <p className="text-xs text-emerald-400/90 font-mono">
                         KOD: {result.cert.certificateCode}
                       </p>
                     </div>
                   </div>
-
-                  <span className="self-start sm:self-auto px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    %100 ONAYLI BELGE
-                  </span>
                 </div>
 
                 {/* Credential Data Grid */}
@@ -182,7 +174,7 @@ export default function CertificateVerificationClient() {
                 {result.cert.skills.length > 0 && (
                   <div className="space-y-1.5 pt-2">
                     <span className="text-[10px] font-mono text-slate-400 uppercase">
-                      DOĞRULANAN MÜHENDİSLİK YETENEKLERİ:
+                      Beceriler
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {result.cert.skills.map((s) => (
@@ -205,7 +197,7 @@ export default function CertificateVerificationClient() {
                     className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md transition-colors"
                   >
                     <Download className="w-4 h-4" />
-                    <span>Resmi Vektör PDF İndir</span>
+                    <span>PDF olarak indir</span>
                   </a>
 
                   <a

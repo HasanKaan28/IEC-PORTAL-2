@@ -7,7 +7,7 @@ import {
 } from "@/lib/projects/project-queries";
 
 export const metadata: Metadata = {
-  title: "Projeler & Çalışma Grupları | IUS Engineering Club",
+  title: "Projeler & Çalışma Grupları",
   description: "Kulüp donanım, yazılım, yapay zekâ ve İHA projeleri, katılım başvuruları.",
 };
 

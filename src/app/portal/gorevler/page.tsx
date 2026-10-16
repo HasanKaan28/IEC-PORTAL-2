@@ -8,7 +8,7 @@ import {
 } from "@/lib/tasks/task-queries";
 
 export const metadata: Metadata = {
-  title: "Görev Panosu | IUS Engineering Club",
+  title: "Görev Panosu",
   description: "Sprint ve proje görevleri, Kanban panosu ve atama yönetimi.",
 };
 

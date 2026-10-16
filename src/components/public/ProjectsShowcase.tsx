@@ -113,8 +113,7 @@ export default function ProjectsShowcase() {
                       ))}
                     </ul>
 
-                    <div className="mt-auto pt-5 flex items-center justify-between gap-3">
-                      <span className="text-xs text-slate-400">{project.budget[locale]}</span>
+                    <div className="mt-auto pt-5 flex items-center justify-end gap-3">
                       <button
                         type="button"
                         onClick={() => setSelectedProject(project)}

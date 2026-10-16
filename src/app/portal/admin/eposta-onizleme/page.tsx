@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import EmailTemplatesClient from "@/components/portal/admin/EmailTemplatesClient";
 
 export const metadata: Metadata = {
-  title: "E-Posta Şablonları & Önizleme | IUS Engineering Club",
+  title: "E-Posta Şablonları & Önizleme",
   description:
     "Supabase Auth ve Resend uyumlu kurumsal e-posta şablonları canlı önizleme ve yönetim aracı.",
 };

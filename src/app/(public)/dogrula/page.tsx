@@ -5,9 +5,9 @@ import Footer from "@/components/public/Footer";
 import CertificateVerificationClient from "@/components/public/CertificateVerificationClient";
 
 export const metadata: Metadata = {
-  title: "Sertifika Doğrulama Portalı | IUS Engineering Club",
+  title: "Sertifika Doğrulama",
   description:
-    "IUS Engineering Club ve FENS tarafından verilen resmi etkinlik, atölye ve hackathon sertifikalarını anında doğrulayın.",
+    "IUS Engineering Club'ın verdiği etkinlik, atölye ve hackathon sertifikalarını doğrulayın.",
 };
 
 export default function CertificateVerificationPage() {

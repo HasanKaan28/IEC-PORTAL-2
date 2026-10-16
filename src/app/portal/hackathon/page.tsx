@@ -9,7 +9,7 @@ import {
 } from "@/lib/hackathons/hackathon-queries";
 
 export const metadata: Metadata = {
-  title: "Hackathon Takımları & Yarışmalar | IUS Engineering Club",
+  title: "Hackathon Takımları & Yarışmalar",
   description: "DevHack 2027 Saraybosna ve uluslararası hackathon ilanları, takım kurma ve takım arayan üyeler vitrini.",
 };
 

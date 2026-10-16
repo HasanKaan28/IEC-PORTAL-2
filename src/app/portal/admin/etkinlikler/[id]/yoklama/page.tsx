@@ -6,7 +6,7 @@ import { generateEventTOTP } from "@/lib/events/totp";
 import LiveAttendancePresenter from "@/components/portal/admin/LiveAttendancePresenter";
 
 export const metadata: Metadata = {
-  title: "Canlı Yoklama Projeksiyon Ekranı | IUS Engineering Club",
+  title: "Canlı Yoklama Ekranı",
   description:
     "Organizatör projeksiyon ekranı: 60 saniyede bir dönen dinamik TOTP tabanlı QR kod ve canlı yoklama akışı.",
 };

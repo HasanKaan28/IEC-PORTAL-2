@@ -20,10 +20,10 @@ export default function NotFound() {
             404
           </h1>
           <h2 className="text-xl md:text-2xl font-bold text-slate-100 font-display">
-            Sinyal Kayboldu
+            Sayfa bulunamadı
           </h2>
           <p className="text-sm text-slate-400 leading-relaxed max-w-md mx-auto">
-            Aradığınız sayfa IUS kampüs ağının dışına çıkmış, taşınmış veya henüz kodlanmamış olabilir.
+            Aradığınız sayfa taşınmış ya da kaldırılmış olabilir.
           </p>
         </div>
 
@@ -52,7 +52,7 @@ export default function NotFound() {
           </Link>
           <span>•</span>
           <Link href="/blog" className="hover:text-sky-400 transition-colors">
-            Teknik Blog
+            Blog
           </Link>
           <span>•</span>
           <Link href="/dogrula" className="hover:text-sky-400 transition-colors">

@@ -3,35 +3,37 @@
 @tailwind utilities;
 
 @layer base {
-  /* Default: Dark Cinematic Theme (Public Website) */
+  /* Default: soft light theme for the public website (red-violet, honey yellow, leaf green) */
   :root {
-    --background: 270 33% 5%;
-    --foreground: 280 20% 98%;
+    color-scheme: light;
 
-    --card: 273 30% 7%;
-    --card-foreground: 280 20% 98%;
+    --background: 300 20% 98%;
+    --foreground: 268 23% 11%;
 
-    --popover: 273 30% 7%;
-    --popover-foreground: 280 20% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 268 23% 11%;
 
-    --primary: 320 63% 51%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 268 23% 11%;
+
+    --primary: 325 45% 43%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 270 29% 11%;
-    --secondary-foreground: 280 20% 98%;
+    --secondary: 276 23% 95%;
+    --secondary-foreground: 268 23% 11%;
 
-    --muted: 270 29% 10%;
-    --muted-foreground: 271 12% 66%;
+    --muted: 276 23% 95%;
+    --muted-foreground: 270 9% 47%;
 
-    --accent: 48 96% 53%;
-    --accent-foreground: 270 33% 5%;
+    --accent: 48 89% 90%;
+    --accent-foreground: 37 62% 28%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 268 17% 17%;
-    --input: 268 17% 17%;
-    --ring: 320 63% 51%;
+    --border: 273 18% 90%;
+    --input: 273 18% 90%;
+    --ring: 325 45% 43%;
 
     --radius: 0.75rem;
 
@@ -55,8 +57,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 268 22% 11%;
 
-    --primary: 323 68% 43%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 325 45% 43%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 276 25% 95%;
     --secondary-foreground: 268 22% 11%;
@@ -64,15 +66,15 @@
     --muted: 276 25% 95%;
     --muted-foreground: 270 9% 47%;
 
-    --accent: 320 80% 97%;
-    --accent-foreground: 323 68% 30%;
+    --accent: 325 45% 96%;
+    --accent-foreground: 325 45% 33%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
     --border: 274 18% 90%;
     --input: 274 18% 90%;
-    --ring: 323 68% 43%;
+    --ring: 325 45% 43%;
 
     --radius: 0.5rem;
   }
@@ -99,19 +101,29 @@
   }
 }
 
-/* Glassmorphism and glow utilities */
+/* Frosted white panels: lift off the canvas with a brand-tinted shadow instead of a hard border. */
 .glass-panel {
-  background: rgba(19, 13, 24, 0.75);
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(132, 50, 98, 0.1);
+  box-shadow: 0 1px 2px rgba(54, 18, 38, 0.04), 0 12px 32px -18px rgba(54, 18, 38, 0.18);
 }
 
 .glass-panel-subtle {
-  background: rgba(28, 20, 36, 0.45);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(132, 50, 98, 0.08);
+}
+
+/* Gentle wash of the three palette hues, used behind the hero and auth pages. */
+.bg-palette-wash {
+  background-color: #fbf9fb;
+  background-image:
+    radial-gradient(48rem 28rem at 12% -8%, rgba(226, 170, 203, 0.45), transparent 70%),
+    radial-gradient(40rem 24rem at 92% 8%, rgba(249, 231, 160, 0.5), transparent 70%),
+    radial-gradient(36rem 22rem at 70% 105%, rgba(194, 225, 204, 0.45), transparent 70%);
 }
 
 .portal-glass {

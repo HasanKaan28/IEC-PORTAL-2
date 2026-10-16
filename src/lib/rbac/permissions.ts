@@ -24,6 +24,38 @@ export type Permission =
   | "events.qr_host"
   | "certificates.issue";
 
+/** Every permission, in the order the role builder lists them. Keep in sync with the SQL check list. */
+export const ALL_PERMISSIONS: Permission[] = [
+  "roles.manage",
+  "audit.view",
+  "applications.review",
+  "projects.create",
+  "projects.edit",
+  "projects.review_requests",
+  "tasks.assign",
+  "tasks.manage",
+  "events.manage",
+  "events.qr_host",
+  "certificates.issue",
+  "hackathons.create",
+  "blog.write",
+  "blog.publish",
+  "blog.moderate",
+];
+
+export function isPermission(value: unknown): value is Permission {
+  return typeof value === "string" && (ALL_PERMISSIONS as string[]).includes(value);
+}
+
+/** Effective permissions of the built-in roles (super_admin gets everything). */
+export function permissionsForRoles(roles: UserRole[]): Permission[] {
+  if (roles.includes("super_admin")) return [...ALL_PERMISSIONS];
+  const granted = new Set<Permission>();
+  for (const role of roles) for (const permission of ROLE_PERMISSIONS[role] ?? []) granted.add(permission);
+  return ALL_PERMISSIONS.filter((permission) => granted.has(permission));
+}
+
+// Keep this mapping in sync with public.role_permission_defaults (migration 20261018000000_custom_roles.sql).
 export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   super_admin: [
     "roles.manage",

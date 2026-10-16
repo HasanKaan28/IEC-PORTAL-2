@@ -1,5 +1,6 @@
 import { ROLE_LABELS, type UserRole } from "@/lib/rbac/permissions";
 import { adminText } from "@/lib/i18n/portal/admin";
+import { customRolesText } from "@/lib/i18n/portal/custom-roles";
 import type { SupportedLocale } from "@/lib/i18n/translations";
 import type { AuditLogItem } from "@/lib/admin/admin-actions";
 
@@ -19,6 +20,15 @@ export function auditTargetLabel(targetType: string, locale: SupportedLocale): s
 
 export function auditDetail(log: AuditLogItem, locale: SupportedLocale): string {
   const d = log.details ?? {};
+  if (log.action === "custom_role.assign" || log.action === "custom_role.remove") {
+    const who = str(d.target_name) ?? str(d.target_email) ?? log.targetId ?? "";
+    return adminText[locale].audit.roleDetail(str(d.role) ?? "", who);
+  }
+  if (log.action.startsWith("custom_role.")) {
+    const permissions = Array.isArray(d.permissions) ? d.permissions.length : null;
+    const count = permissions !== null ? customRolesText[locale].list.permissionCount(permissions) : null;
+    return [str(d.name), count].filter(Boolean).join(" · ");
+  }
   if (log.action.startsWith("role.")) {
     const role = str(d.role) as UserRole | null;
     const roleLabel = role && ROLE_LABELS[role] ? ROLE_LABELS[role][locale] : role ?? "";

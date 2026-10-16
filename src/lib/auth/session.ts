@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { hasPermission, type Permission, type UserRole } from "@/lib/rbac/permissions";
+import { ALL_PERMISSIONS, isPermission, permissionsForRoles, type Permission, type UserRole } from "@/lib/rbac/permissions";
 import { getServerLocale } from "@/lib/i18n/server";
 
 /**
@@ -18,6 +18,16 @@ export interface SessionUser {
   classYear: string | null;
   avatarUrl: string | null;
   roles: UserRole[];
+  /** Custom roles built by a super admin and assigned to this member. */
+  customRoles: SessionCustomRole[];
+  /** Everything this member may do: built-in role permissions plus custom role permissions. */
+  permissions: Permission[];
+}
+
+export interface SessionCustomRole {
+  id: string;
+  name: string;
+  color: string;
 }
 
 export type ActionResult<T = undefined> =
@@ -58,18 +68,37 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
     } = await supabase.auth.getUser();
     if (!user?.email) return null;
 
-    const [profileResult, rolesResult] = await Promise.all([
+    const [profileResult, rolesResult, customResult] = await Promise.all([
       (supabase.from("profiles") as any)
         .select("full_name, department, class_year, avatar_url")
         .eq("id", user.id)
         .maybeSingle(),
       (supabase.from("user_roles") as any).select("role").eq("user_id", user.id),
+      (supabase.from("user_custom_roles") as any)
+        .select("role:custom_roles(id, name, color, custom_role_permissions(permission))")
+        .eq("user_id", user.id),
     ]);
 
     const profile = profileResult.data as
       | { full_name: string | null; department: string | null; class_year: string | null; avatar_url: string | null }
       | null;
-    const roles = ((rolesResult.data as Array<{ role: UserRole }> | null) ?? []).map((row) => row.role);
+    const storedRoles = ((rolesResult.data as Array<{ role: UserRole }> | null) ?? []).map((row) => row.role);
+    const roles: UserRole[] = storedRoles.length > 0 ? storedRoles : ["member"];
+
+    // Before the custom roles migration runs this query errors; the member simply has none.
+    type CustomRow = {
+      role: { id: string; name: string; color: string; custom_role_permissions: Array<{ permission: string }> } | null;
+    };
+    const customRows = customResult.error ? [] : ((customResult.data as CustomRow[] | null) ?? []);
+    const customRoles: SessionCustomRole[] = [];
+    const granted = new Set<Permission>(permissionsForRoles(roles));
+    for (const row of customRows) {
+      if (!row.role) continue;
+      customRoles.push({ id: row.role.id, name: row.role.name, color: row.role.color });
+      for (const { permission } of row.role.custom_role_permissions ?? []) {
+        if (isPermission(permission)) granted.add(permission);
+      }
+    }
 
     return {
       id: user.id,
@@ -78,7 +107,9 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
       department: profile?.department ?? null,
       classYear: profile?.class_year ?? null,
       avatarUrl: profile?.avatar_url ?? null,
-      roles: roles.length > 0 ? roles : ["member"],
+      roles,
+      customRoles,
+      permissions: ALL_PERMISSIONS.filter((permission) => granted.has(permission)),
     };
   } catch {
     return null;
@@ -94,13 +125,20 @@ export async function requireUser(): Promise<SessionUser> {
 
 export async function requirePermission(permission: Permission): Promise<SessionUser> {
   const user = await requireUser();
-  if (!hasPermission(user.roles, permission)) throw new GuardError(await guardMessage("forbidden"));
+  if (!user.permissions.includes(permission)) throw new GuardError(await guardMessage("forbidden"));
+  return user;
+}
+
+/** Building and deleting custom roles is reserved for super admins. */
+export async function requireSuperAdmin(): Promise<SessionUser> {
+  const user = await requireUser();
+  if (!user.roles.includes("super_admin")) throw new GuardError(await guardMessage("forbidden"));
   return user;
 }
 
 /** For UI gating (showing admin links etc.). Never a substitute for requirePermission in actions. */
 export function userCan(user: SessionUser | null, permission: Permission): boolean {
-  return Boolean(user && hasPermission(user.roles, permission));
+  return Boolean(user && user.permissions.includes(permission));
 }
 
 /** Runs a server action body, converting guard failures and unexpected errors into ActionResult. */

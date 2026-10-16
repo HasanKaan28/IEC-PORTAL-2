@@ -29,7 +29,10 @@ export default async function PortalLayout({ children }: { children: React.React
   }
 
   const [locale, notifications] = await Promise.all([getServerLocale(), getNotifications()]);
-  const roleLabel = ROLE_LABELS[highestRole(user.roles)][locale];
+  // A member whose only extra rights come from a custom role is labelled with that role's name.
+  const topRole = highestRole(user.roles);
+  const roleLabel =
+    topRole === "member" && user.customRoles.length > 0 ? user.customRoles[0].name : ROLE_LABELS[topRole][locale];
   const showAdmin = canAccessAdminConsole(user);
 
   return (

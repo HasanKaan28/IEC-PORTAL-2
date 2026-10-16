@@ -1,4 +1,4 @@
-import { hasPermission, type Permission, type UserRole } from "@/lib/rbac/permissions";
+import { permissionsForRoles, type Permission, type UserRole } from "@/lib/rbac/permissions";
 
 /**
  * Which admin console sections a user may open. Pure helpers (no server imports) so both the
@@ -15,16 +15,7 @@ export type AdminSectionKey =
   | "audit"
   | "emails";
 
-/** Having any of these lets a user into /portal/admin at all. */
-export const ADMIN_CONSOLE_PERMISSIONS: Permission[] = [
-  "roles.manage",
-  "audit.view",
-  "blog.moderate",
-  "blog.publish",
-];
-
 export const ADMIN_SECTIONS: { key: AdminSectionKey; href: string; anyOf: Permission[] }[] = [
-  { key: "overview", href: "/portal/admin", anyOf: ADMIN_CONSOLE_PERMISSIONS },
   { key: "roles", href: "/portal/admin/roller", anyOf: ["roles.manage"] },
   { key: "applications", href: "/portal/admin/basvurular", anyOf: ["applications.review"] },
   { key: "blog", href: "/portal/admin/blog", anyOf: ["blog.write", "blog.publish", "blog.moderate"] },
@@ -33,21 +24,39 @@ export const ADMIN_SECTIONS: { key: AdminSectionKey; href: string; anyOf: Permis
   { key: "emails", href: "/portal/admin/eposta-onizleme", anyOf: ["roles.manage"] },
 ];
 
-type RoleHolder = { roles: UserRole[] } | null | undefined;
+/**
+ * Having any of these lets a user into /portal/admin at all: every section permission, plus
+ * events.qr_host for the live attendance screen that lives under the console.
+ */
+export const ADMIN_CONSOLE_PERMISSIONS: Permission[] = [
+  ...new Set<Permission>([...ADMIN_SECTIONS.flatMap((section) => section.anyOf), "events.qr_host"]),
+];
+
+/** A session user (with resolved permissions) or anything with built-in roles. */
+type RoleHolder = { roles: UserRole[]; permissions?: Permission[] } | null | undefined;
+
+function effectivePermissions(user: NonNullable<RoleHolder>): Permission[] {
+  return user.permissions ?? permissionsForRoles(user.roles);
+}
 
 export function canAccessAdminConsole(user: RoleHolder): boolean {
-  return Boolean(user && ADMIN_CONSOLE_PERMISSIONS.some((p) => hasPermission(user.roles, p)));
+  if (!user) return false;
+  const granted = effectivePermissions(user);
+  return ADMIN_CONSOLE_PERMISSIONS.some((p) => granted.includes(p));
 }
 
 export function canAccessAdminSection(user: RoleHolder, key: AdminSectionKey): boolean {
   if (!user) return false;
+  if (key === "overview") return canAccessAdminConsole(user);
   const section = ADMIN_SECTIONS.find((s) => s.key === key);
-  return Boolean(section && section.anyOf.some((p) => hasPermission(user.roles, p)));
+  const granted = effectivePermissions(user);
+  return Boolean(section && section.anyOf.some((p) => granted.includes(p)));
 }
 
 export function visibleAdminSections(user: RoleHolder): { key: AdminSectionKey; href: string }[] {
-  return ADMIN_SECTIONS.filter((s) => canAccessAdminSection(user, s.key)).map(({ key, href }) => ({
-    key,
-    href,
-  }));
+  const overview = canAccessAdminConsole(user) ? [{ key: "overview" as const, href: "/portal/admin" }] : [];
+  return [
+    ...overview,
+    ...ADMIN_SECTIONS.filter((s) => canAccessAdminSection(user, s.key)).map(({ key, href }) => ({ key, href })),
+  ];
 }

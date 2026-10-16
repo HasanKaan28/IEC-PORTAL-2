@@ -2,11 +2,14 @@
 
 import React, { useMemo, useState } from "react";
 import { CheckCircle2, Loader2, Lock, Plus, Search, Users } from "lucide-react";
-import { canManageRole, ROLE_HIERARCHY, ROLE_LABELS, type UserRole } from "@/lib/rbac/permissions";
+import { canManageRole, ROLE_HIERARCHY, ROLE_LABELS, type Permission, type UserRole } from "@/lib/rbac/permissions";
 import { toggleUserRoleAction, type AdminUserItem } from "@/lib/admin/admin-actions";
+import type { CustomRoleItem } from "@/lib/admin/custom-role-actions";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { adminText } from "@/lib/i18n/portal/admin";
+import { customRolesText } from "@/lib/i18n/portal/custom-roles";
 import { EmptyState, Notice, PageHeader, focusRing } from "./AdminUi";
+import { customRoleChipClass } from "./CustomRolesPanel";
 
 const EDITABLE_ROLES: UserRole[] = ["super_admin", "admin", "leader", "project_lead", "task_manager", "blog_author"];
 
@@ -30,18 +33,31 @@ function badgeClass(role: UserRole): string {
 }
 
 interface RoleManagerProps {
-  initialUsers: AdminUserItem[];
+  users: AdminUserItem[];
+  onUsersChange: (updater: (prev: AdminUserItem[]) => AdminUserItem[]) => void;
+  customRoles: CustomRoleItem[];
+  onCustomAssign: (userId: string, roleId: string, assign: boolean) => Promise<{ ok: boolean; message: string }>;
   loadError: string | null;
   currentUserId: string;
   actorRoles: UserRole[];
+  actorPermissions: Permission[];
 }
 
-export default function RoleManager({ initialUsers, loadError, currentUserId, actorRoles }: RoleManagerProps) {
+export default function RoleManager({
+  users,
+  onUsersChange: setUsers,
+  customRoles,
+  onCustomAssign,
+  loadError,
+  currentUserId,
+  actorRoles,
+  actorPermissions,
+}: RoleManagerProps) {
   const { locale } = useLocale();
   const text = adminText[locale];
   const t = text.roles;
+  const ct = customRolesText[locale];
 
-  const [users, setUsers] = useState<AdminUserItem[]>(initialUsers);
   const [search, setSearch] = useState("");
   const [openUserId, setOpenUserId] = useState<string | null>(null);
   const [pendingKey, setPendingKey] = useState<string | null>(null);
@@ -51,6 +67,24 @@ export default function RoleManager({ initialUsers, loadError, currentUserId, ac
 
   const actorIsSuperAdmin = actorRoles.includes("super_admin");
   const actorRank = highestRank(actorRoles);
+  const customRolesById = useMemo(() => new Map(customRoles.map((role) => [role.id, role])), [customRoles]);
+
+  /** Why a custom role cannot be assigned by this actor, if that is the case. */
+  const customRoleLock = (role: CustomRoleItem): string | null => {
+    if (actorIsSuperAdmin) return null;
+    if (role.permissions.includes("roles.manage")) return ct.messages.rolesManageReserved;
+    if (role.permissions.some((p) => !actorPermissions.includes(p))) return ct.messages.escalation;
+    return null;
+  };
+
+  const handleCustomToggle = async (user: AdminUserItem, role: CustomRoleItem) => {
+    const has = user.customRoleIds.includes(role.id);
+    setPendingKey(`${user.id}:custom:${role.id}`);
+    setNotice(null);
+    const outcome = await onCustomAssign(user.id, role.id, !has);
+    setPendingKey(null);
+    setNotice({ tone: outcome.ok ? "success" : "error", text: outcome.message });
+  };
 
   const filteredUsers = useMemo(() => {
     const q = search.trim().toLocaleLowerCase(locale);
@@ -184,6 +218,15 @@ export default function RoleManager({ initialUsers, loadError, currentUserId, ac
                                 {ROLE_LABELS[role]?.[locale] ?? role}
                               </li>
                             ))}
+                            {user.customRoleIds.map((roleId) => {
+                              const role = customRolesById.get(roleId);
+                              if (!role) return null;
+                              return (
+                                <li key={roleId} className={`rounded-md border px-2 py-0.5 text-xs font-medium ${customRoleChipClass(role.color)}`}>
+                                  {role.name}
+                                </li>
+                              );
+                            })}
                           </ul>
                         </td>
                         <td className="px-4 py-3.5 text-right">
@@ -206,6 +249,7 @@ export default function RoleManager({ initialUsers, loadError, currentUserId, ac
                                 <h3 className="text-sm font-bold text-slate-900">{t.panelTitle(user.fullName)}</h3>
                                 <p className="text-xs text-slate-500">{lock ?? t.panelHint}</p>
                               </div>
+                              <h4 className="pt-1 text-xs font-semibold uppercase tracking-wider text-slate-500">{ct.members.builtInHeading}</h4>
                               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                                 {EDITABLE_ROLES.map((role) => {
                                   const hasRole = user.roles.includes(role);
@@ -250,6 +294,52 @@ export default function RoleManager({ initialUsers, loadError, currentUserId, ac
                                   );
                                 })}
                               </div>
+
+                              <h4 className="pt-2 text-xs font-semibold uppercase tracking-wider text-slate-500">{ct.members.customRolesHeading}</h4>
+                              {customRoles.length === 0 ? (
+                                <p className="text-sm text-slate-500">{ct.members.noCustomRoles}</p>
+                              ) : (
+                                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                                  {customRoles.map((role) => {
+                                    const has = user.customRoleIds.includes(role.id);
+                                    const reason = lock ?? customRoleLock(role);
+                                    const isPending = pendingKey === `${user.id}:custom:${role.id}`;
+                                    return (
+                                      <button
+                                        key={role.id}
+                                        type="button"
+                                        aria-pressed={has}
+                                        disabled={Boolean(reason) || pendingKey !== null}
+                                        onClick={() => handleCustomToggle(user, role)}
+                                        title={reason ?? undefined}
+                                        className={`flex flex-col items-start gap-1 rounded-xl border p-3 text-left text-sm transition-colors disabled:cursor-not-allowed ${focusRing} ${
+                                          has ? "border-brand-300 bg-white text-slate-900" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                                        } ${reason ? "opacity-60" : ""}`}
+                                      >
+                                        <span className="flex w-full items-center justify-between gap-2 font-semibold">
+                                          <span className="truncate">{role.name}</span>
+                                          {isPending ? (
+                                            <Loader2 className="h-4 w-4 animate-spin text-brand-600" aria-hidden="true" />
+                                          ) : reason ? (
+                                            <Lock className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                                          ) : has ? (
+                                            <CheckCircle2 className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+                                          ) : (
+                                            <Plus className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                                          )}
+                                        </span>
+                                        <span className="text-xs text-slate-500">
+                                          {isPending
+                                            ? t.updating
+                                            : reason && !lock
+                                              ? reason
+                                              : `${ct.list.permissionCount(role.permissions.length)} · ${has ? t.assignedState : t.unassignedState}`}
+                                        </span>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              )}
                             </div>
                           </td>
                         </tr>

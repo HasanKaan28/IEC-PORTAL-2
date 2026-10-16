@@ -3,20 +3,24 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { canAccessAdminSection } from "@/lib/admin/admin-access";
 import { getAdminUsersAction } from "@/lib/admin/admin-actions";
-import RoleManager from "../_components/RoleManager";
+import { getCustomRolesAction } from "@/lib/admin/custom-role-actions";
+import RolesWorkspace from "../_components/RolesWorkspace";
 
 export default async function RoleManagementPage() {
   const user = await getSessionUser();
   if (!user || !canAccessAdminSection(user, "roles")) redirect("/portal/admin");
 
-  const result = await getAdminUsersAction();
+  const [usersResult, customResult] = await Promise.all([getAdminUsersAction(), getCustomRolesAction()]);
 
   return (
-    <RoleManager
-      initialUsers={result.success ? result.data ?? [] : []}
-      loadError={result.success ? null : result.error}
+    <RolesWorkspace
+      initialUsers={usersResult.success ? usersResult.data ?? [] : []}
+      usersError={usersResult.success ? null : usersResult.error}
+      initialCustomRoles={customResult.success ? customResult.data?.roles ?? [] : []}
+      customRolesSetupRequired={customResult.success ? Boolean(customResult.data?.setupRequired) : false}
       currentUserId={user.id}
       actorRoles={user.roles}
+      actorPermissions={user.permissions}
     />
   );
 }

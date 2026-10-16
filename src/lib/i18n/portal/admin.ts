@@ -118,6 +118,11 @@ const tr = {
     actions: {
       "role.assign": "Rol verildi",
       "role.remove": "Rol kaldırıldı",
+      "custom_role.create": "Özel rol oluşturuldu",
+      "custom_role.update": "Özel rol güncellendi",
+      "custom_role.delete": "Özel rol silindi",
+      "custom_role.assign": "Özel rol verildi",
+      "custom_role.remove": "Özel rol kaldırıldı",
       "blog.post.publish": "Yazı yayımlandı",
       "blog.post.delete": "Yazı silindi",
       "blog.comment.flag": "Yorum işaretlendi",
@@ -128,6 +133,7 @@ const tr = {
     } as Record<string, string>,
     targets: {
       user: "Kullanıcı",
+      custom_role: "Özel rol",
       blog_post: "Blog yazısı",
       blog_comment: "Yorum",
       application: "Başvuru",
@@ -450,6 +456,11 @@ const en: typeof tr = {
     actions: {
       "role.assign": "Role assigned",
       "role.remove": "Role removed",
+      "custom_role.create": "Custom role created",
+      "custom_role.update": "Custom role updated",
+      "custom_role.delete": "Custom role deleted",
+      "custom_role.assign": "Custom role assigned",
+      "custom_role.remove": "Custom role removed",
       "blog.post.publish": "Post published",
       "blog.post.delete": "Post deleted",
       "blog.comment.flag": "Comment flagged",
@@ -460,6 +471,7 @@ const en: typeof tr = {
     },
     targets: {
       user: "User",
+      custom_role: "Custom role",
       blog_post: "Blog post",
       blog_comment: "Comment",
       application: "Application",

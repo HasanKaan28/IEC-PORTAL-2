@@ -20,6 +20,8 @@ export interface AdminUserItem {
   department: string | null;
   classYear: string | null;
   roles: UserRole[];
+  /** Ids of custom roles assigned to this member (empty before the custom roles migration). */
+  customRoleIds: string[];
   joinedAt: string;
 }
 
@@ -60,12 +62,13 @@ export async function getAdminUsersAction(): Promise<ActionResult<AdminUserItem[
     await requirePermission("roles.manage");
     const supabase = await privilegedClient(); // emails are server-only columns
 
-    const [profilesResult, rolesResult] = await Promise.all([
+    const [profilesResult, rolesResult, customResult] = await Promise.all([
       (supabase.from("profiles") as any)
         .select("id, full_name, email, department, class_year, created_at")
         .order("full_name", { ascending: true })
         .limit(2000),
       (supabase.from("user_roles") as any).select("user_id, role"),
+      (supabase.from("user_custom_roles") as any).select("user_id, role_id"),
     ]);
     if (profilesResult.error) throw profilesResult.error;
     if (rolesResult.error) throw rolesResult.error;
@@ -75,6 +78,16 @@ export async function getAdminUsersAction(): Promise<ActionResult<AdminUserItem[
       const list = rolesByUser.get(row.user_id) ?? [];
       list.push(row.role);
       rolesByUser.set(row.user_id, list);
+    }
+
+    // Custom role assignments; the table may not exist until the custom roles migration has run.
+    const customByUser = new Map<string, string[]>();
+    if (!customResult.error) {
+      for (const row of (customResult.data ?? []) as Array<{ user_id: string; role_id: string }>) {
+        const list = customByUser.get(row.user_id) ?? [];
+        list.push(row.role_id);
+        customByUser.set(row.user_id, list);
+      }
     }
 
     const users = ((profilesResult.data ?? []) as Array<{
@@ -93,6 +106,7 @@ export async function getAdminUsersAction(): Promise<ActionResult<AdminUserItem[
         department: profile.department,
         classYear: profile.class_year,
         roles: sortRoles(roles.length > 0 ? roles : ["member"]),
+        customRoleIds: customByUser.get(profile.id) ?? [],
         joinedAt: profile.created_at,
       };
     });

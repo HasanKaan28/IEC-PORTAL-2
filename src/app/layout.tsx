@@ -1,5 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { LocaleProvider } from "@/lib/i18n/locale-context";
+import { SITE_URL } from "@/lib/site-url";
 import "@/styles/globals.css";
 
 const inter = Inter({
@@ -20,23 +22,17 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-import type { Viewport } from "next";
-
 export const viewport: Viewport = {
-  themeColor: "#0284c7",
+  themeColor: "#070a11",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
 };
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  "https://hasankaan28.github.io/ius-engineering-events-site";
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "IUS Engineering Club (IEC) — Official Platform & Student Hub",
+    default: "IUS Engineering Club (IEC) | Official Platform & Student Hub",
     template: "%s | IUS Engineering Club",
   },
   description:
@@ -69,7 +65,7 @@ export const metadata: Metadata = {
     locale: "tr_TR",
     alternateLocale: "en_US",
     url: SITE_URL,
-    title: "IUS Engineering Club (IEC) — Official Platform & Student Hub",
+    title: "IUS Engineering Club (IEC) | Official Platform & Student Hub",
     description:
       "Bridging the gap between university engineering curriculum and real-world industrial practice.",
     siteName: "IUS Engineering Club",
@@ -101,7 +97,7 @@ export default function RootLayout({
   return (
     <html lang="tr" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen font-sans bg-background text-foreground antialiased selection:bg-sky-500/20 selection:text-sky-300">
-        {children}
+        <LocaleProvider>{children}</LocaleProvider>
       </body>
     </html>
   );

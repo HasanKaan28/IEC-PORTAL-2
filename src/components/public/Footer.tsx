@@ -1,166 +1,116 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
-import { Github, Linkedin, Instagram, MessageCircle, Shield, Globe, Award } from "lucide-react";
+import { Github, MessageCircle, Shield, Award } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
+
+const SOURCE_CODE_URL = "https://github.com/HasanKaan28/IEC-PORTAL-2";
+const WHATSAPP_COMMUNITY_URL = "https://chat.whatsapp.com/LKMpyfm7K5R3F0rXezcXXN";
+const FENS_URL = "https://www.ius.edu.ba/en/faculty-engineering-and-natural-sciences";
+
+const linkClass = "hover:text-white transition-colors";
 
 export default function Footer() {
+  const { t } = useLocale();
+
   return (
-    <footer className="border-t border-slate-900 bg-[#05070d] text-slate-400 text-xs py-16 px-4 sm:px-6 relative z-10">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10">
-        {/* Brand identity column */}
-        <div className="md:col-span-5 space-y-4">
+    <footer className="border-t border-slate-800/80 bg-[#05070d] text-slate-400 text-sm py-16 px-4 sm:px-6 relative z-10">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-10">
+        <div className="sm:col-span-2 md:col-span-5 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white text-xs shadow-glow">
+            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white text-xs">
               IEC
             </div>
-            <span className="font-bold text-white text-base font-display">
-              IUS Engineering Club
-            </span>
+            <span className="font-bold text-white text-base font-display">IUS Engineering Club</span>
           </div>
 
-          <p className="text-slate-400 text-xs max-w-sm leading-relaxed">
-            International University of Sarajevo (IUS) Mühendislik ve Doğa Bilimleri Fakültesi (FENS) bünyesinde faaliyet gösteren resmi öğrenci mühendislik topluluğu.
-          </p>
+          <p className="max-w-sm leading-relaxed">{t.footer.description}</p>
 
-          <div className="text-[11px] text-slate-500 font-mono space-y-1">
+          <address className="not-italic text-sm space-y-1">
             <p>Hrasnička Cesta 15, 71210 Ilidža, Sarajevo</p>
-            <p>Bosna-Hersek • engineering-club@ius.edu.ba</p>
-          </div>
+            <p>{t.footer.country}</p>
+            <p>
+              <a href="mailto:engineering-club@ius.edu.ba" className={linkClass}>
+                engineering-club@ius.edu.ba
+              </a>
+            </p>
+          </address>
 
-          {/* Social Links */}
-          <div className="flex items-center gap-3 pt-2">
+          <div className="flex items-center gap-3 pt-1">
             <a
-              href="https://github.com/HasanKaan28/ius-engineering-events"
+              href={SOURCE_CODE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
-              aria-label="GitHub Repository"
+              className="p-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
+              aria-label={t.footer.sourceCode}
             >
-              <Github className="w-4 h-4" />
+              <Github className="w-4 h-4" aria-hidden="true" />
             </a>
             <a
-              href="https://linkedin.com"
+              href={WHATSAPP_COMMUNITY_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
-              aria-label="LinkedIn"
+              className="p-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
+              aria-label={t.footer.whatsapp}
             >
-              <Linkedin className="w-4 h-4" />
-            </a>
-            <a
-              href="https://instagram.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
-              aria-label="Instagram"
-            >
-              <Instagram className="w-4 h-4" />
-            </a>
-            <a
-              href="https://chat.whatsapp.com/LKMpyfm7K5R3F0rXezcXXN"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-emerald-400 hover:text-emerald-300 transition-colors"
-              aria-label="WhatsApp Community"
-            >
-              <MessageCircle className="w-4 h-4" />
+              <MessageCircle className="w-4 h-4" aria-hidden="true" />
             </a>
           </div>
         </div>
 
-        {/* Navigation column */}
-        <div className="md:col-span-2 space-y-3">
-          <span className="font-semibold text-white uppercase tracking-wider text-[11px] block font-mono">
-            Keşfet
-          </span>
+        <nav aria-label={t.footer.explore} className="md:col-span-2 space-y-3">
+          <h2 className="font-semibold text-white text-sm">{t.footer.explore}</h2>
           <ul className="space-y-2">
+            <li><Link href="/" className={linkClass}>{t.nav.home}</Link></li>
+            <li><Link href="/projeler" className={linkClass}>{t.nav.projects}</Link></li>
+            <li><Link href="/hakkimizda" className={linkClass}>{t.nav.about}</Link></li>
+            <li><Link href="/basvuru" className={linkClass}>{t.footer.membership}</Link></li>
             <li>
-              <Link href="/" className="hover:text-white transition-colors">
-                Ana Sayfa
-              </Link>
-            </li>
-            <li>
-              <Link href="/projeler" className="hover:text-white transition-colors">
-                Projelerimiz
-              </Link>
-            </li>
-            <li>
-              <Link href="/hakkimizda" className="hover:text-white transition-colors">
-                Hakkımızda
-              </Link>
-            </li>
-            <li>
-              <Link href="/basvuru" className="hover:text-white transition-colors">
-                Üyelik Başvurusu
-              </Link>
-            </li>
-            <li>
-              <Link href="/portal" className="text-blue-400 hover:text-blue-300 transition-colors font-medium">
-                Öğrenci Portalı →
+              <Link href="/portal" className="text-blue-300 hover:text-white transition-colors font-medium">
+                {t.common.portalButton}
               </Link>
             </li>
           </ul>
-        </div>
+        </nav>
 
-        {/* Verification & Academic */}
         <div className="md:col-span-2 space-y-3">
-          <span className="font-semibold text-white uppercase tracking-wider text-[11px] block font-mono">
-            Sertifikasyon
-          </span>
+          <h2 className="font-semibold text-white text-sm">{t.footer.certification}</h2>
           <ul className="space-y-2">
             <li>
-              <Link href="/dogrula" className="flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 transition-colors">
-                <Award className="w-3.5 h-3.5" />
-                <span>Sertifika Doğrula</span>
+              <Link href="/dogrula" className="inline-flex items-center gap-1.5 text-blue-300 hover:text-white transition-colors">
+                <Award className="w-4 h-4" aria-hidden="true" />
+                <span>{t.footer.verifyCertificate}</span>
               </Link>
             </li>
             <li>
-              <a
-                href="https://www.ius.edu.ba/en/faculty-engineering-and-natural-sciences"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-white transition-colors"
-              >
-                FENS Fakültesi
+              <a href={FENS_URL} target="_blank" rel="noopener noreferrer" className={linkClass}>
+                {t.footer.faculty}
               </a>
             </li>
-            <li>
-              <span className="text-slate-500 text-[11px]">Danışman: Prof. Dr. Leila Miller</span>
-            </li>
+            <li>{t.footer.advisor}</li>
           </ul>
         </div>
 
-        {/* Legal Policies column */}
         <div className="md:col-span-3 space-y-3">
-          <span className="font-semibold text-white uppercase tracking-wider text-[11px] block font-mono">
-            Yasal & Gizlilik
-          </span>
+          <h2 className="font-semibold text-white text-sm">{t.footer.legal}</h2>
           <ul className="space-y-2">
             <li>
-              <Link href="/kvkk" className="hover:text-white transition-colors flex items-center gap-1.5">
-                <Shield className="w-3.5 h-3.5 text-slate-500" />
-                <span>KVKK Aydınlatma Metni</span>
+              <Link href="/kvkk" className={`${linkClass} inline-flex items-center gap-1.5`}>
+                <Shield className="w-4 h-4" aria-hidden="true" />
+                <span>{t.footer.kvkk}</span>
               </Link>
             </li>
-            <li>
-              <Link href="/gizlilik" className="hover:text-white transition-colors">
-                Gizlilik Politikası
-              </Link>
-            </li>
-            <li>
-              <Link href="/cerezler" className="hover:text-white transition-colors">
-                Çerez Politikası
-              </Link>
-            </li>
+            <li><Link href="/gizlilik" className={linkClass}>{t.footer.privacy}</Link></li>
+            <li><Link href="/cerezler" className={linkClass}>{t.footer.cookies}</Link></li>
           </ul>
-          <p className="text-[10px] text-slate-500 leading-normal pt-2">
-            * Tüm yasal metinler taslak niteliğindedir; hukuki inceleme gerekir.
-          </p>
+          <p className="text-xs leading-normal pt-2">{t.footer.legalNote}</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-slate-900/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
-        <p>© 2026–2027 IUS Engineering Club (IEC). Tüm hakları saklıdır.</p>
-        <p className="font-mono">Engineered with Next.js 15 + Supabase + Tailwind</p>
+      <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <p>{t.footer.copyright}</p>
+        <p>{t.footer.builtWith}</p>
       </div>
     </footer>
   );

@@ -1,9 +1,6 @@
 import { MetadataRoute } from "next";
 import { getBlogPosts } from "@/lib/blog/blog-queries";
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  "https://hasankaan28.github.io/ius-engineering-events-site";
+import { SITE_URL as BASE_URL } from "@/lib/site-url";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [

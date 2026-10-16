@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useId, useState } from "react";
 import Link from "next/link";
-import { Cookie, ShieldAlert, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { Cookie, ChevronDown, ChevronUp } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 export interface CookiePreferences {
   necessary: boolean;
@@ -10,40 +11,42 @@ export interface CookiePreferences {
   preferences: boolean;
 }
 
+const CONSENT_STORAGE_KEY = "iec_cookie_consent";
+const ESSENTIAL_ONLY: CookiePreferences = { necessary: true, analytics: false, preferences: false };
+const ALL_ACCEPTED: CookiePreferences = { necessary: true, analytics: true, preferences: true };
+
+function hasStoredConsent(): boolean {
+  try {
+    return window.localStorage.getItem(CONSENT_STORAGE_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
+function storeConsent(preferences: CookiePreferences) {
+  try {
+    window.localStorage.setItem(CONSENT_STORAGE_KEY, JSON.stringify(preferences));
+  } catch {
+    // Storage blocked: the banner closes for this visit and asks again next time.
+  }
+}
+
 export default function CookieBanner() {
+  const { t } = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-  const [prefs, setPrefs] = useState<CookiePreferences>({
-    necessary: true,
-    analytics: true,
-    preferences: true,
-  });
+  const [prefs, setPrefs] = useState<CookiePreferences>(ESSENTIAL_ONLY);
+  const detailsId = useId();
+  const analyticsId = useId();
+  const preferencesId = useId();
 
   useEffect(() => {
-    // Check if user already made a choice
-    const saved = localStorage.getItem("iec_cookie_consent");
-    if (!saved) {
-      setIsOpen(true);
-    }
+    if (!hasStoredConsent()) setIsOpen(true);
   }, []);
 
-  const saveConsent = (chosenPrefs: CookiePreferences) => {
-    localStorage.setItem("iec_cookie_consent", JSON.stringify(chosenPrefs));
+  const saveConsent = (chosen: CookiePreferences) => {
+    storeConsent(chosen);
     setIsOpen(false);
-  };
-
-  const acceptAll = () => {
-    const full = { necessary: true, analytics: true, preferences: true };
-    saveConsent(full);
-  };
-
-  const rejectOptional = () => {
-    const essentialOnly = { necessary: true, analytics: false, preferences: false };
-    saveConsent(essentialOnly);
-  };
-
-  const saveCustom = () => {
-    saveConsent(prefs);
   };
 
   if (!isOpen) return null;
@@ -51,105 +54,110 @@ export default function CookieBanner() {
   return (
     <div
       role="region"
-      aria-label="Çerez ve Gizlilik Bildirimi"
-      className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-lg z-50 bg-[#0a0d14]/95 border border-slate-700/80 rounded-2xl p-5 sm:p-6 shadow-2xl backdrop-blur-2xl text-slate-300 text-xs animate-in fade-in slide-in-from-bottom-5 duration-300"
+      aria-label={t.cookieBanner.regionLabel}
+      className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-lg z-50 bg-[#0a0d14] border border-slate-700 rounded-2xl p-5 sm:p-6 shadow-2xl text-slate-300 text-sm animate-in fade-in slide-in-from-bottom-5 duration-300"
     >
       <div className="flex items-start gap-3">
-        <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
-          <Cookie className="w-4 h-4" />
+        <div className="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300 flex items-center justify-center shrink-0">
+          <Cookie className="w-4 h-4" aria-hidden="true" />
         </div>
         <div className="flex-1">
-          <h4 className="font-bold text-white text-sm">
-            Çerez ve Gizlilik Tercihleri
-          </h4>
-          <p className="mt-1 text-slate-400 leading-relaxed text-[11px]">
-            Platform deneyiminizi geliştirmek, oturum güvenliğini sağlamak ve kulüp faaliyetlerini anonim olarak analiz etmek için çerezler kullanıyoruz.
-          </p>
+          <h2 className="font-bold text-white text-base">{t.cookieBanner.title}</h2>
+          <p className="mt-1 text-slate-300 leading-relaxed">{t.cookieBanner.desc}</p>
         </div>
       </div>
 
-      {/* Details drawer */}
       {showDetails && (
-        <div className="mt-4 pt-3 border-t border-slate-800 space-y-3">
-          <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+        <div id={detailsId} className="mt-4 pt-3 border-t border-slate-800 space-y-2">
+          <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-slate-900 border border-slate-800">
             <div>
-              <span className="font-semibold text-white block text-[11px]">Zorunlu Çerezler</span>
-              <span className="text-[10px] text-slate-400">Oturum, güvenlik ve KVKK onay kaydı için zorunludur.</span>
+              <span className="font-semibold text-white block">{t.cookieBanner.necessaryTitle}</span>
+              <span className="text-xs text-slate-400">{t.cookieBanner.necessaryDesc}</span>
             </div>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-              Aktif
+            <span className="shrink-0 text-xs px-2 py-1 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              {t.cookieBanner.necessaryStatus}
             </span>
           </div>
 
-          <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-            <div>
-              <span className="font-semibold text-white block text-[11px]">Analitik Çerezler</span>
-              <span className="text-[10px] text-slate-400">Ziyaretçi sayıları ve proje popülerliği anonim ölçülür.</span>
-            </div>
+          <label
+            htmlFor={analyticsId}
+            className="flex items-center justify-between gap-3 p-3 rounded-lg bg-slate-900 border border-slate-800 cursor-pointer"
+          >
+            <span>
+              <span className="font-semibold text-white block">{t.cookieBanner.analyticsTitle}</span>
+              <span className="text-xs text-slate-400">{t.cookieBanner.analyticsDesc}</span>
+            </span>
             <input
+              id={analyticsId}
               type="checkbox"
               checked={prefs.analytics}
-              onChange={(e) => setPrefs({ ...prefs, analytics: e.target.checked })}
-              className="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4"
+              onChange={(event) => setPrefs({ ...prefs, analytics: event.target.checked })}
+              className="shrink-0 w-5 h-5 rounded border-slate-600 accent-blue-600"
             />
-          </div>
+          </label>
 
-          <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-            <div>
-              <span className="font-semibold text-white block text-[11px]">Tercih Çerezleri</span>
-              <span className="text-[10px] text-slate-400">Seçilen arayüz dili (TR/EN) ve tema ayarları saklanır.</span>
-            </div>
+          <label
+            htmlFor={preferencesId}
+            className="flex items-center justify-between gap-3 p-3 rounded-lg bg-slate-900 border border-slate-800 cursor-pointer"
+          >
+            <span>
+              <span className="font-semibold text-white block">{t.cookieBanner.preferencesTitle}</span>
+              <span className="text-xs text-slate-400">{t.cookieBanner.preferencesDesc}</span>
+            </span>
             <input
+              id={preferencesId}
               type="checkbox"
               checked={prefs.preferences}
-              onChange={(e) => setPrefs({ ...prefs, preferences: e.target.checked })}
-              className="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4"
+              onChange={(event) => setPrefs({ ...prefs, preferences: event.target.checked })}
+              className="shrink-0 w-5 h-5 rounded border-slate-600 accent-blue-600"
             />
-          </div>
+          </label>
         </div>
       )}
 
-      {/* Legal reference note */}
-      <div className="mt-3 text-[10px] text-slate-500 flex items-center justify-between">
-        <Link href="/cerezler" className="text-blue-400 hover:underline">
-          Çerez Politikası
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+        <Link href="/cerezler" className="text-blue-300 hover:text-white underline-offset-2 hover:underline">
+          {t.cookieBanner.cookiePolicy}
         </Link>
-        <span className="text-slate-600">•</span>
-        <Link href="/kvkk" className="text-blue-400 hover:underline">
-          KVKK Aydınlatma Metni
+        <Link href="/kvkk" className="text-blue-300 hover:text-white underline-offset-2 hover:underline">
+          {t.cookieBanner.readKvkk}
         </Link>
         <button
-          onClick={() => setShowDetails(!showDetails)}
-          className="text-slate-400 hover:text-white flex items-center gap-1 font-mono ml-auto"
+          type="button"
+          onClick={() => setShowDetails((open) => !open)}
+          aria-expanded={showDetails}
+          aria-controls={detailsId}
+          className="ml-auto inline-flex items-center gap-1 text-slate-300 hover:text-white"
         >
-          <span>{showDetails ? "Gizle" : "Özelleştir"}</span>
-          {showDetails ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          <span>{showDetails ? t.cookieBanner.hidePreferences : t.cookieBanner.managePreferences}</span>
+          {showDetails ? <ChevronUp className="w-3.5 h-3.5" aria-hidden="true" /> : <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />}
         </button>
       </div>
 
-      {/* Action buttons */}
-      <div className="mt-4 pt-3 border-t border-slate-800 flex flex-wrap gap-2 justify-end">
+      <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
         {showDetails ? (
           <button
-            onClick={saveCustom}
-            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs transition-colors"
+            type="button"
+            onClick={() => saveConsent(prefs)}
+            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium transition-colors"
           >
-            Seçimi Kaydet
+            {t.cookieBanner.saveSelection}
           </button>
         ) : (
           <button
-            onClick={rejectOptional}
-            className="w-full sm:w-auto px-4 py-2 rounded-xl border border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white font-medium text-xs transition-colors"
+            type="button"
+            onClick={() => saveConsent(ESSENTIAL_ONLY)}
+            className="px-4 py-2.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-slate-200 hover:text-white font-medium transition-colors"
           >
-            Yalnızca Zorunlular
+            {t.cookieBanner.rejectOptional}
           </button>
         )}
-
         <button
-          onClick={acceptAll}
-          className="w-full sm:w-auto px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-glow transition-all"
+          type="button"
+          onClick={() => saveConsent(ALL_ACCEPTED)}
+          className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-colors"
         >
-          Hepsini Kabul Et
+          {t.cookieBanner.acceptAll}
         </button>
       </div>
     </div>

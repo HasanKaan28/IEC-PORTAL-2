@@ -2,6 +2,7 @@
 
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
+import ClubLogo from "@/components/shared/ClubLogo";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Lock,
@@ -55,9 +56,7 @@ function LoginForm() {
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <Link href="/" className="inline-flex items-center gap-2 mb-2 group">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow-sm group-hover:scale-105 transition-transform">
-              IEC
-            </div>
+            <ClubLogo size={56} priority className="group-hover:scale-105 transition-transform" />
           </Link>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight font-display">
             Öğrenci Portalına Giriş

@@ -17,6 +17,7 @@ import {
 import PortalHeaderUserMenu from "@/components/portal/PortalHeaderUserMenu";
 import PortalNotificationBell from "@/components/portal/PortalNotificationBell";
 import LanguageSwitcher from "@/components/shared/LanguageSwitcher";
+import ClubLogo from "@/components/shared/ClubLogo";
 import { getNotifications } from "@/lib/messages/message-queries";
 
 export default async function PortalLayout({
@@ -45,9 +46,7 @@ export default async function PortalLayout({
           {/* Logo & Org Brand */}
           <div className="h-16 border-b border-[#e2e8f0] px-5 flex items-center justify-between">
             <Link href="/portal" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow-sm">
-                IEC
-              </div>
+              <ClubLogo size={32} alt="" />
               <div className="leading-tight">
                 <div className="font-semibold text-sm text-slate-900">Öğrenci Portalı</div>
                 <div className="text-[11px] text-slate-500 font-mono">v1.0 • IUS</div>

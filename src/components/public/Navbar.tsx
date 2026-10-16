@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, ArrowRight, UserCheck } from "lucide-react";
 import LanguageSwitcher from "@/components/shared/LanguageSwitcher";
+import ClubLogo from "@/components/shared/ClubLogo";
 import { useLocale } from "@/lib/i18n/locale-context";
 
 const MOBILE_MENU_ID = "mobile-navigation";
@@ -71,11 +72,7 @@ export default function Navbar({ overlay = false }: NavbarProps) {
       >
         <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3 group min-w-0">
-            <div className="w-9 h-9 shrink-0 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 p-0.5 transition-transform group-hover:scale-105">
-              <div className="w-full h-full bg-[#070a11] rounded-[10px] flex items-center justify-center font-bold text-xs tracking-wider text-white">
-                IEC
-              </div>
-            </div>
+            <ClubLogo size={40} priority alt="" className="transition-transform group-hover:scale-105" />
             <div className="flex flex-col min-w-0">
               <span className="font-bold text-sm sm:text-base tracking-tight text-white font-display truncate">
                 IUS Engineering Club

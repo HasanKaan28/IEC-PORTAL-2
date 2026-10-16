@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Github, MessageCircle, Shield, Award } from "lucide-react";
 import { useLocale } from "@/lib/i18n/locale-context";
+import ClubLogo from "@/components/shared/ClubLogo";
 
 const SOURCE_CODE_URL = "https://github.com/HasanKaan28/IEC-PORTAL-2";
 const WHATSAPP_COMMUNITY_URL = "https://chat.whatsapp.com/LKMpyfm7K5R3F0rXezcXXN";
@@ -19,9 +20,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-10">
         <div className="sm:col-span-2 md:col-span-5 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white text-xs">
-              IEC
-            </div>
+            <ClubLogo size={44} alt="" />
             <span className="font-bold text-white text-base font-display">IUS Engineering Club</span>
           </div>
 

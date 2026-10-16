@@ -5,22 +5,14 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "IUS Engineering Club (IEC)",
     short_name: "IEC",
     description:
-      "International University of Sarajevo (IUS) Mühendislik Kulübü Resmi Öğrenci ve Proje Platformu.",
+      "International University of Sarajevo (IUS) Mühendislik Kulübü öğrenci ve proje platformu.",
     start_url: "/",
     display: "standalone",
-    background_color: "#030712",
-    theme_color: "#0284c7",
+    background_color: "#070a11",
+    theme_color: "#070a11",
     icons: [
-      {
-        src: "/favicon.ico",
-        sizes: "any",
-        type: "image/x-icon",
-      },
-      {
-        src: "/icon.svg",
-        sizes: "any",
-        type: "image/svg+xml",
-      },
+      { src: "/brand/icon-192.png", sizes: "192x192", type: "image/png" },
+      { src: "/brand/iec-logo-512.png", sizes: "512x512", type: "image/png" },
     ],
   };
 }

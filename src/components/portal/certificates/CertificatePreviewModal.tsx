@@ -13,6 +13,7 @@ import {
   QrCode,
 } from "lucide-react";
 import { CertificateItem } from "@/lib/events/event-types";
+import ClubLogo from "@/components/shared/ClubLogo";
 import { generateLinkedInCertUrl } from "@/lib/certificates/certificate-pdf";
 
 interface CertificatePreviewModalProps {
@@ -151,11 +152,7 @@ export default function CertificatePreviewModal({
 
               {/* Official Stamp */}
               <div className="flex flex-col items-center justify-center">
-                <div className="w-12 h-12 rounded-full border-2 border-amber-600/60 bg-amber-50 text-amber-700 flex flex-col items-center justify-center text-[8px] font-mono font-bold leading-none p-1">
-                  <span>IEC</span>
-                  <ShieldCheck className="w-4 h-4 my-0.5 text-amber-600" />
-                  <span>SEAL</span>
-                </div>
+                <ClubLogo size={48} alt="IUS Engineering Club mührü" />
                 <span className="text-[9px] font-mono text-amber-800 font-semibold mt-1">
                   {cert.certificateCode}
                 </span>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Sparkles, Cpu, Users, Terminal } from "lucide-react";
 import HeroBackground from "./HeroBackground";
 import { useLocale } from "@/lib/i18n/locale-context";
+import ClubLogo from "@/components/shared/ClubLogo";
 
 export default function HeroSection() {
   const { t } = useLocale();
@@ -20,6 +21,8 @@ export default function HeroSection() {
       <HeroBackground />
 
       <div className="relative z-10 max-w-5xl mx-auto text-center flex flex-col items-center">
+        <ClubLogo size={96} priority className="mb-6 shadow-[0_0_40px_-10px_rgba(37,99,235,0.6)]" />
+
         <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-xs font-mono text-cyan-300 mb-6 backdrop-blur-md shadow-glow-cyan animate-pulse-subtle">
           <Sparkles className="w-3.5 h-3.5 text-cyan-400" aria-hidden="true" />
           <span>{t.hero.eyebrow}</span>

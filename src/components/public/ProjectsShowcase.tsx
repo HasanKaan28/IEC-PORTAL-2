@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PROJECTS_DATA, type ProjectItem } from "@/lib/data/projects";
 import { useLocale } from "@/lib/i18n/locale-context";
 import type { Dictionary } from "@/lib/i18n/translations";
 import ProjectDetailDialog from "./ProjectDetailDialog";
+import ProjectGallery from "./ProjectGallery";
 
 type CategoryId = "all" | "hardware" | "software" | "hackathon" | "ai";
 
@@ -82,15 +82,12 @@ export default function ProjectsShowcase() {
                     isLead ? "md:col-span-2" : ""
                   }`}
                 >
-                  <div className={`relative w-full bg-slate-900 overflow-hidden ${isLead ? "aspect-[16/9] lg:aspect-[21/9]" : "aspect-[16/9]"}`}>
-                    <Image
-                      src={project.image}
-                      alt=""
-                      fill
-                      sizes={isLead ? "(max-width: 768px) 100vw, 66vw" : "(max-width: 768px) 100vw, 33vw"}
-                      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                    />
-                  </div>
+                  <ProjectGallery
+                    images={project.gallery}
+                    alt={project.title[locale]}
+                    sizes={isLead ? "(max-width: 768px) 100vw, 66vw" : "(max-width: 768px) 100vw, 33vw"}
+                    className={isLead ? "aspect-[16/9] lg:aspect-[21/9]" : "aspect-[16/9]"}
+                  />
 
                   <div className="flex flex-1 flex-col p-5 sm:p-6">
                     <p className="text-xs text-slate-400">

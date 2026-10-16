@@ -5,6 +5,7 @@ import Link from "next/link";
 import { X } from "lucide-react";
 import type { ProjectItem } from "@/lib/data/projects";
 import { useLocale } from "@/lib/i18n/locale-context";
+import ProjectGallery from "./ProjectGallery";
 
 interface ProjectDetailDialogProps {
   project: ProjectItem;
@@ -66,6 +67,13 @@ export default function ProjectDetailDialog({ project, onClose }: ProjectDetailD
         </h2>
 
         <p className="text-base text-slate-300 mt-2">{project.tagline[locale]}</p>
+
+        <ProjectGallery
+          images={project.gallery}
+          alt={project.title[locale]}
+          sizes="(max-width: 768px) 100vw, 640px"
+          className="mt-5 aspect-[16/9] rounded-xl border border-slate-800"
+        />
 
         <div className="mt-6 space-y-4 text-sm">
           <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">

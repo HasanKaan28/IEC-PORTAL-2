@@ -97,6 +97,8 @@ const tr = {
     owner: "Proje Sorumlusu",
     difficulty: "Zorluk Derecesi",
     joinProject: "Bu projeye katıl",
+    photos: "Proje fotoğrafları",
+    photo: "Fotoğraf",
   },
   about: {
     titleStart: "Mühendisliği",
@@ -275,6 +277,8 @@ const en: Dictionary = {
     owner: "Project Lead",
     difficulty: "Difficulty",
     joinProject: "Join this project",
+    photos: "Project photos",
+    photo: "Photo",
   },
   about: {
     titleStart: "We learn engineering",

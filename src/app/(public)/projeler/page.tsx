@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
+import ProjectGallery from "@/components/public/ProjectGallery";
 import { PROJECTS_DATA, ProjectItem } from "@/lib/data/projects";
 import { Search, Sparkles } from "lucide-react";
 
@@ -86,16 +86,14 @@ export default function ProjectsCatalogPage() {
                 className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800/80 hover:border-slate-700 transition-all grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
               >
                 {/* Visual Preview */}
-                <div className="lg:col-span-5 relative h-64 sm:h-72 rounded-2xl overflow-hidden bg-slate-900 border border-slate-800">
-                  <Image
-                    src={project.image}
+                <div className="lg:col-span-5 relative rounded-2xl overflow-hidden border border-slate-800">
+                  <ProjectGallery
+                    images={project.gallery}
                     alt={project.title.tr}
-                    fill
                     sizes="(max-width: 1024px) 100vw, 40vw"
-                    className="object-cover"
+                    className="h-64 sm:h-72"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0d14] via-transparent to-transparent" />
-                  <div className="absolute top-3 left-3 flex gap-2">
+                  <div className="pointer-events-none absolute top-3 left-3 flex gap-2">
                     <span
                       className="px-2.5 py-1 rounded text-[10px] font-mono font-semibold text-white backdrop-blur-md border"
                       style={{

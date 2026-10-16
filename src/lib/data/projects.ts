@@ -26,6 +26,8 @@ export interface ProjectItem {
   };
   difficulty: number;
   image: string;
+  /** Photos shown in the gallery, first one is the cover. */
+  gallery: string[];
   problem: {
     tr: string;
     en: string;
@@ -71,7 +73,12 @@ export const PROJECTS_DATA: ProjectItem[] = [
       en: "Hasan Kaan Karabulut (Project Lead & Hardware)",
     },
     difficulty: 5,
-    image: "/assets/projects/powerbank_station_hero.jpg",
+    image: "/assets/projects/powerbank-station/1.jpg",
+    gallery: [
+      "/assets/projects/powerbank-station/1.jpg",
+      "/assets/projects/powerbank-station/2.jpg",
+      "/assets/projects/powerbank-station/3.jpg",
+    ],
     problem: {
       tr: "Amfilerde, kütüphanede ve kafeteryada priz az olduğu için öğrencilerin cihazları ders aralarında şarjsız kalıyor.",
       en: "Lecture halls, the library and the cafeteria have few outlets, so student devices run out of charge between classes.",
@@ -123,7 +130,12 @@ export const PROJECTS_DATA: ProjectItem[] = [
       en: "Mahmut İhsan Avcı & Software Committee",
     },
     difficulty: 2,
-    image: "/assets/projects/dining_app_hero.jpg",
+    image: "/assets/projects/dining-menu-system/1.jpg",
+    gallery: [
+      "/assets/projects/dining-menu-system/1.jpg",
+      "/assets/projects/dining-menu-system/2.jpg",
+      "/assets/projects/dining-menu-system/3.jpg",
+    ],
     problem: {
       tr: "Yemekhane menüsü öğrencilere düzenli ulaşmıyor ve yemekler hakkında geri bildirim verecek bir kanal yok.",
       en: "Students rarely see the cafeteria menu in advance and have no way to give feedback on the meals.",
@@ -171,7 +183,12 @@ export const PROJECTS_DATA: ProjectItem[] = [
       en: "Events & Operations Committee",
     },
     difficulty: 4,
-    image: "/assets/projects/hackathon_event_hero.jpg",
+    image: "/assets/projects/devhack-2027/1.jpg",
+    gallery: [
+      "/assets/projects/devhack-2027/1.jpg",
+      "/assets/projects/devhack-2027/2.jpg",
+      "/assets/projects/devhack-2027/3.jpg",
+    ],
     problem: {
       tr: "Mühendislik öğrencileri ders dışında, farklı bölümlerden kişilerle gerçek problemler üzerinde çalışma fırsatını az buluyor.",
       en: "Outside class, engineering students rarely get to work on real problems with people from other departments.",
@@ -219,7 +236,12 @@ export const PROJECTS_DATA: ProjectItem[] = [
       en: "Software & AI Committee",
     },
     difficulty: 3,
-    image: "/assets/projects/ai_lab_hero.jpg",
+    image: "/assets/projects/ai-prompt-labs/1.jpg",
+    gallery: [
+      "/assets/projects/ai-prompt-labs/1.jpg",
+      "/assets/projects/ai-prompt-labs/2.jpg",
+      "/assets/projects/ai-prompt-labs/3.jpg",
+    ],
     problem: {
       tr: "Öğrencilerin çoğu yapay zekâ araçlarını kullanıyor ama dil modellerinin nasıl çalıştığını ve nasıl değerlendirileceğini bilmiyor.",
       en: "Most students use AI tools without knowing how language models work or how to evaluate them.",
@@ -267,7 +289,12 @@ export const PROJECTS_DATA: ProjectItem[] = [
       en: "PR & Sponsorship (Muhammed Efe Ural)",
     },
     difficulty: 4,
-    image: "/assets/projects/engineering_summit_hero.jpg",
+    image: "/assets/projects/ius-techsummit-2027/1.jpg",
+    gallery: [
+      "/assets/projects/ius-techsummit-2027/1.jpg",
+      "/assets/projects/ius-techsummit-2027/2.jpg",
+      "/assets/projects/ius-techsummit-2027/3.jpg",
+    ],
     problem: {
       tr: "Öğrencilerin Saraybosna'daki yazılım ve mühendislik şirketleriyle staj ve iş için doğrudan tanışma fırsatı az.",
       en: "Students have few direct ways to meet Sarajevo software and engineering companies about internships and jobs.",

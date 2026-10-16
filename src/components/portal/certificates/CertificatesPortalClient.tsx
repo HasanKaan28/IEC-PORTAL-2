@@ -1,241 +1,223 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
+import { Award, Calendar, CalendarCheck, Clock, Download, Eye, Search, Share2, ShieldCheck } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { formatDate } from "@/lib/i18n/format";
+import { eventsHackathonsText } from "@/lib/i18n/portal/events-hackathons";
+import type { CertificateItem } from "@/lib/events/event-types";
+import { generateLinkedInCertUrl } from "@/lib/certificates/linkedin";
+import EmptyState from "@/components/portal/events/EmptyState";
 import {
-  Award,
-  Download,
-  Share2,
-  ExternalLink,
-  ShieldCheck,
-  Calendar,
-  Clock,
-  Sparkles,
-  Search,
-  Eye,
-} from "lucide-react";
-import { CertificateItem } from "@/lib/events/event-types";
-import { generateLinkedInCertUrl } from "@/lib/certificates/certificate-pdf";
+  cardClass,
+  chipClass,
+  inputClass,
+  linkedInButton,
+  primaryButton,
+  secondaryButton,
+} from "@/components/portal/events/styles";
 import CertificatePreviewModal from "./CertificatePreviewModal";
 
 interface CertificatesPortalClientProps {
-  initialCertificates: CertificateItem[];
+  certificates: CertificateItem[];
 }
 
-export default function CertificatesPortalClient({
-  initialCertificates,
-}: CertificatesPortalClientProps) {
-  const [certificates, setCertificates] = useState<CertificateItem[]>(initialCertificates);
+export default function CertificatesPortalClient({ certificates }: CertificatesPortalClientProps) {
+  const { locale } = useLocale();
+  const t = eventsHackathonsText[locale];
   const [selectedCert, setSelectedCert] = useState<CertificateItem | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredCertificates = certificates.filter(
-    (c) =>
-      c.eventTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.certificateCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.skills.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
+  const formatIssueDate = (date: string) =>
+    formatDate(`${date}T00:00:00Z`, locale, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+
+  const filteredCertificates = useMemo(() => {
+    const query = searchQuery.trim().toLocaleLowerCase(locale);
+    if (!query) return certificates;
+    return certificates.filter(
+      (cert) =>
+        cert.eventTitle.toLocaleLowerCase(locale).includes(query) ||
+        cert.certificateCode.toLocaleLowerCase(locale).includes(query) ||
+        cert.skills.some((skill) => skill.toLocaleLowerCase(locale).includes(query))
+    );
+  }, [certificates, searchQuery, locale]);
+
+  const totalHours = certificates.reduce((sum, cert) => sum + (cert.trainingHours ?? 0), 0);
+  const latest = certificates.reduce<string | null>(
+    (max, cert) => (max === null || cert.issueDate > max ? cert.issueDate : max),
+    null
   );
 
-  const totalHours = certificates.reduce((acc, c) => acc + (c.trainingHours || 0), 0);
+  const metrics = [
+    {
+      label: t.certificates.metricTotal,
+      value: String(certificates.length),
+      icon: <Award className="h-5 w-5" />,
+      tone: "border-brand-200 bg-brand-50 text-brand-600",
+    },
+    {
+      label: t.certificates.metricHours,
+      value: totalHours > 0 ? t.certificates.hoursValue(totalHours) : t.certificates.metricNone,
+      icon: <Clock className="h-5 w-5" />,
+      tone: "border-accent-200 bg-accent-50 text-accent-700",
+    },
+    {
+      label: t.certificates.metricLatest,
+      value: latest ? formatIssueDate(latest) : t.certificates.metricNone,
+      icon: <CalendarCheck className="h-5 w-5" />,
+      tone: "border-emerald-200 bg-emerald-50 text-emerald-600",
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+      <header className={`${cardClass} flex flex-col justify-between gap-4 p-5 sm:flex-row sm:items-center`}>
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 font-display">
-              Başarı & Katılım Sertifikalarım
-            </h1>
-            <span className="text-xs font-mono font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-              {certificates.length} Sertifika
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-xl font-bold text-slate-900">{t.certificates.title}</h1>
+            <span className={`${chipClass} rounded-full border-accent-200 bg-accent-50 text-accent-800`}>
+              {t.certificates.count(certificates.length)}
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1 max-w-xl">
-            Katıldığınız atölye, seminer ve hackathonlar için üretilen resmi, kriptografik olarak doğrulanabilir ve LinkedIn uyumlu başarı belgeleriniz.
-          </p>
+          <p className="mt-1 max-w-2xl text-sm text-slate-600">{t.certificates.subtitle}</p>
         </div>
-
-        <div className="flex items-center gap-2">
-          <Link
-            href="/dogrula"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
-          >
-            <ShieldCheck className="w-4 h-4 text-slate-500" />
-            <span>Doğrulama Portalı</span>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link href="/dogrula" className={secondaryButton}>
+            <ShieldCheck className="h-4 w-4 text-slate-500" aria-hidden="true" />
+            <span>{t.certificates.verifyPage}</span>
           </Link>
-          <Link
-            href="/portal/etkinlikler"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
-          >
-            <Calendar className="w-4 h-4" />
-            <span>Etkinliklere Katıl</span>
+          <Link href="/portal/etkinlikler" className={primaryButton}>
+            <Calendar className="h-4 w-4" aria-hidden="true" />
+            <span>{t.certificates.browseEvents}</span>
           </Link>
         </div>
-      </div>
+      </header>
 
-      {/* Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-brand-50 border border-brand-200 text-brand-600 flex items-center justify-center font-bold">
-            <Award className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] font-mono text-slate-400 block">TOPLAM SERTİFİKA</span>
-            <span className="text-lg font-bold text-slate-900">{certificates.length} Adet</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center font-bold">
-            <Clock className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] font-mono text-slate-400 block">KAZANILAN EĞİTİM</span>
-            <span className="text-lg font-bold text-slate-900">{totalHours} Saat Pratik</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center font-bold">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] font-mono text-slate-400 block">DOĞRULAMA DURUMU</span>
-            <span className="text-lg font-bold text-emerald-600">%100 Dijital İmzalı</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Sertifika adı, kod (Örn: IEC-2026-E49A) veya yetenek ara..."
-          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+      {certificates.length === 0 ? (
+        <EmptyState
+          icon={<Award className="h-6 w-6" />}
+          title={t.certificates.emptyTitle}
+          body={t.certificates.emptyBody}
+          action={
+            <Link href="/portal/etkinlikler" className={primaryButton}>
+              <Calendar className="h-4 w-4" aria-hidden="true" />
+              <span>{t.certificates.emptyAction}</span>
+            </Link>
+          }
         />
-      </div>
-
-      {/* Certificates Grid */}
-      {filteredCertificates.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-4">
-          <div className="w-14 h-14 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-            <Award className="w-8 h-8 opacity-40" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-800">
-              Henüz Tamamlanan Sertifikanız Bulunmuyor
-            </h3>
-            <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
-              Kulüp etkinliklerine katılarak salondaki 60 saniyelik dinamik QR kodu taratın ve anında başarı sertifikanızı kazanın!
-            </p>
-          </div>
-          <Link
-            href="/portal/etkinlikler"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
-          >
-            <Calendar className="w-4 h-4" />
-            <span>Yaklaşan Etkinlikleri İncele</span>
-          </Link>
-        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-          {filteredCertificates.map((cert) => {
-            const linkedInUrl = generateLinkedInCertUrl(cert);
-
-            return (
-              <div
-                key={cert.id}
-                className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-md transition-all p-5 flex flex-col justify-between space-y-4 group relative overflow-hidden"
-              >
-                {/* Gold Accent Top Bar */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-brand-600 to-amber-500" />
-
-                <div className="space-y-3 pt-1">
-                  {/* Top Badges */}
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 font-mono font-bold text-[10px]">
-                      {cert.certificateCode}
-                    </span>
-                    <span className="text-[11px] font-mono text-slate-500 flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{cert.trainingHours} Saat Eğitim</span>
-                    </span>
-                  </div>
-
-                  {/* Title & Event */}
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900 group-hover:text-brand-600 transition-colors leading-snug">
-                      {cert.eventTitle}
-                    </h3>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-slate-500">
-                      <span>Katılımcı: <strong className="text-slate-800">{cert.userName}</strong></span>
-                      <span>•</span>
-                      <span>Tarih: {cert.issueDate}</span>
-                    </div>
-                  </div>
-
-                  {/* Skills Tag Pills */}
-                  {cert.skills.length > 0 && (
-                    <div className="flex flex-wrap gap-1 pt-1">
-                      {cert.skills.map((s) => (
-                        <span
-                          key={s}
-                          className="px-2 py-0.5 rounded bg-slate-50 border border-slate-200 text-[10px] font-mono text-slate-600"
-                        >
-                          {s}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+        <>
+          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {metrics.map((metric) => (
+              <div key={metric.label} className={`${cardClass} flex items-center gap-3 p-4`}>
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${metric.tone}`} aria-hidden="true">
+                  {metric.icon}
                 </div>
-
-                {/* Footer Actions */}
-                <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
-                  <button
-                    onClick={() => setSelectedCert(cert)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors"
-                  >
-                    <Eye className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Önizle</span>
-                  </button>
-
-                  <div className="flex items-center gap-1.5">
-                    <a
-                      href={linkedInUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title="LinkedIn Profiline Lisans Olarak Ekle"
-                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#0a66c2] hover:bg-[#004182] text-white text-xs font-semibold shadow-2xs transition-colors"
-                    >
-                      <Share2 className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">LinkedIn</span>
-                    </a>
-                    <a
-                      href={`/api/certificates/${cert.certificateCode}/pdf`}
-                      download
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>PDF İndir</span>
-                    </a>
-                  </div>
+                <div className="min-w-0">
+                  <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">{metric.label}</dt>
+                  <dd className="truncate text-lg font-bold text-slate-900">{metric.value}</dd>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </dl>
+
+          <div className="relative">
+            <label htmlFor="certificate-search" className="sr-only">
+              {t.certificates.searchLabel}
+            </label>
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+            <input
+              id="certificate-search"
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t.certificates.searchPlaceholder}
+              className={`${inputClass} py-2.5 pl-10`}
+            />
+          </div>
+
+          {filteredCertificates.length === 0 ? (
+            <EmptyState
+              icon={<Search className="h-6 w-6" />}
+              title={t.certificates.noResultsTitle}
+              body={t.certificates.noResultsBody}
+            />
+          ) : (
+            <ul className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              {filteredCertificates.map((cert) => (
+                <li key={cert.id}>
+                  <article className={`${cardClass} relative flex h-full flex-col overflow-hidden p-5 transition-shadow hover:shadow-md`}>
+                    <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent-400 via-brand-600 to-accent-400" aria-hidden="true" />
+
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                      <span className={`${chipClass} border-accent-200 bg-accent-50 font-mono font-bold text-accent-800`}>
+                        {cert.certificateCode}
+                      </span>
+                      {cert.trainingHours !== null && cert.trainingHours > 0 && (
+                        <span className="flex items-center gap-1 text-sm text-slate-500">
+                          <Clock className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                          {t.certificates.trainingHours(cert.trainingHours)}
+                        </span>
+                      )}
+                    </div>
+
+                    <h2 className="mt-3 text-base font-bold leading-snug text-slate-900">{cert.eventTitle}</h2>
+                    <p className="mt-1 text-sm text-slate-500">
+                      <time dateTime={cert.issueDate}>{t.certificates.issuedOn(formatIssueDate(cert.issueDate))}</time>
+                    </p>
+
+                    {cert.skills.length > 0 && (
+                      <ul className="mt-3 flex flex-wrap gap-1.5">
+                        {cert.skills.map((skill) => (
+                          <li key={skill} className={`${chipClass} border-slate-200 bg-slate-50 text-slate-700`}>
+                            {skill}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-4">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedCert(cert)}
+                        aria-label={t.certificates.previewAria(cert.eventTitle)}
+                        className={`${secondaryButton} px-3`}
+                      >
+                        <Eye className="h-4 w-4 text-slate-500" aria-hidden="true" />
+                        <span>{t.certificates.preview}</span>
+                      </button>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <a
+                          href={generateLinkedInCertUrl(cert)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={t.certificates.linkedInAria(cert.eventTitle)}
+                          className={linkedInButton}
+                        >
+                          <Share2 className="h-4 w-4" aria-hidden="true" />
+                          <span>{t.certificates.linkedIn}</span>
+                        </a>
+                        <a
+                          href={`/api/certificates/${encodeURIComponent(cert.certificateCode)}/pdf`}
+                          download={`${cert.certificateCode}.pdf`}
+                          aria-label={t.certificates.downloadAria(cert.eventTitle)}
+                          className={`${primaryButton} px-3`}
+                        >
+                          <Download className="h-4 w-4" aria-hidden="true" />
+                          <span>{t.certificates.downloadPdf}</span>
+                        </a>
+                      </div>
+                    </div>
+                  </article>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
 
-      {/* Preview Modal */}
-      <CertificatePreviewModal
-        cert={selectedCert}
-        isOpen={Boolean(selectedCert)}
-        onClose={() => setSelectedCert(null)}
-      />
+      {selectedCert && <CertificatePreviewModal cert={selectedCert} onClose={() => setSelectedCert(null)} />}
     </div>
   );
 }

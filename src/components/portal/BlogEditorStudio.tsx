@@ -1,505 +1,456 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Save,
-  Eye,
-  Edit3,
+  AlertCircle,
   ArrowLeft,
   Bold,
-  Italic,
+  Code,
+  Columns2,
+  Edit3,
+  Eye,
+  FileCode,
   Heading2,
   Heading3,
-  Code,
-  FileCode,
-  Quote,
+  Italic,
+  Link as LinkIcon,
   List,
   ListOrdered,
-  Link as LinkIcon,
-  Clock,
-  Sparkles,
-  CheckCircle2,
-  AlertCircle,
-  Image as ImageIcon,
+  Loader2,
+  Quote,
+  Save,
 } from "lucide-react";
 import MarkdownRenderer from "@/components/public/MarkdownRenderer";
-import { BlogPostItem } from "@/lib/blog/blog-data";
+import type { BlogPostItem } from "@/lib/blog/blog-data";
 import { saveBlogPostAction } from "@/lib/blog/blog-actions";
+import {
+  BLOG_CATEGORIES,
+  BLOG_LIMITS,
+  countWords,
+  isValidCoverImage,
+  isValidSlug,
+  parseTags,
+  readingMinutes,
+  slugify,
+  type BlogCategory,
+} from "@/lib/admin/blog-meta";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { adminText } from "@/lib/i18n/portal/admin";
+
+const focusRing =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2";
+const inputClass =
+  "w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20";
 
 interface BlogEditorStudioProps {
   initialPost?: BlogPostItem;
+  /** Whether the current user has blog.publish. The server enforces this regardless. */
+  canPublish?: boolean;
 }
 
-export default function BlogEditorStudio({
-  initialPost,
-}: BlogEditorStudioProps) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+type ViewMode = "split" | "edit" | "preview";
 
-  const [title, setTitle] = useState(initialPost?.title || "");
-  const [slug, setSlug] = useState(initialPost?.slug || "");
+export default function BlogEditorStudio({ initialPost, canPublish = false }: BlogEditorStudioProps) {
+  const router = useRouter();
+  const { locale } = useLocale();
+  const text = adminText[locale];
+  const t = text.editor;
+  const [isPending, startTransition] = useTransition();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const [title, setTitle] = useState(initialPost?.title ?? "");
+  const [slug, setSlug] = useState(initialPost?.slug ?? "");
   const [autoSlug, setAutoSlug] = useState(!initialPost);
-  const [category, setCategory] = useState<BlogPostItem["category"]>(
-    initialPost?.category || "Gömülü Sistemler"
+  const [category, setCategory] = useState<BlogCategory>(
+    initialPost && (BLOG_CATEGORIES as readonly string[]).includes(initialPost.category)
+      ? (initialPost.category as BlogCategory)
+      : "Genel"
   );
-  const [tagsInput, setTagsInput] = useState(
-    initialPost?.tags?.join(", ") || "ESP32, Donanım, IoT"
-  );
-  const [coverImage, setCoverImage] = useState(
-    initialPost?.coverImage ||
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80"
-  );
-  const [excerpt, setExcerpt] = useState(initialPost?.excerpt || "");
-  const [content, setContent] = useState(
-    initialPost?.content ||
-      `# Makale Başlığı\n\nBuraya teknik makalenizin giriş paragrafını yazabilirsiniz.\n\n## Mimari ve Bileşenler\n\nProjede kullanılan temel donanım veya yazılım mimarisi:\n- Çekirdek 1: Donanım SPI kontrolü\n- Çekirdek 2: Telemetri ve ağ iletişimi\n\n\`\`\`cpp\n// Örnek kod bloğu\nvoid setup() {\n  Serial.begin(115200);\n}\n\`\`\`\n\n> "Gömülü sistemlerde paralel iş parçacıkları kilitlenmeleri önler."\n`
-  );
+  const [tagsInput, setTagsInput] = useState(initialPost?.tags?.join(", ") ?? "");
+  const [coverImage, setCoverImage] = useState(initialPost?.coverImage ?? "");
+  const [excerpt, setExcerpt] = useState(initialPost?.excerpt ?? "");
+  const [content, setContent] = useState(initialPost?.content ?? "");
   const [status, setStatus] = useState<"published" | "draft">(
-    initialPost?.status === "draft" ? "draft" : "published"
+    canPublish && initialPost?.status === "published" ? "published" : "draft"
   );
-  const [activeTab, setActiveTab] = useState<"split" | "edit" | "preview">(
-    "split"
-  );
+  const [view, setView] = useState<ViewMode>("split");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Auto-generate slug on title change if enabled
-  const handleTitleChange = (val: string) => {
-    setTitle(val);
-    if (autoSlug) {
-      setSlug(slugify(val));
-    }
+  const wordCount = countWords(content);
+  const minutes = readingMinutes(content);
+
+  const handleTitleChange = (value: string) => {
+    setTitle(value);
+    if (autoSlug) setSlug(slugify(value));
   };
 
-  // Word count & Reading time
-  const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
-  const readingTime = Math.max(1, Math.ceil(wordCount / 200));
-
-  const insertFormatting = (prefix: string, suffix: string = "") => {
-    const textarea = document.getElementById(
-      "markdown-editor-area"
-    ) as HTMLTextAreaElement;
+  const insertFormatting = (prefix: string, suffix = "", sample = t.sampleText) => {
+    const textarea = textareaRef.current;
     if (!textarea) return;
-
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    const selected = content.substring(start, end);
-    const replacement = `${prefix}${selected || "metin"}${suffix}`;
-
-    const newContent =
-      content.substring(0, start) + replacement + content.substring(end);
-    setContent(newContent);
-
-    setTimeout(() => {
+    const selected = content.substring(start, end) || sample;
+    setContent(content.substring(0, start) + prefix + selected + suffix + content.substring(end));
+    requestAnimationFrame(() => {
       textarea.focus();
-      textarea.setSelectionRange(
-        start + prefix.length,
-        start + prefix.length + (selected ? selected.length : 5)
-      );
-    }, 50);
+      textarea.setSelectionRange(start + prefix.length, start + prefix.length + selected.length);
+    });
+  };
+
+  const validate = (): string | null => {
+    const trimmedTitle = title.trim();
+    if (trimmedTitle.length < BLOG_LIMITS.titleMin || trimmedTitle.length > BLOG_LIMITS.titleMax) return t.errTitle;
+    const finalSlug = slug.trim() || slugify(title);
+    if (!isValidSlug(finalSlug)) return t.errSlug;
+    if (content.trim().length < BLOG_LIMITS.contentMin) return t.errContent;
+    const cover = coverImage.trim();
+    if (cover && !isValidCoverImage(cover)) return t.errCover;
+    const tags = parseTags(tagsInput);
+    if (tags.length > BLOG_LIMITS.tagsMax || tags.some((tag) => tag.length > BLOG_LIMITS.tagMax)) return t.errTags;
+    return null;
   };
 
   const handleSave = () => {
     setErrorMsg(null);
-    if (!title.trim()) {
-      setErrorMsg("Lütfen bir makale başlığı girin.");
-      return;
-    }
-    if (!content.trim() || content.trim().length < 20) {
-      setErrorMsg("İçerik en az 20 karakter olmalıdır.");
+    const problem = validate();
+    if (problem) {
+      setErrorMsg(problem);
       return;
     }
 
     startTransition(async () => {
-      const tags = tagsInput
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean);
-
-      const res = await saveBlogPostAction({
+      const result = await saveBlogPostAction({
         id: initialPost?.id,
         slug: slug.trim() || slugify(title),
-        title,
-        excerpt,
+        title: title.trim(),
+        excerpt: excerpt.trim(),
         content,
         category,
-        tags,
-        coverImage,
-        status,
+        tags: parseTags(tagsInput),
+        coverImage: coverImage.trim() || undefined,
+        status: canPublish ? status : "draft",
       });
 
-      if (!res.success) {
-        setErrorMsg(res.error || "Makale kaydedilemedi.");
-      } else {
-        router.push("/portal/admin/blog");
+      if (!result.success) {
+        setErrorMsg(result.error || t.saveFailed);
+        return;
       }
+      router.push("/portal/admin/blog");
+      router.refresh();
     });
   };
 
+  const tools: { label: string; icon: React.ComponentType<{ className?: string }>; run: () => void }[] = [
+    { label: t.tools.bold, icon: Bold, run: () => insertFormatting("**", "**") },
+    { label: t.tools.italic, icon: Italic, run: () => insertFormatting("*", "*") },
+    { label: t.tools.h2, icon: Heading2, run: () => insertFormatting("## ") },
+    { label: t.tools.h3, icon: Heading3, run: () => insertFormatting("### ") },
+    { label: t.tools.inlineCode, icon: Code, run: () => insertFormatting("`", "`") },
+    { label: t.tools.codeBlock, icon: FileCode, run: () => insertFormatting("```\n", "\n```", t.sampleCode) },
+    { label: t.tools.quote, icon: Quote, run: () => insertFormatting("> ") },
+    { label: t.tools.list, icon: List, run: () => insertFormatting("- ") },
+    { label: t.tools.orderedList, icon: ListOrdered, run: () => insertFormatting("1. ") },
+    { label: t.tools.link, icon: LinkIcon, run: () => insertFormatting("[", "](https://)", t.sampleLinkText) },
+  ];
+
+  const views: { key: ViewMode; label: string; icon: React.ComponentType<{ className?: string }>; className?: string }[] = [
+    { key: "edit", label: t.viewEdit, icon: Edit3 },
+    { key: "preview", label: t.viewPreview, icon: Eye },
+    { key: "split", label: t.viewSplit, icon: Columns2, className: "hidden md:inline-flex" },
+  ];
+
+  const showEditor = view === "split" || view === "edit";
+  const showPreview = view === "split" || view === "preview";
+
   return (
     <div className="space-y-6">
-      {/* Top Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+      {/* Top bar */}
+      <div className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 lg:flex-row lg:items-center">
         <div className="flex items-center gap-3">
           <Link
             href="/portal/admin/blog"
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+            aria-label={t.back}
+            title={t.back}
+            className={`rounded-xl p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 ${focusRing}`}
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-5 w-5" aria-hidden="true" />
           </Link>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 font-display">
-              {initialPost ? "Makaleyi Düzenle" : "Yeni Teknik Yazı Stüdyosu"}
+            <h2 className="font-display text-lg font-bold text-slate-900">
+              {initialPost ? t.titleEdit : t.titleNew}
             </h2>
-            <p className="text-xs text-slate-500 font-mono">
-              Tahmini Okuma Süresi: {readingTime} dk ({wordCount} kelime)
-            </p>
+            <p className="text-xs text-slate-500">{t.stats(minutes, wordCount)}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Status selector */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-medium">
+        <div className="flex flex-wrap items-center gap-3">
+          <div role="radiogroup" aria-label={t.statusLabel} className="flex items-center rounded-xl bg-slate-100 p-1 text-sm font-medium">
             <button
               type="button"
+              role="radio"
+              aria-checked={status === "draft"}
               onClick={() => setStatus("draft")}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                status === "draft"
-                  ? "bg-white text-slate-900 shadow-xs font-semibold"
-                  : "text-slate-500 hover:text-slate-800"
+              className={`rounded-lg px-3 py-1.5 transition-colors ${focusRing} ${
+                status === "draft" ? "bg-white font-semibold text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-800"
               }`}
             >
-              Taslak
+              {t.draft}
             </button>
             <button
               type="button"
+              role="radio"
+              aria-checked={status === "published"}
               onClick={() => setStatus("published")}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                status === "published"
-                  ? "bg-emerald-600 text-white shadow-xs font-semibold"
-                  : "text-slate-500 hover:text-slate-800"
+              disabled={!canPublish}
+              className={`rounded-lg px-3 py-1.5 transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${focusRing} ${
+                status === "published" ? "bg-emerald-600 font-semibold text-white shadow-sm" : "text-slate-500 hover:text-slate-800"
               }`}
             >
-              Yayında
+              {t.published}
             </button>
           </div>
 
           <button
+            type="button"
             onClick={handleSave}
             disabled={isPending}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-sm transition-all shadow-brand-600/20 disabled:opacity-50"
+            className={`inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-60 ${focusRing}`}
           >
-            <Save className="w-4 h-4" />
-            <span>{isPending ? "Kaydediliyor..." : "Kaydet & Tamamla"}</span>
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <Save className="h-4 w-4" aria-hidden="true" />
+            )}
+            <span>{isPending ? t.saving : t.save}</span>
           </button>
         </div>
       </div>
 
+      {!canPublish && (
+        <p className="rounded-xl border border-accent-200 bg-accent-50 px-4 py-3 text-sm text-accent-800">{t.publishLocked}</p>
+      )}
+
       {errorMsg && (
-        <div className="flex items-center gap-2 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
-          <AlertCircle className="w-4 h-4" />
+        <div role="alert" className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>{errorMsg}</span>
         </div>
       )}
 
-      {/* Meta Properties Card */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Meta */}
+      <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1.5">
-              Makale Başlığı *
+            <label htmlFor="post-title" className="mb-1.5 block text-sm font-medium text-slate-700">
+              {t.fieldTitle} <span aria-hidden="true" className="text-rose-600">*</span>
             </label>
             <input
+              id="post-title"
               type="text"
+              required
+              maxLength={BLOG_LIMITS.titleMax}
               value={title}
               onChange={(e) => handleTitleChange(e.target.value)}
-              placeholder="Örn: ESP32 ve RFID ile Otonom Güç İstasyonu"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"
+              placeholder={t.titlePlaceholder}
+              className={inputClass}
             />
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-medium text-slate-700">
-                URL Slug *
+            <div className="mb-1.5 flex items-center justify-between gap-2">
+              <label htmlFor="post-slug" className="text-sm font-medium text-slate-700">
+                {t.fieldSlug} <span aria-hidden="true" className="text-rose-600">*</span>
               </label>
               <button
                 type="button"
-                onClick={() => setAutoSlug(!autoSlug)}
-                className="text-[10px] text-brand-600 font-mono hover:underline"
+                onClick={() => {
+                  if (!autoSlug) setSlug(slugify(title));
+                  setAutoSlug(!autoSlug);
+                }}
+                className={`rounded-md text-xs font-medium text-brand-600 hover:underline ${focusRing}`}
               >
-                {autoSlug ? "Manuel Düzenle" : "Otomatik Oluştur"}
+                {autoSlug ? t.slugToManual : t.slugToAuto}
               </button>
             </div>
-            <div className="flex items-center rounded-xl border border-slate-300 overflow-hidden focus-within:ring-2 focus-within:ring-brand-500/20 focus-within:border-brand-600">
-              <span className="bg-slate-50 px-3 py-2.5 text-xs text-slate-400 font-mono border-r border-slate-200">
+            <div className="flex items-center overflow-hidden rounded-xl border border-slate-300 focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-500/20">
+              <span className="border-r border-slate-200 bg-slate-50 px-3 py-2.5 font-mono text-xs text-slate-500" aria-hidden="true">
                 /blog/
               </span>
               <input
+                id="post-slug"
                 type="text"
                 value={slug}
-                disabled={autoSlug}
-                onChange={(e) => setSlug(e.target.value)}
-                className="w-full px-3 py-2 text-xs font-mono text-slate-800 focus:outline-none disabled:bg-slate-50"
+                readOnly={autoSlug}
+                maxLength={BLOG_LIMITS.slugMax}
+                aria-describedby="post-slug-hint"
+                onChange={(e) => setSlug(e.target.value.toLowerCase())}
+                className="w-full px-3 py-2.5 font-mono text-sm text-slate-800 read-only:bg-slate-50 focus:outline-none"
               />
             </div>
+            <p id="post-slug-hint" className="mt-1 text-xs text-slate-500">
+              {t.slugHint}
+            </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1.5">
-              Kategori
+            <label htmlFor="post-category" className="mb-1.5 block text-sm font-medium text-slate-700">
+              {t.fieldCategory}
             </label>
             <select
+              id="post-category"
               value={category}
-              onChange={(e) =>
-                setCategory(e.target.value as BlogPostItem["category"])
-              }
-              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-brand-600"
+              onChange={(e) => setCategory(e.target.value as BlogCategory)}
+              className={inputClass}
             >
-              <option value="Gömülü Sistemler">Gömülü Sistemler</option>
-              <option value="Mühendislik Kültürü">Mühendislik Kültürü</option>
-              <option value="Yapay Zekâ">Yapay Zekâ</option>
-              <option value="Etkinlikler">Etkinlikler</option>
-              <option value="Genel">Genel</option>
+              {BLOG_CATEGORIES.map((value) => (
+                <option key={value} value={value}>
+                  {text.categories[value] ?? value}
+                </option>
+              ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1.5">
-              Etiketler (Virgülle ayırın)
+            <label htmlFor="post-tags" className="mb-1.5 block text-sm font-medium text-slate-700">
+              {t.fieldTags}
             </label>
             <input
+              id="post-tags"
               type="text"
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
-              placeholder="ESP32, C++, Hardware"
-              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-brand-600"
+              placeholder={t.tagsPlaceholder}
+              aria-describedby="post-tags-hint"
+              className={inputClass}
             />
+            <p id="post-tags-hint" className="mt-1 text-xs text-slate-500">
+              {t.tagsHint}
+            </p>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1.5">
-              Kapak Görseli URL
+            <label htmlFor="post-cover" className="mb-1.5 block text-sm font-medium text-slate-700">
+              {t.fieldCover}
             </label>
             <input
-              type="text"
+              id="post-cover"
+              type="url"
+              inputMode="url"
+              maxLength={BLOG_LIMITS.coverMax}
               value={coverImage}
               onChange={(e) => setCoverImage(e.target.value)}
-              placeholder="https://images.unsplash.com/..."
-              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-brand-600"
+              placeholder={t.coverPlaceholder}
+              aria-describedby="post-cover-hint"
+              className={inputClass}
             />
+            <p id="post-cover-hint" className="mt-1 text-xs text-slate-500">
+              {t.coverHint}
+            </p>
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-700 mb-1.5">
-            Kısa Özet (Excerpt / Meta Description)
+          <label htmlFor="post-excerpt" className="mb-1.5 block text-sm font-medium text-slate-700">
+            {t.fieldExcerpt}
           </label>
           <textarea
+            id="post-excerpt"
             value={excerpt}
             onChange={(e) => setExcerpt(e.target.value)}
             rows={2}
-            placeholder="Arama motorları ve sosyal kartlar için 1-2 cümlelik vurucu teknik özet..."
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-brand-600 resize-none"
+            maxLength={BLOG_LIMITS.excerptMax}
+            placeholder={t.excerptPlaceholder}
+            aria-describedby="post-excerpt-count"
+            className={`${inputClass} resize-none`}
           />
+          <p id="post-excerpt-count" className="mt-1 text-right text-xs text-slate-500">
+            {t.excerptCount(excerpt.length, BLOG_LIMITS.excerptMax)}
+          </p>
         </div>
       </div>
 
-      {/* Editor & Preview Header Toolbar */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="flex flex-wrap items-center justify-between p-2.5 border-b border-slate-200 bg-slate-50 gap-2">
-          {/* Formatting buttons */}
-          <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
-            <button
-              type="button"
-              onClick={() => insertFormatting("**", "**")}
-              title="Kalın"
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700 text-xs transition-colors"
-            >
-              <Bold className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => insertFormatting("*", "*")}
-              title="İtalik"
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700 text-xs transition-colors"
-            >
-              <Italic className="w-4 h-4" />
-            </button>
-            <div className="h-4 w-px bg-slate-300 mx-1" />
-            <button
-              type="button"
-              onClick={() => insertFormatting("## ")}
-              title="Başlık 2"
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700 text-xs transition-colors"
-            >
-              <Heading2 className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => insertFormatting("### ")}
-              title="Başlık 3"
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700 text-xs transition-colors"
-            >
-              <Heading3 className="w-4 h-4" />
-            </button>
-            <div className="h-4 w-px bg-slate-300 mx-1" />
-            <button
-              type="button"
-              onClick={() => insertFormatting("`", "`")}
-              title="Satır içi Kod"
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700 text-xs transition-colors"
-            >
-              <Code className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                insertFormatting("```cpp\n// Kodunuz buraya\n", "\n```")
-              }
-              title="Kod Bloğu"
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700 text-xs transition-colors"
-            >
-              <FileCode className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => insertFormatting("> ")}
-              title="Alıntı"
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700 text-xs transition-colors"
-            >
-              <Quote className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => insertFormatting("- ")}
-              title="Liste"
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700 text-xs transition-colors"
-            >
-              <List className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => insertFormatting("1. ")}
-              title="Numaralı Liste"
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700 text-xs transition-colors"
-            >
-              <ListOrdered className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => insertFormatting("[bağlantı metni](", ")")}
-              title="Link Ekle"
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700 text-xs transition-colors"
-            >
-              <LinkIcon className="w-4 h-4" />
-            </button>
+      {/* Editor and preview */}
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 p-2.5">
+          <div role="toolbar" aria-label={t.toolbarLabel} className="flex flex-wrap items-center gap-1">
+            {tools.map((tool, index) => {
+              const Icon = tool.icon;
+              return (
+                <React.Fragment key={tool.label}>
+                  {(index === 2 || index === 4) && <span className="mx-1 h-4 w-px bg-slate-300" aria-hidden="true" />}
+                  <button
+                    type="button"
+                    onClick={tool.run}
+                    disabled={!showEditor}
+                    aria-label={tool.label}
+                    title={tool.label}
+                    className={`rounded-lg p-2 text-slate-700 transition-colors hover:bg-slate-200 disabled:opacity-40 ${focusRing}`}
+                  >
+                    <Icon className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                </React.Fragment>
+              );
+            })}
           </div>
 
-          {/* View switcher */}
-          <div className="flex items-center gap-1 bg-white p-1 rounded-lg border border-slate-200 text-xs">
-            <button
-              type="button"
-              onClick={() => setActiveTab("edit")}
-              className={`px-2.5 py-1 rounded transition-colors ${
-                activeTab === "edit"
-                  ? "bg-brand-50 text-brand-700 font-semibold"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              <span className="flex items-center gap-1">
-                <Edit3 className="w-3.5 h-3.5" /> Editör
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("preview")}
-              className={`px-2.5 py-1 rounded transition-colors ${
-                activeTab === "preview"
-                  ? "bg-brand-50 text-brand-700 font-semibold"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              <span className="flex items-center gap-1">
-                <Eye className="w-3.5 h-3.5" /> Canlı Önizleme
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("split")}
-              className={`hidden md:block px-2.5 py-1 rounded transition-colors ${
-                activeTab === "split"
-                  ? "bg-brand-50 text-brand-700 font-semibold"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              Yan Yana (Split)
-            </button>
+          <div role="group" aria-label={t.viewLabel} className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-1 text-sm">
+            {views.map((option) => {
+              const Icon = option.icon;
+              return (
+                <button
+                  key={option.key}
+                  type="button"
+                  aria-pressed={view === option.key}
+                  onClick={() => setView(option.key)}
+                  className={`${option.className ?? "inline-flex"} items-center gap-1.5 rounded-md px-2.5 py-1 transition-colors ${focusRing} ${
+                    view === option.key ? "bg-brand-50 font-semibold text-brand-700" : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" aria-hidden="true" />
+                  <span>{option.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Dual-Pane Studio Body */}
-        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200 min-h-[500px]">
-          {/* Edit Pane */}
-          {(activeTab === "split" || activeTab === "edit") && (
-            <div className="p-4 flex flex-col bg-ink-900">
-              <div className="text-[11px] font-mono text-purple-400 mb-2 flex items-center justify-between">
-                <span>MARKDOWN KAYNAK KODU</span>
-                <span>{wordCount} kelime</span>
+        <div className={`grid min-h-[500px] grid-cols-1 divide-y divide-slate-200 ${view === "split" ? "md:grid-cols-2 md:divide-x md:divide-y-0" : ""}`}>
+          {showEditor && (
+            <div className="flex flex-col p-4">
+              <div className="mb-2 flex items-center justify-between text-xs text-slate-500">
+                <label htmlFor="markdown-editor-area" className="font-medium text-slate-700">
+                  {t.contentLabel}
+                </label>
+                <span>{t.words(wordCount)}</span>
               </div>
               <textarea
                 id="markdown-editor-area"
+                ref={textareaRef}
                 value={content}
+                maxLength={BLOG_LIMITS.contentMax}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Markdown içeriğinizi buraya yazın..."
-                className="w-full flex-1 min-h-[460px] bg-transparent text-slate-100 font-mono text-xs sm:text-sm leading-relaxed focus:outline-none resize-none selection:bg-purple-900"
+                placeholder={t.contentPlaceholder}
+                className="min-h-[460px] w-full flex-1 resize-y rounded-xl border border-slate-200 bg-slate-50 p-3 font-mono text-sm leading-relaxed text-slate-900 placeholder-slate-400 focus:border-brand-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20"
               />
             </div>
           )}
 
-          {/* Preview Pane */}
-          {(activeTab === "split" || activeTab === "preview") && (
-            <div className="p-6 overflow-y-auto max-h-[600px] bg-ink-950">
-              <div className="text-[11px] font-mono text-slate-400 mb-4 pb-2 border-b border-slate-800 flex items-center justify-between">
-                <span>CANLI ÖNİZLEME (DARK CINEMATIC)</span>
-                <span className="text-emerald-400 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Render Edildi
-                </span>
-              </div>
-              <MarkdownRenderer content={content} />
-            </div>
+          {showPreview && (
+            <section aria-label={t.previewLabel} className="max-h-[640px] overflow-y-auto bg-ink-950 p-6">
+              <p className="mb-4 border-b border-slate-800 pb-2 text-xs font-medium text-slate-400">{t.previewLabel}</p>
+              {content.trim() ? (
+                <MarkdownRenderer content={content} />
+              ) : (
+                <p className="text-sm text-slate-400">{t.previewEmpty}</p>
+              )}
+            </section>
           )}
         </div>
       </div>
     </div>
   );
-}
-
-function slugify(text: string): string {
-  const trMap: Record<string, string> = {
-    ç: "c",
-    ğ: "g",
-    ı: "i",
-    ö: "o",
-    ş: "s",
-    ü: "u",
-    Ç: "c",
-    Ğ: "g",
-    İ: "i",
-    Ö: "o",
-    Ş: "s",
-    Ü: "u",
-  };
-  return text
-    .split("")
-    .map((char) => trMap[char] || char)
-    .join("")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9 -]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
 }

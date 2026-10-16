@@ -1,32 +1,30 @@
 import React from "react";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import HackathonsPortalClient from "@/components/portal/hackathons/HackathonsPortalClient";
-import {
-  getHackathons,
-  getHackathonTeams,
-  getLookingForTeamMembers,
-  getHackathonJoinRequests,
-} from "@/lib/hackathons/hackathon-queries";
+import { getHackathonJoinRequests, getHackathons, getHackathonTeams } from "@/lib/hackathons/hackathon-queries";
+import { getSessionUser, userCan } from "@/lib/auth/session";
+import { getServerLocale } from "@/lib/i18n/server";
+import { eventsHackathonsText } from "@/lib/i18n/portal/events-hackathons";
 
-export const metadata: Metadata = {
-  title: "Hackathon Takımları & Yarışmalar",
-  description: "DevHack 2027 Saraybosna ve uluslararası hackathon ilanları, takım kurma ve takım arayan üyeler vitrini.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = eventsHackathonsText[await getServerLocale()];
+  return { title: t.metadata.hackathonsTitle, description: t.metadata.hackathonsDescription };
+}
 
 export default async function PortalHackathonPage() {
-  const [hackathons, teams, lookingMembers, joinRequests] = await Promise.all([
+  const [user, hackathons, teams, joinRequests] = await Promise.all([
+    getSessionUser(),
     getHackathons(),
     getHackathonTeams(),
-    getLookingForTeamMembers(),
     getHackathonJoinRequests(),
   ]);
 
   return (
     <HackathonsPortalClient
-      initialHackathons={hackathons}
-      initialTeams={teams}
-      initialLookingMembers={lookingMembers}
-      initialJoinRequests={joinRequests}
+      hackathons={hackathons}
+      teams={teams}
+      joinRequests={joinRequests}
+      canCreateHackathon={userCan(user, "hackathons.create")}
     />
   );
 }

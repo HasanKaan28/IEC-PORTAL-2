@@ -1,77 +1,108 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { User, LogOut, Sparkles, ChevronDown, Shield } from "lucide-react";
+import { User, LogOut, IdCard, ChevronDown } from "lucide-react";
 import { signOutAction } from "@/lib/auth/auth-actions";
-import DiscordProfileCard, { ProfileCardData } from "@/components/shared/DiscordProfileCard";
+import DiscordProfileCard, { type ProfileCardData } from "@/components/shared/DiscordProfileCard";
+import PortalAvatar from "@/components/portal/PortalAvatar";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { portalShellText } from "@/lib/i18n/portal/shell";
+import type { UserRole } from "@/lib/rbac/permissions";
 
-export default function PortalHeaderUserMenu() {
+export interface PortalMenuUser {
+  id: string;
+  fullName: string;
+  email: string;
+  avatarUrl: string | null;
+  department: string | null;
+  classYear: string | null;
+  roles: UserRole[];
+  roleLabel: string;
+}
+
+export default function PortalHeaderUserMenu({ user }: { user: PortalMenuUser }) {
+  const { locale } = useLocale();
+  const t = portalShellText[locale].shell;
   const [menuOpen, setMenuOpen] = useState(false);
   const [cardOpen, setCardOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const currentUser: ProfileCardData = {
-    id: "usr-current",
-    fullName: "Kaan Mete Şenyıldız",
-    email: "student@ius.edu.ba",
-    department: "Bilgisayar Mühendisliği (CSE)",
-    classYear: "2. Sınıf",
-    bio: "FENS öğrencisi. Donanım ve yapay zekâ odaklı kampüs inovasyonları üzerinde çalışıyor.",
-    phone: "+387 60 312 3456",
-    roles: ["leader", "project_lead"],
-    projects: [
-      { name: "IUS PowerHub", role: "Donanım Lideri", accentColor: "#06b6d4" },
-      { name: "DevHack 2027", role: "Yürütme Kurulu", accentColor: "#f59e0b" },
-    ],
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onPointer = (event: MouseEvent) => {
+      if (!containerRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
+
+  const cardData: ProfileCardData = {
+    id: user.id,
+    fullName: user.fullName,
+    email: user.email,
+    avatarUrl: user.avatarUrl,
+    department: user.department,
+    classYear: user.classYear,
+    roles: user.roles,
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
         type="button"
-        onClick={() => setMenuOpen(!menuOpen)}
-        className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-100 transition-colors text-left"
+        onClick={() => setMenuOpen((open) => !open)}
+        className="flex items-center gap-2 rounded-xl p-1 pr-2 text-left transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
         aria-expanded={menuOpen}
-        aria-label="Kullanıcı Menüsü"
+        aria-haspopup="menu"
+        aria-label={t.userMenu}
       >
-        <div className="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
-          KM
+        <PortalAvatar name={user.fullName} avatarUrl={user.avatarUrl} />
+        <div className="hidden leading-tight sm:block">
+          <div className="max-w-[10rem] truncate text-sm font-semibold text-slate-800">{user.fullName}</div>
+          <div className="max-w-[10rem] truncate text-xs text-slate-500">{user.roleLabel}</div>
         </div>
-        <div className="hidden sm:block leading-tight">
-          <div className="text-xs font-semibold text-slate-800">Kaan Mete</div>
-          <div className="text-[10px] text-slate-500 font-mono">FENS • Lider</div>
-        </div>
-        <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${menuOpen ? "rotate-180" : ""}`} aria-hidden="true" />
       </button>
 
-      {/* Dropdown Menu */}
       {menuOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-lg py-1.5 z-50 text-xs animate-in fade-in slide-in-from-top-2 duration-150">
-          <div className="px-3 py-2 border-b border-slate-100">
-            <div className="font-semibold text-slate-900">Kaan Mete Şenyıldız</div>
-            <div className="text-[11px] text-slate-500 font-mono">student@ius.edu.ba</div>
+        <div
+          role="menu"
+          className="absolute right-0 z-50 mt-2 w-64 rounded-2xl border border-slate-200 bg-white py-1.5 text-sm shadow-xl shadow-slate-900/10"
+        >
+          <div className="border-b border-slate-100 px-4 py-3">
+            <div className="truncate font-semibold text-slate-900">{user.fullName}</div>
+            <div className="truncate text-xs text-slate-500">{user.email}</div>
           </div>
 
           <div className="py-1">
             <Link
               href="/portal/profil"
+              role="menuitem"
               onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-2.5 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors"
+              className="flex items-center gap-2.5 px-4 py-2 text-slate-700 transition-colors hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-none"
             >
-              <User className="w-4 h-4 text-slate-400" />
-              <span>Profil Ayarlarım</span>
+              <User className="w-4 h-4 text-slate-400" aria-hidden="true" />
+              <span>{t.profileSettings}</span>
             </Link>
-
             <button
               type="button"
+              role="menuitem"
               onClick={() => {
                 setMenuOpen(false);
                 setCardOpen(true);
               }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors text-left"
+              className="flex w-full items-center gap-2.5 px-4 py-2 text-left text-slate-700 transition-colors hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-none"
             >
-              <Sparkles className="w-4 h-4 text-accent-500" />
-              <span>Discord Profil Kartım</span>
+              <IdCard className="w-4 h-4 text-brand-500" aria-hidden="true" />
+              <span>{t.profileCard}</span>
             </button>
           </div>
 
@@ -79,22 +110,18 @@ export default function PortalHeaderUserMenu() {
             <form action={signOutAction}>
               <button
                 type="submit"
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-rose-600 hover:bg-rose-50 transition-colors text-left font-medium"
+                role="menuitem"
+                className="flex w-full items-center gap-2.5 px-4 py-2 text-left font-medium text-rose-600 transition-colors hover:bg-rose-50 focus-visible:bg-rose-50 focus-visible:outline-none"
               >
-                <LogOut className="w-4 h-4 text-rose-500" />
-                <span>Çıkış Yap</span>
+                <LogOut className="w-4 h-4" aria-hidden="true" />
+                <span>{t.signOut}</span>
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Discord Profile Card Modal */}
-      <DiscordProfileCard
-        user={currentUser}
-        isOpen={cardOpen}
-        onClose={() => setCardOpen(false)}
-      />
+      <DiscordProfileCard user={cardData} isOpen={cardOpen} onClose={() => setCardOpen(false)} />
     </div>
   );
 }

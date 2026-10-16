@@ -2,9 +2,23 @@
 
 import React, { useState } from "react";
 import { Copy, Check } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { blogText } from "@/lib/i18n/public/blog";
 
 interface MarkdownRendererProps {
   content: string;
+}
+
+const SAFE_LINK_PREFIXES = ["http://", "https://", "mailto:", "/", "#"];
+
+/**
+ * Returns the link target only when it starts with an allowed prefix, otherwise null, so
+ * `javascript:`, `data:`, `vbscript:` and anything unrecognised is shown as plain text.
+ */
+function toSafeHref(raw: string): string | null {
+  const href = raw.trim();
+  const lower = href.toLowerCase();
+  return SAFE_LINK_PREFIXES.some((prefix) => lower.startsWith(prefix)) ? href : null;
 }
 
 export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
@@ -70,7 +84,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           key={`h2-${i}`}
           className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-8 mb-3 pb-2 border-b border-slate-800/80 font-display flex items-center gap-2"
         >
-          <span className="w-1.5 h-5 bg-purple-500 rounded-full inline-block" />
+          <span className="w-1.5 h-5 bg-brand-500 rounded-full inline-block" />
           {renderFormattedInline(line.replace("## ", ""))}
         </h2>
       );
@@ -81,7 +95,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       elements.push(
         <h3
           key={`h3-${i}`}
-          className="text-lg font-semibold text-purple-200 mt-6 mb-2"
+          className="text-lg font-semibold text-brand-200 mt-6 mb-2"
         >
           {renderFormattedInline(line.replace("### ", ""))}
         </h3>
@@ -94,7 +108,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       elements.push(
         <blockquote
           key={`quote-${i}`}
-          className="border-l-4 border-purple-500/80 bg-purple-500/5 px-4 py-3 rounded-r-xl my-4 text-slate-300 italic text-sm leading-relaxed"
+          className="border-l-4 border-brand-500/80 bg-brand-500/5 px-4 py-3 rounded-r-xl my-4 text-slate-300 italic text-sm leading-relaxed"
         >
           {renderFormattedInline(line.replace("> ", ""))}
         </blockquote>
@@ -107,7 +121,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       elements.push(
         <li
           key={`li-${i}`}
-          className="ml-6 list-disc text-slate-300 text-sm sm:text-base leading-relaxed my-1 marker:text-purple-400"
+          className="ml-6 list-disc text-slate-300 text-sm sm:text-base leading-relaxed my-1 marker:text-brand-400"
         >
           {renderFormattedInline(line.trim().replace(/^[-*]\s+/, ""))}
         </li>
@@ -120,7 +134,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       elements.push(
         <li
           key={`oli-${i}`}
-          className="ml-6 list-decimal text-slate-300 text-sm sm:text-base leading-relaxed my-1 marker:text-purple-400 font-mono"
+          className="ml-6 list-decimal text-slate-300 text-sm sm:text-base leading-relaxed my-1 marker:text-brand-400 font-mono"
         >
           <span className="font-sans">
             {renderFormattedInline(line.trim().replace(/^\d+\.\s+/, ""))}
@@ -145,38 +159,50 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
 }
 
 function CodeBlock({ language, code }: { language: string; code: string }) {
-  const [copied, setCopied] = useState(false);
+  const { locale } = useLocale();
+  const t = blogText[locale].code;
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopyState("copied");
+    } catch {
+      setCopyState("failed");
+    }
+    setTimeout(() => setCopyState("idle"), 2000);
   };
 
   return (
     <div className="my-6 rounded-xl overflow-hidden border border-slate-800 bg-ink-900 shadow-2xl">
       <div className="flex items-center justify-between px-4 py-2 bg-slate-900/80 border-b border-slate-800/80 text-xs font-mono text-slate-400">
-        <span className="text-purple-400 font-semibold uppercase">
-          {language || "code"}
+        <span className="text-brand-300 font-semibold uppercase">
+          {language || t.fallbackLanguage}
         </span>
         <button
+          type="button"
           onClick={handleCopy}
-          className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-[11px]"
+          className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70"
         >
-          {copied ? (
+          {copyState === "copied" ? (
             <>
-              <Check className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-emerald-400">Kopyalandı</span>
+              <Check className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+              <span className="text-emerald-400">{t.copied}</span>
             </>
+          ) : copyState === "failed" ? (
+            <span className="text-rose-400">{t.copyFailed}</span>
           ) : (
             <>
-              <Copy className="w-3.5 h-3.5" />
-              <span>Kodu Kopyala</span>
+              <Copy className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>{t.copy}</span>
             </>
           )}
         </button>
+        <span className="sr-only" role="status" aria-live="polite">
+          {copyState === "copied" ? t.copied : copyState === "failed" ? t.copyFailed : ""}
+        </span>
       </div>
-      <pre className="p-4 overflow-x-auto text-xs sm:text-sm font-mono text-slate-200 leading-relaxed selection:bg-purple-900 selection:text-white">
+      <pre className="p-4 overflow-x-auto text-xs sm:text-sm font-mono text-slate-200 leading-relaxed selection:bg-brand-900 selection:text-white">
         <code>{code}</code>
       </pre>
     </div>
@@ -208,7 +234,7 @@ function renderFormattedInline(text: string): React.ReactNode {
       parts.push(
         <code
           key={`code-in-${keyIdx++}`}
-          className="px-1.5 py-0.5 rounded bg-purple-950/60 border border-purple-500/30 text-purple-300 font-mono text-xs"
+          className="px-1.5 py-0.5 rounded bg-brand-950/60 border border-brand-500/30 text-brand-300 font-mono text-xs"
         >
           {token.slice(1, -1)}
         </code>
@@ -228,16 +254,22 @@ function renderFormattedInline(text: string): React.ReactNode {
     } else if (token.startsWith("[") && token.includes("](") && token.endsWith(")")) {
       const linkMatch = token.match(/\[([^\]]+)\]\(([^)]+)\)/);
       if (linkMatch) {
+        const href = toSafeHref(linkMatch[2]);
         parts.push(
-          <a
-            key={`link-${keyIdx++}`}
-            href={linkMatch[2]}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-purple-400 hover:text-purple-300 underline underline-offset-4 decoration-purple-500/50 hover:decoration-purple-400 transition-colors"
-          >
-            {linkMatch[1]}
-          </a>
+          href ? (
+            <a
+              key={`link-${keyIdx++}`}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer nofollow ugc"
+              className="rounded text-brand-300 hover:text-brand-200 underline underline-offset-4 decoration-brand-500/50 hover:decoration-brand-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70"
+            >
+              {linkMatch[1]}
+            </a>
+          ) : (
+            // Unsafe target (e.g. javascript:): keep the words, drop the link.
+            <span key={`link-${keyIdx++}`}>{linkMatch[1]}</span>
+          )
         );
       }
     }

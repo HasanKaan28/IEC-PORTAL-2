@@ -1,338 +1,519 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useId, useState } from "react";
+import { Loader2, MessageSquare, Paperclip, RefreshCw, Send, Trash2, X } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { formatDate, formatDateTime, formatRelative } from "@/lib/i18n/format";
+import { tasksProjectsText } from "@/lib/i18n/portal/tasks-projects";
 import {
-  X,
-  Clock,
-  User,
-  Paperclip,
-  Send,
-  Trash2,
-  FolderGit2,
-  Flame,
-  CheckCircle2,
-  Calendar,
-} from "lucide-react";
-import {
-  TaskItem,
-  TaskCommentItem,
-  TaskAttachmentItem,
-  TaskStatus,
-  TaskPriority,
+  TASK_PRIORITIES,
+  TASK_STATUSES,
+  canDeleteTask,
+  canEditTask,
+  isTaskOverdue,
+  type AssignableMember,
+  type TaskAttachmentItem,
+  type TaskCommentItem,
+  type TaskItem,
+  type TaskPriority,
+  type TaskStatus,
+  type TaskViewer,
 } from "@/lib/tasks/task-types";
 import {
-  updateTaskStatusAction,
-  updateTaskPriorityAction,
-  assignTaskAction,
   addTaskCommentAction,
+  assignTaskAction,
   deleteTaskAction,
-  getTaskCommentsAction,
   getTaskAttachmentsAction,
+  getTaskCommentsAction,
+  updateTaskPriorityAction,
+  updateTaskStatusAction,
 } from "@/lib/tasks/task-actions";
+import {
+  DialogFrame,
+  FormError,
+  UserAvatar,
+  focusRing,
+  iconButtonClass,
+  inputClass,
+  primaryButtonClass,
+  safeExternalUrl,
+  secondaryButtonClass,
+  type ToastTone,
+} from "./shared-ui";
 
 interface TaskDetailDrawerProps {
-  task: TaskItem | null;
+  task: TaskItem;
+  viewer: TaskViewer;
+  members: AssignableMember[];
   onClose: () => void;
-  onTaskUpdated: (updatedTask: TaskItem) => void;
+  onTaskPatched: (taskId: string, patch: Partial<TaskItem>) => void;
   onTaskDeleted: (taskId: string) => void;
-  members: Array<{ id: string; name: string; role: string; avatar?: string }>;
+  notify: (message: string, tone?: ToastTone) => void;
+}
+
+const COMMENT_MAX = 2000;
+
+function formatFileSize(bytes: number, locale: "tr" | "en"): string {
+  const formatter = new Intl.NumberFormat(locale === "tr" ? "tr-TR" : "en-GB", { maximumFractionDigits: 1 });
+  if (bytes >= 1024 * 1024) return `${formatter.format(bytes / (1024 * 1024))} MB`;
+  return `${formatter.format(Math.max(1, Math.round(bytes / 1024)))} KB`;
 }
 
 export default function TaskDetailDrawer({
   task,
-  onClose,
-  onTaskUpdated,
-  onTaskDeleted,
+  viewer,
   members,
+  onClose,
+  onTaskPatched,
+  onTaskDeleted,
+  notify,
 }: TaskDetailDrawerProps) {
+  const { locale } = useLocale();
+  const t = tasksProjectsText[locale];
+  const ids = useId();
+  const titleId = `${ids}-title`;
+
   const [comments, setComments] = useState<TaskCommentItem[]>([]);
   const [attachments, setAttachments] = useState<TaskAttachmentItem[]>([]);
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
+  const [reloadKey, setReloadKey] = useState(0);
   const [newComment, setNewComment] = useState("");
+  const [commentError, setCommentError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingField, setPendingField] = useState<"status" | "priority" | "assignee" | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const editable = canEditTask(viewer, task);
+  const deletable = canDeleteTask(viewer, task);
+  const overdue = isTaskOverdue(task);
+
   useEffect(() => {
-    if (task) {
-      getTaskCommentsAction(task.id).then(setComments);
-      getTaskAttachmentsAction(task.id).then(setAttachments);
-    }
-  }, [task?.id]);
-
-  if (!task) return null;
-
-  const handleStatusChange = async (newStatus: TaskStatus) => {
-    const updated = { ...task, status: newStatus };
-    onTaskUpdated(updated);
-    await updateTaskStatusAction(task.id, newStatus);
-  };
-
-  const handlePriorityChange = async (newPriority: TaskPriority) => {
-    const updated = { ...task, priority: newPriority };
-    onTaskUpdated(updated);
-    await updateTaskPriorityAction(task.id, newPriority);
-  };
-
-  const handleAssigneeChange = async (newAssigneeId: string) => {
-    const assignedMember = members.find((m) => m.id === newAssigneeId);
-    const updated = {
-      ...task,
-      assigneeId: newAssigneeId,
-      assigneeName: assignedMember?.name || "Atanmamış",
-      assigneeAvatar: assignedMember?.avatar || null,
-      assigneeRole: assignedMember?.role || "Üye",
+    let cancelled = false;
+    setLoadState("loading");
+    Promise.all([getTaskCommentsAction(task.id), getTaskAttachmentsAction(task.id)])
+      .then(([commentsResult, attachmentsResult]) => {
+        if (cancelled) return;
+        if (!commentsResult.success) {
+          setLoadState("error");
+          return;
+        }
+        setComments(commentsResult.data ?? []);
+        setAttachments(attachmentsResult.success ? attachmentsResult.data ?? [] : []);
+        setLoadState("ready");
+      })
+      .catch(() => {
+        if (!cancelled) setLoadState("error");
+      });
+    return () => {
+      cancelled = true;
     };
-    onTaskUpdated(updated);
-    await assignTaskAction(task.id, newAssigneeId);
+  }, [task.id, reloadKey]);
+
+  const handleStatusChange = async (status: TaskStatus) => {
+    const previous = task.status;
+    if (previous === status) return;
+    onTaskPatched(task.id, { status });
+    setPendingField("status");
+    const result = await updateTaskStatusAction(task.id, status);
+    setPendingField(null);
+    if (result.success) notify(t.tasks.toast.statusUpdated);
+    else {
+      onTaskPatched(task.id, { status: previous });
+      notify(result.error, "error");
+    }
   };
 
-  const handleAddComment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newComment.trim()) return;
+  const handlePriorityChange = async (priority: TaskPriority) => {
+    const previous = task.priority;
+    if (previous === priority) return;
+    onTaskPatched(task.id, { priority });
+    setPendingField("priority");
+    const result = await updateTaskPriorityAction(task.id, priority);
+    setPendingField(null);
+    if (result.success) notify(t.tasks.toast.priorityUpdated);
+    else {
+      onTaskPatched(task.id, { priority: previous });
+      notify(result.error, "error");
+    }
+  };
 
+  const handleAssigneeChange = async (assigneeId: string) => {
+    const previous = {
+      assigneeId: task.assigneeId,
+      assigneeName: task.assigneeName,
+      assigneeAvatar: task.assigneeAvatar,
+    };
+    const nextId = assigneeId || null;
+    if (previous.assigneeId === nextId) return;
+    const member = members.find((item) => item.id === nextId);
+    onTaskPatched(task.id, {
+      assigneeId: nextId,
+      assigneeName: member?.name ?? null,
+      assigneeAvatar: member?.avatar ?? null,
+    });
+    setPendingField("assignee");
+    const result = await assignTaskAction(task.id, nextId);
+    setPendingField(null);
+    if (result.success) notify(t.tasks.toast.assigneeUpdated);
+    else {
+      onTaskPatched(task.id, previous);
+      notify(result.error, "error");
+    }
+  };
+
+  const handleAddComment = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const content = newComment.trim();
+    if (content.length < 2) {
+      setCommentError(t.errors.commentMin);
+      return;
+    }
     setIsSubmitting(true);
-    const res = await addTaskCommentAction(task.id, newComment);
+    setCommentError(null);
+    const result = await addTaskCommentAction(task.id, content);
     setIsSubmitting(false);
 
-    if (res.success && res.comment) {
-      setComments((prev) => [...prev, res.comment!]);
+    if (result.success && result.data) {
+      const comment = result.data;
+      setComments((previous) => [...previous, comment]);
       setNewComment("");
-      onTaskUpdated({
-        ...task,
-        commentsCount: (task.commentsCount || 0) + 1,
-      });
+      onTaskPatched(task.id, { commentsCount: task.commentsCount + 1 });
+      notify(t.tasks.toast.commentAdded);
+    } else if (!result.success) {
+      setCommentError(result.error);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm("Bu görevi silmek istediğinize emin misiniz?")) return;
     setIsDeleting(true);
-    await deleteTaskAction(task.id);
+    const result = await deleteTaskAction(task.id);
     setIsDeleting(false);
-    onTaskDeleted(task.id);
-    onClose();
+    if (result.success) {
+      onTaskDeleted(task.id);
+    } else {
+      setConfirmingDelete(false);
+      notify(result.error, "error");
+    }
   };
 
+  const assigneeOptions = members.some((member) => member.id === task.assigneeId) || !task.assigneeId
+    ? members
+    : [
+        ...members,
+        { id: task.assigneeId, name: task.assigneeName ?? "", avatar: task.assigneeAvatar, role: "member" as const },
+      ];
+
+  const selectClass = `${inputClass} cursor-pointer py-1.5`;
+
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/40 backdrop-blur-xs flex justify-end animate-in fade-in">
-      <div className="w-full max-w-xl bg-white h-full shadow-2xl flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-200 border-l border-slate-200">
-        {/* Drawer Header */}
-        <div className="p-6 border-b border-slate-200 space-y-3 bg-slate-50/50">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-xs text-brand-600 bg-brand-50 px-2 py-0.5 rounded border border-brand-200 font-semibold">
-                {task.id}
-              </span>
-              {task.projectName && (
-                <span className="text-xs text-slate-500 font-medium">
-                  {task.projectName}
-                </span>
-              )}
-            </div>
-
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <h2 className="text-lg font-bold text-slate-900 font-display leading-snug">
-            {task.title}
-          </h2>
+    <DialogFrame onClose={onClose} labelledBy={titleId} variant="drawer">
+      {/* Header */}
+      <div className="space-y-3 border-b border-slate-200 bg-slate-50/60 p-6">
+        <div className="flex items-start justify-between gap-3">
+          <span className="inline-flex max-w-[80%] items-center truncate rounded-md border border-brand-200 bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700">
+            {task.projectName ?? t.common.noProject}
+          </span>
+          <button type="button" onClick={onClose} aria-label={t.common.closePanel} className={iconButtonClass}>
+            <X className="h-5 w-5" aria-hidden="true" />
+          </button>
         </div>
+        <h2 id={titleId} className="font-display text-lg font-bold leading-snug text-slate-900">
+          {task.title}
+        </h2>
+      </div>
 
-        {/* Drawer Body */}
-        <div className="p-6 flex-1 space-y-6 overflow-y-auto">
-          {/* Quick Selectors Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs">
+      {/* Body */}
+      <div className="flex-1 space-y-6 overflow-y-auto p-6">
+        <div className="space-y-2">
+          <div className="grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-3">
             <div>
-              <span className="text-[10px] font-mono text-slate-400 block mb-1">
-                DURUM
-              </span>
+              <label htmlFor={`${ids}-status`} className="mb-1 block text-xs font-semibold text-slate-600">
+                {t.taskDrawer.statusLabel}
+              </label>
               <select
+                id={`${ids}-status`}
                 value={task.status}
-                onChange={(e) =>
-                  handleStatusChange(e.target.value as TaskStatus)
-                }
-                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 font-medium text-slate-800 focus:outline-none focus:border-brand-600 cursor-pointer"
+                disabled={!editable || pendingField === "status"}
+                onChange={(event) => handleStatusChange(event.target.value as TaskStatus)}
+                className={selectClass}
               >
-                <option value="todo">Yapılacak</option>
-                <option value="in_progress">Devam Ediyor</option>
-                <option value="in_review">İncelemede</option>
-                <option value="done">Tamamlandı</option>
+                {TASK_STATUSES.map((status) => (
+                  <option key={status} value={status}>
+                    {t.taskStatus[status]}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div>
-              <span className="text-[10px] font-mono text-slate-400 block mb-1">
-                ÖNCELİK
-              </span>
+              <label htmlFor={`${ids}-priority`} className="mb-1 block text-xs font-semibold text-slate-600">
+                {t.taskDrawer.priorityLabel}
+              </label>
               <select
+                id={`${ids}-priority`}
                 value={task.priority}
-                onChange={(e) =>
-                  handlePriorityChange(e.target.value as TaskPriority)
-                }
-                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 font-medium text-slate-800 focus:outline-none focus:border-brand-600 cursor-pointer"
+                disabled={!editable || pendingField === "priority"}
+                onChange={(event) => handlePriorityChange(event.target.value as TaskPriority)}
+                className={selectClass}
               >
-                <option value="urgent">Acil</option>
-                <option value="high">Yüksek</option>
-                <option value="medium">Orta</option>
-                <option value="low">Düşük</option>
+                {TASK_PRIORITIES.map((priority) => (
+                  <option key={priority} value={priority}>
+                    {t.taskPriority[priority]}
+                  </option>
+                ))}
               </select>
             </div>
 
-            <div className="col-span-2 sm:col-span-1">
-              <span className="text-[10px] font-mono text-slate-400 block mb-1">
-                SORUMLU
-              </span>
+            <div>
+              <label htmlFor={`${ids}-assignee`} className="mb-1 block text-xs font-semibold text-slate-600">
+                {t.taskDrawer.assigneeLabel}
+              </label>
               <select
-                value={task.assigneeId || ""}
-                onChange={(e) => handleAssigneeChange(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 font-medium text-slate-800 focus:outline-none focus:border-brand-600 cursor-pointer truncate"
+                id={`${ids}-assignee`}
+                value={task.assigneeId ?? ""}
+                disabled={!viewer.canAssign || pendingField === "assignee"}
+                onChange={(event) => handleAssigneeChange(event.target.value)}
+                className={`${selectClass} truncate`}
               >
-                <option value="">Atanmamış</option>
-                {members.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name}
+                <option value="">{t.common.unassigned}</option>
+                {assigneeOptions.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.id === viewer.id ? `${member.name} (${t.common.you})` : member.name}
                   </option>
                 ))}
               </select>
             </div>
           </div>
+          {!editable && <p className="text-xs text-slate-500">{t.taskDrawer.readOnlyHint}</p>}
+          {editable && !viewer.canAssign && <p className="text-xs text-slate-500">{t.taskDrawer.assignReadOnlyHint}</p>}
+        </div>
 
-          {/* Description */}
-          <div className="space-y-2">
-            <h3 className="text-xs font-mono text-slate-400 uppercase tracking-wider">
-              Açıklama & Yönergeler
+        <section aria-labelledby={`${ids}-description`} className="space-y-2">
+          <h3 id={`${ids}-description`} className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            {t.taskDrawer.descriptionHeading}
+          </h3>
+          <p className="whitespace-pre-wrap rounded-xl border border-slate-100 bg-slate-50/60 p-4 text-sm leading-relaxed text-slate-700">
+            {task.description || <span className="text-slate-400">{t.taskDrawer.noDescription}</span>}
+          </p>
+        </section>
+
+        <section aria-labelledby={`${ids}-details`} className="space-y-2">
+          <h3 id={`${ids}-details`} className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            {t.taskDrawer.detailsHeading}
+          </h3>
+          <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
+            <div className="rounded-xl border border-slate-200 p-3">
+              <dt className="text-xs text-slate-500">{t.taskDrawer.createdBy}</dt>
+              <dd className="mt-0.5 truncate font-medium text-slate-800">
+                {task.creatorId === viewer.id ? t.common.you : task.creatorName || "-"}
+              </dd>
+            </div>
+            <div className="rounded-xl border border-slate-200 p-3">
+              <dt className="text-xs text-slate-500">{t.taskDrawer.createdAt}</dt>
+              <dd className="mt-0.5 font-medium text-slate-800">
+                <time dateTime={task.createdAt}>{formatDate(task.createdAt, locale)}</time>
+              </dd>
+            </div>
+            <div className="rounded-xl border border-slate-200 p-3">
+              <dt className="text-xs text-slate-500">{t.taskDrawer.dueDate}</dt>
+              <dd className={`mt-0.5 font-medium ${overdue ? "text-rose-600" : "text-slate-800"}`}>
+                {task.dueDate ? (
+                  <>
+                    <time dateTime={task.dueDate}>{formatDate(task.dueDate, locale, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}</time>
+                    {overdue && <span className="ml-1 text-xs font-semibold">({t.tasks.overdue})</span>}
+                  </>
+                ) : (
+                  <span className="text-slate-400">{t.tasks.noDueDate}</span>
+                )}
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        {attachments.length > 0 && (
+          <section aria-labelledby={`${ids}-attachments`} className="space-y-2">
+            <h3
+              id={`${ids}-attachments`}
+              className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500"
+            >
+              <Paperclip className="h-3.5 w-3.5" aria-hidden="true" />
+              {t.taskDrawer.attachmentsHeading(attachments.length)}
             </h3>
-            <p className="text-xs text-slate-700 leading-relaxed bg-slate-50/50 p-4 rounded-xl border border-slate-100 whitespace-pre-wrap">
-              {task.description || "Açıklama belirtilmemiş."}
-            </p>
-          </div>
-
-          {/* Attachments */}
-          {attachments.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="text-xs font-mono text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Paperclip className="w-3.5 h-3.5" />
-                <span>Ekli Dosyalar ({attachments.length})</span>
-              </h3>
-              <div className="space-y-1.5">
-                {attachments.map((att) => (
-                  <div
-                    key={att.id}
-                    className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-slate-50 text-xs"
+            <ul className="space-y-1.5">
+              {attachments.map((attachment) => {
+                const href = safeExternalUrl(attachment.fileUrl);
+                return (
+                  <li
+                    key={attachment.id}
+                    className="flex items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-sm"
                   >
-                    <div className="flex items-center gap-2 truncate">
-                      <Paperclip className="w-3.5 h-3.5 text-brand-600 shrink-0" />
-                      <span className="font-medium text-slate-800 truncate">
-                        {att.fileName}
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        ({Math.round(att.fileSize / 1024)} KB)
+                    <div className="flex min-w-0 items-center gap-2">
+                      <Paperclip className="h-4 w-4 shrink-0 text-brand-600" aria-hidden="true" />
+                      <span className="truncate font-medium text-slate-800">{attachment.fileName}</span>
+                      <span className="shrink-0 text-xs text-slate-500">
+                        {formatFileSize(attachment.fileSize, locale)}
                       </span>
                     </div>
-                    <a
-                      href={att.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs font-semibold text-brand-600 hover:underline shrink-0 ml-2"
-                    >
-                      İndir
-                    </a>
-                  </div>
-                ))}
-              </div>
+                    {href && (
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={t.taskDrawer.openAttachment(attachment.fileName)}
+                        className={`shrink-0 rounded-lg px-2 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-50 ${focusRing}`}
+                      >
+                        {t.taskDrawer.open}
+                      </a>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
+
+        <section aria-labelledby={`${ids}-comments`} className="space-y-4 border-t border-slate-200 pt-5">
+          <h3
+            id={`${ids}-comments`}
+            className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500"
+          >
+            <MessageSquare className="h-3.5 w-3.5" aria-hidden="true" />
+            {t.taskDrawer.commentsHeading(loadState === "ready" ? comments.length : task.commentsCount)}
+          </h3>
+
+          {loadState === "loading" && (
+            <p className="flex items-center gap-2 py-4 text-sm text-slate-500" role="status">
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              {t.taskDrawer.commentsLoading}
+            </p>
+          )}
+
+          {loadState === "error" && (
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+              <span>{t.taskDrawer.commentsError}</span>
+              <button
+                type="button"
+                onClick={() => setReloadKey((key) => key + 1)}
+                className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold hover:bg-rose-100 ${focusRing}`}
+              >
+                <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+                {t.common.retry}
+              </button>
             </div>
           )}
 
-          {/* Comments Thread */}
-          <div className="space-y-4 pt-4 border-t border-slate-200">
-            <h3 className="text-xs font-mono text-slate-400 uppercase tracking-wider">
-              Görev Tartışması ({comments.length})
-            </h3>
-
-            {/* List */}
-            <div className="space-y-3">
-              {comments.length === 0 ? (
-                <div className="text-center py-6 text-slate-400 text-xs font-mono">
-                  Henüz bir güncelleme veya yorum yazılmamış.
-                </div>
-              ) : (
-                comments.map((comment) => (
-                  <div
-                    key={comment.id}
-                    className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5"
-                  >
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-slate-900">
-                          {comment.userName}
-                        </span>
-                        <span className="text-[10px] font-mono text-brand-600 bg-brand-50 px-1.5 py-0.2 rounded">
-                          {comment.userRole}
+          {loadState === "ready" &&
+            (comments.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-slate-200 py-6 text-center text-sm text-slate-500">
+                {t.taskDrawer.noComments}
+              </p>
+            ) : (
+              <ul className="space-y-3">
+                {comments.map((comment) => (
+                  <li key={comment.id} className="space-y-1.5 rounded-xl border border-slate-100 bg-slate-50 p-3.5">
+                    <div className="flex items-center justify-between gap-2 text-xs">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <UserAvatar name={comment.userName} src={comment.userAvatar} />
+                        <span className="truncate text-sm font-semibold text-slate-900">
+                          {comment.userId === viewer.id ? t.common.you : comment.userName || "-"}
                         </span>
                       </div>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        {new Date(comment.createdAt).toLocaleDateString("tr-TR", {
-                          day: "numeric",
-                          month: "short",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
+                      <time
+                        dateTime={comment.createdAt}
+                        title={formatDateTime(comment.createdAt, locale)}
+                        className="shrink-0 text-slate-500"
+                      >
+                        {formatRelative(comment.createdAt, locale)}
+                      </time>
                     </div>
-                    <p className="text-xs text-slate-700 leading-relaxed">
-                      {comment.content}
-                    </p>
-                  </div>
-                ))
-              )}
+                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{comment.content}</p>
+                  </li>
+                ))}
+              </ul>
+            ))}
+
+          <form onSubmit={handleAddComment} className="space-y-2 pt-1" noValidate>
+            <label htmlFor={`${ids}-comment`} className="block text-xs font-semibold text-slate-600">
+              {t.taskDrawer.commentLabel}
+            </label>
+            <textarea
+              id={`${ids}-comment`}
+              value={newComment}
+              onChange={(event) => {
+                setNewComment(event.target.value);
+                if (commentError) setCommentError(null);
+              }}
+              placeholder={t.taskDrawer.commentPlaceholder}
+              rows={3}
+              maxLength={COMMENT_MAX}
+              aria-describedby={`${ids}-comment-count`}
+              className={`${inputClass} resize-none`}
+            />
+            <FormError message={commentError} />
+            <div className="flex items-center justify-between gap-2">
+              <span id={`${ids}-comment-count`} className="text-xs text-slate-500">
+                {t.common.characterCount(newComment.length, COMMENT_MAX)}
+              </span>
+              <button
+                type="submit"
+                disabled={isSubmitting || newComment.trim().length === 0}
+                className={primaryButtonClass}
+              >
+                {isSubmitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Send className="h-4 w-4" aria-hidden="true" />
+                )}
+                <span>{isSubmitting ? t.taskDrawer.sending : t.taskDrawer.sendComment}</span>
+              </button>
             </div>
-
-            {/* Comment Form */}
-            <form onSubmit={handleAddComment} className="space-y-2 pt-2">
-              <textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Görevle ilgili teknik ilerleme veya soru yazın..."
-                rows={2}
-                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-brand-600 resize-none"
-              />
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={isSubmitting || !newComment.trim()}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold disabled:opacity-50 transition-colors"
-                >
-                  <Send className="w-3 h-3" />
-                  <span>{isSubmitting ? "Gönderiliyor..." : "Yorum Ekle"}</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        {/* Drawer Footer Actions */}
-        <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
-          <button
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="inline-flex items-center gap-1.5 text-xs text-rose-600 hover:text-rose-700 font-medium p-2 rounded-lg hover:bg-rose-50 transition-colors"
-          >
-            <Trash2 className="w-4 h-4" />
-            <span>Görevi Sil</span>
-          </button>
-
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs font-medium hover:bg-slate-50 transition-colors"
-          >
-            Kapat
-          </button>
-        </div>
+          </form>
+        </section>
       </div>
-    </div>
+
+      {/* Footer */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-slate-50 p-4">
+        {deletable ? (
+          confirmingDelete ? (
+            <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t.taskDrawer.deleteConfirm}>
+              <span className="text-sm font-medium text-rose-700">{t.taskDrawer.deleteConfirm}</span>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className={`inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-60 ${focusRing}`}
+              >
+                {isDeleting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+                {isDeleting ? t.taskDrawer.deleting : t.taskDrawer.deleteConfirmYes}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmingDelete(false)}
+                disabled={isDeleting}
+                className={`rounded-xl px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-200/60 ${focusRing}`}
+              >
+                {t.common.cancel}
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmingDelete(true)}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50 hover:text-rose-700 ${focusRing}`}
+            >
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              {t.taskDrawer.deleteTask}
+            </button>
+          )
+        ) : (
+          <span />
+        )}
+
+        <button type="button" onClick={onClose} className={secondaryButtonClass}>
+          {t.common.close}
+        </button>
+      </div>
+    </DialogFrame>
   );
 }

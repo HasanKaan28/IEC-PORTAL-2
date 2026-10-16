@@ -1,75 +1,161 @@
 import React from "react";
+import type { Metadata } from "next";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
-import { ShieldAlert, CheckCircle, Scale, Database } from "lucide-react";
+import {
+  ShieldAlert,
+  Scale,
+  Database,
+  CheckCircle,
+  Lock,
+  Eye,
+  FileText,
+  Cookie,
+  type LucideIcon,
+} from "lucide-react";
+import { getServerLocale } from "@/lib/i18n/server";
+import {
+  legalText,
+  type LegalDocument,
+  type LegalIcon,
+  type LegalRichText,
+  type LegalSection,
+} from "@/lib/i18n/public/legal";
 
-export default function KvkkPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const doc = legalText[await getServerLocale()].kvkk;
+  return { title: doc.metaTitle, description: doc.metaDescription };
+}
+
+export default async function KvkkPage() {
+  const doc = legalText[await getServerLocale()].kvkk;
+
   return (
-    <div className="flex flex-col min-h-screen bg-ink-950">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-
-      <main className="flex-1 py-16 px-4 sm:px-6">
-        <div className="max-w-4xl mx-auto space-y-8">
-          {/* Legal Warning Notice */}
-          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-xs text-amber-200">
-            <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-            <div>
-              <span className="font-bold block text-sm">Hukuki İnceleme Gereklidir (Taslak Aydınlatma Metni)</span>
-              İşbu KVKK Aydınlatma Metni taslaktır. Kullanıcıların açık rıza ve onay kayıtları veritabanımızdaki <code className="text-amber-300 font-mono">consent_logs</code> tablosunda zaman damgası ve sürüm bilgisiyle saklanmaktadır. Resmi yürürlük öncesinde hukuk birimi onayı alınmalıdır.
-            </div>
-          </div>
-
-          <div className="text-center sm:text-left">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white font-display">
-              KVKK & GDPR Aydınlatma Metni
-            </h1>
-            <p className="text-xs text-slate-400 font-mono mt-2">
-              Belge Sürümü: v1.0 • Son Revizyon: Ekim 2026
-            </p>
-          </div>
-
-          <div className="glass-panel p-8 rounded-3xl border border-slate-800 space-y-6 text-slate-300 text-xs sm:text-sm leading-relaxed">
-            <section className="space-y-2">
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <Scale className="w-4 h-4 text-accent-400" />
-                1. Aydınlatma Metninin Amacı
-              </h2>
-              <p>
-                6698 sayılı Kişisel Verilerin Korunması Kanunu (&quot;KVKK&quot;) ve Bosna-Hersek Veri Koruma mevzuatı uyarınca, IUS Engineering Club tarafından yürütülen faaliyetler kapsamında elde edilen kişisel verilerinizin işlenme şartları işbu metinle bilgilerinize sunulmaktadır.
-              </p>
-            </section>
-
-            <section className="space-y-2">
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <Database className="w-4 h-4 text-accent-400" />
-                2. İşlenen Kişisel Veriler ve Hukuki Sebepler
-              </h2>
-              <p>
-                Platforma kayıt esnasında sağlanan kimlik, iletişim, öğrenci numarası ve akademik bölüm bilgileri; kulüp üyeliğinin tesisi, etkinlik organizasyonu ve üniversite mevzuatına uyum amacıyla KVKK m. 5/2-c ve m. 5/2-f bentleri uyarınca işlenmektedir.
-              </p>
-            </section>
-
-            <section className="space-y-2">
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-accent-400" />
-                3. Onay Kaydı ve Dijital İspat (Consent Logs)
-              </h2>
-              <p>
-                Üyelik veya başvuru formunda işaretlenen KVKK onay kutusu, kullanıcının kullanıcı kimliği (user_id), onaylanan belge sürümü (document_version: &quot;v1.0&quot;), IP adresi ve zaman damgası (consented_at) ile birlikte sistem kayıtlarına (<code className="text-accent-300 font-mono">consent_logs</code>) kriptografik olarak kaydedilir.
-              </p>
-            </section>
-
-            <section className="space-y-2">
-              <h2 className="text-base font-bold text-white">4. İlgili Kişinin Hakları</h2>
-              <p>
-                Her üye ve ziyaretçi, dilediği zaman kulüp yönetimine başvurarak kişisel verilerinin silinmesini, güncellenmesini veya işlenme durumunu sorgulama hakkına sahiptir. Başvurular doğrudan <strong className="text-white">engineering-club@ius.edu.ba</strong> adresine iletilebilir.
-              </p>
-            </section>
-          </div>
-        </div>
+      <main id="main-content" className="flex-1 py-16 px-4 sm:px-6">
+        <LegalDocumentView doc={doc} />
       </main>
-
       <Footer />
+    </div>
+  );
+}
+
+// Same renderer as the privacy and cookie pages; a shared component would remove the copies.
+const ICONS: Record<LegalIcon, LucideIcon> = {
+  scale: Scale,
+  database: Database,
+  check: CheckCircle,
+  lock: Lock,
+  eye: Eye,
+  file: FileText,
+  cookie: Cookie,
+};
+
+function RichText({ runs }: { runs: LegalRichText }) {
+  return (
+    <>
+      {runs.map((run, i) => {
+        if (typeof run === "string") return <React.Fragment key={i}>{run}</React.Fragment>;
+        if ("strong" in run)
+          return (
+            <strong key={i} className="font-semibold text-white">
+              {run.strong}
+            </strong>
+          );
+        return (
+          <code key={i} className="font-mono text-accent-300">
+            {run.code}
+          </code>
+        );
+      })}
+    </>
+  );
+}
+
+function SectionView({ section }: { section: LegalSection }) {
+  const Icon = section.icon ? ICONS[section.icon] : null;
+  const headingId = `section-${section.id}`;
+
+  return (
+    <section aria-labelledby={headingId} className={section.table ? "space-y-4" : "space-y-2"}>
+      <h2 id={headingId} className="text-base font-bold text-white flex items-center gap-2">
+        {Icon && <Icon className="w-4 h-4 text-accent-400 shrink-0" aria-hidden="true" />}
+        {section.heading}
+      </h2>
+
+      {section.paragraphs?.map((paragraph, i) => (
+        <p key={i}>
+          <RichText runs={paragraph} />
+        </p>
+      ))}
+
+      {section.items && (
+        <ul className="list-disc list-inside space-y-1 text-slate-400 pl-2">
+          {section.items.map((item, i) => (
+            <li key={i}>
+              <RichText runs={item} />
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {section.table && (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs">
+            <caption className="sr-only">{section.table.caption}</caption>
+            <thead>
+              <tr className="border-b border-slate-800 text-slate-400 font-mono">
+                {section.table.columns.map((column) => (
+                  <th key={column} scope="col" className="py-2.5 px-3 font-semibold">
+                    {column}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800/60">
+              {section.table.rows.map(([name, category, duration, purpose]) => (
+                <tr key={name} className="hover:bg-slate-900/40">
+                  <th scope="row" className="py-3 px-3 font-mono text-accent-300 font-semibold">
+                    {name}
+                  </th>
+                  <td className="py-3 px-3 text-slate-300">{category}</td>
+                  <td className="py-3 px-3 text-slate-400 font-mono whitespace-nowrap">{duration}</td>
+                  <td className="py-3 px-3 text-slate-300 leading-normal">{purpose}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function LegalDocumentView({ doc }: { doc: LegalDocument }) {
+  return (
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div
+        role="note"
+        className="p-4 rounded-2xl bg-accent-500/10 border border-accent-500/30 flex items-start gap-3 text-xs text-accent-100"
+      >
+        <ShieldAlert className="w-5 h-5 text-accent-400 shrink-0 mt-0.5" aria-hidden="true" />
+        <div>
+          <span className="font-bold block text-sm">{doc.noticeTitle}</span>
+          <RichText runs={doc.notice} />
+        </div>
+      </div>
+
+      <div className="text-center sm:text-left">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-white font-display">{doc.title}</h1>
+        <p className="text-xs text-slate-400 font-mono mt-2">{doc.versionLine}</p>
+      </div>
+
+      <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6 text-slate-300 text-xs sm:text-sm leading-relaxed">
+        {doc.sections.map((section) => (
+          <SectionView key={section.id} section={section} />
+        ))}
+      </div>
     </div>
   );
 }

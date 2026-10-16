@@ -1,320 +1,254 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
-import {
-  Calendar,
-  Clock,
-  MapPin,
-  Users,
-  CheckCircle2,
-  QrCode,
-  Award,
-  Sparkles,
-  ExternalLink,
-  ChevronRight,
-  Tv,
-} from "lucide-react";
-import { EventItem } from "@/lib/events/event-types";
-import { registerForEventAction } from "@/lib/events/event-actions";
+import { useRouter } from "next/navigation";
+import { Award, Calendar, CheckCircle2, Clock, MapPin, Plus, QrCode, Tv } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { formatDate } from "@/lib/i18n/format";
+import { eventsHackathonsText } from "@/lib/i18n/portal/events-hackathons";
+import { EVENT_TIME_ZONE, type EventItem, type EventStatus } from "@/lib/events/event-types";
 import CheckInModal from "./CheckInModal";
+import CreateEventModal from "./CreateEventModal";
+import EmptyState from "./EmptyState";
+import PortalToast, { useToast } from "./PortalToast";
+import { cardClass, chipClass, iconButton, primaryButton, secondaryButton, tabButton } from "./styles";
 
 interface EventsPortalClientProps {
-  initialEvents: EventItem[];
+  events: EventItem[];
+  canManage: boolean;
+  canHost: boolean;
+  /** From a scanned QR link (?checkin=<event>&code=<digits>), already validated on the server. */
+  initialCheckIn: { eventId: string; code: string } | null;
 }
 
-export default function EventsPortalClient({
-  initialEvents,
-}: EventsPortalClientProps) {
-  const [events, setEvents] = useState<EventItem[]>(initialEvents);
-  const [activeTab, setActiveTab] = useState<
-    "all" | "upcoming" | "past" | "workshop" | "seminar" | "hackathon"
-  >("all");
-  const [checkInEvent, setCheckInEvent] = useState<EventItem | null>(null);
-  const [toastMsg, setToastMsg] = useState<string | null>(null);
+type EventsTab = "all" | "upcoming" | "past";
 
-  const showToast = (msg: string) => {
-    setToastMsg(msg);
-    setTimeout(() => setToastMsg(null), 3000);
+const STATUS_BADGE: Record<EventStatus, string> = {
+  live: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  upcoming: "border-brand-200 bg-brand-50 text-brand-700",
+  past: "border-slate-200 bg-slate-100 text-slate-600",
+};
+
+export default function EventsPortalClient({ events, canManage, canHost, initialCheckIn }: EventsPortalClientProps) {
+  const { locale } = useLocale();
+  const t = eventsHackathonsText[locale];
+  const router = useRouter();
+  const { toast, show: showToast, dismiss: dismissToast } = useToast();
+
+  const [activeTab, setActiveTab] = useState<EventsTab>("all");
+  const [checkIn, setCheckIn] = useState<{ eventId: string; code?: string } | null>(initialCheckIn);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  const filteredEvents = useMemo(
+    () =>
+      events.filter((event) => {
+        if (activeTab === "upcoming") return event.status !== "past";
+        if (activeTab === "past") return event.status === "past";
+        return true;
+      }),
+    [events, activeTab]
+  );
+  const activeCount = events.filter((event) => event.status !== "past").length;
+  const checkInEvent = checkIn ? events.find((event) => event.id === checkIn.eventId) ?? null : null;
+
+  const closeCheckIn = () => {
+    setCheckIn(null);
+    // Drop ?checkin=...&code=... so a reload does not reopen the dialog with an expired code.
+    if (initialCheckIn) router.replace("/portal/etkinlikler", { scroll: false });
   };
 
-  const filteredEvents = useMemo(() => {
-    return events.filter((e) => {
-      if (activeTab === "all") return true;
-      if (activeTab === "upcoming") return !e.isPast;
-      if (activeTab === "past") return e.isPast;
-      return e.category === activeTab;
-    });
-  }, [events, activeTab]);
+  const formatParts = (iso: string) => ({
+    day: formatDate(iso, locale, { day: "numeric", timeZone: EVENT_TIME_ZONE }),
+    month: formatDate(iso, locale, { month: "short", timeZone: EVENT_TIME_ZONE }),
+    when: formatDate(iso, locale, {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: EVENT_TIME_ZONE,
+    }),
+  });
 
-  const handleRegister = async (eventId: string) => {
-    const res = await registerForEventAction(eventId);
-    if (res.success) {
-      setEvents((prev) =>
-        prev.map((e) =>
-          e.id === eventId
-            ? { ...e, userStatus: "registered", registeredCount: e.registeredCount + 1 }
-            : e
-        )
-      );
-      showToast("Etkinliğe başarıyla kayıt oldunuz! Etkinlik günü salonda yoklama verebilirsiniz.");
-    } else {
-      showToast(res.error || "Kayıt işlemi başarısız.");
-    }
-  };
-
-  const handleCheckInSuccess = (eventId: string) => {
-    setEvents((prev) =>
-      prev.map((e) =>
-        e.id === eventId
-          ? { ...e, userStatus: "attended", attendeesCount: e.attendeesCount + 1 }
-          : e
-      )
-    );
-    showToast("Yoklamanız onaylandı! Başarı sertifikanız hazırlandı.");
-  };
-
-  const formatDate = (iso: string) => {
-    const d = new Date(iso);
-    return {
-      day: d.getDate(),
-      month: d.toLocaleString("tr-TR", { month: "short" }).toUpperCase(),
-      time: d.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
-    };
-  };
+  const tabs: Array<{ id: EventsTab; label: string }> = [
+    { id: "all", label: t.events.tabs.all },
+    { id: "upcoming", label: t.events.tabs.upcoming },
+    { id: "past", label: t.events.tabs.past },
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Toast Feedback */}
-      {toastMsg && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-xs shadow-2xl border border-slate-700 animate-in fade-in slide-in-from-bottom-3">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span>{toastMsg}</span>
-        </div>
-      )}
+      <PortalToast toast={toast} onDismiss={dismissToast} dismissLabel={t.common.dismiss} />
 
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+      <header className={`${cardClass} flex flex-col justify-between gap-4 p-5 sm:flex-row sm:items-center`}>
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 font-display">
-              Kulüp Etkinlikleri & Atölyeler
-            </h1>
-            <span className="text-xs font-mono font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-200">
-              {events.filter((e) => !e.isPast).length} Yaklaşan Etkinlik
-            </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-xl font-bold text-slate-900">{t.events.title}</h1>
+            {activeCount > 0 && (
+              <span className={`${chipClass} rounded-full border-brand-200 bg-brand-50 text-brand-700`}>
+                {t.events.upcomingCount(activeCount)}
+              </span>
+            )}
           </div>
-          <p className="text-xs text-slate-500 mt-1 max-w-xl">
-            Donanım atölyeleri, teknoloji seminerleri ve uluslararası hackathonlara katılın; dinamik QR ile yoklama verip doğrulanabilir sertifikanızı alın.
-          </p>
+          <p className="mt-1 max-w-2xl text-sm text-slate-600">{t.events.subtitle}</p>
         </div>
-
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Link
             href="/portal/sertifikalarim"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold transition-colors"
+            className={`${secondaryButton} border-accent-200 bg-accent-50 text-accent-800 hover:bg-accent-100 hover:text-accent-900`}
           >
-            <Award className="w-4 h-4 text-amber-600" />
-            <span>Sertifikalarım</span>
+            <Award className="h-4 w-4" aria-hidden="true" />
+            <span>{t.events.myCertificates}</span>
           </Link>
+          {canManage && (
+            <button type="button" onClick={() => setIsCreateOpen(true)} className={primaryButton}>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              <span>{t.events.newEvent}</span>
+            </button>
+          )}
         </div>
-      </div>
+      </header>
 
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
-        {[
-          { id: "all", label: "Tüm Etkinlikler" },
-          { id: "upcoming", label: "Yaklaşanlar" },
-          { id: "workshop", label: "Atölye (Workshop)" },
-          { id: "seminar", label: "Seminer & Panel" },
-          { id: "hackathon", label: "Hackathon" },
-          { id: "past", label: "Tamamlananlar" },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
-              activeTab === tab.id
-                ? "bg-brand-600 text-white shadow-xs font-semibold"
-                : "bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {events.length === 0 ? (
+        <EmptyState
+          icon={<Calendar className="h-6 w-6" />}
+          title={t.events.emptyTitle}
+          body={t.events.emptyBody}
+          action={
+            canManage ? (
+              <button type="button" onClick={() => setIsCreateOpen(true)} className={primaryButton}>
+                <Plus className="h-4 w-4" aria-hidden="true" />
+                <span>{t.events.emptyManagerAction}</span>
+              </button>
+            ) : undefined
+          }
+        />
+      ) : (
+        <>
+          <div role="group" aria-label={t.events.filterLabel} className="flex items-center gap-2 overflow-x-auto pb-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                aria-pressed={activeTab === tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={tabButton(activeTab === tab.id)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-      {/* Events Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-        {filteredEvents.map((event) => {
-          const dateObj = formatDate(event.dateTime);
-          const isCapacityFull = event.registeredCount >= event.capacity;
+          {filteredEvents.length === 0 ? (
+            <EmptyState
+              icon={<Calendar className="h-6 w-6" />}
+              title={t.events.emptyFilteredTitle}
+              body={t.events.emptyFilteredBody}
+            />
+          ) : (
+            <ul className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              {filteredEvents.map((event) => {
+                const parts = formatParts(event.dateTime);
+                return (
+                  <li key={event.id}>
+                    <article className={`${cardClass} flex h-full flex-col p-5 transition-shadow hover:shadow-md`}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl border border-brand-200 bg-brand-50"
+                            aria-hidden="true"
+                          >
+                            <span className="text-xs font-semibold uppercase text-brand-700">{parts.month}</span>
+                            <span className="text-lg font-bold leading-tight text-slate-900">{parts.day}</span>
+                          </div>
+                          <div className="min-w-0">
+                            <span className={`${chipClass} ${STATUS_BADGE[event.status]}`}>
+                              {t.events.status[event.status]}
+                            </span>
+                            <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-600">
+                              <Clock className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+                              <time dateTime={event.dateTime}>{parts.when}</time>
+                            </p>
+                          </div>
+                        </div>
 
-          return (
-            <div
-              key={event.id}
-              className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-md transition-all p-5 flex flex-col justify-between space-y-4 group"
-            >
-              <div className="space-y-4">
-                {/* Top Row: Date Badge & Category */}
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    {/* Calendar Badge */}
-                    <div className="w-12 h-12 rounded-xl bg-brand-50/80 border border-brand-200 flex flex-col items-center justify-center shrink-0">
-                      <span className="text-[10px] font-mono font-bold text-brand-600 leading-none">
-                        {dateObj.month}
-                      </span>
-                      <span className="text-base font-bold text-slate-900 leading-tight">
-                        {dateObj.day}
-                      </span>
-                    </div>
+                        {canHost && event.status !== "past" && (
+                          <Link
+                            href={`/portal/admin/etkinlikler/${event.id}/yoklama`}
+                            aria-label={t.events.openPresenter(event.title)}
+                            title={t.events.openPresenter(event.title)}
+                            className={`${iconButton} shrink-0`}
+                          >
+                            <Tv className="h-4 w-4" aria-hidden="true" />
+                          </Link>
+                        )}
+                      </div>
 
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 uppercase font-mono">
-                          {event.category}
-                        </span>
-                        {event.isPast ? (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-500">
-                            Geçmiş
-                          </span>
-                        ) : isCapacityFull ? (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-rose-50 text-rose-700 border border-rose-200">
-                            Kontenjan Dolu
-                          </span>
+                      <h2 className="mt-4 text-base font-bold leading-snug text-slate-900">{event.title}</h2>
+                      <p className="mt-1.5 line-clamp-3 whitespace-pre-line text-sm leading-relaxed text-slate-600">
+                        {event.description}
+                      </p>
+                      <p className="mt-3 flex items-center gap-1.5 text-sm text-slate-600">
+                        <MapPin className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+                        <span className="sr-only">{t.events.venueLabel}: </span>
+                        <span className="truncate">{event.venue}</span>
+                      </p>
+
+                      <div className="mt-auto flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 pt-4">
+                        {event.attended ? (
+                          <>
+                            <span className={`${chipClass} border-emerald-200 bg-emerald-50 text-emerald-700`}>
+                              <CheckCircle2 className="mr-1 h-3.5 w-3.5" aria-hidden="true" />
+                              {t.events.attended}
+                            </span>
+                            {event.certificateCode && (
+                              <Link href="/portal/sertifikalarim" className={secondaryButton}>
+                                <Award className="h-4 w-4 text-accent-600" aria-hidden="true" />
+                                <span>{t.events.viewCertificate}</span>
+                              </Link>
+                            )}
+                          </>
+                        ) : event.checkInOpen ? (
+                          <button type="button" onClick={() => setCheckIn({ eventId: event.id })} className={primaryButton}>
+                            <QrCode className="h-4 w-4" aria-hidden="true" />
+                            <span>{t.events.checkIn}</span>
+                          </button>
                         ) : (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            Kayıtlar Açık
+                          <span className="text-sm text-slate-500">
+                            {event.status === "upcoming" ? t.events.opensOnEventDay : t.events.ended}
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-1">
-                        <Clock className="w-3.5 h-3.5 text-slate-400" />
-                        <span>Saat: {dateObj.time}</span>
-                      </div>
-                    </div>
-                  </div>
+                    </article>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </>
+      )}
 
-                  {/* Organizer Live Presenter Link */}
-                  {!event.isPast && (
-                    <Link
-                      href={`/portal/admin/etkinlikler/${event.id}/yoklama`}
-                      title="Organizatör Yoklama Projeksiyon Ekranını Aç"
-                      className="p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 hover:text-brand-600 hover:border-brand-200 hover:bg-brand-50/50 transition-colors shrink-0"
-                    >
-                      <Tv className="w-4 h-4" />
-                    </Link>
-                  )}
-                </div>
+      {checkInEvent && (
+        <CheckInModal
+          key={checkInEvent.id}
+          event={checkInEvent}
+          initialCode={checkIn?.code}
+          onClose={closeCheckIn}
+          onCheckedIn={() => router.refresh()}
+        />
+      )}
 
-                {/* Title & Desc */}
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-brand-600 transition-colors leading-snug">
-                    {event.title}
-                  </h3>
-                  <p className="text-xs text-slate-600 mt-2 leading-relaxed line-clamp-3">
-                    {event.description}
-                  </p>
-                </div>
-
-                {/* Venue & Capacity */}
-                <div className="space-y-2 pt-1 text-xs">
-                  <div className="flex items-center gap-1.5 text-slate-600">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span className="truncate">{event.venue}</span>
-                  </div>
-
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
-                      <span>KONTENJAN DURUMU</span>
-                      <span>
-                        {event.registeredCount} / {event.capacity} Kayıtlı
-                      </span>
-                    </div>
-                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-brand-600 rounded-full transition-all"
-                        style={{
-                          width: `${Math.min(
-                            100,
-                            (event.registeredCount / event.capacity) * 100
-                          )}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card Footer */}
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
-                {/* Instructor */}
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center text-[10px] font-bold text-slate-700 shrink-0">
-                    {event.instructor.avatar ? (
-                      <img
-                        src={event.instructor.avatar}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      event.instructor.name.charAt(0)
-                    )}
-                  </div>
-                  <div className="truncate">
-                    <div className="font-semibold text-slate-800 text-[11px] truncate">
-                      {event.instructor.name}
-                    </div>
-                    <div className="text-[10px] text-slate-400 truncate">
-                      {event.instructor.title}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action Buttons based on userStatus */}
-                <div className="shrink-0">
-                  {event.userStatus === "attended" ? (
-                    <Link
-                      href="/portal/sertifikalarim"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition-colors"
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Sertifikanız Hazır</span>
-                    </Link>
-                  ) : event.userStatus === "registered" ? (
-                    <button
-                      onClick={() => setCheckInEvent(event)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
-                    >
-                      <QrCode className="w-3.5 h-3.5" />
-                      <span>Yoklama Ver</span>
-                    </button>
-                  ) : event.isPast ? (
-                    <span className="text-xs text-slate-400 italic">Sona erdi</span>
-                  ) : (
-                    <button
-                      onClick={() => handleRegister(event.id)}
-                      disabled={isCapacityFull}
-                      className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-brand-600 text-white text-xs font-semibold transition-colors disabled:opacity-50"
-                    >
-                      <span>Kayıt Ol</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Check In Modal */}
-      <CheckInModal
-        event={checkInEvent}
-        isOpen={Boolean(checkInEvent)}
-        onClose={() => setCheckInEvent(null)}
-        onSuccess={handleCheckInSuccess}
-      />
+      {isCreateOpen && (
+        <CreateEventModal
+          onClose={() => setIsCreateOpen(false)}
+          onCreated={(message) => {
+            setIsCreateOpen(false);
+            showToast({ kind: "success", message });
+            router.refresh();
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -1,186 +1,159 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, QrCode, CheckCircle2, AlertCircle, Award, ArrowRight } from "lucide-react";
-import confetti from "canvas-confetti";
-import { EventItem } from "@/lib/events/event-types";
-import { checkInWithTOTPAction } from "@/lib/events/event-actions";
 import Link from "next/link";
+import { AlertCircle, ArrowRight, Award, CheckCircle2, QrCode } from "lucide-react";
+import confetti from "canvas-confetti";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { eventsHackathonsText } from "@/lib/i18n/portal/events-hackathons";
+import { normalizeCheckInCode, type CheckInResult, type EventItem } from "@/lib/events/event-types";
+import { checkInWithTOTPAction } from "@/lib/events/event-actions";
+import PortalDialog from "./PortalDialog";
+import { hintClass, inputClass, labelClass, primaryButton, secondaryButton } from "./styles";
 
 interface CheckInModalProps {
-  event: EventItem | null;
-  isOpen: boolean;
+  event: EventItem;
+  /** Code from a scanned QR link; prefilled but never submitted automatically. */
+  initialCode?: string;
   onClose: () => void;
-  onSuccess: (eventId: string, certCode?: string) => void;
+  onCheckedIn: () => void;
 }
 
-export default function CheckInModal({
-  event,
-  isOpen,
-  onClose,
-  onSuccess,
-}: CheckInModalProps) {
-  const [code, setCode] = useState("");
+function formatCode(code: string): string {
+  return code.length === 6 ? `${code.slice(0, 3)} ${code.slice(3)}` : code;
+}
+
+export default function CheckInModal({ event, initialCode, onClose, onCheckedIn }: CheckInModalProps) {
+  const { locale } = useLocale();
+  const t = eventsHackathonsText[locale];
+  const [code, setCode] = useState(initialCode ? formatCode(initialCode) : "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [successCertCode, setSuccessCertCode] = useState<string | null>(null);
+  const [result, setResult] = useState<{ data: CheckInResult; message: string } | null>(null);
+  const inputId = `checkin-code-${event.id}`;
+  const hintId = `${inputId}-hint`;
+  const errorId = `${inputId}-error`;
 
-  if (!isOpen || !event) return null;
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanCode = code.replace(/\s+/g, "");
-    if (cleanCode.length < 5) {
-      setErrorMsg("Lütfen projeksiyondaki 6 haneli kodu eksiksiz giriniz.");
+  const handleSubmit = async (formEvent: React.FormEvent) => {
+    formEvent.preventDefault();
+    const normalized = normalizeCheckInCode(code);
+    if (!normalized) {
+      setErrorMsg(t.errors.codeFormat);
       return;
     }
 
     setIsSubmitting(true);
     setErrorMsg(null);
-
-    const res = await checkInWithTOTPAction(event.id, cleanCode);
+    const res = await checkInWithTOTPAction(event.id, normalized);
     setIsSubmitting(false);
 
-    if (res.success) {
-      setSuccessCertCode(res.certificateCode || "IEC-2026-READY");
-      // Trigger festive confetti
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 },
-      });
-      onSuccess(event.id, res.certificateCode);
-    } else {
-      setErrorMsg(res.error || "Yoklama kodu doğrulanamadı.");
+    if (!res.success) {
+      setErrorMsg(res.error);
+      return;
     }
-  };
-
-  const handleClose = () => {
-    setCode("");
-    setErrorMsg(null);
-    setSuccessCertCode(null);
-    onClose();
+    const data = res.data ?? { alreadyCheckedIn: false, certificateCode: null };
+    setResult({ data, message: res.message ?? "" });
+    if (!data.alreadyCheckedIn) {
+      confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, disableForReducedMotion: true });
+    }
+    onCheckedIn();
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-md w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        {/* Header */}
-        <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-brand-50 border border-brand-200 text-brand-600 flex items-center justify-center">
-              <QrCode className="w-4 h-4" />
+    <PortalDialog
+      title={t.checkIn.title}
+      description={event.title}
+      icon={<QrCode className="h-4 w-4" />}
+      closeLabel={t.common.closeDialog}
+      onClose={onClose}
+      size="md"
+    >
+      <div className="p-5">
+        {result ? (
+          <div className="space-y-4 py-2 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border-4 border-emerald-50 bg-emerald-100 text-emerald-600">
+              <CheckCircle2 className="h-8 w-8" aria-hidden="true" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900 font-display">
-                Dinamik QR / Kod ile Yoklama Ver
+              <h3 className="text-base font-bold text-slate-900">
+                {result.data.alreadyCheckedIn ? t.checkIn.alreadyTitle : t.checkIn.successTitle}
               </h3>
-              <p className="text-xs text-slate-500 line-clamp-1">{event.title}</p>
+              <p className="mt-1 text-sm text-slate-600">
+                {result.data.certificateCode ? t.checkIn.successBody : result.message}
+              </p>
+            </div>
+
+            {result.data.certificateCode && (
+              <div className="inline-block rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <span className="block text-xs text-slate-500">{t.checkIn.certificateCodeLabel}</span>
+                <span className="font-mono text-base font-bold text-brand-700">{result.data.certificateCode}</span>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2 pt-2">
+              {result.data.certificateCode && (
+                <Link href="/portal/sertifikalarim" onClick={onClose} className={`${primaryButton} w-full`}>
+                  <Award className="h-4 w-4" aria-hidden="true" />
+                  <span>{t.checkIn.goToCertificates}</span>
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              )}
+              <button type="button" onClick={onClose} className={`${secondaryButton} w-full`}>
+                {t.common.close}
+              </button>
             </div>
           </div>
-          <button
-            onClick={handleClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+            <p className="rounded-xl border border-accent-200 bg-accent-50 p-3 text-sm text-accent-800">{t.checkIn.intro}</p>
 
-        {/* Content */}
-        <div className="p-5">
-          {successCertCode ? (
-            <div className="text-center py-4 space-y-4">
-              <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto border-4 border-emerald-50">
-                <CheckCircle2 className="w-8 h-8" />
+            {errorMsg && (
+              <div
+                id={errorId}
+                role="alert"
+                className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700"
+              >
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                <span>{errorMsg}</span>
               </div>
+            )}
 
-              <div>
-                <h4 className="text-base font-bold text-slate-900">
-                  Yoklamanız Başarıyla Onaylandı!
-                </h4>
-                <p className="text-xs text-slate-600 mt-1">
-                  Etkinlik katılımınız sisteme işlendi ve resmi IEC başarı sertifikanız üretildi.
-                </p>
-              </div>
-
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl inline-block">
-                <span className="text-[10px] text-slate-400 font-mono block">
-                  SERTİFİKA DOĞRULAMA KODU:
-                </span>
-                <span className="text-sm font-mono font-bold text-brand-600">
-                  {successCertCode}
-                </span>
-              </div>
-
-              <div className="pt-2 flex flex-col gap-2">
-                <Link
-                  href="/portal/sertifikalarim"
-                  onClick={handleClose}
-                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
-                >
-                  <Award className="w-4 h-4" />
-                  <span>Sertifikalarıma Git & İndir</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-                <button
-                  onClick={handleClose}
-                  className="w-full py-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-                >
-                  Kapat
-                </button>
-              </div>
+            <div>
+              <label htmlFor={inputId} className={labelClass}>
+                {t.checkIn.codeLabel}
+              </label>
+              <input
+                id={inputId}
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                required
+                autoFocus
+                maxLength={7}
+                value={code}
+                onChange={(changeEvent) => setCode(changeEvent.target.value.replace(/[^\d\s]/g, ""))}
+                placeholder={t.checkIn.codePlaceholder}
+                aria-describedby={errorMsg ? `${hintId} ${errorId}` : hintId}
+                aria-invalid={Boolean(errorMsg)}
+                className={`${inputClass} py-3 text-center font-mono text-2xl font-bold tracking-widest`}
+              />
+              <p id={hintId} className={hintClass}>
+                {t.checkIn.codeHint}
+              </p>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
-                <span className="font-semibold block mb-0.5">⏱ 60 Saniyede Bir Dönen Kod:</span>
-                Organizatörün amfitiyatro projeksiyonunda yansıttığı 6 haneli kodu giriniz. Kod her dakika otomatik yenilenir.
-              </div>
 
-              {errorMsg && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 flex items-center gap-2 text-rose-700 text-xs">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{errorMsg}</span>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  6 Haneli Yoklama Kodu
-                </label>
-                <input
-                  type="text"
-                  required
-                  autoFocus
-                  maxLength={7}
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  placeholder="Örn: 482 913"
-                  className="w-full text-center tracking-widest text-xl font-mono font-bold py-3 rounded-xl border border-slate-200 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-slate-50/50"
-                />
-              </div>
-
-              <div className="pt-2 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-                >
-                  Vazgeç
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold transition-all shadow-xs disabled:opacity-50"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>{isSubmitting ? "Kontrol Ediliyor..." : "Yoklamayı Onayla"}</span>
-                </button>
-              </div>
-            </form>
-          )}
-        </div>
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button type="button" onClick={onClose} className={secondaryButton}>
+                {t.common.cancel}
+              </button>
+              <button type="submit" disabled={isSubmitting} className={primaryButton}>
+                <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                <span>{isSubmitting ? t.checkIn.submitting : t.checkIn.submit}</span>
+              </button>
+            </div>
+          </form>
+        )}
       </div>
-    </div>
+    </PortalDialog>
   );
 }

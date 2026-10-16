@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "IUS Engineering Club (IEC)",
     short_name: "IEC",
     description:
-      "International University of Sarajevo (IUS) Mühendislik Kulübü öğrenci ve proje platformu.",
+      "Website and member portal of the International University of Sarajevo (IUS) Engineering Club.",
     start_url: "/",
     display: "standalone",
     background_color: "#0c0810",

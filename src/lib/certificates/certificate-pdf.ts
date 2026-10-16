@@ -1,19 +1,62 @@
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { PDFDocument, rgb, StandardFonts, type PDFFont } from "pdf-lib";
 import QRCode from "qrcode";
-import { CertificateItem } from "../events/event-types";
+import type { CertificateItem } from "../events/event-types";
+import { SITE_URL } from "@/lib/site-url";
 
 /**
- * High-Resolution Vector PDF Certificate Engine
- * Generates an official, tamper-proof A4 landscape certificate with embedded QR verification.
+ * Official A4 landscape certificate with an embedded verification QR code.
+ * The certificate is an English document regardless of the portal language.
  */
-export async function generateCertificatePdf(
-  cert: CertificateItem
-): Promise<Uint8Array> {
-  const doc = await PDFDocument.create();
 
-  // A4 Landscape dimensions: 842 x 595 points
+// Kept for existing imports; client components should import from "@/lib/certificates/linkedin".
+export { generateLinkedInCertUrl } from "./linkedin";
+
+export type CertificatePdfData = Pick<
+  CertificateItem,
+  "userName" | "eventTitle" | "trainingHours" | "issueDate" | "certificateCode" | "verifyUrl"
+>;
+
+const CHARACTER_MAP: Record<string, string> = {
+  Ş: "S", ş: "s", İ: "I", ı: "i", Ğ: "G", ğ: "g", Ç: "C", ç: "c", Ö: "O", ö: "o", Ü: "U", ü: "u",
+  Č: "C", č: "c", Ć: "C", ć: "c", Đ: "D", đ: "d", Š: "S", š: "s", Ž: "Z", ž: "z",
+  "•": "-", "–": "-", "—": "-", "“": '"', "”": '"', "‘": "'", "’": "'",
+};
+
+/**
+ * The standard PDF fonts only encode WinAnsi, so names such as "Đurić" would make pdf-lib throw.
+ * Map known letters, strip remaining accents and drop anything outside printable ASCII.
+ */
+function toSafePdfText(value: string): string {
+  if (!value) return "";
+  return Array.from(value, (char) => CHARACTER_MAP[char] ?? char)
+    .join("")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^\x20-\x7E]/g, "");
+}
+
+/** Largest size (down to a minimum) at which the text fits the given width. */
+function fitFontSize(font: PDFFont, text: string, maxWidth: number, preferred: number, minimum: number): number {
+  let size = preferred;
+  while (size > minimum && font.widthOfTextAtSize(text, size) > maxWidth) size -= 0.5;
+  return size;
+}
+
+function formatIssueDate(issueDate: string): string {
+  const date = new Date(`${issueDate}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return issueDate;
+  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(date);
+}
+
+export async function generateCertificatePdf(cert: CertificatePdfData): Promise<Uint8Array> {
+  const doc = await PDFDocument.create();
+  doc.setTitle(`IUS Engineering Club certificate ${cert.certificateCode}`);
+  doc.setAuthor("IUS Engineering Club");
+
+  // A4 landscape: 842 x 595 points
   const width = 842;
   const height = 595;
+  const maxTextWidth = width - 140;
   const page = doc.addPage([width, height]);
 
   const fontHelvetica = await doc.embedFont(StandardFonts.Helvetica);
@@ -21,113 +64,50 @@ export async function generateCertificatePdf(
   const fontTimes = await doc.embedFont(StandardFonts.TimesRoman);
   const fontTimesBold = await doc.embedFont(StandardFonts.TimesRomanBold);
 
-  // Color Palette
-  const navy = rgb(15 / 255, 23 / 255, 42 / 255); // #0f172a
-  const gold = rgb(180 / 255, 83 / 255, 9 / 255); // #b45309
-  const lightGold = rgb(245 / 255, 158 / 255, 11 / 255); // #f59e0b
-  const slateDark = rgb(51 / 255, 65 / 255, 85 / 255); // #334155
-  const slateMuted = rgb(100 / 255, 116 / 255, 139 / 255); // #64748b
+  const navy = rgb(15 / 255, 23 / 255, 42 / 255);
+  const gold = rgb(180 / 255, 83 / 255, 9 / 255);
+  const lightGold = rgb(245 / 255, 158 / 255, 11 / 255);
+  const slateDark = rgb(51 / 255, 65 / 255, 85 / 255);
+  const slateMuted = rgb(100 / 255, 116 / 255, 139 / 255);
   const bgOffWhite = rgb(254 / 255, 254 / 255, 255 / 255);
 
-  // Background Fill
-  page.drawRectangle({
-    x: 0,
-    y: 0,
-    width,
-    height,
-    color: bgOffWhite,
-  });
+  const drawCentered = (text: string, y: number, size: number, font: PDFFont, color = navy) => {
+    const textWidth = font.widthOfTextAtSize(text, size);
+    page.drawText(text, { x: (width - textWidth) / 2, y, size, font, color });
+    return textWidth;
+  };
 
-  // Outer Border (Navy)
-  page.drawRectangle({
-    x: 20,
-    y: 20,
-    width: width - 40,
-    height: height - 40,
-    borderColor: navy,
-    borderWidth: 3,
-  });
+  page.drawRectangle({ x: 0, y: 0, width, height, color: bgOffWhite });
+  page.drawRectangle({ x: 20, y: 20, width: width - 40, height: height - 40, borderColor: navy, borderWidth: 3 });
+  page.drawRectangle({ x: 28, y: 28, width: width - 56, height: height - 56, borderColor: gold, borderWidth: 1.5 });
 
-  // Inner Border (Gold)
-  page.drawRectangle({
-    x: 28,
-    y: 28,
-    width: width - 56,
-    height: height - 56,
-    borderColor: gold,
-    borderWidth: 1.5,
-  });
-
-  // Decorative Corner Accent Lines
   const cornerSize = 16;
-  const corners = [
+  for (const corner of [
     { x: 32, y: height - 32 - cornerSize },
     { x: width - 32 - cornerSize, y: height - 32 - cornerSize },
     { x: 32, y: 32 },
     { x: width - 32 - cornerSize, y: 32 },
-  ];
-  for (const c of corners) {
+  ]) {
     page.drawRectangle({
-      x: c.x,
-      y: c.y,
+      x: corner.x,
+      y: corner.y,
       width: cornerSize,
       height: cornerSize,
       borderColor: gold,
       borderWidth: 1,
-      color: rgb(254 / 255, 243 / 255, 199 / 255), // light gold tint
+      color: rgb(254 / 255, 243 / 255, 199 / 255),
     });
   }
 
-function toSafePdfText(str: string): string {
-  if (!str) return "";
-  const map: Record<string, string> = {
-    "Ş": "S", "ş": "s",
-    "İ": "I", "ı": "i",
-    "Ğ": "G", "ğ": "g",
-    "Ç": "C", "ç": "c",
-    "Ö": "O", "ö": "o",
-    "Ü": "U", "ü": "u",
-    "•": "-",
-    "–": "-", "—": "-",
-    "“": '"', "”": '"',
-    "‘": "'", "’": "'",
-  };
-  return str.replace(/[ŞşİıĞğÇçÖöÜü•–—“”‘’]/g, (c) => map[c] || c);
-}
-
-  // Header 1: Organization
-  const orgSubtext = toSafePdfText("INTERNATIONAL UNIVERSITY OF SARAJEVO - FACULTY OF ENGINEERING AND NATURAL SCIENCES");
-  const orgSubWidth = fontHelvetica.widthOfTextAtSize(orgSubtext, 8.5);
-  page.drawText(orgSubtext, {
-    x: (width - orgSubWidth) / 2,
-    y: 530,
-    size: 8.5,
-    font: fontHelveticaBold,
-    color: slateMuted,
-  });
-
-  const clubTitle = "IUS ENGINEERING CLUB";
-  const clubWidth = fontHelveticaBold.widthOfTextAtSize(clubTitle, 20);
-  page.drawText(clubTitle, {
-    x: (width - clubWidth) / 2,
-    y: 502,
-    size: 20,
-    font: fontHelveticaBold,
-    color: navy,
-  });
-
-  // Header 2: Main Certificate Title
-  const certHeading = "CERTIFICATE OF ACHIEVEMENT";
-  const headingWidth = fontTimesBold.widthOfTextAtSize(certHeading, 26);
-  page.drawText(certHeading, {
-    x: (width - headingWidth) / 2,
-    y: 445,
-    size: 26,
-    font: fontTimesBold,
-    color: gold,
-  });
-
-  // Gold divider line below title
+  drawCentered(
+    "INTERNATIONAL UNIVERSITY OF SARAJEVO - FACULTY OF ENGINEERING AND NATURAL SCIENCES",
+    530,
+    8.5,
+    fontHelveticaBold,
+    slateMuted
+  );
+  drawCentered("IUS ENGINEERING CLUB", 502, 20, fontHelveticaBold, navy);
+  drawCentered("CERTIFICATE OF ACHIEVEMENT", 445, 26, fontTimesBold, gold);
   page.drawLine({
     start: { x: width / 2 - 140, y: 432 },
     end: { x: width / 2 + 140, y: 432 },
@@ -135,29 +115,11 @@ function toSafePdfText(str: string): string {
     color: lightGold,
   });
 
-  // Awarded text
-  const awardedToText = "This official credential is hereby conferred upon";
-  const awardedWidth = fontTimes.widthOfTextAtSize(awardedToText, 12);
-  page.drawText(awardedToText, {
-    x: (width - awardedWidth) / 2,
-    y: 400,
-    size: 12,
-    font: fontTimes,
-    color: slateDark,
-  });
+  drawCentered("This official credential is hereby conferred upon", 400, 12, fontTimes, slateDark);
 
-  // Recipient Name (Prominent & Centered)
   const recipientName = toSafePdfText(cert.userName.toUpperCase());
-  const nameWidth = fontHelveticaBold.widthOfTextAtSize(recipientName, 26);
-  page.drawText(recipientName, {
-    x: (width - nameWidth) / 2,
-    y: 355,
-    size: 26,
-    font: fontHelveticaBold,
-    color: navy,
-  });
-
-  // Underline for recipient
+  const nameSize = fitFontSize(fontHelveticaBold, recipientName, maxTextWidth, 26, 14);
+  const nameWidth = drawCentered(recipientName, 355, nameSize, fontHelveticaBold, navy);
   page.drawLine({
     start: { x: (width - nameWidth) / 2 - 20, y: 346 },
     end: { x: (width + nameWidth) / 2 + 20, y: 346 },
@@ -165,157 +127,54 @@ function toSafePdfText(str: string): string {
     color: gold,
   });
 
-  // Reason text
-  const reasonText1 = "for actively participating in and successfully fulfilling all technical requirements of the hands-on engineering event:";
-  const reason1Width = fontTimes.widthOfTextAtSize(reasonText1, 11);
-  page.drawText(reasonText1, {
-    x: (width - reason1Width) / 2,
-    y: 315,
-    size: 11,
-    font: fontTimes,
-    color: slateDark,
-  });
+  drawCentered(
+    "for actively participating in and successfully fulfilling all technical requirements of the hands-on engineering event:",
+    315,
+    11,
+    fontTimes,
+    slateDark
+  );
 
-  // Event Name
   const eventName = `"${toSafePdfText(cert.eventTitle)}"`;
-  const eventWidth = fontHelveticaBold.widthOfTextAtSize(eventName, 15);
-  page.drawText(eventName, {
-    x: (width - eventWidth) / 2,
-    y: 288,
-    size: 15,
-    font: fontHelveticaBold,
-    color: navy,
-  });
+  drawCentered(eventName, 288, fitFontSize(fontHelveticaBold, eventName, maxTextWidth, 15, 9), fontHelveticaBold, navy);
 
-  // Skills / Scope info
-  const hoursInfo = `Total Practical Training: ${cert.trainingHours} Hours  |  Issued on ${cert.issueDate}`;
-  const hoursWidth = fontHelvetica.widthOfTextAtSize(hoursInfo, 10);
-  page.drawText(hoursInfo, {
-    x: (width - hoursWidth) / 2,
-    y: 262,
-    size: 10,
-    font: fontHelvetica,
-    color: slateMuted,
-  });
+  const issuedText = `Issued on ${formatIssueDate(cert.issueDate)}`;
+  const detailsLine =
+    typeof cert.trainingHours === "number" && cert.trainingHours > 0
+      ? `Total Practical Training: ${cert.trainingHours} Hours  |  ${issuedText}`
+      : issuedText;
+  drawCentered(detailsLine, 262, 10, fontHelvetica, slateMuted);
 
-  // Signatures Section (Left: Faculty Advisor, Right: Club President)
+  // Signatures: faculty advisor (left) and club president (right)
   const sigY = 110;
+  page.drawLine({ start: { x: 90, y: sigY + 28 }, end: { x: 270, y: sigY + 28 }, thickness: 1, color: slateDark });
+  page.drawText("Prof. Dr. Leila Miller", { x: 100, y: sigY + 12, size: 11, font: fontHelveticaBold, color: navy });
+  page.drawText("Faculty Academic Advisor, FENS", { x: 90, y: sigY - 2, size: 9, font: fontHelvetica, color: slateMuted });
 
-  // Left Signature: Academic Advisor
-  page.drawLine({
-    start: { x: 90, y: sigY + 28 },
-    end: { x: 270, y: sigY + 28 },
-    thickness: 1,
-    color: slateDark,
-  });
-  page.drawText("Prof. Dr. Leila Miller", {
-    x: 100,
-    y: sigY + 12,
-    size: 11,
-    font: fontHelveticaBold,
-    color: navy,
-  });
-  page.drawText("Faculty Academic Advisor, FENS", {
-    x: 90,
-    y: sigY - 2,
-    size: 9,
-    font: fontHelvetica,
-    color: slateMuted,
-  });
+  page.drawLine({ start: { x: 400, y: sigY + 28 }, end: { x: 580, y: sigY + 28 }, thickness: 1, color: slateDark });
+  page.drawText(toSafePdfText("Kaan Mete Şenyıldız"), { x: 415, y: sigY + 12, size: 11, font: fontHelveticaBold, color: navy });
+  page.drawText("Club President, IEC", { x: 405, y: sigY - 2, size: 9, font: fontHelvetica, color: slateMuted });
 
-  // Right Signature: Club President
-  page.drawLine({
-    start: { x: 400, y: sigY + 28 },
-    end: { x: 580, y: sigY + 28 },
-    thickness: 1,
-    color: slateDark,
-  });
-  page.drawText(toSafePdfText("Kaan Mete Şenyıldız"), {
-    x: 415,
-    y: sigY + 12,
-    size: 11,
-    font: fontHelveticaBold,
-    color: navy,
-  });
-  page.drawText("Club President, IEC", {
-    x: 405,
-    y: sigY - 2,
-    size: 9,
-    font: fontHelvetica,
-    color: slateMuted,
-  });
-
-  // QR Code Verification Block (Bottom Right)
+  const verifyUrl = cert.verifyUrl || `${SITE_URL}/dogrula?code=${encodeURIComponent(cert.certificateCode)}`;
   try {
-    const verifyUrl = cert.verifyUrl || `https://iec.ius.edu.ba/dogrula?code=${cert.certificateCode}`;
     const qrPngBuffer = await QRCode.toBuffer(verifyUrl, {
       type: "png",
       width: 140,
       margin: 1,
-      color: {
-        dark: "#0f172aff",
-        light: "#ffffffff",
-      },
+      color: { dark: "#0f172aff", light: "#ffffffff" },
     });
-
     const qrImage = await doc.embedPng(qrPngBuffer);
-    page.drawImage(qrImage, {
-      x: width - 185,
-      y: 65,
-      width: 78,
-      height: 78,
-    });
-
-    page.drawText("SCAN TO VERIFY", {
-      x: width - 185,
-      y: 150,
-      size: 7.5,
-      font: fontHelveticaBold,
-      color: gold,
-    });
-  } catch (err) {
-    // If QR code rendering fails, fallback gracefully
-    console.warn("QR Code render error:", err);
+    page.drawImage(qrImage, { x: width - 185, y: 65, width: 78, height: 78 });
+    page.drawText("SCAN TO VERIFY", { x: width - 185, y: 150, size: 7.5, font: fontHelveticaBold, color: gold });
+  } catch (error) {
+    console.warn("[certificates] QR code render failed", error);
   }
 
-  // Certificate Unique Verification Code (Bottom Centered)
-  const codeText = `OFFICIAL VERIFICATION CODE: ${cert.certificateCode}`;
-  const codeWidth = fontHelveticaBold.widthOfTextAtSize(codeText, 9);
-  page.drawText(codeText, {
-    x: (width - codeWidth) / 2,
-    y: 45,
-    size: 9,
-    font: fontHelveticaBold,
-    color: gold,
-  });
-
-  const footerNotice = "This credential is digitally registered in the IUS Engineering Club ecosystem and verified via secure hash.";
-  const noticeWidth = fontHelvetica.widthOfTextAtSize(footerNotice, 7.5);
-  page.drawText(footerNotice, {
-    x: (width - noticeWidth) / 2,
-    y: 32,
-    size: 7.5,
-    font: fontHelvetica,
-    color: slateMuted,
-  });
+  drawCentered(`OFFICIAL VERIFICATION CODE: ${cert.certificateCode}`, 45, 9, fontHelveticaBold, gold);
+  const footerNotice = toSafePdfText(
+    `Registered with the IUS Engineering Club. Verify this certificate at ${SITE_URL}/dogrula with the code above.`
+  );
+  drawCentered(footerNotice, 32, fitFontSize(fontHelvetica, footerNotice, maxTextWidth, 7.5, 6), fontHelvetica, slateMuted);
 
   return await doc.save();
-}
-
-/**
- * Generates a direct LinkedIn "Add to Profile" Certification URL
- */
-export function generateLinkedInCertUrl(cert: CertificateItem): string {
-  const baseUrl = "https://www.linkedin.com/profile/add";
-  const params = new URLSearchParams({
-    startTask: "CERTIFICATION_NAME",
-    name: `${cert.eventTitle} — IUS Engineering Club`,
-    organizationName: "International University of Sarajevo (IUS)",
-    issueYear: new Date(cert.issueDate).getFullYear().toString(),
-    issueMonth: (new Date(cert.issueDate).getMonth() + 1).toString(),
-    certUrl: cert.verifyUrl,
-    certId: cert.certificateCode,
-  });
-
-  return `${baseUrl}?${params.toString()}`;
 }

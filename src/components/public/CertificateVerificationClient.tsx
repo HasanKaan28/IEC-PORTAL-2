@@ -1,231 +1,208 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import {
-  Award,
-  Search,
-  CheckCircle2,
-  ShieldAlert,
-  Download,
-  Share2,
-  Calendar,
-  Clock,
-  User,
-  ShieldCheck,
-  Building,
-} from "lucide-react";
-import { CertificateItem } from "@/lib/events/event-types";
-import { generateLinkedInCertUrl } from "@/lib/certificates/certificate-pdf";
+import { Award, Building, Calendar, CheckCircle2, Download, Loader2, Search, Share2, ShieldAlert, User } from "lucide-react";
+import type { PublicCertificate } from "@/lib/events/event-types";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { formatDate } from "@/lib/i18n/format";
+import { publicPagesText } from "@/lib/i18n/public/pages";
+
+type VerifyState =
+  | { kind: "idle" }
+  | { kind: "verified"; cert: PublicCertificate }
+  | { kind: "not-found"; code: string }
+  | { kind: "error" };
+
+function linkedInUrl(cert: PublicCertificate): string {
+  const issued = new Date(cert.issueDate);
+  const params = new URLSearchParams({
+    startTask: "CERTIFICATION_NAME",
+    name: `${cert.eventTitle}, IUS Engineering Club`,
+    organizationName: "International University of Sarajevo (IUS)",
+    issueYear: String(issued.getUTCFullYear()),
+    issueMonth: String(issued.getUTCMonth() + 1),
+    certUrl: cert.verifyUrl,
+    certId: cert.certificateCode,
+  });
+  return `https://www.linkedin.com/profile/add?${params.toString()}`;
+}
 
 export default function CertificateVerificationClient() {
   const searchParams = useSearchParams();
-  const urlCode = searchParams.get("code") || "";
+  const urlCode = searchParams.get("code") ?? "";
+  const { locale } = useLocale();
+  const t = publicPagesText[locale].verify;
 
   const [code, setCode] = useState(urlCode);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [result, setResult] = useState<{
-    verified: boolean;
-    cert?: CertificateItem;
-  } | null>(null);
+  const [verifying, setVerifying] = useState(false);
+  const [state, setState] = useState<VerifyState>({ kind: "idle" });
 
-  // Auto-verify if code is in URL
-  useEffect(() => {
-    if (urlCode && urlCode.trim().length >= 4) {
-      handleVerifyCode(urlCode.trim());
-    }
-  }, [urlCode]);
-
-  const handleVerifyCode = async (codeToVerify: string) => {
-    setIsVerifying(true);
+  const verify = useCallback(async (raw: string) => {
+    const value = raw.trim().toUpperCase();
+    if (value.length < 4) return;
+    setVerifying(true);
     try {
-      const res = await fetch(`/api/certificates/verify?code=${encodeURIComponent(codeToVerify)}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.verified && data.cert) {
-          setResult({ verified: true, cert: data.cert });
-        } else {
-          setResult({ verified: false });
-        }
-      } else {
-        setResult({ verified: false });
-      }
+      const response = await fetch(`/api/certificates/verify?code=${encodeURIComponent(value)}`, { cache: "no-store" });
+      const data = (await response.json().catch(() => null)) as { verified?: boolean; cert?: PublicCertificate } | null;
+      if (data?.verified && data.cert) setState({ kind: "verified", cert: data.cert });
+      else if (response.status >= 500) setState({ kind: "error" });
+      else setState({ kind: "not-found", code: value });
     } catch {
-      setResult({ verified: false });
+      setState({ kind: "error" });
     }
-    setIsVerifying(false);
+    setVerifying(false);
+  }, []);
+
+  useEffect(() => {
+    if (urlCode.trim().length >= 4) void verify(urlCode);
+  }, [urlCode, verify]);
+
+  const onSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    void verify(code);
   };
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!code.trim()) return;
-    handleVerifyCode(code.trim());
-  };
+  const labelClass = "flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-400";
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
-      {/* Title */}
-      <div className="text-center space-y-3">
-        <h1 className="text-3xl sm:text-4xl font-black text-white font-display tracking-tight">
-          Sertifika Doğrulama
-        </h1>
-        <p className="text-slate-300 text-sm max-w-xl mx-auto leading-relaxed">
-          IUS Engineering Club'ın verdiği etkinlik, atölye ve hackathon sertifikalarını üzerindeki kodla doğrulayabilirsiniz.
-        </p>
-      </div>
+    <div className="mx-auto max-w-3xl space-y-8">
+      <header className="space-y-3 text-center">
+        <h1 className="font-display text-3xl font-black tracking-tight text-white sm:text-4xl">{t.title}</h1>
+        <p className="mx-auto max-w-xl text-sm leading-relaxed text-slate-300">{t.intro}</p>
+      </header>
 
-      {/* Verification Search Box */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-2xl backdrop-blur-md">
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-slate-300 mb-2 font-mono">
-              Sertifika kodu
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                required
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                placeholder="Örn: IEC-2026-E49A"
-                className="w-full px-4 py-3.5 bg-slate-950 border border-slate-700/80 rounded-2xl text-sm font-mono uppercase text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500 transition-all tracking-wider"
-              />
-              <button
-                type="submit"
-                disabled={isVerifying}
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 bg-gradient-to-r from-brand-600 to-brand-600 hover:from-brand-500 hover:to-brand-500 text-white rounded-xl text-xs font-semibold shadow-lg transition-all disabled:opacity-50"
-              >
-                {isVerifying ? "Doğrulanıyor..." : "Sorgula"}
-              </button>
-            </div>
+      <div className="rounded-3xl border border-slate-800 bg-ink-900/80 p-6 shadow-2xl backdrop-blur-md sm:p-8">
+        <form onSubmit={onSubmit}>
+          <label htmlFor="certificate-code" className="mb-2 block text-sm font-medium text-slate-300">
+            {t.codeLabel}
+          </label>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <input
+              id="certificate-code"
+              type="text"
+              required
+              minLength={4}
+              maxLength={40}
+              autoComplete="off"
+              spellCheck={false}
+              value={code}
+              onChange={(event) => setCode(event.target.value)}
+              placeholder={t.codePlaceholder}
+              className="w-full flex-1 rounded-2xl border border-slate-700/80 bg-ink-950 px-4 py-3.5 font-mono text-sm uppercase tracking-wider text-white placeholder-slate-500 transition-colors focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30"
+            />
+            <button
+              type="submit"
+              disabled={verifying}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-600 px-6 py-3.5 text-sm font-semibold text-white shadow-glow transition-colors hover:bg-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 disabled:opacity-60"
+            >
+              {verifying ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Search className="h-4 w-4" aria-hidden="true" />}
+              <span>{verifying ? t.verifying : t.submit}</span>
+            </button>
           </div>
         </form>
 
-        {/* Verification Result Showcase */}
-        {result && (
-          <div className="mt-8 pt-6 border-t border-slate-800/80 animate-in fade-in duration-300">
-            {result.verified && result.cert ? (
-              <div className="p-6 rounded-2xl bg-gradient-to-b from-emerald-950/40 to-slate-950 border border-emerald-500/40 shadow-xl space-y-6">
-                {/* Status Badge */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-emerald-500/20">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/40">
-                      <CheckCircle2 className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h4 className="text-base font-bold text-white font-display">
-                        Sertifika doğrulandı
-                      </h4>
-                      <p className="text-xs text-emerald-400/90 font-mono">
-                        KOD: {result.cert.certificateCode}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Credential Data Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                  <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1">
-                    <span className="text-[10px] font-mono text-slate-400 flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-slate-500" />
-                      SERTİFİKA SAHİBİ
-                    </span>
-                    <p className="text-sm font-bold text-white">{result.cert.userName}</p>
-                    <p className="text-[11px] text-slate-400">{result.cert.userDepartment}</p>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1">
-                    <span className="text-[10px] font-mono text-slate-400 flex items-center gap-1.5">
-                      <Award className="w-3.5 h-3.5 text-slate-500" />
-                      ETKİNLİK / EĞİTİM
-                    </span>
-                    <p className="text-sm font-bold text-brand-300">{result.cert.eventTitle}</p>
-                    <p className="text-[11px] text-slate-400">
-                      Eğitmen: {result.cert.instructorName}
-                    </p>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1">
-                    <span className="text-[10px] font-mono text-slate-400 flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-slate-500" />
-                      VERİLİŞ TARİHİ
-                    </span>
-                    <p className="text-sm font-bold text-slate-200">{result.cert.issueDate}</p>
-                    <p className="text-[11px] text-slate-400">
-                      Tamamlanan Süre: {result.cert.trainingHours} Saat
-                    </p>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1">
-                    <span className="text-[10px] font-mono text-slate-400 flex items-center gap-1.5">
-                      <Building className="w-3.5 h-3.5 text-slate-500" />
-                      DÜZENLEYEN KURUM
-                    </span>
-                    <p className="text-sm font-bold text-slate-200">
-                      IUS Engineering Club & FENS
-                    </p>
-                    <p className="text-[11px] text-slate-400">
-                      International University of Sarajevo
-                    </p>
-                  </div>
-                </div>
-
-                {/* Skills Tags */}
-                {result.cert.skills.length > 0 && (
-                  <div className="space-y-1.5 pt-2">
-                    <span className="text-[10px] font-mono text-slate-400 uppercase">
-                      Beceriler
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {result.cert.skills.map((s) => (
-                        <span
-                          key={s}
-                          className="px-2.5 py-0.5 rounded-md bg-slate-900 border border-slate-700/80 text-[11px] font-mono text-slate-300"
-                        >
-                          {s}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                <div className="pt-4 border-t border-emerald-500/20 flex flex-wrap items-center justify-between gap-3">
-                  <a
-                    href={`/api/certificates/${result.cert.certificateCode}/pdf`}
-                    download
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-md transition-colors"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>PDF olarak indir</span>
-                  </a>
-
-                  <a
-                    href={generateLinkedInCertUrl(result.cert)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0a66c2] hover:bg-[#004182] text-white text-xs font-semibold shadow-md transition-colors"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    <span>LinkedIn Profiline Ekle</span>
-                  </a>
-                </div>
-              </div>
-            ) : (
-              <div className="p-6 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 flex items-start gap-3.5 text-xs">
-                <ShieldAlert className="w-6 h-6 text-rose-400 shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <span className="font-bold text-sm text-white block">
-                    Sertifika Kaydı Bulunamadı
-                  </span>
-                  <p className="text-rose-300/90 leading-relaxed">
-                    Girilen doğrulama kodu (<strong>{code.toUpperCase()}</strong>) sistemde kayıtlı aktif bir sertifika ile eşleşmemektedir. Lütfen kodu kontrol ediniz veya kulüp yönetimi ile iletişime geçiniz.
+        <div aria-live="polite">
+          {state.kind === "verified" && (
+            <div className="mt-8 space-y-6 rounded-2xl border border-emerald-500/40 bg-gradient-to-b from-emerald-950/40 to-ink-950 p-6">
+              <div className="flex items-center gap-3 border-b border-emerald-500/20 pb-4">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-500/40 bg-emerald-500/20 text-emerald-400">
+                  <CheckCircle2 className="h-6 w-6" aria-hidden="true" />
+                </span>
+                <div>
+                  <h2 className="font-display text-base font-bold text-white">{t.verified}</h2>
+                  <p className="font-mono text-xs text-emerald-400">
+                    {t.codePrefix}: {state.cert.certificateCode}
                   </p>
                 </div>
               </div>
-            )}
-          </div>
-        )}
+
+              <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-1 rounded-xl border border-slate-800 bg-ink-900/60 p-4">
+                  <dt className={labelClass}>
+                    <User className="h-3.5 w-3.5" aria-hidden="true" />
+                    {t.holder}
+                  </dt>
+                  <dd className="text-sm font-bold text-white">{state.cert.userName}</dd>
+                </div>
+                <div className="space-y-1 rounded-xl border border-slate-800 bg-ink-900/60 p-4">
+                  <dt className={labelClass}>
+                    <Award className="h-3.5 w-3.5" aria-hidden="true" />
+                    {t.event}
+                  </dt>
+                  <dd className="text-sm font-bold text-brand-300">{state.cert.eventTitle}</dd>
+                </div>
+                <div className="space-y-1 rounded-xl border border-slate-800 bg-ink-900/60 p-4">
+                  <dt className={labelClass}>
+                    <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
+                    {t.issued}
+                  </dt>
+                  <dd className="text-sm font-bold text-slate-200">{formatDate(state.cert.issueDate, locale)}</dd>
+                  {state.cert.trainingHours !== null && (
+                    <dd className="text-xs text-slate-400">{t.hours(state.cert.trainingHours)}</dd>
+                  )}
+                </div>
+                <div className="space-y-1 rounded-xl border border-slate-800 bg-ink-900/60 p-4">
+                  <dt className={labelClass}>
+                    <Building className="h-3.5 w-3.5" aria-hidden="true" />
+                    {t.issuer}
+                  </dt>
+                  <dd className="text-sm font-bold text-slate-200">IUS Engineering Club, FENS</dd>
+                  <dd className="text-xs text-slate-400">International University of Sarajevo</dd>
+                </div>
+              </dl>
+
+              {state.cert.skills.length > 0 && (
+                <div className="space-y-2">
+                  <p className={labelClass}>{t.skills}</p>
+                  <ul className="flex flex-wrap gap-1.5">
+                    {state.cert.skills.map((skill) => (
+                      <li key={skill} className="rounded-md border border-slate-700/80 bg-ink-900 px-2.5 py-0.5 text-xs text-slate-300">
+                        {skill}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="flex flex-wrap items-center gap-3 border-t border-emerald-500/20 pt-4">
+                <a
+                  href={`/api/certificates/${encodeURIComponent(state.cert.certificateCode)}/pdf`}
+                  download
+                  className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-500"
+                >
+                  <Download className="h-4 w-4" aria-hidden="true" />
+                  <span>{t.downloadPdf}</span>
+                </a>
+                <a
+                  href={linkedInUrl(state.cert)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#0a66c2] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#004182]"
+                >
+                  <Share2 className="h-4 w-4" aria-hidden="true" />
+                  <span>{t.addLinkedIn}</span>
+                </a>
+              </div>
+            </div>
+          )}
+
+          {state.kind === "not-found" && (
+            <div className="mt-8 flex items-start gap-3.5 rounded-2xl border border-rose-500/30 bg-rose-500/10 p-6 text-sm text-rose-200" role="alert">
+              <ShieldAlert className="mt-0.5 h-6 w-6 shrink-0 text-rose-400" aria-hidden="true" />
+              <div>
+                <p className="font-bold text-white">{t.notFoundTitle}</p>
+                <p className="mt-1 leading-relaxed">{t.notFoundBody(state.code)}</p>
+              </div>
+            </div>
+          )}
+
+          {state.kind === "error" && (
+            <div className="mt-8 rounded-2xl border border-accent-500/30 bg-accent-500/10 p-6 text-sm text-accent-100" role="alert">
+              {t.error}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

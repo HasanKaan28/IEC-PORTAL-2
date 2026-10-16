@@ -1,336 +1,260 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { UserRole, canManageRole } from "@/lib/rbac/permissions";
-import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { z } from "zod";
+import { canManageRole, ROLE_HIERARCHY, type UserRole } from "@/lib/rbac/permissions";
+import { guardedAction, requirePermission, type ActionResult } from "@/lib/auth/session";
+import { actionText, privilegedClient, writeAuditLog } from "@/lib/admin/server-utils";
+
+/**
+ * Admin console server actions. Each one is a public HTTP endpoint, so each checks the caller's
+ * permission first (requirePermission) and only then touches the database. Reads use the
+ * user-scoped client so row level security applies as a second layer; writes that need the
+ * service role run only after authorization.
+ */
 
 export interface AdminUserItem {
   id: string;
   fullName: string;
   email: string;
-  department: string;
-  classYear: string;
+  department: string | null;
+  classYear: string | null;
   roles: UserRole[];
   joinedAt: string;
 }
 
-export interface AdminApplicationItem {
-  id: string;
-  fullName: string;
-  email: string;
-  phone?: string | null;
-  department: string;
-  classYear: string;
-  statement: string;
-  status: "pending" | "approved" | "rejected";
-  reviewerNotes?: string | null;
-  createdAt: string;
-}
-
 export interface AuditLogItem {
   id: string;
-  actorName: string;
+  actorId: string | null;
+  actorName: string | null;
   action: string;
   targetType: string;
-  targetId: string;
-  details: string;
+  targetId: string | null;
+  details: Record<string, unknown> | null;
   createdAt: string;
 }
 
-// In-memory store for development/preview when remote DB is not yet connected
-let localMockUsers: AdminUserItem[] = [
-  {
-    id: "usr-1",
-    fullName: "Kaan Mete Şenyıldız",
-    email: "student@ius.edu.ba",
-    department: "Bilgisayar Bilimleri (CSE)",
-    classYear: "2. Sınıf",
-    roles: ["super_admin", "leader"],
-    joinedAt: "2026-10-10",
-  },
-  {
-    id: "usr-2",
-    fullName: "Mahmut İhsan Avcı",
-    email: "mavci@student.ius.edu.ba",
-    department: "Yazılım Mühendisliği (SE)",
-    classYear: "2. Sınıf",
-    roles: ["admin", "leader", "project_lead"],
-    joinedAt: "2026-10-11",
-  },
-  {
-    id: "usr-3",
-    fullName: "Bekir Enes Çokbekler",
-    email: "bcokbekler@student.ius.edu.ba",
-    department: "Mühendislik Fakültesi (FENS)",
-    classYear: "2. Sınıf",
-    roles: ["admin", "task_manager"],
-    joinedAt: "2026-10-11",
-  },
-  {
-    id: "usr-4",
-    fullName: "Muhammed Efe Ural",
-    email: "mural@student.ius.edu.ba",
-    department: "Mühendislik Fakültesi (FENS)",
-    classYear: "2. Sınıf",
-    roles: ["leader", "blog_author"],
-    joinedAt: "2026-10-12",
-  },
-  {
-    id: "usr-5",
-    fullName: "Bakir Bašić",
-    email: "bbasic@student.ius.edu.ba",
-    department: "FENS 1. Sınıf",
-    classYear: "1. Sınıf",
-    roles: ["blog_author", "member"],
-    joinedAt: "2026-10-12",
-  },
-  {
-    id: "usr-6",
-    fullName: "Nazlıcan Cebeci",
-    email: "ncebeci@student.ius.edu.ba",
-    department: "Endüstri Mühendisliği (IE)",
-    classYear: "1. Sınıf",
-    roles: ["member"],
-    joinedAt: "2026-10-13",
-  },
-];
+const ALL_ROLES = [
+  "super_admin",
+  "admin",
+  "leader",
+  "project_lead",
+  "task_manager",
+  "blog_author",
+  "member",
+] as const satisfies readonly UserRole[];
 
-let localMockApplications: AdminApplicationItem[] = [
-  {
-    id: "app-101",
-    fullName: "Bilal Yusuf Şimşek",
-    email: "bsimsek@student.ius.edu.ba",
-    phone: "+387 61 111 222",
-    department: "Computer Sciences and Engineering (CSE)",
-    classYear: "1. Sınıf",
-    statement: "DevHack 2027 ve donanım istasyonlarında gömülü yazılım geliştirmek istiyorum. C++ ve Python deneyimim var.",
-    status: "pending",
-    createdAt: "2026-10-14T10:30:00Z",
-  },
-  {
-    id: "app-102",
-    fullName: "Emin Efe Duman",
-    email: "eduman@student.ius.edu.ba",
-    phone: "+387 62 333 444",
-    department: "Software Engineering (SE)",
-    classYear: "2. Sınıf",
-    statement: "Yapay zekâ ve web teknolojileri komitesinde aktif olmak, kampüs yemekhane mobil uygulamasını geliştirmek istiyorum.",
-    status: "pending",
-    createdAt: "2026-10-14T14:15:00Z",
-  },
-  {
-    id: "app-103",
-    fullName: "Işıl Irmak Cihan",
-    email: "icihan@student.ius.edu.ba",
-    department: "Electrical and Electronics Engineering (EE)",
-    classYear: "1. Sınıf",
-    statement: "PowerHub manyetik şarj devre tasarımı ve batarya yönetim sistemi testlerinde yer almak istiyorum.",
-    status: "approved",
-    reviewerNotes: "Donanım komitesi için uygun bulundu.",
-    createdAt: "2026-10-13T09:00:00Z",
-  },
-];
+const AUDIT_LOG_LIMIT = 200;
 
-let localMockAuditLogs: AuditLogItem[] = [
-  {
-    id: "log-1",
-    actorName: "Kaan Mete Şenyıldız",
-    action: "role.assign",
-    targetType: "user",
-    targetId: "usr-4",
-    details: "Muhammed Efe Ural kullanıcısına 'leader' rolü atandı.",
-    createdAt: "2026-10-15T12:00:00Z",
-  },
-  {
-    id: "log-2",
-    actorName: "Mahmut İhsan Avcı",
-    action: "application.approve",
-    targetType: "application",
-    targetId: "app-103",
-    details: "Işıl Irmak Cihan üyelik başvurusu kabul edildi.",
-    createdAt: "2026-10-14T16:30:00Z",
-  },
-];
-
-export async function getAdminUsersAction(): Promise<AdminUserItem[]> {
-  try {
-    const supabase = await createClient();
-    const { data: profiles } = await supabase.from("profiles").select("id, full_name, email, department, class_year, created_at");
-    const { data: roles } = await supabase.from("user_roles").select("user_id, role");
-
-    if (profiles && (profiles as any[]).length > 0) {
-      return (profiles as any[]).map((p: any) => {
-        const userRoles = ((roles as any[]) || [])
-          .filter((r: any) => r.user_id === p.id)
-          .map((r: any) => r.role as UserRole);
-
-        return {
-          id: p.id,
-          fullName: p.full_name,
-          email: p.email,
-          department: p.department || "FENS",
-          classYear: p.class_year || "1. Sınıf",
-          roles: userRoles.length > 0 ? userRoles : ["member"],
-          joinedAt: p.created_at,
-        };
-      });
-    }
-  } catch {
-    // Fallback to in-memory state
-  }
-
-  return localMockUsers;
+function sortRoles(roles: UserRole[]): UserRole[] {
+  return [...new Set(roles)].sort((a, b) => (ROLE_HIERARCHY[b] ?? 0) - (ROLE_HIERARCHY[a] ?? 0));
 }
 
-export async function toggleUserRoleAction(userId: string, targetRole: UserRole, assign: boolean) {
-  // Check permission hierarchy
-  const actorRoles: UserRole[] = ["super_admin"];
-  if (!canManageRole(actorRoles, targetRole)) {
-    return {
-      success: false,
-      error: "Bu rolü değiştirmek için yetkiniz bulunmamaktadır.",
-    };
-  }
+function highestRank(roles: UserRole[]): number {
+  return roles.reduce((max, role) => Math.max(max, ROLE_HIERARCHY[role] ?? 0), 0);
+}
 
-  try {
-    const adminClient = createAdminClient();
-    if (assign) {
-      await (adminClient.from("user_roles") as any).insert({
-        user_id: userId,
-        role: targetRole,
+/** Members with their roles, for the role management page. Requires roles.manage. */
+export async function getAdminUsersAction(): Promise<ActionResult<AdminUserItem[]>> {
+  return guardedAction(async () => {
+    await requirePermission("roles.manage");
+    const supabase = await privilegedClient(); // emails are server-only columns
+
+    const [profilesResult, rolesResult] = await Promise.all([
+      (supabase.from("profiles") as any)
+        .select("id, full_name, email, department, class_year, created_at")
+        .order("full_name", { ascending: true })
+        .limit(2000),
+      (supabase.from("user_roles") as any).select("user_id, role"),
+    ]);
+    if (profilesResult.error) throw profilesResult.error;
+    if (rolesResult.error) throw rolesResult.error;
+
+    const rolesByUser = new Map<string, UserRole[]>();
+    for (const row of (rolesResult.data ?? []) as Array<{ user_id: string; role: UserRole }>) {
+      const list = rolesByUser.get(row.user_id) ?? [];
+      list.push(row.role);
+      rolesByUser.set(row.user_id, list);
+    }
+
+    const users = ((profilesResult.data ?? []) as Array<{
+      id: string;
+      full_name: string | null;
+      email: string;
+      department: string | null;
+      class_year: string | null;
+      created_at: string;
+    }>).map((profile) => {
+      const roles = rolesByUser.get(profile.id) ?? [];
+      return {
+        id: profile.id,
+        fullName: profile.full_name || profile.email.split("@")[0],
+        email: profile.email,
+        department: profile.department,
+        classYear: profile.class_year,
+        roles: sortRoles(roles.length > 0 ? roles : ["member"]),
+        joinedAt: profile.created_at,
+      };
+    });
+
+    return { success: true, data: users };
+  });
+}
+
+const toggleRoleSchema = z.object({
+  userId: z.string().uuid(),
+  role: z.enum(ALL_ROLES),
+  assign: z.boolean(),
+});
+
+/**
+ * Grants or removes one role. Rules (mirroring the 2026-10-17 security migration):
+ * roles.manage is required; super_admin and the base member role are never changed here;
+ * nobody edits their own roles; the actor must outrank both the role and the target member;
+ * every change is written to audit_logs attributed to the session user.
+ */
+export async function toggleUserRoleAction(
+  userId: string,
+  targetRole: UserRole,
+  assign: boolean
+): Promise<ActionResult<{ roles: UserRole[] }>> {
+  return guardedAction(async () => {
+    const actor = await requirePermission("roles.manage");
+    const t = await actionText();
+
+    const parsed = toggleRoleSchema.safeParse({ userId, role: targetRole, assign });
+    if (!parsed.success) return { success: false, error: t.invalidInput };
+    const input = parsed.data;
+
+    if (input.role === "super_admin") return { success: false, error: t.superAdminLocked };
+    if (input.role === "member") return { success: false, error: t.baseRoleLocked };
+    if (input.userId === actor.id) return { success: false, error: t.selfEdit };
+    if (!canManageRole(actor.roles, input.role)) return { success: false, error: t.roleForbidden };
+
+    const admin = await privilegedClient();
+
+    const { data: target, error: targetError } = await (admin.from("profiles") as any)
+      .select("id, full_name, email")
+      .eq("id", input.userId)
+      .maybeSingle();
+    if (targetError) throw targetError;
+    if (!target) return { success: false, error: t.userNotFound };
+
+    const { data: currentRows, error: rolesError } = await (admin.from("user_roles") as any)
+      .select("role")
+      .eq("user_id", input.userId);
+    if (rolesError) throw rolesError;
+    const currentRoles = ((currentRows ?? []) as Array<{ role: UserRole }>).map((r) => r.role);
+
+    const actorIsSuperAdmin = actor.roles.includes("super_admin");
+    if (currentRoles.includes("super_admin") && !actorIsSuperAdmin) {
+      return { success: false, error: t.targetOutranks };
+    }
+    if (!actorIsSuperAdmin && highestRank(currentRoles) >= highestRank(actor.roles)) {
+      return { success: false, error: t.targetOutranks };
+    }
+
+    const alreadyHas = currentRoles.includes(input.role);
+    if (input.assign === alreadyHas) {
+      return {
+        success: true,
+        data: { roles: sortRoles(currentRoles.length > 0 ? currentRoles : ["member"]) },
+        message: input.assign ? t.roleAssigned : t.roleRemoved,
+      };
+    }
+
+    if (input.assign) {
+      const { error } = await (admin.from("user_roles") as any).insert({
+        user_id: input.userId,
+        role: input.role,
+        assigned_by: actor.id,
       });
+      if (error) throw error;
     } else {
-      await (adminClient.from("user_roles") as any)
+      const { error } = await (admin.from("user_roles") as any)
         .delete()
-        .eq("user_id", userId)
-        .eq("role", targetRole);
+        .eq("user_id", input.userId)
+        .eq("role", input.role);
+      if (error) throw error;
     }
 
-    // Write to audit log
-    await (adminClient.from("audit_logs") as any).insert({
-      action: assign ? "role.assign" : "role.remove",
-      target_type: "user",
-      target_id: userId,
-      details: { role: targetRole },
-    });
-  } catch {
-    // Fallback in-memory
-    const u = localMockUsers.find((x) => x.id === userId);
-    if (u) {
-      if (assign && !u.roles.includes(targetRole)) {
-        u.roles.push(targetRole);
-      } else if (!assign) {
-        u.roles = u.roles.filter((r) => r !== targetRole);
-      }
-
-      localMockAuditLogs.unshift({
-        id: `log-${Date.now()}`,
-        actorName: "Süper Yönetici",
-        action: assign ? "role.assign" : "role.remove",
+    try {
+      await writeAuditLog(admin, {
+        actorId: actor.id,
+        action: input.assign ? "role.assign" : "role.remove",
         targetType: "user",
-        targetId: userId,
-        details: `${u.fullName} kullanıcısına '${targetRole}' rolü ${assign ? "verildi" : "kaldırıldı"}.`,
-        createdAt: new Date().toISOString(),
+        targetId: input.userId,
+        details: {
+          role: input.role,
+          target_name: (target.full_name as string | null) ?? null,
+          target_email: (target.email as string | null) ?? null,
+        },
       });
+    } catch (auditError) {
+      // A role change without its audit row is not allowed: undo it and report failure.
+      if (input.assign) {
+        await (admin.from("user_roles") as any).delete().eq("user_id", input.userId).eq("role", input.role);
+      } else {
+        await (admin.from("user_roles") as any).insert({
+          user_id: input.userId,
+          role: input.role,
+          assigned_by: actor.id,
+        });
+      }
+      throw auditError;
     }
-  }
 
-  revalidatePath("/portal/admin");
-  revalidatePath("/portal/admin/roller");
+    const nextRoles = input.assign
+      ? [...currentRoles, input.role]
+      : currentRoles.filter((role) => role !== input.role);
 
-  return { success: true };
+    revalidatePath("/portal/admin");
+    revalidatePath("/portal/admin/roller");
+    revalidatePath("/portal/admin/denetim");
+
+    return {
+      success: true,
+      data: { roles: sortRoles(nextRoles.length > 0 ? nextRoles : ["member"]) },
+      message: input.assign ? t.roleAssigned : t.roleRemoved,
+    };
+  });
 }
 
-export async function getAdminApplicationsAction(): Promise<AdminApplicationItem[]> {
-  try {
-    const supabase = await createClient();
-    const { data } = await supabase.from("applications").select("*").order("created_at", { ascending: false });
+/** Latest audit_logs rows with the actor's name. Requires audit.view. */
+export async function getAuditLogsAction(): Promise<ActionResult<AuditLogItem[]>> {
+  return guardedAction(async () => {
+    await requirePermission("audit.view");
+    const supabase = await privilegedClient(); // actor emails are server-only columns
 
-    if (data && data.length > 0) {
-      return data.map((a: any) => ({
-        id: a.id,
-        fullName: a.full_name,
-        email: a.email,
-        phone: a.phone,
-        department: a.department,
-        classYear: a.class_year,
-        statement: a.statement,
-        status: a.status,
-        reviewerNotes: a.reviewer_notes,
-        createdAt: a.created_at,
-      }));
-    }
-  } catch {
-    // Fallback
-  }
+    const { data, error } = await (supabase.from("audit_logs") as any)
+      .select("id, actor_id, action, target_type, target_id, details, created_at, actor:actor_id(full_name, email)")
+      .order("created_at", { ascending: false })
+      .limit(AUDIT_LOG_LIMIT);
+    if (error) throw error;
 
-  return localMockApplications;
-}
+    const logs = ((data ?? []) as Array<{
+      id: string;
+      actor_id: string | null;
+      action: string;
+      target_type: string;
+      target_id: string | null;
+      details: unknown;
+      created_at: string;
+      actor: { full_name: string | null; email: string | null } | null;
+    }>).map((row) => ({
+      id: row.id,
+      actorId: row.actor_id,
+      actorName: row.actor?.full_name || row.actor?.email || null,
+      action: row.action,
+      targetType: row.target_type,
+      targetId: row.target_id,
+      details:
+        row.details && typeof row.details === "object" && !Array.isArray(row.details)
+          ? (row.details as Record<string, unknown>)
+          : null,
+      createdAt: row.created_at,
+    }));
 
-export async function updateApplicationStatusAction(
-  appId: string,
-  newStatus: "approved" | "rejected",
-  notes?: string
-) {
-  try {
-    const adminClient = createAdminClient();
-    await (adminClient.from("applications") as any)
-      .update({
-        status: newStatus,
-        reviewer_notes: notes || null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", appId);
-
-    await (adminClient.from("audit_logs") as any).insert({
-      action: `application.${newStatus}`,
-      target_type: "application",
-      target_id: appId,
-      details: { status: newStatus, notes },
-    });
-  } catch {
-    const app = localMockApplications.find((a) => a.id === appId);
-    if (app) {
-      app.status = newStatus;
-      app.reviewerNotes = notes || null;
-
-      localMockAuditLogs.unshift({
-        id: `log-${Date.now()}`,
-        actorName: "Yönetici",
-        action: `application.${newStatus}`,
-        targetType: "application",
-        targetId: appId,
-        details: `${app.fullName} isimli adayın başvurusu ${newStatus === "approved" ? "onaylandı" : "reddedildi"}.`,
-        createdAt: new Date().toISOString(),
-      });
-    }
-  }
-
-  revalidatePath("/portal/admin");
-  revalidatePath("/portal/admin/basvurular");
-
-  return { success: true };
-}
-
-export async function getAuditLogsAction(): Promise<AuditLogItem[]> {
-  try {
-    const supabase = await createClient();
-    const { data } = await supabase.from("audit_logs").select("*").order("created_at", { ascending: false });
-
-    if (data && data.length > 0) {
-      return data.map((l: any) => ({
-        id: l.id,
-        actorName: l.actor_id || "Yönetici",
-        action: l.action,
-        targetType: l.target_type,
-        targetId: l.target_id || "",
-        details: typeof l.details === "object" ? JSON.stringify(l.details) : String(l.details || ""),
-        createdAt: l.created_at,
-      }));
-    }
-  } catch {
-    // Fallback
-  }
-
-  return localMockAuditLogs;
+    return { success: true, data: logs };
+  });
 }

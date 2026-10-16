@@ -1,98 +1,111 @@
 import crypto from "crypto";
+import { SITE_URL } from "@/lib/site-url";
 
 /**
- * 60-Second Rotating Dynamic TOTP Algorithm for Event QR Attendance
- * Prevents attendance fraud by rotating every 60 seconds.
+ * Rotating 6-digit check-in codes for event QR attendance (server only).
+ *
+ * The HMAC key for an event is derived from two secrets:
+ *   - QR_HMAC_SECRET (server environment, never stored in the database), and
+ *   - the event's own qr_signing_secret column (read only with the service-role client).
+ * Leaking either one alone is not enough to compute codes. There is no fallback secret: if either is
+ * missing, generating and verifying codes is refused with a QrSigningError.
  */
+
+export const ROTATION_WINDOW_SECONDS = 60;
+
+const MIN_SERVER_SECRET_LENGTH = 32;
+const MIN_EVENT_SECRET_LENGTH = 16;
+const ENV_EXAMPLE_PLACEHOLDER = "change-this-to-a-secure-random-secret-key-32-chars-min";
+
+export class QrSigningError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "QrSigningError";
+  }
+}
 
 export interface TOTPResult {
   code: string;
-  payload: string;
   remainingSeconds: number;
   currentWindow: number;
 }
 
-const ROTATION_WINDOW_SECONDS = 60;
+function getServerQrSecret(): string {
+  const secret = process.env.QR_HMAC_SECRET?.trim() ?? "";
+  if (secret.length < MIN_SERVER_SECRET_LENGTH) {
+    throw new QrSigningError(
+      "QR_HMAC_SECRET is missing or shorter than 32 characters; QR check-in is disabled until it is set."
+    );
+  }
+  if (process.env.NODE_ENV === "production" && secret === ENV_EXAMPLE_PLACEHOLDER) {
+    throw new QrSigningError("QR_HMAC_SECRET still has the .env.example placeholder value; set a random secret.");
+  }
+  return secret;
+}
 
-/**
- * Generates the current 6-digit TOTP code and signed payload for an event
- */
-export function generateEventTOTP(
-  eventId: string,
-  secret: string,
-  nowMs: number = Date.now()
-): TOTPResult {
-  const currentWindow = Math.floor(nowMs / (ROTATION_WINDOW_SECONDS * 1000));
-  const remainingSeconds =
-    ROTATION_WINDOW_SECONDS - (Math.floor(nowMs / 1000) % ROTATION_WINDOW_SECONDS);
+/** True when the server-side QR secret is usable (for showing a clear message instead of failing later). */
+export function isQrSigningConfigured(): boolean {
+  try {
+    getServerQrSecret();
+    return true;
+  } catch {
+    return false;
+  }
+}
 
-  // Compute HMAC SHA-256
-  const hmac = crypto.createHmac("sha256", secret);
-  hmac.update(`${eventId}:${currentWindow}`);
-  const hash = hmac.digest("hex");
+function deriveEventKey(eventId: string, eventSecret: string): Buffer {
+  if (!eventSecret || eventSecret.length < MIN_EVENT_SECRET_LENGTH) {
+    throw new QrSigningError(`Event ${eventId} has no usable QR signing secret.`);
+  }
+  return crypto
+    .createHmac("sha256", getServerQrSecret())
+    .update(`iec-event-qr:v1:${eventId}:${eventSecret}`)
+    .digest();
+}
 
-  // Derive a 6-digit integer from the hash
-  const offset = parseInt(hash.substring(hash.length - 1), 16);
-  const binary =
-    ((parseInt(hash.substring(offset * 2, offset * 2 + 8), 16) & 0x7fffffff) %
-      1000000)
-      .toString()
-      .padStart(6, "0");
+/** RFC 4226 style dynamic truncation of HMAC-SHA256(key, eventId:window) to 6 digits. */
+function codeForWindow(key: Buffer, eventId: string, window: number): string {
+  const hash = crypto.createHmac("sha256", key).update(`${eventId}:${window}`).digest();
+  const offset = hash[hash.length - 1] & 0x0f;
+  const binary = hash.readUInt32BE(offset) & 0x7fffffff;
+  return (binary % 1_000_000).toString().padStart(6, "0");
+}
 
-  const payload = `${eventId}.${binary}.${currentWindow}`;
+function currentWindowFor(nowMs: number): number {
+  return Math.floor(nowMs / (ROTATION_WINDOW_SECONDS * 1000));
+}
 
-  return {
-    code: binary,
-    payload,
-    remainingSeconds,
-    currentWindow,
-  };
+/** Current code for an event. Throws QrSigningError when a secret is missing. */
+export function generateEventTOTP(eventId: string, eventSecret: string, nowMs: number = Date.now()): TOTPResult {
+  const key = deriveEventKey(eventId, eventSecret);
+  const currentWindow = currentWindowFor(nowMs);
+  const remainingSeconds = ROTATION_WINDOW_SECONDS - (Math.floor(nowMs / 1000) % ROTATION_WINDOW_SECONDS);
+  return { code: codeForWindow(key, eventId, currentWindow), remainingSeconds, currentWindow };
 }
 
 /**
- * Verifies a 6-digit code or scanned QR payload against the current and previous 60s window
+ * Checks a normalized 6-digit code against the current and the previous window (a short grace period
+ * for codes typed just as they rotate). Throws QrSigningError when a secret is missing.
  */
 export function verifyEventTOTP(
   eventId: string,
-  secret: string,
-  inputCodeOrPayload: string,
+  eventSecret: string,
+  code: string,
   nowMs: number = Date.now()
 ): boolean {
-  if (!inputCodeOrPayload) return false;
-
-  const currentWindow = Math.floor(nowMs / (ROTATION_WINDOW_SECONDS * 1000));
-  const cleanInput = inputCodeOrPayload.trim();
-
-  // Extract numeric code if raw payload was passed (e.g. "eventId.123456.window")
-  let codeToTest = cleanInput;
-  if (cleanInput.includes(".")) {
-    const parts = cleanInput.split(".");
-    if (parts.length >= 2 && parts[0] === eventId) {
-      codeToTest = parts[1];
-    }
-  }
-
-  // Remove any spaces (e.g. "482 913" -> "482913")
-  codeToTest = codeToTest.replace(/\s+/g, "");
-
-  // Check current window and previous window (grace period for network latency / transition)
+  if (!/^\d{6}$/.test(code)) return false;
+  const key = deriveEventKey(eventId, eventSecret);
+  const currentWindow = currentWindowFor(nowMs);
+  const submitted = Buffer.from(code);
+  let matched = false;
   for (const windowOffset of [0, -1]) {
-    const targetWindow = currentWindow + windowOffset;
-    const hmac = crypto.createHmac("sha256", secret);
-    hmac.update(`${eventId}:${targetWindow}`);
-    const hash = hmac.digest("hex");
-
-    const offset = parseInt(hash.substring(hash.length - 1), 16);
-    const expectedCode =
-      ((parseInt(hash.substring(offset * 2, offset * 2 + 8), 16) & 0x7fffffff) %
-        1000000)
-        .toString()
-        .padStart(6, "0");
-
-    if (codeToTest === expectedCode) {
-      return true;
-    }
+    const expected = Buffer.from(codeForWindow(key, eventId, currentWindow + windowOffset));
+    if (crypto.timingSafeEqual(expected, submitted)) matched = true;
   }
+  return matched;
+}
 
-  return false;
+/** URL encoded in the QR code: scanning it with a phone camera opens the portal's check-in dialog. */
+export function buildCheckInUrl(eventId: string, code: string): string {
+  return `${SITE_URL}/portal/etkinlikler?checkin=${encodeURIComponent(eventId)}&code=${code}`;
 }

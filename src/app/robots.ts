@@ -10,8 +10,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           "/portal/",
           "/api/",
-          "/_next/",
-          "/feed.xml",
         ],
       },
     ],

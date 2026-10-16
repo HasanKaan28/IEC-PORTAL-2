@@ -1,241 +1,205 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
-import Link from "next/link";
+import React, { useRef } from "react";
+import { FolderGit2, Github, Linkedin, Lock, Mail, MessageCircle, Shield, X } from "lucide-react";
+import { ROLE_LABELS, type UserRole } from "@/lib/rbac/permissions";
+import { useLocale } from "@/lib/i18n/locale-context";
 import {
-  Github,
-  Linkedin,
-  Mail,
-  MessageCircle,
-  Shield,
-  FolderGit2,
-  Lock,
-  X,
-  ExternalLink,
-} from "lucide-react";
-import { UserRole, ROLE_LABELS } from "@/lib/rbac/permissions";
+  localizeClassYear,
+  localizeDepartment,
+  messagesProfileText,
+} from "@/lib/i18n/portal/messages-profile";
+import type { ProfileCardData } from "@/lib/messages/message-types";
+import { safeHexColor, safeHttpUrl } from "@/lib/messages/utils";
+import MemberAvatar from "@/components/portal/messages/MemberAvatar";
+import { useDialog } from "@/components/portal/messages/hooks";
 
-export interface ProfileCardData {
-  id: string;
-  fullName: string;
-  email: string;
-  avatarUrl?: string | null;
-  department?: string | null;
-  classYear?: string | null;
-  bio?: string | null;
-  linkedinUrl?: string | null;
-  githubUrl?: string | null;
-  phone?: string | null;
-  hidePhone?: boolean;
-  hideEmail?: boolean;
-  roles?: UserRole[];
-  projects?: Array<{
-    name: string;
-    role?: string;
-    accentColor?: string;
-  }>;
-}
+export type { ProfileCardData } from "@/lib/messages/message-types";
 
 interface DiscordProfileCardProps {
   user: ProfileCardData;
   isOpen: boolean;
   onClose: () => void;
+  /** Optional extra actions shown at the bottom of the card. */
+  footer?: React.ReactNode;
 }
 
-export default function DiscordProfileCard({
-  user,
-  isOpen,
-  onClose,
-}: DiscordProfileCardProps) {
-  if (!isOpen) return null;
+/**
+ * Member profile card shown as a modal. Contact buttons respect the member's privacy flags; for
+ * other members the server has already removed hidden email / phone values.
+ */
+export default function DiscordProfileCard(props: DiscordProfileCardProps) {
+  if (!props.isOpen) return null;
+  return <ProfileCardDialog {...props} />;
+}
 
-  const roles = user.roles && user.roles.length > 0 ? user.roles : ["member"];
-  const sanitizedPhone = user.phone ? user.phone.replace(/[^0-9]/g, "") : "";
+function ProfileCardDialog({ user, onClose, footer }: DiscordProfileCardProps) {
+  const { locale } = useLocale();
+  const t = messagesProfileText[locale].card;
+  const common = messagesProfileText[locale].common;
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialog(true, onClose, dialogRef);
+
+  const roles: UserRole[] = user.roles && user.roles.length > 0 ? user.roles : ["member"];
+  const phoneDigits = user.phone ? user.phone.replace(/[^0-9]/g, "") : "";
+  const canWhatsApp = !user.hidePhone && phoneDigits.length >= 6;
+  const canEmail = !user.hideEmail && Boolean(user.email);
+  const githubUrl = safeHttpUrl(user.githubUrl);
+  const linkedinUrl = safeHttpUrl(user.linkedinUrl);
+  const subtitle = [localizeDepartment(user.department, locale), localizeClassYear(user.classYear, locale)]
+    .filter(Boolean)
+    .join(" · ");
+  const hasContactRow = canWhatsApp || canEmail || user.hidePhone || user.hideEmail;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200"
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm animate-in fade-in duration-150"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
     >
       <div
-        className="relative w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl border border-slate-700/80 bg-[#111827] text-slate-100"
-        onClick={(e) => e.stopPropagation()}
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t.dialogLabel(user.fullName)}
+        tabIndex={-1}
+        className="relative max-h-[calc(100dvh-2rem)] w-full max-w-sm overflow-y-auto rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-2xl focus:outline-none"
       >
-        {/* Top Banner (Discord Style) */}
-        <div className="h-24 w-full bg-gradient-to-r from-brand-700 via-brand-600 to-accent-500 relative">
+        <div className="relative h-24 bg-gradient-to-r from-brand-700 via-brand-600 to-brand-400">
           <button
+            type="button"
             onClick={onClose}
-            className="absolute top-2.5 right-2.5 p-1.5 rounded-full bg-black/40 hover:bg-black/70 text-slate-200 transition-colors"
-            aria-label="Kapat"
+            aria-label={common.close}
+            className="absolute right-3 top-3 rounded-full bg-black/25 p-1.5 text-white transition-colors hover:bg-black/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
-            <X className="w-4 h-4" />
+            <X className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
 
-        {/* Avatar with Status Ring */}
-        <div className="relative px-5 pb-5 pt-0">
-          <div className="relative -mt-12 mb-3 inline-block">
-            <div className="w-20 h-20 rounded-full border-4 border-[#111827] bg-slate-800 overflow-hidden relative shadow-lg">
-              {user.avatarUrl ? (
-                <Image
-                  src={user.avatarUrl}
-                  alt={user.fullName}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-xl font-bold bg-gradient-to-tr from-brand-600 to-accent-500 text-white">
-                  {user.fullName
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </div>
-              )}
-            </div>
-            {/* Online Activity Status Indicator */}
-            <span
-              className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#111827]"
-              title="Aktif"
-            />
+        <div className="px-5 pb-5">
+          <div className="-mt-10 mb-3">
+            <MemberAvatar name={user.fullName} src={user.avatarUrl} size="xl" locale={locale} className="ring-4 ring-white" />
           </div>
 
-          {/* User Name & Department */}
-          <div className="space-y-0.5">
-            <h3 className="text-lg font-bold text-white font-display flex items-center gap-2">
-              <span>{user.fullName}</span>
-            </h3>
-            <p className="text-xs text-slate-400 font-mono">
-              {user.department || "Mühendislik Öğrencisi"} • {user.classYear || "FENS"}
-            </p>
-          </div>
+          <h2 className="font-display text-lg font-bold leading-tight text-slate-900">{user.fullName}</h2>
+          {subtitle && <p className="mt-0.5 text-sm text-slate-500">{subtitle}</p>}
 
-          {/* Roles Badges */}
-          <div className="mt-3.5 pt-3 border-t border-slate-800">
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1.5 font-semibold">
-              Roller
-            </span>
-            <div className="flex flex-wrap gap-1.5">
+          <section className="mt-4 border-t border-slate-100 pt-3">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{t.roles}</h3>
+            <ul className="flex flex-wrap gap-1.5">
               {roles.map((role) => (
-                <span
+                <li
                   key={role}
-                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-brand-500/15 text-brand-300 border border-brand-500/30"
+                  className="inline-flex items-center gap-1 rounded-full border border-brand-200 bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700"
                 >
-                  <Shield className="w-3 h-3 text-accent-400" />
-                  <span>{ROLE_LABELS[role as UserRole]?.tr || role}</span>
-                </span>
+                  <Shield className="h-3 w-3" aria-hidden="true" />
+                  <span>{ROLE_LABELS[role]?.[locale] ?? role}</span>
+                </li>
               ))}
-            </div>
-          </div>
+            </ul>
+          </section>
 
-          {/* Bio / About */}
           {user.bio && (
-            <div className="mt-3.5 pt-3 border-t border-slate-800">
-              <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1 font-semibold">
-                Hakkında
-              </span>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                {user.bio}
-              </p>
-            </div>
+            <section className="mt-4 border-t border-slate-100 pt-3">
+              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">{t.about}</h3>
+              <p className="whitespace-pre-line break-words text-sm leading-relaxed text-slate-700">{user.bio}</p>
+            </section>
           )}
 
-          {/* Projects List */}
           {user.projects && user.projects.length > 0 && (
-            <div className="mt-3.5 pt-3 border-t border-slate-800">
-              <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1.5 font-semibold">
-                Aktif Projeler
-              </span>
-              <div className="space-y-1.5">
-                {user.projects.map((proj, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between p-2 rounded-lg bg-slate-900/80 border border-slate-800 text-xs"
+            <section className="mt-4 border-t border-slate-100 pt-3">
+              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{t.projects}</h3>
+              <ul className="space-y-1.5">
+                {user.projects.map((project, index) => (
+                  <li
+                    key={`${project.name}-${index}`}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
                   >
-                    <div className="flex items-center gap-2">
+                    <span className="flex min-w-0 items-center gap-2">
                       <FolderGit2
-                        className="w-3.5 h-3.5"
-                        style={{ color: proj.accentColor || "#b8237f" }}
+                        className="h-4 w-4 shrink-0"
+                        style={{ color: safeHexColor(project.accentColor) }}
+                        aria-hidden="true"
                       />
-                      <span className="font-medium text-slate-200">{proj.name}</span>
-                    </div>
-                    {proj.role && (
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        {proj.role}
-                      </span>
-                    )}
-                  </div>
+                      <span className="truncate font-medium text-slate-800">{project.name}</span>
+                    </span>
+                    {project.role && <span className="shrink-0 text-xs text-slate-500">{project.role}</span>}
+                  </li>
                 ))}
-              </div>
-            </div>
+              </ul>
+            </section>
           )}
 
-          {/* Contact & Social Action Buttons */}
-          <div className="mt-4 pt-3 border-t border-slate-800 space-y-2">
-            <div className="flex items-center gap-2">
-              {/* WhatsApp direct button (respects privacy) */}
-              {!user.hidePhone && sanitizedPhone ? (
-                <a
-                  href={`https://wa.me/${sanitizedPhone}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors"
-                >
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  <span>WhatsApp</span>
-                </a>
-              ) : (
-                <div className="flex-1 inline-flex items-center justify-center gap-1 py-2 px-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-500 text-[11px]">
-                  <Lock className="w-3 h-3" />
-                  <span>Telefon Gizli</span>
+          {(hasContactRow || githubUrl || linkedinUrl) && (
+            <section className="mt-4 space-y-2 border-t border-slate-100 pt-3">
+              {hasContactRow && (
+                <div className="flex items-center gap-2">
+                  {canWhatsApp ? (
+                    <a
+                      href={`https://wa.me/${phoneDigits}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+                    >
+                      <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                      <span>{t.whatsapp}</span>
+                      <span className="sr-only">{t.opensInNewTab}</span>
+                    </a>
+                  ) : user.hidePhone ? (
+                    <span className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-500">
+                      <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+                      <span>{t.phoneHidden}</span>
+                    </span>
+                  ) : null}
+
+                  {canEmail ? (
+                    <a
+                      href={`mailto:${user.email}`}
+                      className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+                    >
+                      <Mail className="h-4 w-4" aria-hidden="true" />
+                      <span>{t.email}</span>
+                    </a>
+                  ) : user.hideEmail ? (
+                    <span className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-500">
+                      <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+                      <span>{t.emailHidden}</span>
+                    </span>
+                  ) : null}
                 </div>
               )}
 
-              {/* Direct email button (respects privacy) */}
-              {!user.hideEmail && user.email ? (
-                <a
-                  href={`mailto:${user.email}`}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold transition-colors"
-                >
-                  <Mail className="w-3.5 h-3.5" />
-                  <span>E-posta</span>
-                </a>
-              ) : (
-                <div className="flex-1 inline-flex items-center justify-center gap-1 py-2 px-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-500 text-[11px]">
-                  <Lock className="w-3 h-3" />
-                  <span>E-posta Gizli</span>
+              {(githubUrl || linkedinUrl) && (
+                <div className="flex items-center justify-center gap-2 pt-1">
+                  {githubUrl && (
+                    <a
+                      href={githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${t.github} ${t.opensInNewTab}`}
+                      className="rounded-xl border border-slate-200 p-2 text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                    >
+                      <Github className="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  )}
+                  {linkedinUrl && (
+                    <a
+                      href={linkedinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${t.linkedin} ${t.opensInNewTab}`}
+                      className="rounded-xl border border-slate-200 p-2 text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                    >
+                      <Linkedin className="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  )}
                 </div>
               )}
-            </div>
+            </section>
+          )}
 
-            {/* Social links */}
-            <div className="flex items-center justify-center gap-3 pt-1">
-              {user.githubUrl && (
-                <a
-                  href={user.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
-                  title="GitHub Profili"
-                >
-                  <Github className="w-4 h-4" />
-                </a>
-              )}
-              {user.linkedinUrl && (
-                <a
-                  href={user.linkedinUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-brand-400 hover:text-brand-300 transition-colors"
-                  title="LinkedIn Profili"
-                >
-                  <Linkedin className="w-4 h-4" />
-                </a>
-              )}
-            </div>
-          </div>
+          {footer && <div className="mt-4 border-t border-slate-100 pt-3">{footer}</div>}
         </div>
       </div>
     </div>

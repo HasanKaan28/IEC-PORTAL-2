@@ -30,14 +30,48 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: "IUS Engineering Club (IEC) | Official Platform & Student Hub",
-    template: "%s | IUS Engineering Club",
+const SITE_META = {
+  tr: {
+    title: "IUS Engineering Club (IEC) | Saraybosna",
+    description:
+      "Uluslararası Saraybosna Üniversitesi (IUS) Mühendislik Kulübü'nün resmi sitesi ve üye portalı. Donanım ve yazılım projeleri, atölyeler, hackathonlar ve sertifikalı etkinlikler.",
+    ogDescription: "IUS öğrencilerinin gerçek mühendislik projeleri geliştirdiği kulüp.",
+    ogAlt: "IUS Engineering Club logosu",
   },
-  description:
-    "Official website and student portal for International University of Sarajevo (IUS) Engineering Club. Hardware projects, AI bootcamps, hackathons, and certified events.",
+  en: {
+    title: "IUS Engineering Club (IEC) | Sarajevo",
+    description:
+      "Official website and member portal of the International University of Sarajevo (IUS) Engineering Club. Hardware and software projects, workshops, hackathons and certified events.",
+    ogDescription: "The club where IUS students build real engineering projects.",
+    ogAlt: "IUS Engineering Club logo",
+  },
+};
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale();
+  const meta = SITE_META[locale];
+  return {
+    ...baseMetadata,
+    title: { default: meta.title, template: "%s | IUS Engineering Club" },
+    description: meta.description,
+    openGraph: {
+      ...baseMetadata.openGraph,
+      locale: locale === "en" ? "en_US" : "tr_TR",
+      alternateLocale: locale === "en" ? "tr_TR" : "en_US",
+      title: meta.title,
+      description: meta.ogDescription,
+      images: [{ url: "/brand/og-card.jpg", width: 1200, height: 630, alt: meta.ogAlt }],
+    },
+    twitter: {
+      ...baseMetadata.twitter,
+      title: meta.title,
+      description: meta.ogDescription,
+    },
+  };
+}
+
+const baseMetadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   keywords: [
     "IUS",
     "International University of Sarajevo",
@@ -63,21 +97,12 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    locale: "tr_TR",
-    alternateLocale: "en_US",
     url: SITE_URL,
-    title: "IUS Engineering Club (IEC) | Official Platform & Student Hub",
-    description:
-      "Bridging the gap between university engineering curriculum and real-world industrial practice.",
     siteName: "IUS Engineering Club",
-    images: [{ url: "/brand/og-card.jpg", width: 1200, height: 630, alt: "IUS Engineering Club logosu" }],
   },
   twitter: {
     card: "summary_large_image",
     images: ["/brand/og-card.jpg"],
-    title: "IUS Engineering Club (IEC)",
-    description:
-      "Bridging the gap between university engineering curriculum and real-world industrial practice at IUS Sarajevo.",
   },
   robots: {
     index: true,

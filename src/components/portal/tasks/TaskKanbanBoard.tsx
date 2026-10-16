@@ -1,247 +1,165 @@
 "use client";
 
 import React from "react";
+import { ChevronLeft, ChevronRight, Clock, MessageSquare, Paperclip } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { formatDate } from "@/lib/i18n/format";
+import { tasksProjectsText } from "@/lib/i18n/portal/tasks-projects";
 import {
-  Clock,
-  MessageSquare,
-  Paperclip,
-  Flame,
-  ArrowUp,
-  Minus,
-  ArrowDown,
-  ChevronRight,
-  ChevronLeft,
-  CheckCircle2,
-} from "lucide-react";
-import { TaskItem, TaskStatus, TaskPriority } from "@/lib/tasks/task-types";
+  TASK_STATUSES,
+  canEditTask,
+  isTaskOverdue,
+  type TaskItem,
+  type TaskStatus,
+  type TaskViewer,
+} from "@/lib/tasks/task-types";
+import { PriorityBadge, TASK_STATUS_STYLES, UserAvatar, focusRing } from "./shared-ui";
 
 interface TaskKanbanBoardProps {
   tasks: TaskItem[];
-  onSelectTask: (task: TaskItem) => void;
+  viewer: TaskViewer;
+  onSelectTask: (taskId: string) => void;
   onUpdateStatus: (taskId: string, newStatus: TaskStatus) => void;
 }
 
-const COLUMNS: Array<{
-  id: TaskStatus;
-  title: string;
-  dotColor: string;
-  badgeBg: string;
-  badgeText: string;
-}> = [
-  {
-    id: "todo",
-    title: "Yapılacak",
-    dotColor: "bg-slate-400",
-    badgeBg: "bg-slate-100",
-    badgeText: "text-slate-600",
-  },
-  {
-    id: "in_progress",
-    title: "Devam Ediyor",
-    dotColor: "bg-amber-500",
-    badgeBg: "bg-amber-50",
-    badgeText: "text-amber-700",
-  },
-  {
-    id: "in_review",
-    title: "İncelemede",
-    dotColor: "bg-brand-500",
-    badgeBg: "bg-brand-50",
-    badgeText: "text-brand-700",
-  },
-  {
-    id: "done",
-    title: "Tamamlandı",
-    dotColor: "bg-emerald-500",
-    badgeBg: "bg-emerald-50",
-    badgeText: "text-emerald-700",
-  },
-];
+function neighbourStatus(current: TaskStatus, step: -1 | 1): TaskStatus | null {
+  const index = TASK_STATUSES.indexOf(current) + step;
+  return index >= 0 && index < TASK_STATUSES.length ? TASK_STATUSES[index] : null;
+}
 
-export default function TaskKanbanBoard({
-  tasks,
-  onSelectTask,
-  onUpdateStatus,
-}: TaskKanbanBoardProps) {
-  const getPriorityBadge = (priority: TaskPriority) => {
-    switch (priority) {
-      case "urgent":
-        return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
-            <Flame className="w-3 h-3 text-rose-600 fill-rose-500" />
-            Acil
-          </span>
-        );
-      case "high":
-        return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-orange-700 bg-orange-50 px-1.5 py-0.5 rounded border border-orange-200">
-            <ArrowUp className="w-3 h-3 text-orange-600" />
-            Yüksek
-          </span>
-        );
-      case "medium":
-        return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-            <Minus className="w-3 h-3 text-amber-600" />
-            Orta
-          </span>
-        );
-      case "low":
-        return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">
-            <ArrowDown className="w-3 h-3 text-slate-500" />
-            Düşük
-          </span>
-        );
-    }
-  };
-
-  const getNextStatus = (current: TaskStatus): TaskStatus | null => {
-    if (current === "todo") return "in_progress";
-    if (current === "in_progress") return "in_review";
-    if (current === "in_review") return "done";
-    return null;
-  };
-
-  const getPrevStatus = (current: TaskStatus): TaskStatus | null => {
-    if (current === "done") return "in_review";
-    if (current === "in_review") return "in_progress";
-    if (current === "in_progress") return "todo";
-    return null;
-  };
+export default function TaskKanbanBoard({ tasks, viewer, onSelectTask, onUpdateStatus }: TaskKanbanBoardProps) {
+  const { locale } = useLocale();
+  const t = tasksProjectsText[locale];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
-      {COLUMNS.map((column) => {
-        const columnTasks = tasks.filter((t) => t.status === column.id);
+    <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {TASK_STATUSES.map((status) => {
+        const columnTasks = tasks.filter((task) => task.status === status);
+        const headingId = `task-column-${status}`;
 
         return (
-          <div
-            key={column.id}
-            className="bg-slate-50/80 rounded-2xl p-3 border border-slate-200/80 min-h-[580px] flex flex-col"
+          <section
+            key={status}
+            aria-labelledby={headingId}
+            className="flex min-h-[320px] flex-col rounded-2xl border border-slate-200 bg-slate-50/80 p-3"
           >
-            {/* Column Header */}
-            <div className="flex items-center justify-between px-2 py-2 mb-3">
-              <div className="flex items-center gap-2">
-                <span className={`w-2.5 h-2.5 rounded-full ${column.dotColor}`} />
-                <h3 className="text-xs font-bold text-slate-800 font-display">
-                  {column.title}
-                </h3>
-              </div>
+            <div className="mb-3 flex items-center justify-between px-1 py-1">
+              <h2 id={headingId} className="flex items-center gap-2 font-display text-sm font-semibold text-slate-800">
+                <span className={`h-2.5 w-2.5 rounded-full ${TASK_STATUS_STYLES[status].dot}`} aria-hidden="true" />
+                {t.taskStatus[status]}
+              </h2>
               <span
-                className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded-full ${column.badgeBg} ${column.badgeText}`}
+                className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-xs font-semibold text-slate-600"
+                aria-label={t.tasks.columnCount(columnTasks.length)}
               >
                 {columnTasks.length}
               </span>
             </div>
 
-            {/* Task Cards in Column */}
-            <div className="space-y-3 flex-1 overflow-y-auto">
-              {columnTasks.length === 0 ? (
-                <div className="p-6 text-center border border-dashed border-slate-200 rounded-xl text-slate-400 text-xs font-mono">
-                  Görev yok
-                </div>
-              ) : (
-                columnTasks.map((task) => {
-                  const prev = getPrevStatus(task.status);
-                  const next = getNextStatus(task.status);
+            {columnTasks.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-slate-200 p-6 text-center text-xs text-slate-500">
+                {t.tasks.columnEmpty}
+              </p>
+            ) : (
+              <ul className="flex-1 space-y-3">
+                {columnTasks.map((task) => {
+                  const previous = neighbourStatus(task.status, -1);
+                  const next = neighbourStatus(task.status, 1);
+                  const editable = canEditTask(viewer, task);
+                  const overdue = isTaskOverdue(task);
 
                   return (
-                    <div
-                      key={task.id}
-                      onClick={() => onSelectTask(task)}
-                      className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-brand-300 transition-all cursor-pointer space-y-3 group"
-                    >
-                      {/* Priority and Project */}
-                      <div className="flex items-center justify-between gap-2">
-                        {getPriorityBadge(task.priority)}
-                        {task.projectName && (
-                          <span className="text-[10px] text-slate-500 font-mono truncate max-w-[140px]">
-                            {task.projectName}
+                    <li key={task.id}>
+                      <article className="group relative space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:border-brand-300 hover:shadow-md">
+                        <div className="flex items-center justify-between gap-2">
+                          <PriorityBadge priority={task.priority} label={t.taskPriority[task.priority]} />
+                          <span className="max-w-[60%] truncate text-xs text-slate-500">
+                            {task.projectName ?? t.common.noProject}
                           </span>
-                        )}
-                      </div>
+                        </div>
 
-                      {/* Title */}
-                      <h4 className="text-xs font-semibold text-slate-900 group-hover:text-brand-600 transition-colors leading-snug line-clamp-2">
-                        {task.title}
-                      </h4>
+                        <h3 className="text-sm font-semibold leading-snug text-slate-900">
+                          <button
+                            type="button"
+                            onClick={() => onSelectTask(task.id)}
+                            aria-label={t.tasks.openDetails(task.title)}
+                            className={`line-clamp-2 rounded text-left transition-colors group-hover:text-brand-700 after:absolute after:inset-0 after:rounded-xl after:content-[''] ${focusRing}`}
+                          >
+                            {task.title}
+                          </button>
+                        </h3>
 
-                      {/* Meta Footer */}
-                      <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[11px]">
-                        {/* Assignee */}
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-5 h-5 rounded-full bg-brand-50 border border-brand-200 flex items-center justify-center text-[9px] font-bold text-brand-700">
-                            {task.assigneeAvatar ? (
-                              <img
-                                src={task.assigneeAvatar}
-                                alt={task.assigneeName || ""}
-                                className="w-full h-full rounded-full object-cover"
-                              />
-                            ) : (
-                              (task.assigneeName || "A").charAt(0)
+                        <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-2 text-xs text-slate-500">
+                          <div className="flex min-w-0 items-center gap-1.5">
+                            <UserAvatar name={task.assigneeName} src={task.assigneeAvatar} />
+                            <span className="truncate font-medium text-slate-700">
+                              {task.assigneeId === viewer.id
+                                ? t.common.you
+                                : task.assigneeName || t.common.unassigned}
+                            </span>
+                          </div>
+
+                          <div className="flex shrink-0 items-center gap-2">
+                            {task.commentsCount > 0 && (
+                              <span className="flex items-center gap-0.5" aria-label={t.tasks.commentCount(task.commentsCount)}>
+                                <MessageSquare className="h-3.5 w-3.5" aria-hidden="true" />
+                                <span aria-hidden="true">{task.commentsCount}</span>
+                              </span>
+                            )}
+                            {task.attachmentsCount > 0 && (
+                              <span className="flex items-center gap-0.5" aria-hidden="true">
+                                <Paperclip className="h-3.5 w-3.5" />
+                                {task.attachmentsCount}
+                              </span>
+                            )}
+                            {task.dueDate && (
+                              <span
+                                className={`flex items-center gap-0.5 ${overdue ? "font-semibold text-rose-600" : ""}`}
+                                title={overdue ? t.tasks.overdue : undefined}
+                              >
+                                <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                                {overdue && <span className="sr-only">{`${t.tasks.overdue}: `}</span>}
+                                {formatDate(task.dueDate, locale, { day: "numeric", month: "short", timeZone: "UTC" })}
+                              </span>
                             )}
                           </div>
-                          <span className="text-[10px] font-medium text-slate-700 truncate max-w-[90px]">
-                            {task.assigneeName || "Atanmamış"}
-                          </span>
                         </div>
 
-                        {/* Counts & Due Date */}
-                        <div className="flex items-center gap-2 font-mono text-[10px]">
-                          {task.commentsCount > 0 && (
-                            <div className="flex items-center gap-0.5 text-slate-400">
-                              <MessageSquare className="w-3 h-3" />
-                              <span>{task.commentsCount}</span>
-                            </div>
-                          )}
-                          {task.dueDate && (
-                            <div className="flex items-center gap-0.5 text-slate-400">
-                              <Clock className="w-3 h-3" />
-                              <span>
-                                {new Date(task.dueDate).toLocaleDateString("tr-TR", {
-                                  day: "numeric",
-                                  month: "short",
-                                })}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Quick Move Trigger Buttons */}
-                      <div
-                        onClick={(e) => e.stopPropagation()}
-                        className="pt-1 flex items-center justify-between opacity-80 group-hover:opacity-100"
-                      >
-                        {prev ? (
-                          <button
-                            onClick={() => onUpdateStatus(task.id, prev)}
-                            title="Önceki Aşamaya Taşı"
-                            className="p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] flex items-center gap-0.5"
-                          >
-                            <ChevronLeft className="w-3 h-3" />
-                            <span>Geri</span>
-                          </button>
-                        ) : <div />}
-
-                        {next && (
-                          <button
-                            onClick={() => onUpdateStatus(task.id, next)}
-                            title="Sonraki Aşamaya İlerlet"
-                            className="p-1 px-1.5 rounded bg-brand-50 hover:bg-brand-100 text-brand-700 text-[10px] flex items-center gap-0.5 font-medium ml-auto"
-                          >
-                            <span>İlerlet</span>
-                            <ChevronRight className="w-3 h-3" />
-                          </button>
+                        {editable && (previous || next) && (
+                          <div className="relative z-10 flex items-center justify-between gap-2 pt-1">
+                            {previous ? (
+                              <button
+                                type="button"
+                                onClick={() => onUpdateStatus(task.id, previous)}
+                                aria-label={t.tasks.moveTo(task.title, t.taskStatus[previous])}
+                                className={`inline-flex items-center gap-0.5 rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-200 ${focusRing}`}
+                              >
+                                <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                                <span>{t.tasks.moveBack}</span>
+                              </button>
+                            ) : (
+                              <span />
+                            )}
+                            {next && (
+                              <button
+                                type="button"
+                                onClick={() => onUpdateStatus(task.id, next)}
+                                aria-label={t.tasks.moveTo(task.title, t.taskStatus[next])}
+                                className={`ml-auto inline-flex items-center gap-0.5 rounded-lg bg-brand-50 px-2 py-1 text-xs font-semibold text-brand-700 transition-colors hover:bg-brand-100 ${focusRing}`}
+                              >
+                                <span>{t.tasks.moveForward}</span>
+                                <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+                              </button>
+                            )}
+                          </div>
                         )}
-                      </div>
-                    </div>
+                      </article>
+                    </li>
                   );
-                })
-              )}
-            </div>
-          </div>
+                })}
+              </ul>
+            )}
+          </section>
         );
       })}
     </div>

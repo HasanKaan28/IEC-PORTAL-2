@@ -1,277 +1,355 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { ClipboardList, Kanban, List as ListIcon, Plus, Search, SearchX } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { tasksProjectsText } from "@/lib/i18n/portal/tasks-projects";
 import {
-  Kanban,
-  List as ListIcon,
-  Search,
-  Filter,
-  Plus,
-  CheckCircle2,
-  SlidersHorizontal,
-  Flame,
-  Clock,
-} from "lucide-react";
-import { TaskItem, TaskStatus, TaskPriority } from "@/lib/tasks/task-types";
+  TASK_PRIORITIES,
+  type AssignableMember,
+  type TaskItem,
+  type TaskPriority,
+  type TaskProjectOption,
+  type TaskStatus,
+  type TaskViewer,
+} from "@/lib/tasks/task-types";
+import { updateTaskStatusAction } from "@/lib/tasks/task-actions";
 import TaskKanbanBoard from "./TaskKanbanBoard";
 import TaskListView from "./TaskListView";
 import TaskDetailDrawer from "./TaskDetailDrawer";
 import CreateTaskModal from "./CreateTaskModal";
-import { updateTaskStatusAction } from "@/lib/tasks/task-actions";
+import {
+  EmptyState,
+  ToastRegion,
+  focusRing,
+  inputClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+  useToast,
+  type ToastTone,
+} from "./shared-ui";
 
 interface TasksManagerClientProps {
   initialTasks: TaskItem[];
-  members: Array<{ id: string; name: string; role: string; avatar?: string }>;
-  projects: Array<{ id: string; title: string }>;
+  members: AssignableMember[];
+  projects: TaskProjectOption[];
+  viewer: TaskViewer;
 }
 
-export default function TasksManagerClient({
-  initialTasks,
-  members,
-  projects,
-}: TasksManagerClientProps) {
+type ViewMode = "board" | "list";
+const VIEW_STORAGE_KEY = "iec_tasks_view";
+
+export default function TasksManagerClient({ initialTasks, members, projects, viewer }: TasksManagerClientProps) {
+  const { locale } = useLocale();
+  const t = tasksProjectsText[locale];
+
+  // Server data is the source of truth: after an action revalidates the page (or the locale
+  // changes) fresh props arrive and replace any optimistic local state.
   const [tasks, setTasks] = useState<TaskItem[]>(initialTasks);
-  const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
+  useEffect(() => {
+    setTasks(initialTasks);
+  }, [initialTasks]);
+
+  const [viewMode, setViewMode] = useState<ViewMode>("board");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedProject, setSelectedProject] = useState("all");
-  const [selectedPriority, setSelectedPriority] = useState<TaskPriority | "all">(
-    "all"
-  );
-  const [selectedAssignee, setSelectedAssignee] = useState("all");
-
-  const [activeTask, setActiveTask] = useState<TaskItem | null>(null);
+  const [projectFilter, setProjectFilter] = useState("all");
+  const [priorityFilter, setPriorityFilter] = useState<TaskPriority | "all">("all");
+  const [assigneeFilter, setAssigneeFilter] = useState("all");
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const { toast, showToast, dismiss } = useToast();
 
-  const showToast = (msg: string) => {
-    setToastMsg(msg);
-    setTimeout(() => setToastMsg(null), 3000);
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(VIEW_STORAGE_KEY);
+      if (saved === "board" || saved === "list") setViewMode(saved);
+    } catch {
+      // Storage can be unavailable (private mode); the default view is fine.
+    }
+  }, []);
+
+  const changeView = (mode: ViewMode) => {
+    setViewMode(mode);
+    try {
+      window.localStorage.setItem(VIEW_STORAGE_KEY, mode);
+    } catch {
+      // Ignore storage failures.
+    }
   };
+
+  const activeTask = useMemo(() => tasks.find((task) => task.id === activeTaskId) ?? null, [tasks, activeTaskId]);
+
+  const hasFilters =
+    projectFilter !== "all" || priorityFilter !== "all" || assigneeFilter !== "all" || searchQuery.trim() !== "";
 
   const filteredTasks = useMemo(() => {
-    return tasks.filter((t) => {
-      if (selectedProject !== "all" && t.projectId !== selectedProject) {
+    const intlLocale = locale === "tr" ? "tr-TR" : "en-GB";
+    const query = searchQuery.trim().toLocaleLowerCase(intlLocale);
+    return tasks.filter((task) => {
+      if (projectFilter === "none" && task.projectId) return false;
+      if (projectFilter !== "all" && projectFilter !== "none" && task.projectId !== projectFilter) return false;
+      if (priorityFilter !== "all" && task.priority !== priorityFilter) return false;
+      if (assigneeFilter === "me" && task.assigneeId !== viewer.id) return false;
+      if (assigneeFilter === "unassigned" && task.assigneeId) return false;
+      if (
+        assigneeFilter !== "all" &&
+        assigneeFilter !== "me" &&
+        assigneeFilter !== "unassigned" &&
+        task.assigneeId !== assigneeFilter
+      ) {
         return false;
       }
-      if (selectedPriority !== "all" && t.priority !== selectedPriority) {
-        return false;
-      }
-      if (selectedAssignee !== "all" && t.assigneeId !== selectedAssignee) {
-        return false;
-      }
-      if (searchQuery.trim() !== "") {
-        const q = searchQuery.toLowerCase().trim();
-        const mTitle = t.title.toLowerCase().includes(q);
-        const mDesc = t.description?.toLowerCase().includes(q);
-        const mProj = t.projectName?.toLowerCase().includes(q);
-        const mAss = t.assigneeName?.toLowerCase().includes(q);
-        return mTitle || mDesc || mProj || mAss;
-      }
-      return true;
+      if (!query) return true;
+      return [task.title, task.description, task.projectName, task.assigneeName]
+        .filter((value): value is string => Boolean(value))
+        .some((value) => value.toLocaleLowerCase(intlLocale).includes(query));
     });
-  }, [tasks, selectedProject, selectedPriority, selectedAssignee, searchQuery]);
+  }, [tasks, projectFilter, priorityFilter, assigneeFilter, searchQuery, locale, viewer.id]);
 
-  const handleStatusUpdate = async (taskId: string, newStatus: TaskStatus) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
-    );
-    showToast("Görev durumu güncellendi.");
-    await updateTaskStatusAction(taskId, newStatus);
+  const clearFilters = () => {
+    setProjectFilter("all");
+    setPriorityFilter("all");
+    setAssigneeFilter("all");
+    setSearchQuery("");
   };
 
-  const handleTaskUpdated = (updatedTask: TaskItem) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
-    );
-    setActiveTask(updatedTask);
-    showToast("Görev kaydedildi.");
+  const patchTask = useCallback((taskId: string, patch: Partial<TaskItem>) => {
+    setTasks((previous) => previous.map((task) => (task.id === taskId ? { ...task, ...patch } : task)));
+  }, []);
+
+  const notify = useCallback((message: string, tone: ToastTone = "success") => showToast(message, tone), [showToast]);
+
+  const handleStatusUpdate = async (taskId: string, newStatus: TaskStatus) => {
+    const previous = tasks.find((task) => task.id === taskId);
+    if (!previous || previous.status === newStatus) return;
+
+    patchTask(taskId, { status: newStatus });
+    const result = await updateTaskStatusAction(taskId, newStatus);
+    if (result.success) {
+      notify(t.tasks.toast.statusUpdated);
+    } else {
+      patchTask(taskId, { status: previous.status });
+      notify(result.error, "error");
+    }
   };
 
   const handleTaskDeleted = (taskId: string) => {
-    setTasks((prev) => prev.filter((t) => t.id !== taskId));
-    setActiveTask(null);
-    showToast("Görev silindi.");
+    setTasks((previous) => previous.filter((task) => task.id !== taskId));
+    setActiveTaskId(null);
+    notify(t.tasks.toast.deleted);
   };
 
   const handleTaskCreated = () => {
-    // In real app revalidatePath updates data; for smooth client UI we can trigger feedback
-    showToast("Yeni görev başarıyla oluşturuldu.");
-    window.location.reload();
+    setIsCreateOpen(false);
+    notify(t.tasks.toast.created);
   };
+
+  const selectClass = `${inputClass} cursor-pointer py-2 sm:w-auto`;
 
   return (
     <div className="space-y-6">
-      {/* Toast Feedback */}
-      {toastMsg && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-xs shadow-2xl border border-slate-700 animate-in fade-in slide-in-from-bottom-3">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span>{toastMsg}</span>
-        </div>
-      )}
+      <ToastRegion toast={toast} onDismiss={dismiss} dismissLabel={t.common.dismissToast} />
 
-      {/* Top Banner & Action */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+      {/* Header */}
+      <div className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 font-display">
-              IEC Görev Panosu
-            </h1>
-            <span className="text-xs font-mono font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-200">
-              {filteredTasks.length} Aktif Görev
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-xl font-bold text-slate-900">{t.tasks.heading}</h1>
+            <span className="rounded-full border border-brand-200 bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-700">
+              {t.tasks.countBadge(tasks.length)}
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Linear / Agile sprint prensipleriyle takım görevlerini, donanım adımlarını ve yazılım geliştirmelerini yönetin.
-          </p>
+          <p className="mt-1 max-w-2xl text-sm text-slate-500">{t.tasks.intro}</p>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* View switcher */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-medium border border-slate-200">
-            <button
-              onClick={() => setViewMode("kanban")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
-                viewMode === "kanban"
-                  ? "bg-white text-slate-900 shadow-xs font-semibold"
-                  : "text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              <Kanban className="w-3.5 h-3.5" />
-              <span>Kanban</span>
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
-                viewMode === "list"
-                  ? "bg-white text-slate-900 shadow-xs font-semibold"
-                  : "text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              <ListIcon className="w-3.5 h-3.5" />
-              <span>Liste</span>
-            </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <div
+            role="group"
+            aria-label={t.tasks.viewLabel}
+            className="flex items-center rounded-xl border border-slate-200 bg-slate-100 p-1 text-sm"
+          >
+            {(
+              [
+                { mode: "board", label: t.tasks.viewBoard, icon: Kanban },
+                { mode: "list", label: t.tasks.viewList, icon: ListIcon },
+              ] as const
+            ).map(({ mode, label, icon: Icon }) => (
+              <button
+                key={mode}
+                type="button"
+                aria-pressed={viewMode === mode}
+                onClick={() => changeView(mode)}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium transition-colors ${focusRing} ${
+                  viewMode === mode ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <Icon className="h-4 w-4" aria-hidden="true" />
+                <span>{label}</span>
+              </button>
+            ))}
           </div>
 
-          <button
-            onClick={() => setIsCreateOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-sm transition-all shadow-brand-600/20"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Yeni Görev</span>
+          <button type="button" onClick={() => setIsCreateOpen(true)} className={primaryButtonClass}>
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            <span>{t.tasks.newTask}</span>
           </button>
         </div>
       </div>
 
-      {/* Filter Controls Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
-        {/* Search */}
-        <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Görev ara (başlık, sorumlu, proje)..."
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-brand-600"
-          />
-        </div>
+      {/* Filters */}
+      {tasks.length > 0 && (
+        <section
+          aria-label={t.tasks.filtersLabel}
+          className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between"
+        >
+          <div className="relative w-full lg:max-w-sm">
+            <label htmlFor="task-search" className="sr-only">
+              {t.tasks.searchLabel}
+            </label>
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+              aria-hidden="true"
+            />
+            <input
+              id="task-search"
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder={t.tasks.searchPlaceholder}
+              className={`${inputClass} pl-9`}
+            />
+          </div>
 
-        {/* Dropdowns */}
-        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-          {/* Project Filter */}
-          <select
-            value={selectedProject}
-            onChange={(e) => setSelectedProject(e.target.value)}
-            className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-brand-600 font-medium cursor-pointer"
-          >
-            <option value="all">Tüm Projeler</option>
-            {projects.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.title}
-              </option>
-            ))}
-          </select>
-
-          {/* Priority Filter */}
-          <select
-            value={selectedPriority}
-            onChange={(e) =>
-              setSelectedPriority(e.target.value as TaskPriority | "all")
-            }
-            className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-brand-600 font-medium cursor-pointer"
-          >
-            <option value="all">Tüm Öncelikler</option>
-            <option value="urgent">Acil</option>
-            <option value="high">Yüksek</option>
-            <option value="medium">Orta</option>
-            <option value="low">Düşük</option>
-          </select>
-
-          {/* Assignee Filter */}
-          <select
-            value={selectedAssignee}
-            onChange={(e) => setSelectedAssignee(e.target.value)}
-            className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-brand-600 font-medium cursor-pointer"
-          >
-            <option value="all">Tüm Sorumlular</option>
-            {members.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </select>
-
-          {(selectedProject !== "all" ||
-            selectedPriority !== "all" ||
-            selectedAssignee !== "all" ||
-            searchQuery) && (
-            <button
-              onClick={() => {
-                setSelectedProject("all");
-                setSelectedPriority("all");
-                setSelectedAssignee("all");
-                setSearchQuery("");
-              }}
-              className="px-2 py-1.5 text-brand-600 hover:underline text-[11px] font-mono"
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+            <label htmlFor="task-filter-project" className="sr-only">
+              {t.tasks.filterProjectLabel}
+            </label>
+            <select
+              id="task-filter-project"
+              value={projectFilter}
+              onChange={(event) => setProjectFilter(event.target.value)}
+              className={selectClass}
             >
-              Filtreleri Temizle
-            </button>
-          )}
-        </div>
-      </div>
+              <option value="all">{t.tasks.allProjects}</option>
+              <option value="none">{t.common.noProject}</option>
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.title}
+                </option>
+              ))}
+            </select>
 
-      {/* Main View: Kanban or List */}
-      {viewMode === "kanban" ? (
+            <label htmlFor="task-filter-priority" className="sr-only">
+              {t.tasks.filterPriorityLabel}
+            </label>
+            <select
+              id="task-filter-priority"
+              value={priorityFilter}
+              onChange={(event) => setPriorityFilter(event.target.value as TaskPriority | "all")}
+              className={selectClass}
+            >
+              <option value="all">{t.tasks.allPriorities}</option>
+              {TASK_PRIORITIES.map((priority) => (
+                <option key={priority} value={priority}>
+                  {t.taskPriority[priority]}
+                </option>
+              ))}
+            </select>
+
+            <label htmlFor="task-filter-assignee" className="sr-only">
+              {t.tasks.filterAssigneeLabel}
+            </label>
+            <select
+              id="task-filter-assignee"
+              value={assigneeFilter}
+              onChange={(event) => setAssigneeFilter(event.target.value)}
+              className={selectClass}
+            >
+              <option value="all">{t.tasks.allAssignees}</option>
+              <option value="me">{t.tasks.assignedToMe}</option>
+              <option value="unassigned">{t.common.unassigned}</option>
+              {members.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.name}
+                </option>
+              ))}
+            </select>
+
+            {hasFilters && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className={`rounded-lg px-2 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50 ${focusRing}`}
+              >
+                {t.tasks.clearFilters}
+              </button>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Content */}
+      {tasks.length === 0 ? (
+        <EmptyState
+          icon={ClipboardList}
+          title={t.tasks.emptyTitle}
+          text={t.tasks.emptyText}
+          action={
+            <button type="button" onClick={() => setIsCreateOpen(true)} className={primaryButtonClass}>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              <span>{t.tasks.newTask}</span>
+            </button>
+          }
+        />
+      ) : filteredTasks.length === 0 ? (
+        <EmptyState
+          icon={SearchX}
+          title={t.tasks.noResultsTitle}
+          text={t.tasks.noResultsText}
+          action={
+            <button type="button" onClick={clearFilters} className={secondaryButtonClass}>
+              {t.tasks.clearFilters}
+            </button>
+          }
+        />
+      ) : viewMode === "board" ? (
         <TaskKanbanBoard
           tasks={filteredTasks}
-          onSelectTask={setActiveTask}
+          viewer={viewer}
+          onSelectTask={setActiveTaskId}
           onUpdateStatus={handleStatusUpdate}
         />
       ) : (
         <TaskListView
           tasks={filteredTasks}
-          onSelectTask={setActiveTask}
+          viewer={viewer}
+          onSelectTask={setActiveTaskId}
           onUpdateStatus={handleStatusUpdate}
         />
       )}
 
-      {/* Detail Slide-Over Drawer */}
-      <TaskDetailDrawer
-        task={activeTask}
-        onClose={() => setActiveTask(null)}
-        onTaskUpdated={handleTaskUpdated}
-        onTaskDeleted={handleTaskDeleted}
-        members={members}
-      />
+      {activeTask && (
+        <TaskDetailDrawer
+          key={activeTask.id}
+          task={activeTask}
+          viewer={viewer}
+          members={members}
+          onClose={() => setActiveTaskId(null)}
+          onTaskPatched={patchTask}
+          onTaskDeleted={handleTaskDeleted}
+          notify={notify}
+        />
+      )}
 
-      {/* Create Task Modal */}
-      <CreateTaskModal
-        isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        onTaskCreated={handleTaskCreated}
-        members={members}
-        projects={projects}
-      />
+      {isCreateOpen && (
+        <CreateTaskModal
+          onClose={() => setIsCreateOpen(false)}
+          onCreated={handleTaskCreated}
+          members={members}
+          projects={projects}
+          viewer={viewer}
+        />
+      )}
     </div>
   );
 }

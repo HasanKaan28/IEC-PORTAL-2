@@ -1,235 +1,243 @@
 "use client";
 
-import React, { useState } from "react";
-import { X, Plus, Calendar, AlertCircle } from "lucide-react";
-import { TaskPriority, TaskStatus } from "@/lib/tasks/task-types";
+import React, { useId, useState } from "react";
+import { Loader2, Plus, X } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { tasksProjectsText } from "@/lib/i18n/portal/tasks-projects";
+import { ROLE_LABELS } from "@/lib/rbac/permissions";
+import {
+  TASK_PRIORITIES,
+  type AssignableMember,
+  type TaskPriority,
+  type TaskProjectOption,
+  type TaskStatus,
+  type TaskViewer,
+} from "@/lib/tasks/task-types";
 import { createTaskAction } from "@/lib/tasks/task-actions";
+import { DialogFrame, FormError, iconButtonClass, inputClass, primaryButtonClass, secondaryButtonClass } from "./shared-ui";
 
 interface CreateTaskModalProps {
-  isOpen: boolean;
   onClose: () => void;
-  onTaskCreated: () => void;
-  members: Array<{ id: string; name: string; role: string }>;
-  projects: Array<{ id: string; title: string }>;
+  onCreated: () => void;
+  members: AssignableMember[];
+  projects: TaskProjectOption[];
+  viewer: TaskViewer;
 }
 
-export default function CreateTaskModal({
-  isOpen,
-  onClose,
-  onTaskCreated,
-  members,
-  projects,
-}: CreateTaskModalProps) {
+const TITLE_MAX = 200;
+const DESCRIPTION_MAX = 5000;
+
+export default function CreateTaskModal({ onClose, onCreated, members, projects, viewer }: CreateTaskModalProps) {
+  const { locale } = useLocale();
+  const t = tasksProjectsText[locale];
+  const ids = useId();
+
   const [title, setTitle] = useState("");
-  const [projectId, setProjectId] = useState(projects[0]?.id || "");
+  const [projectId, setProjectId] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<TaskPriority>("medium");
   const [status, setStatus] = useState<TaskStatus>("todo");
-  const [assigneeId, setAssigneeId] = useState("");
+  // Members without assignment rights usually create tasks for themselves.
+  const [assigneeId, setAssigneeId] = useState(viewer.canAssign ? "" : viewer.id);
   const [dueDate, setDueDate] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  if (!isOpen) return null;
+  const self = members.find((member) => member.id === viewer.id);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim()) {
-      setErrorMsg("Lütfen görev başlığı giriniz.");
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const trimmedTitle = title.trim();
+    if (trimmedTitle.length < 3) {
+      setErrorMessage(t.errors.taskTitleMin);
       return;
     }
 
     setIsSubmitting(true);
-    setErrorMsg(null);
-
-    const res = await createTaskAction({
-      projectId: projectId || undefined,
-      title,
-      description,
+    setErrorMessage(null);
+    const result = await createTaskAction({
+      title: trimmedTitle,
+      description: description.trim(),
+      projectId: projectId || null,
+      assigneeId: assigneeId || null,
       priority,
       status,
-      assigneeId: assigneeId || undefined,
-      dueDate: dueDate || undefined,
+      dueDate: dueDate || null,
     });
-
     setIsSubmitting(false);
 
-    if (res.success) {
-      onTaskCreated();
-      onClose();
-      // Reset form
-      setTitle("");
-      setDescription("");
-      setDueDate("");
-    } else {
-      setErrorMsg(res.error || "Görev oluşturulamadı.");
-    }
+    if (result.success) onCreated();
+    else setErrorMessage(result.error);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        {/* Modal Header */}
-        <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-brand-50 border border-brand-200 text-brand-600 flex items-center justify-center">
-              <Plus className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 font-display">
-                Yeni Görev Oluştur & Ata
-              </h3>
-              <p className="text-[11px] text-slate-500">
-                Projeye ait sprint görevini tanımlayın ve bir üyeye atayın.
-              </p>
-            </div>
-          </div>
+  const titleId = `${ids}-heading`;
+  const labelClass = "mb-1 block text-xs font-semibold text-slate-700";
 
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+  return (
+    <DialogFrame onClose={onClose} labelledBy={titleId}>
+      <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-slate-50/60 p-5">
+        <div className="flex items-start gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-brand-200 bg-brand-50 text-brand-600">
+            <Plus className="h-4 w-4" aria-hidden="true" />
+          </span>
+          <div>
+            <h2 id={titleId} className="font-display text-base font-bold text-slate-900">
+              {t.createTask.heading}
+            </h2>
+            <p className="mt-0.5 text-sm text-slate-500">{t.createTask.intro}</p>
+          </div>
+        </div>
+        <button type="button" onClick={onClose} aria-label={t.common.closeDialog} className={iconButtonClass}>
+          <X className="h-5 w-5" aria-hidden="true" />
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4 p-5" noValidate>
+        <FormError message={errorMessage} />
+
+        <div>
+          <label htmlFor={`${ids}-title`} className={labelClass}>
+            {t.createTask.titleLabel} <span className="font-normal text-slate-500">({t.common.required})</span>
+          </label>
+          <input
+            id={`${ids}-title`}
+            data-autofocus
+            type="text"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            placeholder={t.createTask.titlePlaceholder}
+            maxLength={TITLE_MAX}
+            required
+            aria-required="true"
+            className={inputClass}
+          />
         </div>
 
-        {/* Modal Form */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
-          {errorMsg && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label htmlFor={`${ids}-project`} className={labelClass}>
+              {t.createTask.projectLabel}
+            </label>
+            <select
+              id={`${ids}-project`}
+              value={projectId}
+              onChange={(event) => setProjectId(event.target.value)}
+              className={`${inputClass} cursor-pointer`}
+            >
+              <option value="">{t.common.noProject}</option>
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.title}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">
-              Görev Başlığı *
+            <label htmlFor={`${ids}-assignee`} className={labelClass}>
+              {t.createTask.assigneeLabel}
+            </label>
+            <select
+              id={`${ids}-assignee`}
+              value={assigneeId}
+              onChange={(event) => setAssigneeId(event.target.value)}
+              aria-describedby={viewer.canAssign ? undefined : `${ids}-assign-hint`}
+              className={`${inputClass} cursor-pointer`}
+            >
+              <option value="">{t.common.unassigned}</option>
+              {viewer.canAssign ? (
+                members.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.id === viewer.id
+                      ? `${member.name} (${t.common.you})`
+                      : `${member.name} (${ROLE_LABELS[member.role][locale]})`}
+                  </option>
+                ))
+              ) : (
+                <option value={viewer.id}>{self ? `${self.name} (${t.common.you})` : t.createTask.assignToMe}</option>
+              )}
+            </select>
+            {!viewer.canAssign && (
+              <p id={`${ids}-assign-hint`} className="mt-1 text-xs text-slate-500">
+                {t.createTask.assignHint}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div>
+            <label htmlFor={`${ids}-priority`} className={labelClass}>
+              {t.createTask.priorityLabel}
+            </label>
+            <select
+              id={`${ids}-priority`}
+              value={priority}
+              onChange={(event) => setPriority(event.target.value as TaskPriority)}
+              className={`${inputClass} cursor-pointer`}
+            >
+              {TASK_PRIORITIES.map((value) => (
+                <option key={value} value={value}>
+                  {t.taskPriority[value]}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor={`${ids}-status`} className={labelClass}>
+              {t.createTask.statusLabel}
+            </label>
+            <select
+              id={`${ids}-status`}
+              value={status}
+              onChange={(event) => setStatus(event.target.value as TaskStatus)}
+              className={`${inputClass} cursor-pointer`}
+            >
+              <option value="todo">{t.taskStatus.todo}</option>
+              <option value="in_progress">{t.taskStatus.in_progress}</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor={`${ids}-due`} className={labelClass}>
+              {t.createTask.dueDateLabel}
             </label>
             <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Örn: SPI Bus çakışmasını çöz ve FreeRTOS task oluştur"
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600"
-              required
+              id={`${ids}-due`}
+              type="date"
+              value={dueDate}
+              onChange={(event) => setDueDate(event.target.value)}
+              className={inputClass}
             />
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">
-                İlgili Proje
-              </label>
-              <select
-                value={projectId}
-                onChange={(e) => setProjectId(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 bg-white"
-              >
-                {projects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.title}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <div>
+          <label htmlFor={`${ids}-description`} className={labelClass}>
+            {t.createTask.descriptionLabel} <span className="font-normal text-slate-500">({t.common.optional})</span>
+          </label>
+          <textarea
+            id={`${ids}-description`}
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            placeholder={t.createTask.descriptionPlaceholder}
+            rows={4}
+            maxLength={DESCRIPTION_MAX}
+            className={`${inputClass} resize-y`}
+          />
+        </div>
 
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">
-                Görevli / Atanan Üye
-              </label>
-              <select
-                value={assigneeId}
-                onChange={(e) => setAssigneeId(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 bg-white"
-              >
-                <option value="">Atanmamış</option>
-                {members.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name} ({m.role})
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">
-                Öncelik Seviyesi
-              </label>
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value as TaskPriority)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 bg-white"
-              >
-                <option value="urgent">Acil</option>
-                <option value="high">Yüksek</option>
-                <option value="medium">Orta</option>
-                <option value="low">Düşük</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">
-                Aşama
-              </label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as TaskStatus)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 bg-white"
-              >
-                <option value="todo">Yapılacak</option>
-                <option value="in_progress">Devam Ediyor</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">
-                Teslim Tarihi
-              </label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 bg-white font-mono"
-              >
-              </input>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">
-              Açıklama & Notlar
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Gereksinimler, dikkat edilmesi gereken kütüphaneler veya test adımları..."
-              rows={3}
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 resize-none"
-            />
-          </div>
-
-          {/* Modal Footer */}
-          <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-100 transition-colors"
-            >
-              İptal
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
-            >
-              {isSubmitting ? "Oluşturuluyor..." : "Görevi Kaydet"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="flex items-center justify-end gap-2 border-t border-slate-200 pt-4">
+          <button type="button" onClick={onClose} className={secondaryButtonClass}>
+            {t.common.cancel}
+          </button>
+          <button type="submit" disabled={isSubmitting} className={primaryButtonClass}>
+            {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+            <span>{isSubmitting ? t.createTask.submitting : t.createTask.submit}</span>
+          </button>
+        </div>
+      </form>
+    </DialogFrame>
   );
 }

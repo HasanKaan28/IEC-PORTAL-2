@@ -1,180 +1,225 @@
 "use client";
 
-import React, { useState } from "react";
-import { X, Check, XCircle, Clock, FolderGit2, User, CheckCircle2 } from "lucide-react";
-import { ProjectJoinRequestItem } from "@/lib/projects/project-types";
+import React, { useId, useState } from "react";
+import { Check, Inbox, Loader2, X, XCircle } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { formatDate } from "@/lib/i18n/format";
+import { tasksProjectsText } from "@/lib/i18n/portal/tasks-projects";
+import type { JoinRequestStatus, ProjectJoinRequestItem, ProjectViewer } from "@/lib/projects/project-types";
 import { reviewProjectJoinRequestAction } from "@/lib/projects/project-actions";
+import {
+  DialogFrame,
+  EmptyState,
+  UserAvatar,
+  focusRing,
+  iconButtonClass,
+  inputClass,
+  secondaryButtonClass,
+  type ToastTone,
+} from "@/components/portal/tasks/shared-ui";
 
 interface ProjectJoinRequestsDrawerProps {
-  isOpen: boolean;
-  onClose: () => void;
   requests: ProjectJoinRequestItem[];
-  onRequestReviewed: (requestId: string, newStatus: "approved" | "rejected") => void;
+  viewer: ProjectViewer;
+  onClose: () => void;
+  onReviewed: (requestId: string, status: Exclude<JoinRequestStatus, "pending">, note: string) => void;
+  notify: (message: string, tone?: ToastTone) => void;
 }
 
+const NOTE_MAX = 500;
+
+const STATUS_BADGE: Record<JoinRequestStatus, string> = {
+  pending: "border-accent-200 bg-accent-50 text-accent-800",
+  approved: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  rejected: "border-rose-200 bg-rose-50 text-rose-700",
+};
+
 export default function ProjectJoinRequestsDrawer({
-  isOpen,
-  onClose,
   requests,
-  onRequestReviewed,
+  viewer,
+  onClose,
+  onReviewed,
+  notify,
 }: ProjectJoinRequestsDrawerProps) {
-  const [filter, setFilter] = useState<"all" | "pending">("pending");
-  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const { locale } = useLocale();
+  const t = tasksProjectsText[locale];
+  const ids = useId();
+  const titleId = `${ids}-heading`;
 
-  if (!isOpen) return null;
+  const [filter, setFilter] = useState<"pending" | "all">("pending");
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [notes, setNotes] = useState<Record<string, string>>({});
 
-  const filteredRequests =
-    filter === "pending"
-      ? requests.filter((r) => r.status === "pending")
-      : requests;
+  const pendingCount = requests.filter((request) => request.status === "pending").length;
+  const visible = filter === "pending" ? requests.filter((request) => request.status === "pending") : requests;
 
-  const handleReview = async (id: string, status: "approved" | "rejected") => {
-    setLoadingId(id);
-    await reviewProjectJoinRequestAction(id, status);
-    setLoadingId(null);
-    onRequestReviewed(id, status);
+  const handleReview = async (request: ProjectJoinRequestItem, status: Exclude<JoinRequestStatus, "pending">) => {
+    const note = (notes[request.id] ?? "").trim();
+    setBusyId(request.id);
+    const result = await reviewProjectJoinRequestAction(request.id, status, note || undefined);
+    setBusyId(null);
+    if (result.success) onReviewed(request.id, status, note);
+    else notify(result.error, "error");
   };
 
+  const tabClass = (active: boolean) =>
+    `rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${focusRing} ${
+      active ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
+    }`;
+
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/40 backdrop-blur-xs flex justify-end animate-in fade-in">
-      <div className="w-full max-w-xl bg-white h-full shadow-2xl flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-200 border-l border-slate-200">
-        {/* Header */}
-        <div className="p-6 border-b border-slate-200 bg-slate-50/50 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <FolderGit2 className="w-5 h-5 text-brand-600" />
-              <h2 className="text-base font-bold text-slate-900 font-display">
-                Proje Katılım Başvuruları
-              </h2>
-            </div>
-
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
+    <DialogFrame onClose={onClose} labelledBy={titleId} variant="drawer">
+      <div className="space-y-3 border-b border-slate-200 bg-slate-50/60 p-6">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Inbox className="h-5 w-5 text-brand-600" aria-hidden="true" />
+            <h2 id={titleId} className="font-display text-lg font-bold text-slate-900">
+              {t.requestsDrawer.heading}
+            </h2>
           </div>
-
-          <div className="flex items-center justify-between pt-1">
-            <p className="text-xs text-slate-500">
-              Projelerinizde çalışmak isteyen öğrencilerin motivasyon mektuplarını değerlendirin.
-            </p>
-
-            <div className="flex items-center bg-slate-200/80 p-0.5 rounded-lg text-[11px] font-medium">
-              <button
-                onClick={() => setFilter("pending")}
-                className={`px-2.5 py-1 rounded-md transition-all ${
-                  filter === "pending"
-                    ? "bg-white text-slate-900 shadow-2xs font-semibold"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                Bekleyenler ({requests.filter((r) => r.status === "pending").length})
-              </button>
-              <button
-                onClick={() => setFilter("all")}
-                className={`px-2.5 py-1 rounded-md transition-all ${
-                  filter === "all"
-                    ? "bg-white text-slate-900 shadow-2xs font-semibold"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                Tümü ({requests.length})
-              </button>
-            </div>
-          </div>
+          <button type="button" onClick={onClose} aria-label={t.common.closePanel} className={iconButtonClass}>
+            <X className="h-5 w-5" aria-hidden="true" />
+          </button>
         </div>
-
-        {/* Requests List */}
-        <div className="p-6 flex-1 space-y-4 overflow-y-auto">
-          {filteredRequests.length === 0 ? (
-            <div className="py-16 text-center text-slate-400 text-xs font-mono">
-              {filter === "pending"
-                ? "Bekleyen herhangi bir katılım başvurusu bulunmuyor."
-                : "Başvuru kaydı bulunamadı."}
-            </div>
-          ) : (
-            filteredRequests.map((req) => (
-              <div
-                key={req.id}
-                className={`p-4 rounded-xl border space-y-3 transition-colors ${
-                  req.status === "pending"
-                    ? "bg-white border-slate-200 shadow-xs"
-                    : req.status === "approved"
-                    ? "bg-emerald-50/40 border-emerald-200"
-                    : "bg-rose-50/40 border-rose-200"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-brand-50 text-brand-700 font-semibold border border-brand-200">
-                      {req.projectTitle}
-                    </span>
-                    <h4 className="text-xs font-bold text-slate-900 mt-1.5">
-                      {req.userName}
-                    </h4>
-                    <div className="text-[11px] text-slate-500 font-mono">
-                      {req.userDepartment} • {req.classYear}
-                    </div>
-                  </div>
-
-                  <span
-                    className={`text-[10px] font-mono px-2 py-0.5 rounded font-medium ${
-                      req.status === "approved"
-                        ? "bg-emerald-100 text-emerald-800"
-                        : req.status === "rejected"
-                        ? "bg-rose-100 text-rose-800"
-                        : "bg-amber-100 text-amber-800"
-                    }`}
-                  >
-                    {req.status === "approved"
-                      ? "Kabul Edildi"
-                      : req.status === "rejected"
-                      ? "Reddedildi"
-                      : "İnceleniyor"}
-                  </span>
-                </div>
-
-                <p className="text-xs text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-100 leading-relaxed italic">
-                  "{req.message}"
-                </p>
-
-                {req.status === "pending" && (
-                  <div className="pt-2 flex items-center justify-end gap-2">
-                    <button
-                      onClick={() => handleReview(req.id, "rejected")}
-                      disabled={loadingId === req.id}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-rose-700 hover:bg-rose-50 text-xs font-medium transition-colors disabled:opacity-50"
-                    >
-                      <XCircle className="w-3.5 h-3.5" />
-                      <span>Reddet</span>
-                    </button>
-                    <button
-                      onClick={() => handleReview(req.id, "approved")}
-                      disabled={loadingId === req.id}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors disabled:opacity-50"
-                    >
-                      <Check className="w-3.5 h-3.5" />
-                      <span>{loadingId === req.id ? "İşleniyor..." : "Takıma Kabul Et"}</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end">
+        <p className="text-sm text-slate-500">
+          {viewer.canReviewAll ? t.requestsDrawer.introAll : t.requestsDrawer.intro}
+        </p>
+        <div
+          role="group"
+          aria-label={t.requestsDrawer.filterLabel}
+          className="inline-flex items-center rounded-xl bg-slate-200/70 p-1"
+        >
           <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs font-medium hover:bg-slate-50 transition-colors"
+            type="button"
+            aria-pressed={filter === "pending"}
+            onClick={() => setFilter("pending")}
+            className={tabClass(filter === "pending")}
           >
-            Kapat
+            {t.requestsDrawer.pendingTab(pendingCount)}
+          </button>
+          <button
+            type="button"
+            aria-pressed={filter === "all"}
+            onClick={() => setFilter("all")}
+            className={tabClass(filter === "all")}
+          >
+            {t.requestsDrawer.allTab(requests.length)}
           </button>
         </div>
       </div>
-    </div>
+
+      <div className="flex-1 overflow-y-auto p-6">
+        {visible.length === 0 ? (
+          <EmptyState
+            icon={Inbox}
+            title={filter === "pending" ? t.requestsDrawer.emptyPending : t.requestsDrawer.emptyAll}
+            compact
+          />
+        ) : (
+          <ul className="space-y-4">
+            {visible.map((request) => {
+              const busy = busyId === request.id;
+              const noteId = `${ids}-note-${request.id}`;
+              const applicant = request.userName || "-";
+              return (
+                <li key={request.id} className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-start gap-3">
+                      <UserAvatar name={request.userName} src={request.userAvatar} size="md" />
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-slate-900">{applicant}</p>
+                        <p className="truncate text-xs text-slate-500">
+                          {[request.userDepartment || t.requestsDrawer.noDepartment, request.classYear]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </p>
+                        <p className="mt-1 truncate text-xs font-medium text-brand-700">{request.projectTitle}</p>
+                      </div>
+                    </div>
+                    <span
+                      className={`shrink-0 rounded-md border px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[request.status]}`}
+                    >
+                      {t.requestStatus[request.status]}
+                    </span>
+                  </div>
+
+                  {request.message && (
+                    <blockquote className="whitespace-pre-wrap rounded-xl border border-slate-100 bg-slate-50 p-3 text-sm leading-relaxed text-slate-700">
+                      {request.message}
+                    </blockquote>
+                  )}
+
+                  <p className="text-xs text-slate-500">
+                    <time dateTime={request.createdAt}>
+                      {t.requestsDrawer.appliedOn(formatDate(request.createdAt, locale))}
+                    </time>
+                  </p>
+
+                  {request.status !== "pending" && request.reviewerNote && (
+                    <p className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-sm text-slate-600">
+                      <span className="font-semibold text-slate-700">{t.requestsDrawer.reviewerNote}: </span>
+                      {request.reviewerNote}
+                    </p>
+                  )}
+
+                  {request.status === "pending" && (
+                    <div className="space-y-3 border-t border-slate-100 pt-3">
+                      <div>
+                        <label htmlFor={noteId} className="mb-1 block text-xs font-semibold text-slate-600">
+                          {t.requestsDrawer.noteLabel}{" "}
+                          <span className="font-normal text-slate-500">({t.common.optional})</span>
+                        </label>
+                        <input
+                          id={noteId}
+                          type="text"
+                          value={notes[request.id] ?? ""}
+                          onChange={(event) => setNotes((previous) => ({ ...previous, [request.id]: event.target.value }))}
+                          placeholder={t.requestsDrawer.notePlaceholder}
+                          maxLength={NOTE_MAX}
+                          disabled={busy}
+                          className={inputClass}
+                        />
+                      </div>
+                      <div className="flex flex-wrap items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleReview(request, "rejected")}
+                          disabled={busy}
+                          aria-label={t.requestsDrawer.rejectAria(applicant)}
+                          className={`inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-rose-50 hover:text-rose-700 disabled:opacity-60 ${focusRing}`}
+                        >
+                          <XCircle className="h-4 w-4" aria-hidden="true" />
+                          <span>{t.requestsDrawer.reject}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleReview(request, "approved")}
+                          disabled={busy}
+                          aria-label={t.requestsDrawer.approveAria(applicant)}
+                          className={`inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-1.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:opacity-60 ${focusRing}`}
+                        >
+                          {busy ? (
+                            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                          ) : (
+                            <Check className="h-4 w-4" aria-hidden="true" />
+                          )}
+                          <span>{busy ? t.requestsDrawer.processing : t.requestsDrawer.approve}</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+
+      <div className="flex items-center justify-end border-t border-slate-200 bg-slate-50 p-4">
+        <button type="button" onClick={onClose} className={secondaryButtonClass}>
+          {t.common.close}
+        </button>
+      </div>
+    </DialogFrame>
   );
 }

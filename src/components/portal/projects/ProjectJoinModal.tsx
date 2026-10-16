@@ -1,139 +1,129 @@
 "use client";
 
-import React, { useState } from "react";
-import { X, Send, AlertCircle, FolderGit2 } from "lucide-react";
-import { PortalProjectItem } from "@/lib/projects/project-types";
+import React, { useId, useState } from "react";
+import { FolderGit2, Loader2, Send, X } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { tasksProjectsText } from "@/lib/i18n/portal/tasks-projects";
+import type { PortalProjectItem } from "@/lib/projects/project-types";
 import { requestJoinProjectAction } from "@/lib/projects/project-actions";
+import {
+  DialogFrame,
+  FormError,
+  iconButtonClass,
+  inputClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+} from "@/components/portal/tasks/shared-ui";
 
 interface ProjectJoinModalProps {
-  project: PortalProjectItem | null;
-  isOpen: boolean;
+  project: PortalProjectItem;
   onClose: () => void;
   onSuccess: (projectId: string) => void;
 }
 
-export default function ProjectJoinModal({
-  project,
-  isOpen,
-  onClose,
-  onSuccess,
-}: ProjectJoinModalProps) {
+const MESSAGE_MIN = 10;
+const MESSAGE_MAX = 1000;
+
+export default function ProjectJoinModal({ project, onClose, onSuccess }: ProjectJoinModalProps) {
+  const { locale } = useLocale();
+  const t = tasksProjectsText[locale];
+  const ids = useId();
+
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  if (!isOpen || !project) return null;
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!message.trim() || message.trim().length < 5) {
-      setErrorMsg("Lütfen en az 5 karakterlik bir motivasyon mesajı yazınız.");
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const trimmed = message.trim();
+    if (trimmed.length < MESSAGE_MIN) {
+      setErrorMessage(t.errors.joinMessageMin);
       return;
     }
 
     setIsSubmitting(true);
-    setErrorMsg(null);
-
-    const res = await requestJoinProjectAction(project.id, message);
+    setErrorMessage(null);
+    const result = await requestJoinProjectAction(project.id, trimmed);
     setIsSubmitting(false);
 
-    if (res.success) {
-      onSuccess(project.id);
-      onClose();
-      setMessage("");
-    } else {
-      setErrorMsg(res.error || "Başvuru iletilemedi.");
-    }
+    if (result.success) onSuccess(project.id);
+    else setErrorMessage(result.error);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        {/* Header */}
-        <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-brand-50 border border-brand-200 text-brand-600 flex items-center justify-center">
-              <FolderGit2 className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 font-display">
-                Projeye Katılma Başvurusu
-              </h3>
-              <p className="text-[11px] text-slate-500 truncate max-w-[280px]">
-                {project.title}
-              </p>
-            </div>
-          </div>
+  const titleId = `${ids}-heading`;
 
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+  return (
+    <DialogFrame onClose={onClose} labelledBy={titleId}>
+      <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-slate-50/60 p-5">
+        <div className="flex min-w-0 items-start gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-brand-200 bg-brand-50 text-brand-600">
+            <FolderGit2 className="h-4 w-4" aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <h2 id={titleId} className="font-display text-base font-bold text-slate-900">
+              {t.joinModal.heading}
+            </h2>
+            <p className="mt-0.5 truncate text-sm text-slate-500">{project.title}</p>
+          </div>
+        </div>
+        <button type="button" onClick={onClose} aria-label={t.common.closeDialog} className={iconButtonClass}>
+          <X className="h-5 w-5" aria-hidden="true" />
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4 p-5" noValidate>
+        <FormError message={errorMessage} />
+
+        <dl className="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3.5 text-sm sm:grid-cols-2">
+          <div className="min-w-0">
+            <dt className="text-xs text-slate-500">{t.joinModal.leadLabel}</dt>
+            <dd className="truncate font-medium text-slate-800">{project.leadName || t.projects.noLead}</dd>
+          </div>
+          <div className="min-w-0">
+            <dt className="text-xs text-slate-500">{t.joinModal.categoryLabel}</dt>
+            <dd className="truncate font-medium text-slate-800">{project.category}</dd>
+          </div>
+        </dl>
+
+        <div>
+          <label htmlFor={`${ids}-message`} className="mb-1 block text-xs font-semibold text-slate-700">
+            {t.joinModal.messageLabel} <span className="font-normal text-slate-500">({t.common.required})</span>
+          </label>
+          <p id={`${ids}-hint`} className="mb-2 text-xs text-slate-500">
+            {t.joinModal.messageHint}
+          </p>
+          <textarea
+            id={`${ids}-message`}
+            data-autofocus
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            placeholder={t.joinModal.messagePlaceholder}
+            rows={5}
+            maxLength={MESSAGE_MAX}
+            required
+            aria-required="true"
+            aria-describedby={`${ids}-hint ${ids}-count`}
+            className={`${inputClass} resize-y leading-relaxed`}
+          />
+          <p id={`${ids}-count`} className="mt-1 text-right text-xs text-slate-500">
+            {t.common.characterCount(message.length, MESSAGE_MAX)}
+          </p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4 text-xs">
-          {errorMsg && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
-
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5">
-            <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
-              <span>Proje Lideri: <strong className="text-slate-800">{project.leadName}</strong></span>
-              <span className="text-brand-600 bg-brand-50 px-2 py-0.5 rounded font-semibold">{project.category}</span>
-            </div>
-            {project.openPositions.length > 0 && (
-              <div className="pt-1">
-                <span className="text-[10px] text-slate-400 font-mono block mb-1">ARANAN ROLLER:</span>
-                <div className="flex flex-wrap gap-1">
-                  {project.openPositions.map((pos) => (
-                    <span key={pos} className="px-2 py-0.5 rounded bg-white text-slate-700 border border-slate-200 text-[10px]">
-                      {pos}
-                    </span>
-                  ))}
-                </div>
-              </div>
+        <div className="flex items-center justify-end gap-2 border-t border-slate-200 pt-4">
+          <button type="button" onClick={onClose} className={secondaryButtonClass}>
+            {t.common.cancel}
+          </button>
+          <button type="submit" disabled={isSubmitting || message.trim().length === 0} className={primaryButtonClass}>
+            {isSubmitting ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <Send className="h-4 w-4" aria-hidden="true" />
             )}
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1.5">
-              Kendinizi ve Projeye Neler Katabileceğinizi Anlatın *
-            </label>
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Örn: C++ ve FreeRTOS deneyimim var, SPI bus hattı optimizasyonu ve devre kartı testlerinde haftalık 6 saat aktif çalışabilirim..."
-              rows={4}
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 resize-none leading-relaxed"
-              required
-            />
-          </div>
-
-          <div className="pt-2 border-t border-slate-200 flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-100 transition-colors"
-            >
-              Vazgeç
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting || !message.trim()}
-              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
-            >
-              <Send className="w-3.5 h-3.5" />
-              <span>{isSubmitting ? "İletiliyor..." : "Başvuruyu Gönder"}</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+            <span>{isSubmitting ? t.joinModal.submitting : t.joinModal.submit}</span>
+          </button>
+        </div>
+      </form>
+    </DialogFrame>
   );
 }

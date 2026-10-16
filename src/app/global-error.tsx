@@ -2,28 +2,25 @@
 
 import React from "react";
 
-export default function GlobalError({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+/** Replaces the root layout, so there is no locale provider here: both languages are shown. */
+export default function GlobalError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <html lang="tr">
-      <body className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-6 font-sans">
-        <div className="max-w-md w-full text-center space-y-4">
-          <h1 className="text-4xl font-bold font-mono text-rose-400">Kritik Sistem Hatası</h1>
-          <p className="text-sm text-slate-400">
-            Kök katmanda beklenmeyen bir sorun meydana geldi. Lütfen sayfayı yenilemeyi deneyin.
+      <body style={{ margin: 0, minHeight: "100vh", background: "#0c0810", color: "#fff", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+        <main style={{ maxWidth: 420, textAlign: "center" }}>
+          <h1 style={{ fontSize: 24, margin: "0 0 8px" }}>Bir şeyler ters gitti</h1>
+          <p lang="en" style={{ fontSize: 16, margin: "0 0 16px", color: "#a99fb4" }}>Something went wrong</p>
+          <p style={{ fontSize: 14, color: "#a99fb4", lineHeight: 1.6 }}>
+            Sayfayı yenilemeyi dene. / Please try reloading the page.
           </p>
           <button
+            type="button"
             onClick={() => reset()}
-            className="px-5 py-2.5 rounded-xl bg-brand-600 text-white text-xs font-semibold hover:bg-brand-500 transition-colors"
+            style={{ marginTop: 16, padding: "10px 20px", borderRadius: 12, border: 0, background: "#b8237f", color: "#fff", fontSize: 14, fontWeight: 600, cursor: "pointer" }}
           >
-            Sistemi Yeniden Başlat
+            Tekrar dene / Try again
           </button>
-        </div>
+        </main>
       </body>
     </html>
   );

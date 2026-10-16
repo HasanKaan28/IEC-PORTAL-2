@@ -1,32 +1,26 @@
 import React, { Suspense } from "react";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import CertificateVerificationClient from "@/components/public/CertificateVerificationClient";
+import { getServerLocale } from "@/lib/i18n/server";
+import { publicPagesText } from "@/lib/i18n/public/pages";
 
-export const metadata: Metadata = {
-  title: "Sertifika Doğrulama",
-  description:
-    "IUS Engineering Club'ın verdiği etkinlik, atölye ve hackathon sertifikalarını doğrulayın.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = publicPagesText[await getServerLocale()].verify;
+  return { title: t.metaTitle, description: t.metaDescription };
+}
 
-export default function CertificateVerificationPage() {
+export default async function CertificateVerificationPage() {
+  const t = publicPagesText[await getServerLocale()].verify;
   return (
-    <div className="flex flex-col min-h-screen bg-ink-950">
+    <div className="flex min-h-screen flex-col">
       <Navbar />
-
-      <main className="flex-1 py-16 px-4 sm:px-6">
-        <Suspense
-          fallback={
-            <div className="text-center py-20 text-slate-400 font-mono text-xs">
-              Doğrulama portalı yükleniyor...
-            </div>
-          }
-        >
+      <main id="main-content" className="flex-1 px-4 py-16 sm:px-6">
+        <Suspense fallback={<p className="py-20 text-center text-sm text-slate-400">{t.loading}</p>}>
           <CertificateVerificationClient />
         </Suspense>
       </main>
-
       <Footer />
     </div>
   );

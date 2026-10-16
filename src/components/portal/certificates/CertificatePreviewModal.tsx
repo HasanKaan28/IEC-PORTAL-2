@@ -1,227 +1,159 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  X,
-  Download,
-  Share2,
-  Check,
-  Copy,
-  ExternalLink,
-  Award,
-  ShieldCheck,
-  QrCode,
-} from "lucide-react";
-import { CertificateItem } from "@/lib/events/event-types";
+import React, { useEffect, useRef, useState } from "react";
+import { Award, Check, Copy, Download, ExternalLink, Share2 } from "lucide-react";
 import ClubLogo from "@/components/shared/ClubLogo";
-import { generateLinkedInCertUrl } from "@/lib/certificates/certificate-pdf";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { formatDate } from "@/lib/i18n/format";
+import { eventsHackathonsText } from "@/lib/i18n/portal/events-hackathons";
+import type { CertificateItem } from "@/lib/events/event-types";
+import { generateLinkedInCertUrl } from "@/lib/certificates/linkedin";
+import PortalDialog from "@/components/portal/events/PortalDialog";
+import { linkedInButton, primaryButton, secondaryButton } from "@/components/portal/events/styles";
 
 interface CertificatePreviewModalProps {
-  cert: CertificateItem | null;
-  isOpen: boolean;
+  cert: CertificateItem;
   onClose: () => void;
 }
 
-export default function CertificatePreviewModal({
-  cert,
-  isOpen,
-  onClose,
-}: CertificatePreviewModalProps) {
-  const [copied, setCopied] = useState(false);
+/**
+ * On-screen preview of the certificate. The certificate wording mirrors the official English PDF;
+ * the labels around it follow the portal language.
+ */
+export default function CertificatePreviewModal({ cert, onClose }: CertificatePreviewModalProps) {
+  const { locale } = useLocale();
+  const t = eventsHackathonsText[locale];
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+  const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  if (!isOpen || !cert) return null;
+  useEffect(() => () => {
+    if (resetTimer.current) clearTimeout(resetTimer.current);
+  }, []);
 
-  const linkedInUrl = generateLinkedInCertUrl(cert);
-  const verifyUrl = cert.verifyUrl || `http://localhost:3000/dogrula?code=${cert.certificateCode}`;
+  const pdfUrl = `/api/certificates/${encodeURIComponent(cert.certificateCode)}/pdf`;
+  const verifyPath = `/dogrula?code=${encodeURIComponent(cert.certificateCode)}`;
+  const issueDate = formatDate(`${cert.issueDate}T00:00:00Z`, locale, {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 
-  const copyVerifyLink = () => {
-    navigator.clipboard.writeText(verifyUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
+  const copyVerifyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(cert.verifyUrl);
+      setCopyState("copied");
+    } catch {
+      setCopyState("failed");
+    }
+    if (resetTimer.current) clearTimeout(resetTimer.current);
+    resetTimer.current = setTimeout(() => setCopyState("idle"), 2500);
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-4xl w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[92vh]">
-        {/* Modal Top Bar */}
-        <div className="p-4 sm:px-6 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center">
-              <Award className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 font-display">
-                Resmi Başarı Sertifikası Önizleme
-              </h3>
-              <p className="text-[11px] text-slate-500 font-mono">
-                KOD: {cert.certificateCode}
-              </p>
-            </div>
-          </div>
+    <PortalDialog
+      title={t.preview.title}
+      description={t.preview.code(cert.certificateCode)}
+      icon={<Award className="h-4 w-4" />}
+      closeLabel={t.common.closeDialog}
+      onClose={onClose}
+      size="4xl"
+    >
+      <div className="flex max-h-[75vh] flex-col">
+        <div className="flex-1 overflow-y-auto bg-slate-100 p-4 sm:p-8">
+          <p className="mb-3 text-center text-xs text-slate-500">{t.preview.englishNote}</p>
+          <div className="relative mx-auto w-full max-w-3xl space-y-6 rounded-2xl border-4 border-slate-900 bg-white p-6 text-center shadow-xl sm:p-10">
+            <div className="pointer-events-none absolute inset-2.5 rounded-xl border-2 border-accent-500/60" aria-hidden="true" />
 
-          <div className="flex items-center gap-2">
-            <a
-              href={`/api/certificates/${cert.certificateCode}/pdf`}
-              target="_blank"
-              download
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>PDF İndir</span>
-            </a>
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Certificate Visual Presentation Frame */}
-        <div className="p-4 sm:p-8 overflow-y-auto flex-1 bg-slate-100/60 flex items-center justify-center">
-          <div className="w-full max-w-3xl bg-white rounded-2xl border-4 border-slate-900 p-6 sm:p-10 shadow-2xl relative text-center space-y-6">
-            {/* Inner Gold Border */}
-            <div className="absolute inset-2.5 border-2 border-amber-500/60 rounded-xl pointer-events-none" />
-
-            {/* Header */}
             <div className="space-y-1">
-              <p className="text-[10px] font-mono font-bold tracking-widest text-slate-500 uppercase">
-                INTERNATIONAL UNIVERSITY OF SARAJEVO • FENS
+              <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">
+                International University of Sarajevo · FENS
               </p>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 font-display tracking-tight">
-                IUS ENGINEERING CLUB
-              </h2>
-              <div className="pt-2">
-                <span className="text-xs sm:text-sm font-serif font-bold text-amber-700 uppercase tracking-widest border-b border-amber-300 pb-0.5">
-                  CERTIFICATE OF ACHIEVEMENT
+              <p className="font-display text-xl font-black tracking-tight text-slate-900 sm:text-2xl">IUS ENGINEERING CLUB</p>
+              <p className="pt-2">
+                <span className="border-b border-accent-300 pb-0.5 font-serif text-sm font-bold uppercase tracking-widest text-accent-700">
+                  Certificate of Achievement
                 </span>
-              </div>
+              </p>
             </div>
 
-            {/* Recipient */}
             <div className="space-y-1 pt-2">
-              <p className="text-xs text-slate-500 font-serif italic">
-                This official credential is hereby conferred upon
+              <p className="font-serif text-sm italic text-slate-500">This official credential is hereby conferred upon</p>
+              <p className="font-display text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">{cert.userName}</p>
+              <p className="mx-auto max-w-lg pt-1 font-serif text-sm text-slate-600">
+                for actively participating in and successfully fulfilling all technical requirements of the engineering event
               </p>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display tracking-tight">
-                {cert.userName}
-              </h1>
-              <p className="text-xs text-slate-600 font-serif max-w-lg mx-auto pt-1">
-                for outstanding participation and successful completion of the engineering event
-              </p>
-              <p className="text-base sm:text-lg font-bold text-brand-700 font-display">
-                "{cert.eventTitle}"
-              </p>
+              <p className="font-display text-base font-bold text-brand-700 sm:text-lg">&ldquo;{cert.eventTitle}&rdquo;</p>
             </div>
 
-            {/* Hours & Date */}
-            <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] text-slate-500 font-mono">
-              <span>Eğitim Süresi: {cert.trainingHours} Saat</span>
-              <span>•</span>
-              <span>Veriliş Tarihi: {cert.issueDate}</span>
-              <span>•</span>
-              <span className="text-amber-700 font-bold">Resmi Doğrulanmış</span>
-            </div>
+            <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-slate-600">
+              {cert.trainingHours !== null && cert.trainingHours > 0 && <li>{t.preview.trainingHours(cert.trainingHours)}</li>}
+              <li>{t.preview.issued(issueDate)}</li>
+              <li className="font-semibold text-accent-700">{t.preview.registered}</li>
+            </ul>
 
-            {/* Skills Pills */}
             {cert.skills.length > 0 && (
-              <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
+              <ul className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
                 {cert.skills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="px-2 py-0.5 bg-slate-100 rounded text-[10px] font-mono text-slate-700 border border-slate-200"
-                  >
+                  <li key={skill} className="rounded-md border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs text-slate-700">
                     {skill}
-                  </span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
 
-            {/* Signatures & Seal Footer */}
-            <div className="pt-6 border-t border-slate-100 grid grid-cols-3 gap-2 items-end text-center">
-              {/* Advisor Signature */}
+            <div className="grid grid-cols-3 items-end gap-2 border-t border-slate-100 pt-6 text-center">
               <div className="space-y-0.5">
-                <div className="w-24 sm:w-32 mx-auto border-b border-slate-400 pb-1 text-[11px] font-serif font-bold text-slate-800">
+                <p className="mx-auto w-28 border-b border-slate-400 pb-1 font-serif text-xs font-bold text-slate-800 sm:w-36 sm:text-sm">
                   Prof. Dr. Leila Miller
-                </div>
-                <p className="text-[9px] text-slate-500 font-mono">
-                  Akademik Danışman, FENS
                 </p>
+                <p className="text-xs text-slate-500">{t.preview.advisorRole}</p>
               </div>
-
-              {/* Official Stamp */}
               <div className="flex flex-col items-center justify-center">
-                <ClubLogo size={48} variant="color" alt="IUS Engineering Club mührü" />
-                <span className="text-[9px] font-mono text-amber-800 font-semibold mt-1">
-                  {cert.certificateCode}
-                </span>
+                <ClubLogo size={48} variant="color" alt={t.preview.sealAlt} />
+                <span className="mt-1 font-mono text-xs font-semibold text-accent-800">{cert.certificateCode}</span>
               </div>
-
-              {/* President Signature */}
               <div className="space-y-0.5">
-                <div className="w-24 sm:w-32 mx-auto border-b border-slate-400 pb-1 text-[11px] font-serif font-bold text-slate-800">
+                <p className="mx-auto w-28 border-b border-slate-400 pb-1 font-serif text-xs font-bold text-slate-800 sm:w-36 sm:text-sm">
                   Kaan Mete Şenyıldız
-                </div>
-                <p className="text-[9px] text-slate-500 font-mono">
-                  Kulüp Başkanı
                 </p>
+                <p className="text-xs text-slate-500">{t.preview.presidentRole}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Modal Bottom Actions */}
-        <div className="p-4 sm:px-6 border-t border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={copyVerifyLink}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-600" />
-                  <span className="text-emerald-700">Bağlantı Kopyalandı!</span>
-                </>
+        <div className="flex flex-col justify-between gap-3 border-t border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:px-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" onClick={copyVerifyLink} className={`${secondaryButton} px-3`}>
+              {copyState === "copied" ? (
+                <Check className="h-4 w-4 text-emerald-600" aria-hidden="true" />
               ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Doğrulama Linkini Kopyala</span>
-                </>
+                <Copy className="h-4 w-4 text-slate-500" aria-hidden="true" />
               )}
+              <span aria-live="polite">
+                {copyState === "copied" ? t.preview.copied : copyState === "failed" ? t.preview.copyFailed : t.preview.copyLink}
+              </span>
             </button>
-            <a
-              href={`/dogrula?code=${cert.certificateCode}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors"
-            >
-              <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
-              <span>Doğrulama Sayfasına Git</span>
+            <a href={verifyPath} target="_blank" rel="noopener noreferrer" className={`${secondaryButton} px-3`}>
+              <ExternalLink className="h-4 w-4 text-slate-500" aria-hidden="true" />
+              <span>{t.preview.openVerify}</span>
+              <span className="sr-only">{t.common.opensInNewTab}</span>
             </a>
           </div>
-
-          <div className="flex items-center gap-2">
-            <a
-              href={linkedInUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0a66c2] hover:bg-[#004182] text-white text-xs font-semibold shadow-xs transition-colors"
-            >
-              <Share2 className="w-3.5 h-3.5" />
-              <span>LinkedIn Profiline Ekle</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <a href={generateLinkedInCertUrl(cert)} target="_blank" rel="noopener noreferrer" className={linkedInButton}>
+              <Share2 className="h-4 w-4" aria-hidden="true" />
+              <span>{t.preview.linkedIn}</span>
+              <span className="sr-only">{t.common.opensInNewTab}</span>
             </a>
-            <a
-              href={`/api/certificates/${cert.certificateCode}/pdf`}
-              download
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>PDF İndir</span>
+            <a href={pdfUrl} download={`${cert.certificateCode}.pdf`} className={primaryButton}>
+              <Download className="h-4 w-4" aria-hidden="true" />
+              <span>{t.preview.downloadPdf}</span>
             </a>
           </div>
         </div>
       </div>
-    </div>
+    </PortalDialog>
   );
 }

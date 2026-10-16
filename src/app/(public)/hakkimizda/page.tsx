@@ -1,207 +1,114 @@
 import React from "react";
+import Link from "next/link";
+import type { Metadata } from "next";
+import { ArrowRight, GraduationCap } from "lucide-react";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
-import { ArrowRight, GraduationCap } from "lucide-react";
-import Link from "next/link";
+import { getServerLocale } from "@/lib/i18n/server";
+import { publicPagesText } from "@/lib/i18n/public/pages";
 
-export default function AboutPage() {
-  const leadership = [
-    {
-      name: "Kaan Mete Şenyıldız",
-      role: "Başkan",
-      dept: "Mühendislik & Doğa Bilimleri (FENS)",
-      focus: "Kulübün resmi temsili ve yönetim kurulunun koordinasyonu",
-    },
-    {
-      name: "Hasan Kaan Karabulut",
-      role: "Kurucu Ortak & Başkan Yardımcısı",
-      dept: "Bilgisayar Bilimleri (FENS)",
-      focus: "Teknik altyapı, PowerHub donanım projesi ve topluluk koordinasyonu",
-    },
-    {
-      name: "Mahmut İhsan Avcı",
-      role: "Kurucu Ortak & Asistan",
-      dept: "Yazılım Mühendisliği (FENS)",
-      focus: "Operasyon, Linear üzerinden görev takibi ve resmi yazışmalar",
-    },
-    {
-      name: "Bekir Enes Çokbekler",
-      role: "Sayman",
-      dept: "Mühendislik & Doğa Bilimleri (FENS)",
-      focus: "Şirket sponsorlukları ve finansal raporlama",
-    },
-    {
-      name: "Muhammed Efe Ural",
-      role: "PR ve Sponsorluk Sorumlusu",
-      dept: "Mühendislik Fakültesi (FENS)",
-      focus: "Instagram, görsel tasarım ve kurumsal ortaklıklar",
-    },
-  ];
+export async function generateMetadata(): Promise<Metadata> {
+  const t = publicPagesText[await getServerLocale()].about;
+  return { title: t.metaTitle, description: t.metaDescription };
+}
 
-  const milestones = [
-    {
-      phase: "Hafta 1-2",
-      title: "Akademik danışman ve SKS kaydı",
-      desc: "Prof. Dr. Leila Miller'ın danışmanlığında, Form F252 ve 12 kurucu üyenin imzasıyla Öğrenci İşleri'ne (SKS/SCC) başvuru.",
-      status: "Tamamlandı",
-      active: true,
-    },
-    {
-      phase: "Hafta 3-4",
-      title: "Linear ve tanışma etkinliği",
-      desc: "Üyelerin Linear'a eklenmesi ve IUS Büyük Amfi'de Marshmallow Challenge ile açılış etkinliği.",
-      status: "Devam Ediyor",
-      active: true,
-    },
-    {
-      phase: "Hafta 5-8",
-      title: "Haftalık atölyeler ve kampüs konuşmaları",
-      desc: "FENS laboratuvarlarında yapay zekâ, gömülü sistemler ve yerel dil modelleri üzerine atölyeler.",
-      status: "Planlandı",
-      active: false,
-    },
-    {
-      phase: "Hafta 9-12",
-      title: "DevHack 2027 ve Mühendislik Zirvesi",
-      desc: "Üniversiteler arası 24 saatlik hackathon ve Saraybosna'daki teknoloji şirketlerinin katılacağı TechSummit 2027.",
-      status: "Planlandı",
-      active: false,
-    },
-  ];
+const STATUS_STYLES = {
+  done: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30",
+  active: "bg-accent-500/15 text-accent-300 border border-accent-500/30",
+  planned: "bg-slate-800 text-slate-400 border border-slate-700",
+};
+
+function initials(name: string): string {
+  const parts = name.split(/\s+/).filter(Boolean);
+  return ((parts[0]?.[0] ?? "") + (parts[parts.length - 1]?.[0] ?? "")).toLocaleUpperCase("tr-TR");
+}
+
+export default async function AboutPage() {
+  const t = publicPagesText[await getServerLocale()].about;
+  const statusLabel = { done: t.statusDone, active: t.statusActive, planned: t.statusPlanned };
 
   return (
-    <div className="flex flex-col min-h-screen bg-ink-950">
+    <div className="flex min-h-screen flex-col">
       <Navbar />
 
-      <main className="flex-1 py-16 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto space-y-20">
-          {/* Header */}
-          <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-3xl sm:text-5xl font-extrabold text-white font-display tracking-tight">
-              IUS Engineering Club Hakkında
-            </h1>
-            <p className="mt-4 text-slate-300 text-sm sm:text-base leading-relaxed">
-              Uluslararası Saraybosna Üniversitesi Mühendislik ve Doğa Bilimleri Fakültesi (FENS) öğrencilerinin kurduğu mühendislik kulübü.
-            </p>
-          </div>
+      <main id="main-content" className="flex-1 px-4 py-16 sm:px-6">
+        <div className="mx-auto max-w-6xl space-y-20">
+          <header className="mx-auto max-w-3xl text-center">
+            <h1 className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-5xl">{t.title}</h1>
+            <p className="mt-4 text-sm leading-relaxed text-slate-300 sm:text-base">{t.intro}</p>
+          </header>
 
-          {/* Academic Advisor Highlight */}
-          <div className="glass-panel p-8 rounded-3xl border border-brand-500/30 bg-gradient-to-r from-brand-950/40 via-slate-900 to-ink-950 flex flex-col md:flex-row items-center gap-8">
-            <div className="w-20 h-20 rounded-2xl bg-brand-600/20 border border-brand-500/40 flex items-center justify-center text-brand-400 shrink-0 shadow-glow">
-              <GraduationCap className="w-10 h-10" />
+          <section className="glass-panel flex flex-col items-center gap-8 rounded-3xl border border-brand-500/30 bg-gradient-to-r from-brand-950/50 via-ink-900 to-ink-950 p-8 md:flex-row">
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-brand-500/40 bg-brand-600/20 text-brand-300 shadow-glow">
+              <GraduationCap className="h-10 w-10" aria-hidden="true" />
             </div>
             <div className="flex-1 text-center md:text-left">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-accent-400 block mb-1">
-                Fakülte Akademik Danışmanımız
-              </span>
-              <h2 className="text-2xl font-bold text-white font-display">
-                Prof. Dr. Leila Miller
-              </h2>
-              <p className="text-xs text-slate-300 mt-1">
-                Full Professor Dr. • Faculty of Engineering and Natural Sciences (FENS)
-              </p>
-              <p className="text-xs text-slate-400 mt-3 leading-relaxed">
-                Laboratuvar izinleri ve üniversiteyle yazışmalar Prof. Dr. Leila Miller'ın danışmanlığında yürütülüyor.
-              </p>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-accent-400">{t.advisorEyebrow}</p>
+              <h2 className="font-display text-2xl font-bold text-white">Prof. Dr. Leila Miller</h2>
+              <p className="mt-1 text-sm text-slate-300">Faculty of Engineering and Natural Sciences (FENS)</p>
+              <p className="mt-3 text-sm leading-relaxed text-slate-400">{t.advisorNote}</p>
             </div>
-          </div>
+          </section>
 
-          {/* Core Leadership Team */}
-          <div>
-            <div className="text-center mb-10">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white font-display">
-                Yönetim Kurulu
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-              {leadership.map((member, i) => (
-                <div
-                  key={i}
-                  className="glass-panel p-6 rounded-2xl border border-slate-800/80 hover:border-slate-700 transition-all flex flex-col justify-between"
+          <section aria-labelledby="board-title">
+            <h2 id="board-title" className="mb-10 text-center font-display text-2xl font-bold text-white sm:text-3xl">
+              {t.boardTitle}
+            </h2>
+            <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {t.board.map((member) => (
+                <li
+                  key={member.name}
+                  className="glass-panel flex flex-col rounded-2xl border border-slate-800/80 p-6 transition-colors hover:border-brand-500/40"
                 >
-                  <div>
-                    <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 font-bold text-sm mb-4">
-                      {member.name.split(" ").map((n) => n[0]).join("")}
-                    </div>
-                    <h3 className="font-bold text-white text-base">
-                      {member.name}
-                    </h3>
-                    <div className="text-xs font-medium text-accent-400 mt-0.5">
-                      {member.role}
-                    </div>
-                    <div className="text-[11px] text-slate-500 font-mono mt-1">
-                      {member.dept}
-                    </div>
-                    <p className="text-xs text-slate-400 mt-3 leading-relaxed">
-                      {member.focus}
-                    </p>
-                  </div>
-                </div>
+                  <span
+                    aria-hidden="true"
+                    className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-800 text-sm font-bold text-white"
+                  >
+                    {initials(member.name)}
+                  </span>
+                  <h3 className="text-base font-bold text-white">{member.name}</h3>
+                  <p className="mt-0.5 text-sm font-medium text-accent-400">{member.role}</p>
+                  <p className="mt-1 text-xs text-slate-500">{member.dept}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-400">{member.focus}</p>
+                </li>
               ))}
-            </div>
-          </div>
+            </ul>
+          </section>
 
-          {/* 12-Week Roadmap */}
-          <div>
-            <div className="text-center mb-10">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white font-display">
-                12 Haftalık Dönem Planı
+          <section aria-labelledby="roadmap-title">
+            <div className="mb-10 text-center">
+              <h2 id="roadmap-title" className="font-display text-2xl font-bold text-white sm:text-3xl">
+                {t.roadmapTitle}
               </h2>
-              <p className="text-slate-400 text-sm mt-1">
-                SKS başvurusunda yer alan dönem planı.
-              </p>
+              <p className="mt-1 text-sm text-slate-400">{t.roadmapSubtitle}</p>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {milestones.map((m, idx) => (
-                <div
-                  key={idx}
-                  className="glass-panel p-6 rounded-2xl border border-slate-800/80 flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[11px] font-mono text-accent-400 font-semibold">
-                        {m.phase}
-                      </span>
-                      <span
-                        className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
-                          m.active
-                            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                            : "bg-slate-800 text-slate-400"
-                        }`}
-                      >
-                        {m.status}
-                      </span>
-                    </div>
-                    <h3 className="text-base font-bold text-white">
-                      {m.title}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                      {m.desc}
-                    </p>
+            <ol className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {t.milestones.map((milestone) => (
+                <li key={milestone.phase} className="glass-panel rounded-2xl border border-slate-800/80 p-6">
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <span className="text-xs font-semibold text-accent-400">{milestone.phase}</span>
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[milestone.status]}`}>
+                      {statusLabel[milestone.status]}
+                    </span>
                   </div>
-                </div>
+                  <h3 className="text-base font-bold text-white">{milestone.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-400">{milestone.desc}</p>
+                </li>
               ))}
-            </div>
-          </div>
+            </ol>
+          </section>
 
-          {/* Bottom CTA */}
-          <div className="text-center pt-8 border-t border-slate-900">
-            <h3 className="text-xl font-bold text-white">Kulübe katılmak ister misin?</h3>
-            <p className="text-sm text-slate-400 mt-1 max-w-md mx-auto">
-              Kulüp tüm IUS öğrencilerine açık. Formu doldurursan ilk toplantıya davet edilirsin.
-            </p>
-            <div className="mt-5">
-              <Link
-                href="/basvuru"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs shadow-glow transition-all"
-              >
-                <span>Başvuru formunu aç</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
+          <section className="border-t border-slate-800/80 pt-10 text-center">
+            <h2 className="text-xl font-bold text-white">{t.ctaTitle}</h2>
+            <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">{t.ctaBody}</p>
+            <Link
+              href="/basvuru"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-glow transition-colors hover:bg-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            >
+              <span>{t.ctaButton}</span>
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </section>
         </div>
       </main>
 

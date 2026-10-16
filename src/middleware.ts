@@ -49,7 +49,9 @@ export async function middleware(request: NextRequest) {
 
   if (!isAuthRoute && !isAuthenticated) {
     const loginUrl = new URL("/portal/giris", request.url);
-    if (path !== "/portal") loginUrl.searchParams.set("redirect", path);
+    // Keep the query too: a scanned check-in QR carries its code there.
+    const target = `${path}${request.nextUrl.search}`;
+    if (target !== "/portal") loginUrl.searchParams.set("redirect", target);
     return NextResponse.redirect(loginUrl);
   }
 

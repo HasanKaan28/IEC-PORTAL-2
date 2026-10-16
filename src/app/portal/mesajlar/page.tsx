@@ -1,29 +1,36 @@
 import React from "react";
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import MessagesPortalClient from "@/components/portal/messages/MessagesPortalClient";
-import { getContacts, getDirectMessages } from "@/lib/messages/message-queries";
-import { DirectMessageItem } from "@/lib/messages/message-types";
+import { getSessionUser } from "@/lib/auth/session";
+import { getServerLocale } from "@/lib/i18n/server";
+import { messagesProfileText } from "@/lib/i18n/portal/messages-profile";
+import { getConversations } from "@/lib/messages/message-queries";
+import { isUuid } from "@/lib/messages/utils";
 
-export const metadata: Metadata = {
-  title: "Mesajlaşma (DM)",
-  description:
-    "Kulüp üyeleri, takım arkadaşları ve proje yürütücüleri ile birebir anlık şifreli mesajlaşma.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = messagesProfileText[await getServerLocale()].messages;
+  return { title: t.metaTitle, description: t.metaDescription };
+}
 
-export default async function PortalMessagesPage() {
-  const contacts = await getContacts();
+export default async function PortalMessagesPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const user = await getSessionUser();
+  if (!user) redirect("/portal/giris?redirect=/portal/mesajlar");
 
-  // Fetch initial messages for each contact
-  const messagesMap: Record<string, DirectMessageItem[]> = {};
-  for (const contact of contacts) {
-    messagesMap[contact.id] = await getDirectMessages(contact.id);
-  }
+  const [{ contacts, blockedIds }, params] = await Promise.all([getConversations(user.id), searchParams]);
+  const requested = typeof params.to === "string" ? params.to : null;
+  const initialContactId = requested && isUuid(requested) && requested !== user.id ? requested : null;
 
   return (
     <MessagesPortalClient
+      currentUserId={user.id}
       initialContacts={contacts}
-      initialMessages={messagesMap}
-      currentUserId="usr-current"
+      blockedIds={blockedIds}
+      initialContactId={initialContactId}
     />
   );
 }

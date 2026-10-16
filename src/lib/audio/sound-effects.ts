@@ -9,9 +9,13 @@ class SoundEffects {
 
   constructor() {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("iec_sound_enabled");
-      if (saved !== null) {
-        this.soundEnabled = saved === "true";
+      try {
+        const saved = window.localStorage.getItem("iec_sound_enabled");
+        if (saved !== null) {
+          this.soundEnabled = saved === "true";
+        }
+      } catch {
+        // Storage can be blocked (private mode, strict settings); keep the default.
       }
     }
   }
@@ -38,7 +42,11 @@ class SoundEffects {
   public setEnabled(enabled: boolean): void {
     this.soundEnabled = enabled;
     if (typeof window !== "undefined") {
-      localStorage.setItem("iec_sound_enabled", enabled ? "true" : "false");
+      try {
+        window.localStorage.setItem("iec_sound_enabled", enabled ? "true" : "false");
+      } catch {
+        // The preference simply is not remembered when storage is blocked.
+      }
     }
   }
 

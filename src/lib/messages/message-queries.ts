@@ -1,227 +1,288 @@
-import { createClient } from "@/lib/supabase/server";
-import {
-  DirectMessageItem,
+import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { isSupabaseAdminConfigured, isSupabaseConfigured } from "@/lib/supabase/config";
+import { getSessionUser } from "@/lib/auth/session";
+import type {
   ConversationContact,
+  DirectMessageItem,
   InAppNotificationItem,
+  MemberSearchResult,
+  NotificationType,
 } from "./message-types";
+import { isUuid, safeHttpUrl, safeInternalLink } from "./utils";
 
-export const initialContacts: ConversationContact[] = [
-  {
-    id: "usr-2",
-    name: "Mahmut İhsan Avcı",
-    email: "mavci@student.ius.edu.ba",
-    role: "Asistan & Fullstack",
-    department: "Yazılım Mühendisliği (SE)",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
-    isOnline: true,
-    lastMessage: "Harika! Yarın FENS amfisinde projeksiyona yansıtıp test edelim.",
-    lastMessageTime: "17:42",
-    unreadCount: 1,
-  },
-  {
-    id: "usr-3",
-    name: "Bekir Enes Çokbekler",
-    email: "bcokbekler@student.ius.edu.ba",
-    role: "Sayman",
-    department: "Endüstri Mühendisliği (IE)",
-    avatar: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=150&q=80",
-    isOnline: false,
-    lastMessage: "Kaan, SCC F252 formunu hazırladık.",
-    lastMessageTime: "Dün",
-    unreadCount: 0,
-  },
-  {
-    id: "usr-advisor",
-    name: "Prof. Dr. Leila Miller",
-    email: "lmiller@ius.edu.ba",
-    role: "FENS Profesörü & Kulüp Akademik Danışmanı",
-    department: "Faculty of Engineering (FENS)",
-    isOnline: true,
-    lastMessage: "FENS laboratuvar rezervasyonu onaylandı, etkinlik duyurusunu paylaşabilirsiniz.",
-    lastMessageTime: "12 Eki",
-    unreadCount: 0,
-  },
-  {
-    id: "usr-4",
-    name: "Muhammed Efe Ural",
-    email: "mural@student.ius.edu.ba",
-    role: "PR & Medya / Sponsorluk Lideri",
-    department: "Bilgisayar Mühendisliği (CSE)",
-    avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80",
-    isOnline: false,
-    lastMessage: "Instagram afiş tasarımlarını ve LinkedIn duyuru metnini yayına aldım.",
-    lastMessageTime: "11 Eki",
-    unreadCount: 0,
-  },
-];
+/**
+ * Server-side reads for messages and notifications. Nothing here is a server action: functions
+ * that take a user id must only be called with the id of the signed-in user (from getSessionUser /
+ * requireUser). Reads go through the user-scoped client so RLS applies as a second line of defence.
+ * When Supabase is not configured every read returns an empty result, never sample data.
+ */
 
-export const initialDirectMessages: DirectMessageItem[] = [
-  {
-    id: "msg-1",
-    senderId: "usr-2",
-    receiverId: "usr-current",
-    content: "Kaan selam! DevHack 2027 platformunda takım kurma ve başvuru modüllerini test ettim, gayet stabil çalışıyor.",
-    isRead: true,
-    createdAt: "2026-10-15T15:20:00Z",
-  },
-  {
-    id: "msg-2",
-    senderId: "usr-current",
-    receiverId: "usr-2",
-    content: "Selam Mahmut! Eline sağlık, süper olmuş. FreeRTOS Masterclass etkinliği için 60 saniyede bir dönen dinamik QR yoklama motorunu da bağladık.",
-    isRead: true,
-    createdAt: "2026-10-15T15:28:00Z",
-  },
-  {
-    id: "msg-3",
-    senderId: "usr-2",
-    receiverId: "usr-current",
-    content: "Harika! Yarın FENS amfisinde projeksiyona yansıtıp test edelim.",
-    isRead: false,
-    createdAt: "2026-10-15T15:42:00Z",
-  },
-  {
-    id: "msg-4",
-    senderId: "usr-3",
-    receiverId: "usr-current",
-    content: "Kaan, SCC F252 formunu hazırladık. İmzalar tamamlanınca teslim edeceğiz.",
-    isRead: true,
-    createdAt: "2026-10-14T11:15:00Z",
-  },
-];
+export const MESSAGE_COLUMNS = "id, sender_id, receiver_id, content, is_read, created_at";
 
-export const initialNotifications: InAppNotificationItem[] = [
-  {
-    id: "notif-1",
-    userId: "usr-current",
-    type: "cert",
-    title: "Yeni Sertifikanız Hazırlandı!",
-    message: "PCB Tasarımı ve Altium Prototipleme Atölyesi katılım sertifikanız üretildi: IEC-2026-E49A.",
-    link: "/portal/sertifikalarim",
-    isRead: false,
-    createdAt: "2026-10-15T16:30:00Z",
-  },
-  {
-    id: "notif-2",
-    userId: "usr-current",
-    type: "task",
-    title: "Yeni Görev Atandı",
-    message: "FreeRTOS SPI Bus & FreeRTOS Çekirdek İzolasyonu görevi size atandı.",
-    link: "/portal/gorevler",
-    isRead: false,
-    createdAt: "2026-10-15T14:10:00Z",
-  },
-  {
-    id: "notif-3",
-    userId: "usr-current",
-    type: "event",
-    title: "Yaklaşan Etkinlik Hatırlatıcısı",
-    message: "FreeRTOS & ESP32 Masterclass etkinliği bu Cumartesi saat 14:00'te A-Block Lab 102'de başlıyor.",
-    link: "/portal/etkinlikler",
-    isRead: true,
-    createdAt: "2026-10-14T09:00:00Z",
-  },
-  {
-    id: "notif-4",
-    userId: "usr-current",
-    type: "team",
-    title: "Hackathon Takım Güncellemesi",
-    message: "DevHack 2027: Sarajevo Pulse IoT takımına yeni üye katılım isteği geldi.",
-    link: "/portal/hackathon",
-    isRead: true,
-    createdAt: "2026-10-13T11:20:00Z",
-  },
-];
+export const BLOCK_ACTION = "user_blocked";
+export const UNBLOCK_ACTION = "user_unblocked";
+export const REPORT_ACTION = "user_reported";
 
-export const memoryContacts: ConversationContact[] = [...initialContacts];
-export const memoryDirectMessages: DirectMessageItem[] = [...initialDirectMessages];
-export const memoryNotifications: InAppNotificationItem[] = [...initialNotifications];
+const CONVERSATION_SCAN_LIMIT = 500;
+const THREAD_LIMIT = 200;
 
-export async function getContacts(): Promise<ConversationContact[]> {
-  try {
-    const supabase = await createClient();
-    const { data: profiles } = await supabase.from("profiles").select("id, full_name, email, department, role, avatar_url");
-
-    if (profiles && profiles.length > 0) {
-      return profiles.map((p: any) => ({
-        id: p.id,
-        name: p.full_name || "Kulüp Üyesi",
-        email: p.email,
-        role: p.role || "Üye",
-        department: p.department || "FENS",
-        avatar: p.avatar_url,
-        isOnline: true,
-        lastMessage: "Sohbet başlatmak için tıklayın.",
-        lastMessageTime: "Yeni",
-        unreadCount: 0,
-      }));
-    }
-  } catch {
-    // Fallback
-  }
-
-  return memoryContacts;
+interface MessageRow {
+  id: string;
+  sender_id: string;
+  receiver_id: string;
+  content: string;
+  is_read: boolean;
+  created_at: string;
 }
 
-export async function getDirectMessages(otherUserId: string): Promise<DirectMessageItem[]> {
-  const currentUserId = "usr-current";
-
-  try {
-    const supabase = await createClient();
-    const { data } = await supabase
-      .from("direct_messages")
-      .select("*")
-      .or(
-        `and(sender_id.eq.${currentUserId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${currentUserId})`
-      )
-      .order("created_at", { ascending: true });
-
-    if (data && (data as any[]).length > 0) {
-      return (data as any[]).map((m: any) => ({
-        id: m.id,
-        senderId: m.sender_id,
-        receiverId: m.receiver_id,
-        content: m.content,
-        isRead: m.is_read,
-        createdAt: m.created_at,
-      }));
-    }
-  } catch {
-    // Fallback
-  }
-
-  return memoryDirectMessages.filter(
-    (m) =>
-      (m.senderId === currentUserId && m.receiverId === otherUserId) ||
-      (m.senderId === otherUserId && m.receiverId === currentUserId)
-  );
+interface ContactProfileRow {
+  id: string;
+  full_name: string | null;
+  department: string | null;
+  avatar_url: string | null;
 }
 
+interface NotificationRow {
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  link: string | null;
+  is_read: boolean;
+  created_at: string;
+}
+
+export function toMessageItem(row: MessageRow): DirectMessageItem {
+  return {
+    id: row.id,
+    senderId: row.sender_id,
+    receiverId: row.receiver_id,
+    content: row.content,
+    isRead: Boolean(row.is_read),
+    createdAt: row.created_at,
+  };
+}
+
+function toMemberSummary(row: ContactProfileRow): MemberSearchResult {
+  return {
+    id: row.id,
+    name: row.full_name?.trim() || "?",
+    department: row.department,
+    avatarUrl: safeHttpUrl(row.avatar_url),
+  };
+}
+
+function notificationTypeFromLink(link: string): NotificationType {
+  if (link.startsWith("/portal/gorevler")) return "task";
+  if (link.startsWith("/portal/etkinlikler")) return "event";
+  if (link.startsWith("/portal/sertifikalarim")) return "cert";
+  if (link.startsWith("/portal/hackathon")) return "team";
+  if (link.startsWith("/portal/mesajlar")) return "message";
+  return "general";
+}
+
+/** The signed-in user's latest notifications, or [] when signed out / not configured. */
 export async function getNotifications(): Promise<InAppNotificationItem[]> {
-  const currentUserId = "usr-current";
-
+  const user = await getSessionUser();
+  if (!user) return [];
   try {
     const supabase = await createClient();
-    const { data } = await supabase
-      .from("notifications")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (data && (data as any[]).length > 0) {
-      return (data as any[]).map((n: any) => ({
-        id: n.id,
-        userId: n.user_id,
-        type: "task",
-        title: n.title,
-        message: n.message,
-        link: n.link || "/portal",
-        isRead: n.is_read,
-        createdAt: n.created_at,
-      }));
+    const { data, error } = await (supabase.from("notifications") as any)
+      .select("id, user_id, title, message, link, is_read, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(30);
+    if (error) {
+      console.error("[notifications] load failed", error);
+      return [];
     }
-  } catch {
-    // Fallback
+    return ((data as NotificationRow[] | null) ?? []).map((row) => {
+      const link = safeInternalLink(row.link);
+      return {
+        id: row.id,
+        userId: row.user_id,
+        type: notificationTypeFromLink(link),
+        title: row.title,
+        message: row.message,
+        link,
+        isRead: Boolean(row.is_read),
+        createdAt: row.created_at,
+      };
+    });
+  } catch (error) {
+    console.error("[notifications] load failed", error);
+    return [];
   }
+}
 
-  return memoryNotifications;
+export interface BlockState {
+  /** Members the user has blocked. */
+  blockedByMe: Set<string>;
+  /** Members who have blocked the user. */
+  blockedMe: Set<string>;
+}
+
+/**
+ * Block state derived from the user's block / unblock entries in audit_logs (latest entry per pair
+ * wins). audit_logs is admin-readable only, so this uses the service role, scoped to the given user.
+ * Without the service-role key blocks are still recorded but cannot be read back.
+ */
+export async function getBlockState(userId: string): Promise<BlockState> {
+  const state: BlockState = { blockedByMe: new Set(), blockedMe: new Set() };
+  if (!isUuid(userId) || !isSupabaseAdminConfigured()) return state;
+  try {
+    const admin = createAdminClient();
+    const { data, error } = await (admin.from("audit_logs") as any)
+      .select("actor_id, target_id, action, created_at")
+      .eq("target_type", "profile")
+      .in("action", [BLOCK_ACTION, UNBLOCK_ACTION])
+      .or(`actor_id.eq.${userId},target_id.eq.${userId}`)
+      .order("created_at", { ascending: true })
+      .limit(1000);
+    if (error) {
+      console.error("[messages] block state failed", error);
+      return state;
+    }
+    const latest = new Map<string, boolean>();
+    for (const row of (data as Array<{ actor_id: string | null; target_id: string | null; action: string }> | null) ?? []) {
+      if (!row.actor_id || !row.target_id) continue;
+      latest.set(`${row.actor_id}:${row.target_id}`, row.action === BLOCK_ACTION);
+    }
+    for (const [pair, isBlocked] of latest) {
+      if (!isBlocked) continue;
+      const [actorId, targetId] = pair.split(":");
+      if (actorId === userId) state.blockedByMe.add(targetId);
+      else if (targetId === userId) state.blockedMe.add(actorId);
+    }
+  } catch (error) {
+    console.error("[messages] block state failed", error);
+  }
+  return state;
+}
+
+/** Public card fields of one member (no email or phone), or null if they don't exist. */
+export async function getMemberSummary(memberId: string): Promise<MemberSearchResult | null> {
+  if (!isUuid(memberId) || !isSupabaseConfigured()) return null;
+  const supabase = await createClient();
+  const { data, error } = await (supabase.from("profiles") as any)
+    .select("id, full_name, department, avatar_url")
+    .eq("id", memberId)
+    .maybeSingle();
+  if (error) {
+    console.error("[messages] member lookup failed", error);
+    return null;
+  }
+  return data ? toMemberSummary(data as ContactProfileRow) : null;
+}
+
+/** Name search over members for starting a conversation. Returns only non-sensitive fields. */
+export async function searchMembers(userId: string, query: string): Promise<MemberSearchResult[]> {
+  if (!isUuid(userId) || !isSupabaseConfigured()) return [];
+  const escaped = query.replace(/[\\%_]/g, (char) => `\\${char}`);
+  const supabase = await createClient();
+  const { data, error } = await (supabase.from("profiles") as any)
+    .select("id, full_name, department, avatar_url")
+    .ilike("full_name", `%${escaped}%`)
+    .neq("id", userId)
+    .order("full_name", { ascending: true })
+    .limit(8);
+  if (error) {
+    console.error("[messages] member search failed", error);
+    return [];
+  }
+  return ((data as ContactProfileRow[] | null) ?? []).map(toMemberSummary);
+}
+
+/** The user's conversations (newest first), hiding members they blocked. */
+export async function getConversations(
+  userId: string
+): Promise<{ contacts: ConversationContact[]; blockedIds: string[] }> {
+  if (!isUuid(userId) || !isSupabaseConfigured()) return { contacts: [], blockedIds: [] };
+  try {
+    const supabase = await createClient();
+    const [recentResult, unreadResult, blockState] = await Promise.all([
+      (supabase.from("direct_messages") as any)
+        .select(MESSAGE_COLUMNS)
+        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+        .order("created_at", { ascending: false })
+        .limit(CONVERSATION_SCAN_LIMIT),
+      (supabase.from("direct_messages") as any)
+        .select("sender_id")
+        .eq("receiver_id", userId)
+        .eq("is_read", false)
+        .limit(1000),
+      getBlockState(userId),
+    ]);
+
+    if (recentResult.error) {
+      console.error("[messages] conversations failed", recentResult.error);
+      return { contacts: [], blockedIds: [...blockState.blockedByMe] };
+    }
+
+    const unreadBySender = new Map<string, number>();
+    for (const row of (unreadResult.data as Array<{ sender_id: string }> | null) ?? []) {
+      unreadBySender.set(row.sender_id, (unreadBySender.get(row.sender_id) ?? 0) + 1);
+    }
+
+    // Rows are newest first, so the first row seen per member is the latest message.
+    const latestByMember = new Map<string, MessageRow>();
+    for (const row of (recentResult.data as MessageRow[] | null) ?? []) {
+      const otherId = row.sender_id === userId ? row.receiver_id : row.sender_id;
+      if (otherId === userId || blockState.blockedByMe.has(otherId)) continue;
+      if (!latestByMember.has(otherId)) latestByMember.set(otherId, row);
+    }
+
+    const memberIds = [...latestByMember.keys()];
+    if (memberIds.length === 0) return { contacts: [], blockedIds: [...blockState.blockedByMe] };
+
+    const { data: profileRows, error: profileError } = await (supabase.from("profiles") as any)
+      .select("id, full_name, department, avatar_url")
+      .in("id", memberIds);
+    if (profileError) console.error("[messages] contact profiles failed", profileError);
+
+    const profiles = new Map<string, MemberSearchResult>();
+    for (const row of (profileRows as ContactProfileRow[] | null) ?? []) {
+      profiles.set(row.id, toMemberSummary(row));
+    }
+
+    const contacts: ConversationContact[] = [];
+    for (const memberId of memberIds) {
+      const profile = profiles.get(memberId);
+      const last = latestByMember.get(memberId);
+      if (!profile || !last) continue;
+      contacts.push({
+        id: memberId,
+        name: profile.name,
+        department: profile.department,
+        avatarUrl: profile.avatarUrl,
+        lastMessage: last.content,
+        lastMessageAt: last.created_at,
+        lastMessageFromMe: last.sender_id === userId,
+        unreadCount: unreadBySender.get(memberId) ?? 0,
+      });
+    }
+    return { contacts, blockedIds: [...blockState.blockedByMe] };
+  } catch (error) {
+    console.error("[messages] conversations failed", error);
+    return { contacts: [], blockedIds: [] };
+  }
+}
+
+/** The latest messages between the user and one member, oldest first. */
+export async function getConversationThread(userId: string, otherUserId: string): Promise<DirectMessageItem[]> {
+  // Both ids are interpolated into a PostgREST filter, so they must be plain UUIDs.
+  if (!isUuid(userId) || !isUuid(otherUserId) || !isSupabaseConfigured()) return [];
+  const supabase = await createClient();
+  const { data, error } = await (supabase.from("direct_messages") as any)
+    .select(MESSAGE_COLUMNS)
+    .or(
+      `and(sender_id.eq.${userId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${userId})`
+    )
+    .order("created_at", { ascending: false })
+    .limit(THREAD_LIMIT);
+  if (error) {
+    console.error("[messages] thread failed", error);
+    throw new Error("thread_failed");
+  }
+  return ((data as MessageRow[] | null) ?? []).map(toMessageItem).reverse();
 }

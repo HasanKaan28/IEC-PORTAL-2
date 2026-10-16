@@ -1,187 +1,150 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  Mail,
-  Copy,
-  Check,
-  Eye,
-  Smartphone,
-  Monitor,
-  Sparkles,
-  Send,
-  ExternalLink,
-} from "lucide-react";
-import {
-  renderEmailTemplate,
-  EmailTemplateKey,
-} from "@/lib/emails/email-templates";
+import React, { useMemo, useState } from "react";
+import { Check, Copy, Mail, Monitor, Smartphone } from "lucide-react";
+import { renderEmailTemplate, type EmailTemplateKey } from "@/lib/emails/email-templates";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { adminText } from "@/lib/i18n/portal/admin";
+
+const focusRing =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2";
+
+const TEMPLATE_KEYS: EmailTemplateKey[] = ["welcome", "application_approved", "event_reminder", "certificate_issued"];
 
 export default function EmailTemplatesClient() {
+  const { locale } = useLocale();
+  const t = adminText[locale].emails;
+
   const [activeTemplate, setActiveTemplate] = useState<EmailTemplateKey>("welcome");
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
-  const [copied, setCopied] = useState(false);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
 
-  const sampleData = {
-    recipientName: "Kaan Mete Şenyıldız",
-    recipientEmail: "student@ius.edu.ba",
-    actionUrl: "http://localhost:3000/portal",
-    eventTitle: "FreeRTOS & ESP32 Gömülü Sistemler Masterclass",
-    eventDate: "24 Ekim 2026, 14:00",
-    eventVenue: "IUS A-Block Donanım Laboratuvarı 102",
-    certificateCode: "IEC-2026-E49A",
-    trainingHours: 6,
+  // Neutral sample values; the template bodies are Turkish, so the sample event data is too.
+  const rendered = useMemo(
+    () =>
+      renderEmailTemplate(activeTemplate, {
+        recipientName: t.sampleName,
+        recipientEmail: "uye@student.ius.edu.ba",
+        actionUrl: "https://iec.ius.edu.ba/portal",
+        eventTitle: "Gömülü Sistemler Atölyesi",
+        eventDate: "24 Ekim 2026, 14:00",
+        eventVenue: "A-Block Laboratuvar 102",
+        certificateCode: "IEC-2026-0001",
+        trainingHours: 6,
+      }),
+    [activeTemplate, t.sampleName]
+  );
+
+  const copyHtml = async () => {
+    try {
+      await navigator.clipboard.writeText(rendered.html);
+      setCopyState("copied");
+    } catch {
+      setCopyState("failed");
+    }
+    window.setTimeout(() => setCopyState("idle"), 2500);
   };
-
-  const rendered = renderEmailTemplate(activeTemplate, sampleData);
-
-  const copyHtml = () => {
-    navigator.clipboard.writeText(rendered.html);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
-  };
-
-  const templates: { key: EmailTemplateKey; label: string; desc: string }[] = [
-    {
-      key: "welcome",
-      label: "Hoş Geldiniz & Doğrulama",
-      desc: "Kayıt olan yeni üyeye giden hesap aktivasyon e-postası.",
-    },
-    {
-      key: "application_approved",
-      label: "Başvuru Kabul Mektubu",
-      desc: "Yönetim kurulu tarafından onaylanan aday üyelere iletilen tebrik mektubu.",
-    },
-    {
-      key: "event_reminder",
-      label: "Etkinlik Hatırlatıcı",
-      desc: "Etkinlikten 24 saat önce salonda QR yoklama hatırlatması yapan şablon.",
-    },
-    {
-      key: "certificate_issued",
-      label: "Sertifika Teslimi",
-      desc: "Yoklaması tamamlanan üyeye kod ve indirme bağlantısı ileten bildirim.",
-    },
-  ];
 
   return (
     <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 lg:flex-row lg:items-center">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 font-display">
-              Sistem E-posta Şablonları & Önizleme
-            </h1>
-            <span className="text-xs font-mono font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-200">
-              Supabase & Resend Uyumlu
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="font-display text-lg font-bold text-slate-900">{t.title}</h2>
+            <span className="rounded-full border border-brand-200 bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700">
+              {t.badge}
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1 max-w-xl">
-            Kulüp platformunun otomatik olarak gönderdiği kurumsal HTML e-posta şablonlarını inceleyin ve ham kodlarını kopyalayın.
-          </p>
+          <p className="mt-1 max-w-xl text-sm text-slate-500">{t.subtitle}</p>
+          <p className="mt-1 text-xs text-slate-500">{t.languageNote}</p>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* Device Width Toggle */}
-          <div className="flex items-center p-1 rounded-xl bg-slate-100 border border-slate-200">
+        <div className="flex flex-wrap items-center gap-2">
+          <div role="group" aria-label={t.widthLabel} className="flex items-center rounded-xl border border-slate-200 bg-slate-100 p-1">
             <button
+              type="button"
               onClick={() => setViewMode("desktop")}
-              className={`p-1.5 rounded-lg transition-colors ${
-                viewMode === "desktop"
-                  ? "bg-white text-brand-600 shadow-2xs font-semibold"
-                  : "text-slate-500 hover:text-slate-900"
+              aria-pressed={viewMode === "desktop"}
+              aria-label={t.desktop}
+              title={t.desktop}
+              className={`rounded-lg p-2 transition-colors ${focusRing} ${
+                viewMode === "desktop" ? "bg-white text-brand-600 shadow-sm" : "text-slate-500 hover:text-slate-900"
               }`}
-              title="Masaüstü Görünüm"
             >
-              <Monitor className="w-4 h-4" />
+              <Monitor className="h-4 w-4" aria-hidden="true" />
             </button>
             <button
+              type="button"
               onClick={() => setViewMode("mobile")}
-              className={`p-1.5 rounded-lg transition-colors ${
-                viewMode === "mobile"
-                  ? "bg-white text-brand-600 shadow-2xs font-semibold"
-                  : "text-slate-500 hover:text-slate-900"
+              aria-pressed={viewMode === "mobile"}
+              aria-label={t.mobile}
+              title={t.mobile}
+              className={`rounded-lg p-2 transition-colors ${focusRing} ${
+                viewMode === "mobile" ? "bg-white text-brand-600 shadow-sm" : "text-slate-500 hover:text-slate-900"
               }`}
-              title="Mobil Görünüm"
             >
-              <Smartphone className="w-4 h-4" />
+              <Smartphone className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
 
           <button
+            type="button"
             onClick={copyHtml}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
+            className={`inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 ${focusRing}`}
           >
-            {copied ? (
-              <>
-                <Check className="w-4 h-4 text-emerald-300" />
-                <span>Kopyalandı!</span>
-              </>
+            {copyState === "copied" ? (
+              <Check className="h-4 w-4" aria-hidden="true" />
             ) : (
-              <>
-                <Copy className="w-4 h-4" />
-                <span>HTML Kodunu Kopyala</span>
-              </>
+              <Copy className="h-4 w-4" aria-hidden="true" />
             )}
+            <span aria-live="polite">
+              {copyState === "copied" ? t.copied : copyState === "failed" ? t.copyFailed : t.copy}
+            </span>
           </button>
         </div>
       </div>
 
-      {/* Template Selector Tabs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {templates.map((t) => {
-          const isSelected = t.key === activeTemplate;
+      <div role="group" aria-label={t.templatesLabel} className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {TEMPLATE_KEYS.map((key) => {
+          const isSelected = key === activeTemplate;
+          const meta = t.templates[key];
           return (
             <button
-              key={t.key}
-              onClick={() => setActiveTemplate(t.key)}
-              className={`p-4 rounded-2xl border text-left transition-all ${
-                isSelected
-                  ? "bg-white border-brand-600 shadow-xs ring-2 ring-brand-500/10"
-                  : "bg-white/60 border-slate-200 hover:bg-white hover:border-slate-300"
+              key={key}
+              type="button"
+              aria-pressed={isSelected}
+              onClick={() => setActiveTemplate(key)}
+              className={`rounded-2xl border bg-white p-4 text-left transition-colors ${focusRing} ${
+                isSelected ? "border-brand-600 ring-2 ring-brand-500/15" : "border-slate-200 hover:border-slate-300"
               }`}
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-bold text-xs text-slate-900 font-display">
-                  {t.label}
-                </span>
-                <Mail
-                  className={`w-3.5 h-3.5 ${
-                    isSelected ? "text-brand-600" : "text-slate-400"
-                  }`}
-                />
-              </div>
-              <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
-                {t.desc}
-              </p>
+              <span className="mb-1 flex items-center justify-between gap-2">
+                <span className="text-sm font-bold text-slate-900">{meta.label}</span>
+                <Mail className={`h-4 w-4 shrink-0 ${isSelected ? "text-brand-600" : "text-slate-400"}`} aria-hidden="true" />
+              </span>
+              <span className="block text-xs leading-relaxed text-slate-500">{meta.desc}</span>
             </button>
           );
         })}
       </div>
 
-      {/* Email Subject Line Bar */}
-      <div className="p-3.5 bg-slate-900 text-white rounded-2xl border border-slate-800 flex items-center justify-between text-xs font-mono">
-        <div className="flex items-center gap-2 truncate">
-          <span className="text-brand-400 font-bold shrink-0">E-POSTA KONUSU:</span>
-          <span className="text-slate-200 truncate">{rendered.subject}</span>
-        </div>
-        <span className="text-[10px] text-slate-400 uppercase shrink-0 hidden sm:inline">
-          UTF-8 HTML
-        </span>
+      <div className="flex flex-col gap-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm sm:flex-row sm:items-center sm:gap-2">
+        <span className="shrink-0 font-semibold text-brand-700">{t.subject}:</span>
+        <span className="break-words text-slate-800">{rendered.subject}</span>
       </div>
 
-      {/* Rendered Live Iframe Preview */}
-      <div className="p-6 bg-slate-200/60 rounded-3xl border border-slate-300/80 flex items-center justify-center min-h-[640px]">
+      <div className="flex min-h-[640px] items-start justify-center overflow-x-auto rounded-2xl border border-slate-200 bg-slate-100 p-3 sm:p-6">
         <div
-          className={`transition-all duration-300 bg-transparent rounded-2xl shadow-2xl overflow-hidden ${
-            viewMode === "mobile" ? "w-[390px]" : "w-full max-w-[650px]"
+          className={`overflow-hidden rounded-2xl shadow-lg transition-all duration-300 ${
+            viewMode === "mobile" ? "w-full max-w-[390px]" : "w-full max-w-[650px]"
           }`}
         >
+          {/* sandbox with no allowances: the preview can never run scripts or navigate the page */}
           <iframe
             srcDoc={rendered.html}
-            title="Email Template Live Preview"
-            className="w-full h-[620px] border-none rounded-2xl bg-ink-900"
+            sandbox=""
+            title={`${t.previewTitle}: ${t.templates[activeTemplate].label}`}
+            className="h-[620px] w-full rounded-2xl border-none bg-ink-900"
           />
         </div>
       </div>

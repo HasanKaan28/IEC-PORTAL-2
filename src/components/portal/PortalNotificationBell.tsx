@@ -1,192 +1,230 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  Bell,
   Award,
-  CheckSquare,
+  Bell,
   Calendar,
-  Trophy,
-  MessageSquare,
   CheckCheck,
+  CheckSquare,
+  Info,
+  MessageSquare,
+  Trophy,
   Volume2,
   VolumeX,
-  Sparkles,
 } from "lucide-react";
-import { InAppNotificationItem } from "@/lib/messages/message-types";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { formatRelative } from "@/lib/i18n/format";
+import { messagesProfileText } from "@/lib/i18n/portal/messages-profile";
+import type { InAppNotificationItem, NotificationType } from "@/lib/messages/message-types";
 import { markNotificationsAsReadAction } from "@/lib/messages/message-actions";
-import { soundEffects } from "@/lib/audio/sound-effects";
+import { isSoundEnabled, playNotificationPreviewSound, setSoundEnabled } from "@/lib/messages/sound";
 
 interface PortalNotificationBellProps {
   initialNotifications?: InAppNotificationItem[];
 }
 
-export default function PortalNotificationBell({
-  initialNotifications = [],
-}: PortalNotificationBellProps) {
+const TYPE_ICON: Record<NotificationType, { icon: React.ComponentType<{ className?: string }>; tone: string }> = {
+  cert: { icon: Award, tone: "bg-accent-100 text-accent-700" },
+  task: { icon: CheckSquare, tone: "bg-brand-50 text-brand-600" },
+  event: { icon: Calendar, tone: "bg-brand-50 text-brand-600" },
+  team: { icon: Trophy, tone: "bg-accent-100 text-accent-700" },
+  message: { icon: MessageSquare, tone: "bg-emerald-50 text-emerald-600" },
+  general: { icon: Info, tone: "bg-slate-100 text-slate-600" },
+};
+
+export default function PortalNotificationBell({ initialNotifications = [] }: PortalNotificationBellProps) {
+  const { locale } = useLocale();
+  const t = messagesProfileText[locale].notifications;
   const [notifications, setNotifications] = useState<InAppNotificationItem[]>(initialNotifications);
   const [isOpen, setIsOpen] = useState(false);
-  const [soundOn, setSoundOn] = useState(true);
-  const panelRef = useRef<HTMLDivElement>(null);
+  const [soundOn, setSoundOn] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelId = useId();
+
+  // Server data changes (navigation, revalidation) replace the local copy.
+  useEffect(() => {
+    setNotifications(initialNotifications);
+  }, [initialNotifications]);
 
   useEffect(() => {
-    setSoundOn(soundEffects.isEnabled());
+    let active = true;
+    void isSoundEnabled().then((enabled) => {
+      if (active) setSoundOn(enabled);
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const unreadCount = notifications.filter((item) => !item.isRead).length;
 
-  // Close dropdown on click outside
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+    if (!isOpen) return;
+    const onPointerDown = (event: MouseEvent | TouchEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) setIsOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
         setIsOpen(false);
+        buttonRef.current?.focus();
       }
     };
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, [isOpen]);
 
-  const handleMarkAllRead = async () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-    await markNotificationsAsReadAction();
-    soundEffects.playNotificationSound();
+  const markRead = async (ids?: string[]) => {
+    const previous = notifications;
+    setError(null);
+    setNotifications((current) =>
+      current.map((item) => (!ids || ids.includes(item.id) ? { ...item, isRead: true } : item))
+    );
+    const result = await markNotificationsAsReadAction(ids);
+    if (!result.success) {
+      setNotifications(previous);
+      setError(result.error || t.updateFailed);
+    }
   };
 
   const toggleSound = () => {
     const next = !soundOn;
     setSoundOn(next);
-    soundEffects.setEnabled(next);
-    if (next) soundEffects.playNotificationSound();
-  };
-
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case "cert":
-        return <Award className="w-4 h-4 text-amber-500" />;
-      case "task":
-        return <CheckSquare className="w-4 h-4 text-brand-500" />;
-      case "event":
-        return <Calendar className="w-4 h-4 text-brand-500" />;
-      case "team":
-        return <Trophy className="w-4 h-4 text-purple-500" />;
-      default:
-        return <MessageSquare className="w-4 h-4 text-emerald-500" />;
-    }
+    setSoundEnabled(next);
+    if (next) playNotificationPreviewSound();
   };
 
   return (
-    <div className="relative" ref={panelRef}>
-      {/* Bell Button */}
+    <div className="relative" ref={containerRef}>
       <button
+        ref={buttonRef}
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors relative"
-        aria-label="Bildirimler"
+        onClick={() => setIsOpen((open) => !open)}
+        aria-expanded={isOpen}
+        aria-controls={panelId}
+        aria-label={unreadCount > 0 ? t.bellLabelUnread(unreadCount) : t.bellLabel}
+        className="relative rounded-xl p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
       >
-        <Bell className="w-4 h-4" />
+        <Bell className="h-5 w-5" aria-hidden="true" />
         {unreadCount > 0 && (
-          <span className="w-4 h-4 rounded-full bg-rose-600 text-white font-mono text-[9px] flex items-center justify-center font-bold absolute -top-0.5 -right-0.5 shadow-xs animate-in zoom-in-50">
-            {unreadCount}
+          <span
+            aria-hidden="true"
+            className="absolute -right-1 -top-1 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-rose-600 px-1 text-xs font-bold leading-none text-white ring-2 ring-white"
+          >
+            {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
 
-      {/* Popover Notification Panel */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden z-50 text-xs animate-in fade-in slide-in-from-top-2 duration-150">
-          {/* Header */}
-          <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div
+          id={panelId}
+          role="region"
+          aria-label={t.title}
+          className="fixed inset-x-4 top-16 z-50 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl animate-in fade-in slide-in-from-top-2 duration-150 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-96"
+        >
+          <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-3">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-900 font-display">
-                Bildirimler
-              </span>
+              <h2 className="font-display text-sm font-bold text-slate-900">{t.title}</h2>
               {unreadCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 font-mono font-bold text-[10px]">
-                  {unreadCount} Yeni
+                <span className="rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-semibold text-rose-700">
+                  {t.newCount(unreadCount)}
                 </span>
               )}
             </div>
-
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <button
+                type="button"
                 onClick={toggleSound}
-                title={soundOn ? "Bildirim Sesini Kapat" : "Bildirim Sesini Aç"}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                aria-pressed={soundOn}
+                aria-label={soundOn ? t.soundTurnOff : t.soundTurnOn}
+                title={soundOn ? t.soundTurnOff : t.soundTurnOn}
+                className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               >
                 {soundOn ? (
-                  <Volume2 className="w-3.5 h-3.5 text-brand-600" />
+                  <Volume2 className="h-4 w-4 text-brand-600" aria-hidden="true" />
                 ) : (
-                  <VolumeX className="w-3.5 h-3.5 text-slate-400" />
+                  <VolumeX className="h-4 w-4" aria-hidden="true" />
                 )}
               </button>
-
               {unreadCount > 0 && (
                 <button
-                  onClick={handleMarkAllRead}
-                  className="inline-flex items-center gap-1 text-[11px] font-medium text-brand-600 hover:text-brand-800"
+                  type="button"
+                  onClick={() => void markRead()}
+                  className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-brand-700 transition-colors hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
-                  <CheckCheck className="w-3.5 h-3.5" />
-                  <span>Tümünü Oku</span>
+                  <CheckCheck className="h-4 w-4" aria-hidden="true" />
+                  <span>{t.markAllRead}</span>
                 </button>
               )}
             </div>
           </div>
 
-          {/* Notifications List */}
-          <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
-            {notifications.length === 0 ? (
-              <div className="p-8 text-center text-slate-400 space-y-1">
-                <Bell className="w-6 h-6 mx-auto opacity-30" />
-                <p>Henüz bildiriminiz yok.</p>
-              </div>
-            ) : (
-              notifications.map((item) => (
-                <Link
-                  key={item.id}
-                  href={item.link}
-                  onClick={() => setIsOpen(false)}
-                  className={`p-3.5 flex items-start gap-3 hover:bg-slate-50 transition-colors block text-left ${
-                    !item.isRead ? "bg-brand-50/20" : ""
-                  }`}
-                >
-                  <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 mt-0.5">
-                    {getNotificationIcon(item.type)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-1">
-                      <span className="font-semibold text-slate-900 truncate">
-                        {item.title}
-                      </span>
-                      {!item.isRead && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-brand-600 shrink-0" />
-                      )}
-                    </div>
-                    <p className="text-slate-600 text-[11px] mt-0.5 line-clamp-2 leading-relaxed">
-                      {item.message}
-                    </p>
-                    <span className="text-[10px] text-slate-400 font-mono mt-1 block">
-                      {new Date(item.createdAt).toLocaleDateString("tr-TR", {
-                        day: "numeric",
-                        month: "short",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                </Link>
-              ))
-            )}
-          </div>
+          {error && (
+            <p role="alert" className="border-b border-rose-100 bg-rose-50 px-4 py-2 text-xs text-rose-700">
+              {error}
+            </p>
+          )}
 
-          {/* Footer */}
-          <div className="p-2 border-t border-slate-100 bg-slate-50/50 text-center">
-            <span className="text-[10px] text-slate-400 font-mono">
-              IUS Engineering Club • Anlık Bildirim Merkezi
-            </span>
-          </div>
+          {notifications.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                <Bell className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <p className="text-sm text-slate-500">{t.empty}</p>
+            </div>
+          ) : (
+            <ul className="max-h-[min(24rem,70dvh)] divide-y divide-slate-100 overflow-y-auto">
+              {notifications.map((item) => {
+                const { icon: Icon, tone } = TYPE_ICON[item.type] ?? TYPE_ICON.general;
+                return (
+                  <li key={item.id}>
+                    <Link
+                      href={item.link}
+                      onClick={() => {
+                        setIsOpen(false);
+                        if (!item.isRead) void markRead([item.id]);
+                      }}
+                      className={`flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500 ${
+                        item.isRead ? "" : "bg-brand-50/40"
+                      }`}
+                    >
+                      <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${tone}`}>
+                        <Icon className="h-4 w-4" aria-hidden="true" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center justify-between gap-2">
+                          <span
+                            className={`truncate text-sm ${item.isRead ? "font-medium text-slate-700" : "font-semibold text-slate-900"}`}
+                          >
+                            {item.title}
+                          </span>
+                          {!item.isRead && (
+                            <span className="h-2 w-2 shrink-0 rounded-full bg-brand-600">
+                              <span className="sr-only">{t.unread}</span>
+                            </span>
+                          )}
+                        </span>
+                        <span className="mt-0.5 line-clamp-2 block text-sm leading-snug text-slate-600">{item.message}</span>
+                        <time dateTime={item.createdAt} className="mt-1 block text-xs text-slate-400">
+                          {formatRelative(item.createdAt, locale)}
+                        </time>
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       )}
     </div>

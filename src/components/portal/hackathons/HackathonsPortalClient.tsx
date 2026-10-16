@@ -1,188 +1,222 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { CalendarDays, Check, ExternalLink, Inbox, MapPin, Plus, Trophy, Users, XCircle } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { formatDate } from "@/lib/i18n/format";
+import { eventsHackathonsText } from "@/lib/i18n/portal/events-hackathons";
 import {
-  Trophy,
-  Users,
-  Plus,
-  Sparkles,
-  Calendar,
-  MapPin,
-  Tag,
-  CheckCircle2,
-  ExternalLink,
-  Mail,
-  Send,
-  Check,
-  XCircle,
-} from "lucide-react";
-import {
-  HackathonItem,
-  HackathonTeamItem,
-  LookingForTeamMemberItem,
-  HackathonJoinRequestItem,
+  MAX_TEAM_MEMBERS,
+  type HackathonItem,
+  type HackathonJoinRequestItem,
+  type HackathonTeamItem,
+  type HackathonTeamMember,
 } from "@/lib/hackathons/hackathon-types";
+import { reviewHackathonJoinRequestAction } from "@/lib/hackathons/hackathon-actions";
+import EmptyState from "@/components/portal/events/EmptyState";
+import PortalToast, { useToast } from "@/components/portal/events/PortalToast";
+import {
+  cardClass,
+  chipClass,
+  inputClass,
+  primaryButton,
+  secondaryButton,
+  successButton,
+  tabButton,
+} from "@/components/portal/events/styles";
+import CreateHackathonModal from "./CreateHackathonModal";
 import CreateHackathonTeamModal from "./CreateHackathonTeamModal";
 import JoinHackathonTeamModal from "./JoinHackathonTeamModal";
-import LookingForTeamModal from "./LookingForTeamModal";
-import { reviewHackathonJoinRequestAction } from "@/lib/hackathons/hackathon-actions";
 
 interface HackathonsPortalClientProps {
-  initialHackathons: HackathonItem[];
-  initialTeams: HackathonTeamItem[];
-  initialLookingMembers: LookingForTeamMemberItem[];
-  initialJoinRequests: HackathonJoinRequestItem[];
+  hackathons: HackathonItem[];
+  teams: HackathonTeamItem[];
+  joinRequests: HackathonJoinRequestItem[];
+  canCreateHackathon: boolean;
+}
+
+type HackathonTab = "hackathons" | "teams" | "requests";
+
+const REQUEST_STATUS_STYLE: Record<HackathonJoinRequestItem["status"], string> = {
+  pending: "border-accent-300 bg-accent-50 text-accent-800",
+  approved: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  rejected: "border-rose-200 bg-rose-50 text-rose-700",
+};
+
+function Avatar({ name, src, size = "h-8 w-8" }: { name: string; src?: string | null; size?: string }) {
+  return (
+    <span
+      className={`${size} inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-brand-100 text-xs font-bold text-brand-700`}
+      aria-hidden="true"
+    >
+      {src ? (
+        // eslint-disable-next-line @next/next/no-img-element -- member avatars come from arbitrary profile URLs
+        <img src={src} alt="" className="h-full w-full object-cover" />
+      ) : (
+        name.charAt(0).toUpperCase()
+      )}
+    </span>
+  );
+}
+
+function isSafeExternalUrl(url: string): boolean {
+  return /^https:\/\//i.test(url);
 }
 
 export default function HackathonsPortalClient({
-  initialHackathons,
-  initialTeams,
-  initialLookingMembers,
-  initialJoinRequests,
+  hackathons,
+  teams,
+  joinRequests,
+  canCreateHackathon,
 }: HackathonsPortalClientProps) {
-  const [hackathons] = useState<HackathonItem[]>(initialHackathons);
-  const [teams, setTeams] = useState<HackathonTeamItem[]>(initialTeams);
-  const [lookingMembers, setLookingMembers] = useState<LookingForTeamMemberItem[]>(
-    initialLookingMembers
-  );
-  const [joinRequests, setJoinRequests] = useState<HackathonJoinRequestItem[]>(
-    initialJoinRequests
-  );
+  const { locale } = useLocale();
+  const t = eventsHackathonsText[locale];
+  const router = useRouter();
+  const { toast, show: showToast, dismiss: dismissToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<"teams" | "looking" | "requests">("teams");
+  const [activeTab, setActiveTab] = useState<HackathonTab>(teams.length > 0 ? "teams" : "hackathons");
   const [selectedHackathon, setSelectedHackathon] = useState("all");
+  const [createTeamFor, setCreateTeamFor] = useState<string | null>(null);
+  const [joinTeamId, setJoinTeamId] = useState<string | null>(null);
+  const [isCreateHackathonOpen, setIsCreateHackathonOpen] = useState(false);
+  const [loadingRequestId, setLoadingRequestId] = useState<string | null>(null);
 
-  const [isCreateTeamOpen, setIsCreateTeamOpen] = useState(false);
-  const [activeJoinTeam, setActiveJoinTeam] = useState<HackathonTeamItem | null>(null);
-  const [isLookingModalOpen, setIsLookingModalOpen] = useState(false);
-  const [loadingReqId, setLoadingReqId] = useState<string | null>(null);
-  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const openHackathons = useMemo(() => hackathons.filter((hackathon) => hackathon.isOpen), [hackathons]);
+  const filteredTeams = useMemo(
+    () => (selectedHackathon === "all" ? teams : teams.filter((team) => team.hackathonId === selectedHackathon)),
+    [teams, selectedHackathon]
+  );
+  const pendingRequestCount = joinRequests.filter((request) => request.status === "pending").length;
+  const joinTeam = joinTeamId ? teams.find((team) => team.id === joinTeamId) ?? null : null;
 
-  const showToast = (msg: string) => {
-    setToastMsg(msg);
-    setTimeout(() => setToastMsg(null), 3000);
+  const formatDay = (isoDate: string) =>
+    formatDate(`${isoDate}T00:00:00Z`, locale, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+
+  const formatRange = (start: string, end: string) =>
+    start === end ? formatDay(start) : `${formatDay(start)} - ${formatDay(end)}`;
+
+  const onMutationSuccess = (message: string) => {
+    showToast({ kind: "success", message });
+    router.refresh();
   };
 
-  const filteredTeams = useMemo(() => {
-    if (selectedHackathon === "all") return teams;
-    return teams.filter((t) => t.hackathonId === selectedHackathon);
-  }, [teams, selectedHackathon]);
+  const handleReviewRequest = async (request: HackathonJoinRequestItem, status: "approved" | "rejected") => {
+    setLoadingRequestId(request.id);
+    const res = await reviewHackathonJoinRequestAction(request.id, status);
+    setLoadingRequestId(null);
+    if (res.success) onMutationSuccess(res.message ?? "");
+    else showToast({ kind: "error", message: res.error });
+  };
 
-  const handleJoinSuccess = (teamId: string) => {
-    setTeams((prev) =>
-      prev.map((t) => (t.id === teamId ? { ...t, userStatus: "pending" } : t))
+  const tabs: Array<{ id: HackathonTab; label: string; count: number }> = [
+    { id: "hackathons", label: t.hackathons.tabs.hackathons, count: hackathons.length },
+    { id: "teams", label: t.hackathons.tabs.teams, count: teams.length },
+    { id: "requests", label: t.hackathons.tabs.requests, count: pendingRequestCount },
+  ];
+
+  const createTeamButton = openHackathons.length > 0 && (
+    <button type="button" onClick={() => setCreateTeamFor("")} className={primaryButton}>
+      <Plus className="h-4 w-4" aria-hidden="true" />
+      <span>{t.hackathons.newTeam}</span>
+    </button>
+  );
+
+  const renderTeamAction = (team: HackathonTeamItem) => {
+    const base = "block rounded-xl border py-2 text-center text-sm font-semibold";
+    if (team.userStatus === "leader") {
+      return <p className={`${base} border-brand-200 bg-brand-50 text-brand-700`}>{t.hackathons.youLead}</p>;
+    }
+    if (team.userStatus === "member") {
+      return <p className={`${base} border-emerald-200 bg-emerald-50 text-emerald-700`}>{t.hackathons.youAreMember}</p>;
+    }
+    if (team.userStatus === "pending") {
+      return <p className={`${base} border-accent-300 bg-accent-50 text-accent-800`}>{t.hackathons.requestPending}</p>;
+    }
+    if (team.members.length >= MAX_TEAM_MEMBERS) {
+      return <p className={`${base} border-slate-200 bg-slate-50 text-slate-600`}>{t.hackathons.teamFull}</p>;
+    }
+    if (!team.isOpen) {
+      return <p className={`${base} border-slate-200 bg-slate-50 text-slate-600`}>{t.hackathons.notRecruiting}</p>;
+    }
+    return (
+      <button type="button" onClick={() => setJoinTeamId(team.id)} className={`${primaryButton} w-full`}>
+        {t.hackathons.requestToJoin}
+      </button>
     );
-    showToast("Takıma katılma isteğiniz takım kaptanına iletildi.");
   };
 
-  const handleReviewRequest = async (requestId: string, status: "approved" | "rejected") => {
-    setLoadingReqId(requestId);
-    await reviewHackathonJoinRequestAction(requestId, status);
-    setLoadingReqId(null);
-
-    setJoinRequests((prev) =>
-      prev.map((r) => (r.id === requestId ? { ...r, status } : r))
-    );
-    showToast(status === "approved" ? "Aday takıma dahil edildi!" : "İstek reddedildi.");
-  };
+  const renderMembers = (members: HackathonTeamMember[]) => (
+    <ul className="flex -space-x-2" aria-label={t.hackathons.membersLabel}>
+      {members.map((member) => {
+        const name = member.name || t.hackathons.unknownMember;
+        return (
+          <li key={member.id} title={member.department ? `${name} (${member.department})` : name}>
+            <Avatar name={name} src={member.avatar} />
+            <span className="sr-only">{member.isLeader ? `${name}, ${t.hackathons.captain}` : name}</span>
+          </li>
+        );
+      })}
+    </ul>
+  );
 
   return (
     <div className="space-y-6">
-      {/* Toast */}
-      {toastMsg && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-xs shadow-2xl border border-slate-700 animate-in fade-in slide-in-from-bottom-3">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span>{toastMsg}</span>
-        </div>
-      )}
+      <PortalToast toast={toast} onDismiss={dismissToast} dismissLabel={t.common.dismiss} />
 
-      {/* Featured Hackathon Banner */}
-      <div className="rounded-2xl p-6 bg-gradient-to-r from-purple-900 via-brand-900 to-slate-900 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
-        <div className="relative z-10 space-y-2 max-w-xl">
+      <header className={`${cardClass} flex flex-col justify-between gap-4 p-5 sm:flex-row sm:items-center`}>
+        <div>
+          <h1 className="font-display text-xl font-bold text-slate-900">{t.hackathons.title}</h1>
+          <p className="mt-1 max-w-2xl text-sm text-slate-600">{t.hackathons.subtitle}</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {canCreateHackathon && (
+            <button type="button" onClick={() => setIsCreateHackathonOpen(true)} className={secondaryButton}>
+              <Trophy className="h-4 w-4 text-accent-600" aria-hidden="true" />
+              <span>{t.hackathons.newHackathon}</span>
+            </button>
+          )}
+          {createTeamButton}
+        </div>
+      </header>
+
+      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+        <div role="group" aria-label={t.hackathons.sectionsLabel} className="flex items-center gap-2 overflow-x-auto pb-1">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              aria-pressed={activeTab === tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={tabButton(activeTab === tab.id)}
+            >
+              <span>{tab.label}</span>
+              <span
+                className={`rounded-full px-1.5 text-xs font-semibold ${
+                  activeTab === tab.id ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
+                }`}
+              >
+                {tab.count}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {activeTab === "teams" && hackathons.length > 0 && (
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-accent-400/20 text-accent-300 font-mono text-xs border border-accent-400/30">
-              AMİRAL GEMİSİ HACKATHON
-            </span>
-            <span className="text-xs text-purple-200 font-mono">15-16 Mayıs 2027</span>
-          </div>
-          <h1 className="text-xl sm:text-2xl font-extrabold font-display tracking-tight">
-            DevHack 2027 — 24 Saatlik Saraybosna Maratonu
-          </h1>
-          <p className="text-xs text-brand-200 leading-relaxed">
-            Akıllı Kampüs & IoT, FinTech ve Sosyal Fayda kategorilerinde üniversiteler arası büyük yarışma! Takımını kur veya takım arkadaşı bul.
-          </p>
-        </div>
-
-        <div className="relative z-10 flex flex-wrap items-center gap-2 shrink-0">
-          <button
-            onClick={() => setIsCreateTeamOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white text-brand-900 hover:bg-brand-50 text-xs font-semibold shadow-sm transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Yeni Takım Kur</span>
-          </button>
-          <button
-            onClick={() => setIsLookingModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-purple-800/80 hover:bg-purple-700/80 text-white border border-purple-500/30 text-xs font-semibold transition-all"
-          >
-            <Sparkles className="w-4 h-4 text-accent-300" />
-            <span>Takım Arıyorum</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Navigation Tabs Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-3">
-        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl text-xs font-medium">
-          <button
-            onClick={() => setActiveTab("teams")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg transition-all ${
-              activeTab === "teams"
-                ? "bg-white text-slate-900 shadow-xs font-semibold"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>Açık Takımlar ({teams.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("looking")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg transition-all ${
-              activeTab === "looking"
-                ? "bg-white text-slate-900 shadow-xs font-semibold"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            <Sparkles className="w-4 h-4 text-accent-600" />
-            <span>Takım Arayan Mühendisler ({lookingMembers.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("requests")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg transition-all ${
-              activeTab === "requests"
-                ? "bg-white text-slate-900 shadow-xs font-semibold"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            <Send className="w-4 h-4" />
-            <span>Gelen Takım İstekleri ({joinRequests.filter((r) => r.status === "pending").length})</span>
-          </button>
-        </div>
-
-        {activeTab === "teams" && (
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-slate-400 font-mono">Etkinlik:</span>
+            <label htmlFor="team-hackathon-filter" className="whitespace-nowrap text-sm text-slate-600">
+              {t.hackathons.filterLabel}
+            </label>
             <select
+              id="team-hackathon-filter"
               value={selectedHackathon}
               onChange={(e) => setSelectedHackathon(e.target.value)}
-              className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-brand-600 font-medium"
+              className={`${inputClass} w-auto py-1.5`}
             >
-              <option value="all">Tüm Hackathonlar</option>
-              {hackathons.map((h) => (
-                <option key={h.id} value={h.id}>
-                  {h.title}
+              <option value="all">{t.hackathons.filterAll}</option>
+              {hackathons.map((hackathon) => (
+                <option key={hackathon.id} value={hackathon.id}>
+                  {hackathon.title}
                 </option>
               ))}
             </select>
@@ -190,302 +224,277 @@ export default function HackathonsPortalClient({
         )}
       </div>
 
-      {/* Tab 1: Teams Showcase */}
-      {activeTab === "teams" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTeams.map((team) => (
-            <div
-              key={team.id}
-              className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-md transition-all p-5 flex flex-col justify-between space-y-4 group"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-[11px] font-mono">
-                  <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 font-semibold border border-purple-200">
-                    {team.hackathonTitle}
-                  </span>
-                  <span
-                    className={`px-2 py-0.5 rounded font-medium ${
-                      team.isOpen
-                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                        : "bg-slate-100 text-slate-600"
-                    }`}
-                  >
-                    {team.isOpen ? "Üye Arıyor" : "Kadro Dolu"}
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-purple-600 transition-colors leading-snug">
-                    {team.name}
-                  </h3>
-                  <p className="text-xs text-slate-600 mt-2 leading-relaxed line-clamp-3">
-                    {team.description}
-                  </p>
-                </div>
-
-                {/* Looking for tags */}
-                {team.lookingFor.length > 0 && (
-                  <div className="space-y-1 pt-1">
-                    <span className="text-[10px] text-slate-400 font-mono block">
-                      ARANAN ROLLER:
+      {activeTab === "hackathons" &&
+        (hackathons.length === 0 ? (
+          <EmptyState
+            icon={<Trophy className="h-6 w-6" />}
+            title={t.hackathons.emptyHackathonsTitle}
+            body={t.hackathons.emptyHackathonsBody}
+            action={
+              canCreateHackathon ? (
+                <button type="button" onClick={() => setIsCreateHackathonOpen(true)} className={primaryButton}>
+                  <Plus className="h-4 w-4" aria-hidden="true" />
+                  <span>{t.hackathons.newHackathon}</span>
+                </button>
+              ) : undefined
+            }
+          />
+        ) : (
+          <ul className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            {hackathons.map((hackathon) => (
+              <li key={hackathon.id}>
+                <article className={`${cardClass} flex h-full flex-col p-5`}>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span
+                      className={`${chipClass} ${
+                        hackathon.isOpen
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : "border-slate-200 bg-slate-100 text-slate-600"
+                      }`}
+                    >
+                      {hackathon.isOpen ? t.hackathons.open : t.hackathons.ended}
                     </span>
-                    <div className="flex flex-wrap gap-1">
-                      {team.lookingFor.map((role) => (
-                        <span
-                          key={role}
-                          className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200"
-                        >
-                          {role}
-                        </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedHackathon(hackathon.id);
+                        setActiveTab("teams");
+                      }}
+                      className="inline-flex items-center gap-1 rounded-lg text-sm font-semibold text-brand-700 hover:text-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                    >
+                      <Users className="h-4 w-4" aria-hidden="true" />
+                      {t.hackathons.teamsCount(hackathon.teamsCount)}
+                    </button>
+                  </div>
+                  <h2 className="mt-3 text-base font-bold leading-snug text-slate-900">{hackathon.title}</h2>
+                  <dl className="mt-2 space-y-1 text-sm text-slate-600">
+                    <div className="flex items-center gap-1.5">
+                      <dt>
+                        <CalendarDays className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                        <span className="sr-only">{t.hackathons.datesLabel}</span>
+                      </dt>
+                      <dd>{formatRange(hackathon.startDate, hackathon.endDate)}</dd>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <dt>
+                        <MapPin className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                        <span className="sr-only">{t.hackathons.locationLabel}</span>
+                      </dt>
+                      <dd>{hackathon.locationCountry}</dd>
+                    </div>
+                  </dl>
+                  <p className="mt-3 line-clamp-3 whitespace-pre-line text-sm leading-relaxed text-slate-600">
+                    {hackathon.description}
+                  </p>
+                  {hackathon.tags.length > 0 && (
+                    <ul className="mt-3 flex flex-wrap gap-1.5">
+                      {hackathon.tags.map((tag) => (
+                        <li key={tag} className={`${chipClass} border-slate-200 bg-slate-50 text-slate-700`}>
+                          {tag}
+                        </li>
                       ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Card Footer */}
-              <div className="pt-4 border-t border-slate-100 space-y-3">
-                <div className="flex items-center justify-between text-xs">
-                  {/* Leader */}
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-purple-50 border border-purple-200 overflow-hidden flex items-center justify-center text-purple-700 font-bold text-[10px]">
-                      {team.leaderAvatar ? (
-                        <img
-                          src={team.leaderAvatar}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        team.leaderName.charAt(0)
-                      )}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-slate-800 text-[11px]">
-                        {team.leaderName}
-                      </div>
-                      <div className="text-[10px] text-slate-400">
-                        {team.leaderRole}
-                      </div>
-                    </div>
-                  </div>
-
-                  <span className="text-[11px] font-mono text-slate-500">
-                    {team.members.length} / 4 Üye
-                  </span>
-                </div>
-
-                {/* Action button */}
-                <div className="pt-1">
-                  {team.userStatus === "leader" ? (
-                    <span className="block text-center py-2 rounded-xl bg-purple-50 text-purple-700 text-xs font-semibold border border-purple-200">
-                      Takım Kaptanısınız
-                    </span>
-                  ) : team.userStatus === "member" ? (
-                    <span className="block text-center py-2 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200">
-                      Takım Üyesisiniz
-                    </span>
-                  ) : team.userStatus === "pending" ? (
-                    <span className="block text-center py-2 rounded-xl bg-amber-50 text-amber-700 text-xs font-semibold border border-amber-200">
-                      Başvurunuz İnceleniyor
-                    </span>
-                  ) : (
-                    <button
-                      onClick={() => setActiveJoinTeam(team)}
-                      className="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold shadow-xs transition-colors"
-                    >
-                      Takıma Katılma İsteği Gönder
-                    </button>
+                    </ul>
                   )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+                  <div className="mt-auto flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 pt-4">
+                    {isSafeExternalUrl(hackathon.applicationUrl) && (
+                      <a
+                        href={hackathon.applicationUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={t.hackathons.applicationAria(hackathon.title)}
+                        className={`${secondaryButton} px-3`}
+                      >
+                        <ExternalLink className="h-4 w-4 text-slate-500" aria-hidden="true" />
+                        <span>{t.hackathons.applicationPage}</span>
+                      </a>
+                    )}
+                    {hackathon.isOpen && (
+                      <button type="button" onClick={() => setCreateTeamFor(hackathon.id)} className={`${primaryButton} px-3`}>
+                        <Plus className="h-4 w-4" aria-hidden="true" />
+                        <span>{t.hackathons.newTeam}</span>
+                      </button>
+                    )}
+                  </div>
+                </article>
+              </li>
+            ))}
+          </ul>
+        ))}
 
-      {/* Tab 2: Looking for Team Showcase Vitrini */}
-      {activeTab === "looking" && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 text-xs">
-            <div>
-              <h3 className="font-bold text-slate-900 font-display">
-                Takım Arayan Öğrenci Mühendisler
-              </h3>
-              <p className="text-slate-500 text-[11px] mt-0.5">
-                Kadro kurmak isteyen kaptanlar aşağıdaki profilleri inceleyip doğrudan iletişime geçebilir.
-              </p>
-            </div>
-            <button
-              onClick={() => setIsLookingModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-accent-600 hover:bg-accent-700 text-white text-xs font-semibold transition-colors"
-            >
-              Ben de Vitrine Katılmak İstiyorum
-            </button>
-          </div>
+      {activeTab === "teams" &&
+        (filteredTeams.length === 0 ? (
+          <EmptyState
+            icon={<Users className="h-6 w-6" />}
+            title={t.hackathons.emptyTeamsTitle}
+            body={t.hackathons.emptyTeamsBody}
+            action={createTeamButton || undefined}
+          />
+        ) : (
+          <ul className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {filteredTeams.map((team) => (
+              <li key={team.id}>
+                <article className={`${cardClass} flex h-full flex-col p-5 transition-shadow hover:shadow-md`}>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    {team.hackathonTitle && (
+                      <span className={`${chipClass} max-w-[60%] truncate border-brand-200 bg-brand-50 text-brand-700`}>
+                        {team.hackathonTitle}
+                      </span>
+                    )}
+                    <span
+                      className={`${chipClass} ${
+                        team.isOpen && team.members.length < MAX_TEAM_MEMBERS
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : "border-slate-200 bg-slate-100 text-slate-600"
+                      }`}
+                    >
+                      {team.isOpen && team.members.length < MAX_TEAM_MEMBERS ? t.hackathons.recruiting : t.hackathons.notRecruiting}
+                    </span>
+                  </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {lookingMembers.map((member) => (
-              <div
-                key={member.id}
-                className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4 flex flex-col justify-between"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-accent-50 border border-accent-200 overflow-hidden flex items-center justify-center text-accent-700 font-bold text-xs">
-                      {member.avatar ? (
-                        <img
-                          src={member.avatar}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        member.name.charAt(0)
-                      )}
+                  <h2 className="mt-3 text-base font-bold leading-snug text-slate-900">{team.name}</h2>
+                  {team.description && (
+                    <p className="mt-1.5 line-clamp-3 whitespace-pre-line text-sm leading-relaxed text-slate-600">{team.description}</p>
+                  )}
+
+                  {team.lookingFor.length > 0 && (
+                    <div className="mt-3">
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">{t.hackathons.lookingFor}</p>
+                      <ul className="flex flex-wrap gap-1.5">
+                        {team.lookingFor.map((role) => (
+                          <li key={role} className={`${chipClass} border-accent-200 bg-accent-50 text-accent-800`}>
+                            {role}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-900">
-                        {member.name}
-                      </h4>
-                      <div className="text-[11px] text-slate-500 font-mono">
-                        {member.department} • {member.classYear}
+                  )}
+
+                  <div className="mt-auto space-y-3 border-t border-slate-100 pt-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <Avatar name={team.leaderName || t.hackathons.unknownMember} src={team.leaderAvatar} />
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-slate-800">
+                            {team.leaderName || t.hackathons.unknownMember}
+                          </p>
+                          <p className="text-xs text-slate-500">{t.hackathons.captain}</p>
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 flex-col items-end gap-1">
+                        {renderMembers(team.members)}
+                        <span className="text-xs text-slate-500">
+                          {t.hackathons.membersCount(team.members.length, MAX_TEAM_MEMBERS)}
+                        </span>
                       </div>
                     </div>
+                    {renderTeamAction(team)}
                   </div>
-
-                  <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100 italic">
-                    "{member.statement}"
-                  </p>
-
-                  <div className="flex flex-wrap gap-1">
-                    {member.skills.map((skill) => (
-                      <span
-                        key={skill}
-                        className="text-[10px] font-mono px-2 py-0.5 rounded bg-accent-50 text-accent-800 border border-accent-200 font-medium"
-                      >
-                        #{skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <a
-                    href={`mailto:${member.contactEmail}?subject=DevHack 2027 Takım Daveti`}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors"
-                  >
-                    <Mail className="w-3.5 h-3.5" />
-                    <span>E-posta Gönder</span>
-                  </a>
-
-                  <span className="text-[10px] font-mono text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                    Müsait
-                  </span>
-                </div>
-              </div>
+                </article>
+              </li>
             ))}
-          </div>
-        </div>
+          </ul>
+        ))}
+
+      {activeTab === "requests" &&
+        (joinRequests.length === 0 ? (
+          <EmptyState icon={<Inbox className="h-6 w-6" />} title={t.hackathons.emptyRequestsTitle} body={t.hackathons.emptyRequestsBody} />
+        ) : (
+          <section className={`${cardClass} overflow-hidden`} aria-labelledby="join-requests-heading">
+            <h2 id="join-requests-heading" className="border-b border-slate-200 bg-slate-50 px-5 py-3 text-sm font-semibold text-slate-700">
+              {t.hackathons.requestsIntro}
+            </h2>
+            <ul className="divide-y divide-slate-100">
+              {joinRequests.map((request) => {
+                const name = request.userName || t.hackathons.unknownMember;
+                const isLoading = loadingRequestId === request.id;
+                return (
+                  <li key={request.id} className="space-y-3 p-5">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <Avatar name={name} size="h-10 w-10" />
+                        <div>
+                          <p className="text-sm font-bold text-slate-900">{name}</p>
+                          <p className="text-xs text-slate-500">
+                            {[request.userDepartment, request.teamName].filter(Boolean).join(" · ")}
+                          </p>
+                        </div>
+                      </div>
+                      <span className={`${chipClass} ${REQUEST_STATUS_STYLE[request.status]}`}>
+                        {t.hackathons.requestStatus[request.status]}
+                      </span>
+                    </div>
+
+                    {request.message && (
+                      <p className="whitespace-pre-line rounded-xl border border-slate-100 bg-slate-50 p-3 text-sm text-slate-700">
+                        {request.message}
+                      </p>
+                    )}
+
+                    {request.status === "pending" && (
+                      <div className="flex flex-wrap items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleReviewRequest(request, "rejected")}
+                          disabled={isLoading}
+                          aria-label={t.hackathons.rejectAria(name)}
+                          className={`${secondaryButton} px-3 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700`}
+                        >
+                          <XCircle className="h-4 w-4" aria-hidden="true" />
+                          <span>{t.hackathons.reject}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleReviewRequest(request, "approved")}
+                          disabled={isLoading}
+                          aria-label={t.hackathons.approveAria(name)}
+                          className={`${successButton} px-3`}
+                        >
+                          <Check className="h-4 w-4" aria-hidden="true" />
+                          <span>{t.hackathons.approve}</span>
+                        </button>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ))}
+
+      {createTeamFor !== null && (
+        <CreateHackathonTeamModal
+          hackathons={openHackathons}
+          initialHackathonId={createTeamFor || undefined}
+          onClose={() => setCreateTeamFor(null)}
+          onTeamCreated={(message) => {
+            setCreateTeamFor(null);
+            setActiveTab("teams");
+            onMutationSuccess(message);
+          }}
+        />
       )}
 
-      {/* Tab 3: Team Join Requests (Captain Review) */}
-      {activeTab === "requests" && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden divide-y divide-slate-100">
-          <div className="p-4 bg-slate-50 border-b border-slate-200 text-xs text-slate-600 font-medium">
-            Takımınıza katılım talebinde bulunan adaylar
-          </div>
-          {joinRequests.length === 0 ? (
-            <div className="py-12 text-center text-slate-400 font-mono text-xs">
-              Henüz bir takım katılım başvurusu yok.
-            </div>
-          ) : (
-            joinRequests.map((req) => (
-              <div key={req.id} className="p-5 space-y-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-50 text-purple-700 font-semibold border border-purple-200">
-                      {req.teamName}
-                    </span>
-                    <h4 className="text-xs font-bold text-slate-900 mt-1">
-                      {req.userName}
-                    </h4>
-                    <span className="text-[11px] text-slate-400 font-mono">
-                      {req.userDepartment}
-                    </span>
-                  </div>
-
-                  <span
-                    className={`text-[10px] font-mono px-2 py-0.5 rounded ${
-                      req.status === "approved"
-                        ? "bg-emerald-100 text-emerald-800"
-                        : req.status === "rejected"
-                        ? "bg-rose-100 text-rose-800"
-                        : "bg-amber-100 text-amber-800"
-                    }`}
-                  >
-                    {req.status === "approved"
-                      ? "Kabul Edildi"
-                      : req.status === "rejected"
-                      ? "Reddedildi"
-                      : "İnceleniyor"}
-                  </span>
-                </div>
-
-                <p className="text-xs text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-100 italic">
-                  "{req.message}"
-                </p>
-
-                {req.status === "pending" && (
-                  <div className="flex items-center justify-end gap-2 pt-1">
-                    <button
-                      onClick={() => handleReviewRequest(req.id, "rejected")}
-                      disabled={loadingReqId === req.id}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-rose-700 text-xs font-medium transition-colors"
-                    >
-                      <XCircle className="w-3.5 h-3.5" />
-                      <span>Reddet</span>
-                    </button>
-                    <button
-                      onClick={() => handleReviewRequest(req.id, "approved")}
-                      disabled={loadingReqId === req.id}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors"
-                    >
-                      <Check className="w-3.5 h-3.5" />
-                      <span>Takıma Kabul Et</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
+      {joinTeam && (
+        <JoinHackathonTeamModal
+          team={joinTeam}
+          onClose={() => setJoinTeamId(null)}
+          onSuccess={(message) => {
+            setJoinTeamId(null);
+            onMutationSuccess(message);
+          }}
+        />
       )}
 
-      {/* Modals */}
-      <CreateHackathonTeamModal
-        isOpen={isCreateTeamOpen}
-        onClose={() => setIsCreateTeamOpen(false)}
-        hackathons={hackathons}
-        onTeamCreated={() => {
-          showToast("Yeni takım başarıyla kuruldu.");
-          window.location.reload();
-        }}
-      />
-
-      <JoinHackathonTeamModal
-        team={activeJoinTeam}
-        isOpen={Boolean(activeJoinTeam)}
-        onClose={() => setActiveJoinTeam(null)}
-        onSuccess={handleJoinSuccess}
-      />
-
-      <LookingForTeamModal
-        isOpen={isLookingModalOpen}
-        onClose={() => setIsLookingModalOpen(false)}
-        onRegistered={() => {
-          showToast("Profiliniz takım arayanlar vitrinine eklendi!");
-          window.location.reload();
-        }}
-      />
+      {isCreateHackathonOpen && (
+        <CreateHackathonModal
+          onClose={() => setIsCreateHackathonOpen(false)}
+          onCreated={(message) => {
+            setIsCreateHackathonOpen(false);
+            setActiveTab("hackathons");
+            onMutationSuccess(message);
+          }}
+        />
+      )}
     </div>
   );
 }

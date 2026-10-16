@@ -1,339 +1,402 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
-import {
-  MessageSquare,
-  Reply,
-  Flag,
-  Send,
-  User,
-  ShieldAlert,
-  CheckCircle2,
-  LogIn,
-} from "lucide-react";
+import { MessageSquare, Reply, Flag, Send, ShieldAlert, CheckCircle2, LogIn } from "lucide-react";
 import { BlogCommentItem } from "@/lib/blog/blog-data";
-import {
-  addBlogCommentAction,
-  flagBlogCommentAction,
-} from "@/lib/blog/blog-actions";
+import { addBlogCommentAction, flagBlogCommentAction } from "@/lib/blog/blog-actions";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { formatDate } from "@/lib/i18n/format";
+import { blogSignInHref, blogText } from "@/lib/i18n/public/blog";
 
 interface BlogCommentSectionProps {
   postSlug: string;
   initialComments: BlogCommentItem[];
-  currentUser?: {
-    id: string;
-    fullName: string;
-    email: string;
-  } | null;
+  /** The signed-in visitor, or null. Only signed-in visitors get the comment form. */
+  currentUser: { id: string; fullName: string } | null;
+  /** blog.moderate holders can flag comments; the action enforces this too. */
+  canModerate: boolean;
 }
+
+type AddCommentResult = Awaited<ReturnType<typeof addBlogCommentAction>>;
+type FlagResult = Awaited<ReturnType<typeof flagBlogCommentAction>>;
+type Toast = { text: string; tone: "success" | "error" };
+type FormError = { target: string; text: string };
+
+const ROOT_TARGET = "root";
+/** Mirrors BLOG_LIMITS.commentMin in the action, so short comments fail fast without a request. */
+const MIN_COMMENT_LENGTH = 3;
+
+const FOCUS_RING =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950";
+const TEXTAREA_CLASS =
+  "w-full bg-ink-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500/80 focus:ring-2 focus:ring-brand-500/30 transition-colors resize-none";
 
 export default function BlogCommentSection({
   postSlug,
   initialComments,
   currentUser,
+  canModerate,
 }: BlogCommentSectionProps) {
+  const { locale } = useLocale();
+  const t = blogText[locale].comments;
+  const formId = useId();
+
   const [comments, setComments] = useState<BlogCommentItem[]>(initialComments);
   const [newContent, setNewContent] = useState("");
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [formError, setFormError] = useState<FormError | null>(null);
   const [flaggedIds, setFlaggedIds] = useState<string[]>([]);
-  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [toast, setToast] = useState<Toast | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const showToast = (msg: string) => {
-    setToastMsg(msg);
-    setTimeout(() => setToastMsg(null), 3000);
+  useEffect(() => {
+    return () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    };
+  }, []);
+
+  const showToast = (text: string, tone: Toast["tone"] = "success") => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast({ text, tone });
+    toastTimer.current = setTimeout(() => setToast(null), 3500);
   };
 
-  const handleAddComment = async (parentId?: string | null) => {
+  const canComment = currentUser !== null;
+  const signInHref = blogSignInHref(`/blog/${postSlug}`);
+  const totalCount = comments.reduce((sum, c) => sum + 1 + (c.replies?.length ?? 0), 0);
+
+  const handleAddComment = async (parentId: string | null) => {
+    const target = parentId ?? ROOT_TARGET;
     const text = parentId ? replyContent : newContent;
-    if (!text || text.trim().length < 3) {
-      setErrorMsg("Yorum en az 3 karakter olmalıdır.");
+    if (text.trim().length < MIN_COMMENT_LENGTH) {
+      setFormError({ target, text: t.minLength });
       return;
     }
 
     setLoading(true);
-    setErrorMsg(null);
+    setFormError(null);
 
-    const res = await addBlogCommentAction({
-      postSlug,
-      parentId,
-      content: text,
-    });
+    let res: AddCommentResult;
+    try {
+      res = await addBlogCommentAction({ postSlug, parentId, content: text });
+    } catch {
+      res = { success: false, error: t.saveFailed };
+    }
 
     setLoading(false);
 
     if (!res.success) {
-      setErrorMsg(res.error || "Yorum kaydedilemedi.");
+      setFormError({ target, text: res.error || t.saveFailed });
       return;
     }
 
-    if (res.comment) {
-      if (parentId) {
-        // Append reply to parent in comments state
-        setComments((prev) =>
-          prev.map((c) => {
-            if (c.id === parentId) {
-              return {
-                ...c,
-                replies: [...(c.replies || []), res.comment!],
-              };
-            }
-            return c;
-          })
-        );
-        setReplyContent("");
-        setReplyingTo(null);
-      } else {
-        setComments((prev) => [res.comment!, ...prev]);
-        setNewContent("");
-      }
-      showToast("Yorumunuz başarıyla yayınlandı.");
+    const created = res.comment;
+    // The server attaches replies to the thread's root comment, so follow its parentId.
+    const threadId = created.parentId ?? parentId;
+    if (threadId) {
+      setComments((prev) =>
+        prev.map((c) => (c.id === threadId ? { ...c, replies: [...(c.replies || []), created] } : c))
+      );
+      setReplyContent("");
+      setReplyingTo(null);
+    } else {
+      setComments((prev) => [created, ...prev]);
+      setNewContent("");
     }
+    showToast(res.message || t.published);
   };
 
   const handleFlag = async (commentId: string) => {
-    if (flaggedIds.includes(commentId)) return;
-    const res = await flagBlogCommentAction(commentId);
+    if (!canModerate || flaggedIds.includes(commentId)) return;
+
+    let res: FlagResult;
+    try {
+      res = await flagBlogCommentAction(commentId);
+    } catch {
+      res = { success: false, error: t.reportFailed };
+    }
+
     if (res.success) {
       setFlaggedIds((prev) => [...prev, commentId]);
-      showToast("Yorum moderasyon için bildirildi.");
+      showToast(res.message || t.reportDone);
+    } else {
+      showToast(res.error || t.reportFailed, "error");
     }
   };
 
-  return (
-    <section className="mt-16 pt-12 border-t border-slate-800/80">
-      {/* Toast Notification */}
-      {toastMsg && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-purple-900/90 border border-purple-500/50 text-purple-100 text-xs shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span>{toastMsg}</span>
-        </div>
-      )}
+  const renderError = (target: string) =>
+    formError?.target === target ? (
+      <div role="alert" className="flex items-center gap-1.5 text-xs text-rose-400">
+        <ShieldAlert className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+        <span>{formError.text}</span>
+      </div>
+    ) : null;
 
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-purple-400" />
-          <h3 className="text-xl font-bold text-white font-display">
-            Yorumlar & Tartışma
-          </h3>
-          <span className="ml-2 px-2 py-0.5 rounded-full bg-slate-800 text-purple-300 font-mono text-xs border border-slate-700">
-            {comments.length}
-          </span>
-        </div>
+  return (
+    <section aria-labelledby={`${formId}-heading`} className="mt-16 pt-12 border-t border-slate-800/80">
+      {/* Toast */}
+      <div aria-live="polite" role="status" className="fixed bottom-6 right-6 z-50">
+        {toast && (
+          <div
+            className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-xs shadow-2xl backdrop-blur-md bg-ink-900/95 ${
+              toast.tone === "success"
+                ? "border-emerald-500/40 text-slate-100"
+                : "border-rose-500/40 text-rose-200"
+            }`}
+          >
+            {toast.tone === "success" ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+            ) : (
+              <ShieldAlert className="w-4 h-4 text-rose-400" aria-hidden="true" />
+            )}
+            <span>{toast.text}</span>
+          </div>
+        )}
       </div>
 
-      {/* Main Comment Box */}
+      <div className="flex items-center gap-2 mb-8">
+        <MessageSquare className="w-5 h-5 text-brand-400" aria-hidden="true" />
+        <h2 id={`${formId}-heading`} className="text-xl font-bold text-white font-display">
+          {t.heading}
+        </h2>
+        <span className="ml-2 px-2 py-0.5 rounded-full bg-slate-800 text-brand-200 font-mono text-xs border border-slate-700 tabular-nums">
+          <span aria-hidden="true">{totalCount}</span>
+          <span className="sr-only">{t.count(totalCount)}</span>
+        </span>
+      </div>
+
+      {/* New comment */}
       <div className="glass-panel p-5 rounded-2xl border border-slate-800/80 mb-10">
         {currentUser ? (
-          <div className="space-y-3">
+          <form
+            className="space-y-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void handleAddComment(null);
+            }}
+          >
             <div className="flex items-center gap-2 text-xs text-slate-300 font-mono">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Oturum açık:</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400" aria-hidden="true" />
+              <span>{t.signedInAs}</span>
               <strong className="text-white">{currentUser.fullName}</strong>
             </div>
 
+            <label htmlFor={`${formId}-comment`} className="block text-xs font-medium text-slate-300">
+              {t.commentLabel}
+            </label>
             <textarea
+              id={`${formId}-comment`}
+              name="comment"
               value={newContent}
               onChange={(e) => setNewContent(e.target.value)}
-              placeholder="Teknik soru, geri bildirim veya katkınızı buraya yazın..."
+              placeholder={t.commentPlaceholder}
               rows={3}
-              className="w-full bg-ink-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500/80 transition-colors resize-none"
+              aria-describedby={`${formId}-comment-note`}
+              aria-invalid={formError?.target === ROOT_TARGET || undefined}
+              className={TEXTAREA_CLASS}
             />
 
-            {errorMsg && (
-              <div className="flex items-center gap-1.5 text-xs text-rose-400">
-                <ShieldAlert className="w-3.5 h-3.5" />
-                <span>{errorMsg}</span>
-              </div>
-            )}
+            {renderError(ROOT_TARGET)}
 
-            <div className="flex items-center justify-between pt-1">
-              <span className="text-[11px] text-slate-500 font-mono">
-                Markdown formatı desteklenir
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+              <span id={`${formId}-comment-note`} className="text-xs text-slate-500 font-mono">
+                {t.plainTextNote}
               </span>
               <button
-                onClick={() => handleAddComment(null)}
+                type="submit"
                 disabled={loading || !newContent.trim()}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-lg shadow-brand-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${FOCUS_RING}`}
               >
-                <Send className="w-3.5 h-3.5" />
-                <span>{loading ? "Gönderiliyor..." : "Yorum Gönder"}</span>
+                <Send className="w-3.5 h-3.5" aria-hidden="true" />
+                <span>{loading && !replyingTo ? t.submitting : t.submit}</span>
               </button>
             </div>
-          </div>
+          </form>
         ) : (
           <div className="py-6 px-4 text-center space-y-3">
-            <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center mx-auto">
+            <div
+              className="w-10 h-10 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 flex items-center justify-center mx-auto"
+              aria-hidden="true"
+            >
               <LogIn className="w-5 h-5" />
             </div>
-            <h4 className="text-sm font-semibold text-white">
-              Tartışmaya Katılın
-            </h4>
-            <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
-              Teknik sorular sormak veya görüşlerinizi paylaşmak için öğrenci portalına giriş yapmanız gerekmektedir.
-            </p>
+            <h3 className="text-sm font-semibold text-white">{t.signInTitle}</h3>
+            <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">{t.signInBody}</p>
+            {renderError(ROOT_TARGET)}
             <div className="pt-2">
               <Link
-                href={`/portal/giris?redirect=/blog/${postSlug}`}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-medium shadow-md shadow-purple-600/20 transition-all"
+                href={signInHref}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium shadow-md shadow-brand-600/20 transition-colors ${FOCUS_RING}`}
               >
-                <LogIn className="w-3.5 h-3.5" />
-                <span>Giriş Yap veya Kaydol</span>
+                <LogIn className="w-3.5 h-3.5" aria-hidden="true" />
+                <span>{t.signInCta}</span>
               </Link>
             </div>
           </div>
         )}
       </div>
 
-      {/* Comment List */}
-      <div className="space-y-6">
-        {comments.length === 0 ? (
-          <div className="text-center py-10 text-slate-500 text-xs font-mono">
-            Henüz yorum yapılmamış. İlk yorumu sen yap!
-          </div>
-        ) : (
-          comments.map((comment) => (
-            <div
-              key={comment.id}
-              className="glass-panel p-5 rounded-2xl border border-slate-800/60 space-y-4"
-            >
-              {/* Comment Header */}
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 text-xs font-bold font-mono">
-                    {comment.authorAvatar ? (
-                      <img
-                        src={comment.authorAvatar}
-                        alt={comment.authorName}
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    ) : (
-                      comment.authorName.charAt(0)
-                    )}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-white">
-                        {comment.authorName}
-                      </span>
-                      <span className="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[10px] font-mono border border-purple-500/20">
-                        {comment.authorRole}
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-slate-500 font-mono">
-                      {new Date(comment.createdAt).toLocaleDateString("tr-TR", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleFlag(comment.id)}
-                    title="Şikayet Et"
-                    className={`p-1.5 rounded-lg border transition-colors ${
-                      flaggedIds.includes(comment.id)
-                        ? "bg-rose-500/10 border-rose-500/30 text-rose-400"
-                        : "border-slate-800 text-slate-500 hover:text-rose-400 hover:border-rose-500/30"
-                    }`}
-                  >
-                    <Flag className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Comment Content */}
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed pl-11">
-                {comment.content}
-              </p>
-
-              {/* Action Buttons */}
-              <div className="pl-11 flex items-center gap-4 pt-1">
-                {currentUser && (
-                  <button
-                    onClick={() =>
-                      setReplyingTo(replyingTo === comment.id ? null : comment.id)
-                    }
-                    className="inline-flex items-center gap-1.5 text-xs text-purple-400 hover:text-purple-300 transition-colors"
-                  >
-                    <Reply className="w-3.5 h-3.5" />
-                    <span>Yanıtla</span>
-                  </button>
-                )}
-              </div>
-
-              {/* Reply Input Box */}
-              {replyingTo === comment.id && (
-                <div className="ml-11 mt-3 p-3 rounded-xl bg-ink-900 border border-slate-800 space-y-2">
-                  <textarea
-                    value={replyContent}
-                    onChange={(e) => setReplyContent(e.target.value)}
-                    placeholder={`${comment.authorName} kullanıcısına yanıt yazın...`}
-                    rows={2}
-                    className="w-full bg-transparent text-xs text-slate-200 placeholder-slate-500 focus:outline-none resize-none"
-                  />
-                  <div className="flex items-center justify-end gap-2 pt-1">
-                    <button
-                      onClick={() => {
-                        setReplyingTo(null);
-                        setReplyContent("");
-                      }}
-                      className="px-2.5 py-1 rounded text-xs text-slate-400 hover:text-white"
-                    >
-                      İptal
-                    </button>
-                    <button
-                      onClick={() => handleAddComment(comment.id)}
-                      disabled={loading || !replyContent.trim()}
-                      className="px-3 py-1 rounded bg-purple-600 hover:bg-purple-500 text-white text-xs font-medium transition-all"
-                    >
-                      Yanıtla
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Nested Replies */}
-              {comment.replies && comment.replies.length > 0 && (
-                <div className="ml-8 sm:ml-11 mt-3 pl-4 border-l-2 border-purple-500/20 space-y-3">
-                  {comment.replies.map((reply) => (
+      {/* Comment list */}
+      {comments.length === 0 ? (
+        <p className="text-center py-10 text-slate-500 text-xs font-mono">{t.empty}</p>
+      ) : (
+        <ul aria-label={t.listLabel} className="space-y-6">
+          {comments.map((comment) => {
+            const isFlagged = flaggedIds.includes(comment.id);
+            const replyFieldId = `${formId}-reply-${comment.id}`;
+            return (
+              <li
+                key={comment.id}
+                className="glass-panel p-5 rounded-2xl border border-slate-800/60 space-y-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <div
-                      key={reply.id}
-                      className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/60 space-y-2"
+                      className="w-8 h-8 shrink-0 rounded-full bg-brand-500/20 border border-brand-500/40 flex items-center justify-center text-brand-200 text-xs font-bold font-mono"
+                      aria-hidden="true"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-slate-200">
-                            {reply.authorName}
-                          </span>
-                          <span className="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[9px] font-mono border border-purple-500/20">
-                            {reply.authorRole}
-                          </span>
-                        </div>
-                        <span className="text-[10px] text-slate-500 font-mono">
-                          {new Date(reply.createdAt).toLocaleDateString("tr-TR", {
-                            day: "numeric",
-                            month: "short",
-                          })}
+                      {comment.authorAvatar ? (
+                        <img src={comment.authorAvatar} alt="" className="w-full h-full rounded-full object-cover" />
+                      ) : (
+                        comment.authorName.charAt(0)
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs font-semibold text-white">{comment.authorName}</span>
+                        <span className="px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 text-xs font-mono border border-brand-500/20">
+                          {comment.authorRole}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-300 leading-relaxed">
-                        {reply.content}
-                      </p>
+                      <time dateTime={comment.createdAt} className="text-xs text-slate-500 font-mono">
+                        {formatDate(comment.createdAt, locale)}
+                      </time>
                     </div>
-                  ))}
+                  </div>
+
+                  {canModerate && (
+                    <button
+                      type="button"
+                      onClick={() => handleFlag(comment.id)}
+                      disabled={isFlagged}
+                      aria-label={isFlagged ? t.reported : t.report(comment.authorName)}
+                      title={isFlagged ? t.reported : t.report(comment.authorName)}
+                      className={`p-1.5 rounded-lg border transition-colors ${FOCUS_RING} ${
+                        isFlagged
+                          ? "bg-rose-500/10 border-rose-500/30 text-rose-400"
+                          : "border-slate-800 text-slate-500 hover:text-rose-400 hover:border-rose-500/30"
+                      }`}
+                    >
+                      <Flag className="w-3.5 h-3.5" aria-hidden="true" />
+                    </button>
+                  )}
                 </div>
-              )}
-            </div>
-          ))
-        )}
-      </div>
+
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed pl-11 whitespace-pre-line break-words">
+                  {comment.content}
+                </p>
+
+                {canComment && (
+                  <div className="pl-11 flex items-center gap-4 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormError(null);
+                        setReplyingTo(replyingTo === comment.id ? null : comment.id);
+                      }}
+                      aria-expanded={replyingTo === comment.id}
+                      aria-controls={replyingTo === comment.id ? replyFieldId : undefined}
+                      className={`inline-flex items-center gap-1.5 rounded text-xs text-brand-300 hover:text-brand-200 transition-colors ${FOCUS_RING}`}
+                    >
+                      <Reply className="w-3.5 h-3.5" aria-hidden="true" />
+                      <span>{t.reply}</span>
+                    </button>
+                  </div>
+                )}
+
+                {canComment && replyingTo === comment.id && (
+                  <form
+                    id={replyFieldId}
+                    className="ml-11 mt-3 p-3 rounded-xl bg-ink-900 border border-slate-800 space-y-2"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      void handleAddComment(comment.id);
+                    }}
+                  >
+                    <label htmlFor={`${replyFieldId}-input`} className="sr-only">
+                      {t.replyLabel}
+                    </label>
+                    <textarea
+                      id={`${replyFieldId}-input`}
+                      name="reply"
+                      value={replyContent}
+                      onChange={(e) => setReplyContent(e.target.value)}
+                      placeholder={t.replyPlaceholder}
+                      rows={2}
+                      autoFocus
+                      aria-invalid={formError?.target === comment.id || undefined}
+                      className={`${TEXTAREA_CLASS} text-xs px-3 py-2`}
+                    />
+                    {renderError(comment.id)}
+                    <div className="flex items-center justify-end gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setReplyingTo(null);
+                          setReplyContent("");
+                          setFormError(null);
+                        }}
+                        className={`px-2.5 py-1 rounded text-xs text-slate-400 hover:text-white ${FOCUS_RING}`}
+                      >
+                        {t.cancel}
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={loading || !replyContent.trim()}
+                        className={`px-3 py-1 rounded bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${FOCUS_RING}`}
+                      >
+                        {loading ? t.submitting : t.sendReply}
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {comment.replies && comment.replies.length > 0 && (
+                  <ul
+                    aria-label={t.repliesLabel(comment.authorName)}
+                    className="ml-8 sm:ml-11 mt-3 pl-4 border-l-2 border-brand-500/20 space-y-3"
+                  >
+                    {comment.replies.map((reply) => (
+                      <li
+                        key={reply.id}
+                        className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/60 space-y-2"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-slate-200">{reply.authorName}</span>
+                            <span className="px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 text-xs font-mono border border-brand-500/20">
+                              {reply.authorRole}
+                            </span>
+                          </div>
+                          <time dateTime={reply.createdAt} className="text-xs text-slate-500 font-mono">
+                            {formatDate(reply.createdAt, locale, { day: "numeric", month: "short", year: "numeric" })}
+                          </time>
+                        </div>
+                        <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-line break-words">
+                          {reply.content}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </section>
   );
 }

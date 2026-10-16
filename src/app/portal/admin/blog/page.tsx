@@ -1,184 +1,174 @@
 import React from "react";
 import Link from "next/link";
-import {
-  BookOpen,
-  Plus,
-  Eye,
-  ThumbsUp,
-  Clock,
-  Edit3,
-  ExternalLink,
-  MessageSquare,
-  Sparkles,
-} from "lucide-react";
+import { redirect } from "next/navigation";
+import { BookOpen, Clock, Edit3, ExternalLink, MessageSquare, Plus, ThumbsUp } from "lucide-react";
+import { getSessionUser, userCan } from "@/lib/auth/session";
+import { canAccessAdminSection } from "@/lib/admin/admin-access";
 import { getBlogPosts } from "@/lib/blog/blog-queries";
+import { getServerLocale } from "@/lib/i18n/server";
+import { formatDate } from "@/lib/i18n/format";
+import { adminText } from "@/lib/i18n/portal/admin";
 import AdminBlogDeleteButton from "@/components/portal/AdminBlogDeleteButton";
+import { EmptyState, PageHeader, focusRing } from "../_components/AdminUi";
 
 export default async function AdminBlogListPage() {
+  const user = await getSessionUser();
+  if (!user || !canAccessAdminSection(user, "blog")) redirect("/portal/admin");
+
+  const locale = await getServerLocale();
+  const text = adminText[locale];
+  const t = text.blogList;
+
   const posts = await getBlogPosts({ status: "all" });
+  const canWrite = userCan(user, "blog.write");
+  const canPublish = userCan(user, "blog.publish");
+  const canModerate = userCan(user, "blog.moderate");
 
   const publishedCount = posts.filter((p) => p.status === "published").length;
   const draftCount = posts.filter((p) => p.status === "draft").length;
   const totalLikes = posts.reduce((acc, p) => acc + p.likesCount, 0);
 
+  const stats = [
+    { label: t.statTotal, value: posts.length, className: "text-slate-900" },
+    { label: t.statPublished, value: publishedCount, className: "text-emerald-700" },
+    { label: t.statDrafts, value: draftCount, className: "text-accent-700" },
+    { label: t.statLikes, value: totalLikes, className: "text-brand-700" },
+  ];
+
   return (
     <div className="space-y-6">
-      {/* Action Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900 font-display">
-            Teknik Blog & Makale Yönetimi
-          </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            IEC blog yazılarını düzenleyin, yeni teknik içerik üretin veya taslakları yayınlayın.
-          </p>
-        </div>
+      <PageHeader
+        title={t.title}
+        subtitle={t.subtitle}
+        actions={
+          <>
+            {canModerate && (
+              <Link
+                href="/portal/admin/blog/yorumlar"
+                className={`inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 ${focusRing}`}
+              >
+                <MessageSquare className="h-4 w-4 text-slate-500" aria-hidden="true" />
+                <span>{t.moderation}</span>
+              </Link>
+            )}
+            {canWrite && (
+              <Link
+                href="/portal/admin/blog/yeni"
+                className={`inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 ${focusRing}`}
+              >
+                <Plus className="h-4 w-4" aria-hidden="true" />
+                <span>{t.newPost}</span>
+              </Link>
+            )}
+          </>
+        }
+      />
 
-        <div className="flex items-center gap-3">
-          <Link
-            href="/portal/admin/blog/yorumlar"
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
-          >
-            <MessageSquare className="w-4 h-4 text-slate-500" />
-            <span>Yorum Moderasyonu</span>
-          </Link>
-
-          <Link
-            href="/portal/admin/blog/yeni"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-sm transition-all shadow-brand-600/20"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Yeni Yazı Yaz</span>
-          </Link>
-        </div>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {stats.map((stat) => (
+          <div key={stat.label} className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="text-xs font-medium text-slate-500">{stat.label}</div>
+            <div className={`mt-1 text-2xl font-bold ${stat.className}`}>{stat.value}</div>
+          </div>
+        ))}
       </div>
 
-      {/* Metrics Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-slate-200">
-          <div className="text-xs font-mono text-slate-500">Toplam Yazı</div>
-          <div className="text-2xl font-bold text-slate-900 mt-1 font-mono">
-            {posts.length}
-          </div>
-        </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-200">
-          <div className="text-xs font-mono text-emerald-600">Yayında</div>
-          <div className="text-2xl font-bold text-emerald-600 mt-1 font-mono">
-            {publishedCount}
-          </div>
-        </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-200">
-          <div className="text-xs font-mono text-amber-600">Taslak</div>
-          <div className="text-2xl font-bold text-amber-600 mt-1 font-mono">
-            {draftCount}
-          </div>
-        </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-200">
-          <div className="text-xs font-mono text-purple-600">Toplam Beğeni</div>
-          <div className="text-2xl font-bold text-purple-600 mt-1 font-mono">
-            {totalLikes}
-          </div>
-        </div>
-      </div>
-
-      {/* Posts Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-mono text-[11px]">
-              <tr>
-                <th className="py-3 px-4">BAŞLIK & KATEGORİ</th>
-                <th className="py-3 px-4">YAZAR</th>
-                <th className="py-3 px-4">DURUM</th>
-                <th className="py-3 px-4">SÜRE & TARİH</th>
-                <th className="py-3 px-4">BEĞENİ</th>
-                <th className="py-3 px-4 text-right">İŞLEMLER</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {posts.map((post) => (
-                <tr key={post.slug} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="py-3.5 px-4 max-w-xs">
-                    <div className="font-semibold text-slate-900 line-clamp-1">
-                      {post.title}
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-brand-50 text-brand-700 font-medium">
-                        {post.category}
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        /{post.slug}
-                      </span>
-                    </div>
-                  </td>
-
-                  <td className="py-3.5 px-4 whitespace-nowrap">
-                    <div className="font-medium text-slate-800">
-                      {post.authorName}
-                    </div>
-                    <div className="text-[10px] text-slate-400">
-                      {post.authorRole}
-                    </div>
-                  </td>
-
-                  <td className="py-3.5 px-4 whitespace-nowrap">
-                    {post.status === "published" ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                        Yayında
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono bg-amber-50 text-amber-700 border border-amber-200">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                        Taslak
-                      </span>
-                    )}
-                  </td>
-
-                  <td className="py-3.5 px-4 whitespace-nowrap font-mono text-[11px] text-slate-500">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-slate-400" />
-                      <span>{post.readingTimeMin} dk</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">
-                      {new Date(post.publishedAt).toLocaleDateString("tr-TR")}
-                    </div>
-                  </td>
-
-                  <td className="py-3.5 px-4 whitespace-nowrap font-mono text-[11px] text-slate-700">
-                    <div className="flex items-center gap-1">
-                      <ThumbsUp className="w-3 h-3 text-purple-600" />
-                      <span>{post.likesCount}</span>
-                    </div>
-                  </td>
-
-                  <td className="py-3.5 px-4 whitespace-nowrap text-right">
-                    <div className="inline-flex items-center gap-2">
-                      <Link
-                        href={`/blog/${post.slug}`}
-                        target="_blank"
-                        title="Web'de Görüntüle"
-                        className="p-1.5 text-slate-400 hover:text-brand-600 rounded-lg hover:bg-slate-100 transition-colors"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </Link>
-
-                      <Link
-                        href={`/portal/admin/blog/duzenle/${post.slug}`}
-                        title="Düzenle"
-                        className="p-1.5 text-slate-400 hover:text-brand-600 rounded-lg hover:bg-slate-100 transition-colors"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </Link>
-
-                      <AdminBlogDeleteButton slug={post.slug} />
-                    </div>
-                  </td>
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        {posts.length === 0 ? (
+          <EmptyState icon={BookOpen} message={t.empty} />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[820px] text-left text-sm">
+              <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold text-slate-500">
+                <tr>
+                  <th scope="col" className="px-4 py-3">{t.colTitle}</th>
+                  <th scope="col" className="px-4 py-3">{t.colAuthor}</th>
+                  <th scope="col" className="px-4 py-3">{t.colStatus}</th>
+                  <th scope="col" className="px-4 py-3">{t.colDate}</th>
+                  <th scope="col" className="px-4 py-3">{t.colLikes}</th>
+                  <th scope="col" className="px-4 py-3 text-right">{t.colActions}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {posts.map((post) => {
+                  const isAuthor = post.authorId === user.id;
+                  const canEdit = isAuthor || canPublish;
+                  const canDelete = canModerate || (isAuthor && post.status === "draft");
+                  const shownDate = post.status === "published" ? post.publishedAt : post.updatedAt;
+                  return (
+                    <tr key={post.id} className="align-top">
+                      <td className="max-w-xs px-4 py-3.5">
+                        <div className="line-clamp-2 font-semibold text-slate-900">{post.title}</div>
+                        <div className="mt-1 flex flex-wrap items-center gap-2">
+                          <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700">
+                            {text.categories[post.category] ?? post.category}
+                          </span>
+                          <span className="font-mono text-xs text-slate-500">/{post.slug}</span>
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3.5 font-medium text-slate-800">{post.authorName}</td>
+                      <td className="whitespace-nowrap px-4 py-3.5">
+                        {post.status === "published" ? (
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+                            {t.statusPublished}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-200 bg-accent-50 px-2.5 py-0.5 text-xs font-medium text-accent-800">
+                            <span className="h-1.5 w-1.5 rounded-full bg-accent-500" aria-hidden="true" />
+                            {post.status === "draft" ? t.statusDraft : t.statusArchived}
+                          </span>
+                        )}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3.5 text-xs text-slate-600">
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
+                          <span>{t.readingTime(post.readingTimeMin)}</span>
+                        </div>
+                        <time dateTime={shownDate} className="mt-0.5 block text-slate-500">
+                          {formatDate(shownDate, locale)}
+                        </time>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3.5 text-slate-700">
+                        <span className="inline-flex items-center gap-1">
+                          <ThumbsUp className="h-3.5 w-3.5 text-brand-600" aria-hidden="true" />
+                          <span>{post.likesCount}</span>
+                        </span>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3.5 text-right">
+                        <div className="inline-flex items-center gap-1">
+                          {post.status === "published" && (
+                            <Link
+                              href={`/blog/${post.slug}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={`${t.view(post.title)} ${text.common.newTab}`}
+                              title={t.view(post.title)}
+                              className={`rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-brand-600 ${focusRing}`}
+                            >
+                              <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                            </Link>
+                          )}
+                          {canEdit && (
+                            <Link
+                              href={`/portal/admin/blog/duzenle/${post.slug}`}
+                              aria-label={t.edit(post.title)}
+                              title={t.edit(post.title)}
+                              className={`rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-brand-600 ${focusRing}`}
+                            >
+                              <Edit3 className="h-4 w-4" aria-hidden="true" />
+                            </Link>
+                          )}
+                          {canDelete && <AdminBlogDeleteButton slug={post.slug} title={post.title} />}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

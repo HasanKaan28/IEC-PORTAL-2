@@ -1,206 +1,247 @@
 "use server";
 
+import crypto from "crypto";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
-import { createClient, createAdminClient } from "@/lib/supabase/server";
-import { verifyEventTOTP, generateEventTOTP } from "./totp";
+import { z } from "zod";
+import { createAdminClient } from "@/lib/supabase/server";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
+import { guardedAction, requirePermission, requireUser, type ActionResult } from "@/lib/auth/session";
+import { getServerLocale } from "@/lib/i18n/server";
+import { eventsHackathonsText } from "@/lib/i18n/portal/events-hackathons";
+import { buildCheckInUrl, generateEventTOTP, QrSigningError, verifyEventTOTP } from "./totp";
+import { getEventAttendancesForHost, getEventSigningRecord } from "./event-queries";
 import {
-  memoryEvents,
-  memoryCertificates,
-  memoryAttendances,
-  getEventById,
-  getCertificateByCode,
-  getEventAttendances,
-} from "./event-queries";
-import { CertificateItem, EventAttendanceItem } from "./event-types";
-import { generateCertificatePdf } from "@/lib/certificates/certificate-pdf";
+  getEventStatus,
+  normalizeCheckInCode,
+  type CheckInResult,
+  type LiveCheckInSnapshot,
+} from "./event-types";
 
-export async function registerForEventAction(eventId: string) {
-  const event = memoryEvents.find((e) => e.id === eventId);
-  if (!event) {
-    return { success: false, error: "Etkinlik bulunamadı." };
-  }
+/**
+ * Event server actions. Each one is a public HTTP endpoint, so every body authenticates and authorizes
+ * first and never trusts identity sent by the client: attendance and certificates are always written
+ * for the session user only.
+ */
 
-  if (event.registeredCount >= event.capacity) {
-    return { success: false, error: "Bu etkinlik için kontenjan tamamen dolmuştur." };
-  }
-
-  event.registeredCount += 1;
-  event.userStatus = "registered";
-
-  revalidatePath("/portal/etkinlikler");
-  return { success: true };
+async function text() {
+  return eventsHackathonsText[await getServerLocale()];
 }
 
-export async function checkInWithTOTPAction(eventId: string, inputCode: string) {
-  if (!inputCode || inputCode.trim().length < 5) {
-    return { success: false, error: "Lütfen 6 haneli yoklama kodunu veya QR verisini giriniz." };
+/**
+ * Wrong check-in codes per user and event. A 6-digit code could otherwise be brute-forced through this
+ * endpoint. In-memory, so it is per server instance: a durable limiter would be stronger.
+ */
+const FAILED_ATTEMPT_LIMIT = 8;
+const FAILED_ATTEMPT_WINDOW_MS = 10 * 60 * 1000;
+const failedAttempts = new Map<string, { count: number; resetAt: number }>();
+
+function isCheckInLocked(key: string): boolean {
+  const entry = failedAttempts.get(key);
+  if (!entry) return false;
+  if (entry.resetAt <= Date.now()) {
+    failedAttempts.delete(key);
+    return false;
   }
+  return entry.count >= FAILED_ATTEMPT_LIMIT;
+}
 
-  const event = memoryEvents.find((e) => e.id === eventId);
-  if (!event) {
-    return { success: false, error: "Etkinlik bulunamadı." };
+function recordFailedCheckIn(key: string) {
+  const now = Date.now();
+  if (failedAttempts.size > 10_000) {
+    for (const [entryKey, entry] of failedAttempts) if (entry.resetAt <= now) failedAttempts.delete(entryKey);
   }
+  const entry = failedAttempts.get(key);
+  if (!entry || entry.resetAt <= now) failedAttempts.set(key, { count: 1, resetAt: now + FAILED_ATTEMPT_WINDOW_MS });
+  else entry.count += 1;
+}
 
-  // Verify rotating 60s TOTP code
-  const isValid = verifyEventTOTP(event.id, event.qrSigningSecret, inputCode);
-  if (!isValid) {
-    return {
-      success: false,
-      error:
-        "Yoklama kodu geçersiz veya 60 saniyelik süresi doldu. Lütfen organizatör ekranındaki güncel kodu giriniz.",
-    };
+const CERTIFICATE_CODE_ALPHABET ="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 32 symbols, no 0/O/1/I
+
+/** IEC-<year>-<8 random symbols>: about 10^12 combinations, so codes cannot be guessed or enumerated. */
+function generateCertificateCode(): string {
+  let suffix = "";
+  for (const byte of crypto.randomBytes(8)) suffix += CERTIFICATE_CODE_ALPHABET[byte & 31];
+  return `IEC-${new Date().getUTCFullYear()}-${suffix}`;
+}
+
+/** Returns the user's certificate for the event, issuing one if needed. Null when issuing failed. */
+async function ensureCertificate(eventId: string, userId: string): Promise<string | null> {
+  const admin = createAdminClient();
+  const { data: existing, error: lookupError } = await (admin.from("certificates") as any)
+    .select("certificate_code")
+    .eq("event_id", eventId)
+    .eq("user_id", userId)
+    .limit(1);
+  if (lookupError) {
+    console.error("[events] certificate lookup failed", lookupError);
+    return null;
   }
+  const found = (existing ?? []) as Array<{ certificate_code: string }>;
+  if (found.length > 0) return found[0].certificate_code;
 
-  // Get current user details
-  let currentUserId = "usr-current";
-  let currentUserName = "Kaan Mete Şenyıldız";
-  let currentUserEmail = "student@ius.edu.ba";
-  let currentUserDept = "Bilgisayar Bilimleri ve Mühendisliği (CSE)";
-
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      currentUserId = user.id;
-      currentUserEmail = user.email || currentUserEmail;
-      const { data: prof } = (await supabase
-        .from("profiles")
-        .select("full_name, department")
-        .eq("id", user.id)
-        .single()) as any;
-      if (prof?.full_name) {
-        currentUserName = prof.full_name;
-      }
-      if (prof?.department) {
-        currentUserDept = prof.department;
-      }
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const code = generateCertificateCode();
+    const { error } = await (admin.from("certificates") as any).insert({
+      event_id: eventId,
+      user_id: userId,
+      certificate_code: code,
+      pdf_url: `/api/certificates/${code}/pdf`,
+    });
+    if (!error) return code;
+    if (error.code !== "23505") {
+      console.error("[events] certificate insert failed", error);
+      return null;
     }
-  } catch {
-    // Fallback
   }
+  return null;
+}
 
-  // Check if already checked in
-  const existingAttendance = memoryAttendances.find(
-    (a) => a.eventId === eventId && a.userId === currentUserId
-  );
+/** Member check-in with the rotating code shown on the host screen. */
+export async function checkInWithTOTPAction(
+  eventId: string,
+  inputCode: string
+): Promise<ActionResult<CheckInResult>> {
+  return guardedAction(async () => {
+    const user = await requireUser();
+    const t = await text();
 
-  if (existingAttendance) {
-    const existingCert = memoryCertificates.find(
-      (c) => c.eventId === eventId && c.userId === currentUserId
-    );
-    return {
-      success: true,
-      alreadyCheckedIn: true,
-      certificateCode: existingCert?.certificateCode,
-      message: "Yoklamanız daha önce onaylanmıştır. Sertifikanız hazır!",
-    };
-  }
+    const parsed = z.object({ eventId: z.string().uuid(), code: z.string().max(512) }).safeParse({ eventId, code: inputCode });
+    if (!parsed.success) return { success: false, error: t.errors.invalidInput };
+    const code = normalizeCheckInCode(parsed.data.code);
+    if (!code) return { success: false, error: t.errors.codeFormat };
+    if (!isSupabaseAdminConfigured()) return { success: false, error: t.errors.notConfigured };
 
-  // Record Attendance
-  const newAttendance: EventAttendanceItem = {
-    id: `att-${Date.now()}`,
-    eventId,
-    userId: currentUserId,
-    userName: currentUserName,
-    userEmail: currentUserEmail,
-    userRole: "Katılımcı",
-    checkedInAt: new Date().toISOString(),
-  };
-  memoryAttendances.unshift(newAttendance);
+    const attemptKey = `${user.id}:${parsed.data.eventId}`;
+    if (isCheckInLocked(attemptKey)) return { success: false, error: t.errors.tooManyAttempts };
 
-  event.attendeesCount += 1;
-  event.userStatus = "attended";
+    const event = await getEventSigningRecord(parsed.data.eventId, "check-in");
+    if (!event) return { success: false, error: t.errors.eventNotFound };
+    if (getEventStatus(event.dateTime) !== "live") return { success: false, error: t.errors.checkInClosed };
 
-  // Generate Unique Certificate Code: IEC-2026-XXXX
-  const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-  const certCode = `IEC-2026-${randomSuffix}`;
+    let valid: boolean;
+    try {
+      valid = verifyEventTOTP(event.id, event.qrSigningSecret, code);
+    } catch (error) {
+      if (error instanceof QrSigningError) {
+        console.error("[events] QR check-in unavailable:", error.message);
+        return { success: false, error: t.errors.qrUnavailable };
+      }
+      throw error;
+    }
+    if (!valid) {
+      recordFailedCheckIn(attemptKey);
+      return { success: false, error: t.errors.codeInvalid };
+    }
+    failedAttempts.delete(attemptKey);
 
-  const newCertificate: CertificateItem = {
-    id: `cert-${Date.now()}`,
-    eventId: event.id,
-    eventTitle: event.title,
-    userId: currentUserId,
-    userName: currentUserName,
-    userDepartment: currentUserDept,
-    certificateCode: certCode,
-    issueDate: new Date().toISOString().substring(0, 10),
-    trainingHours: event.category === "workshop" ? 4 : 6,
-    skills: event.tags,
-    instructorName: event.instructor.name,
-    verifyUrl: `http://localhost:3000/dogrula?code=${certCode}`,
-  };
-
-  memoryCertificates.unshift(newCertificate);
-
-  // Attempt database insertion
-  try {
+    // Members cannot insert attendance through RLS; the server writes it after verifying the code,
+    // for the session user only. The unique (event_id, user_id) constraint keeps it to one per event.
     const admin = createAdminClient();
-    await (admin.from("event_attendances") as any).insert({
-      event_id: eventId,
-      user_id: currentUserId,
+    let alreadyCheckedIn = false;
+    const { error: insertError } = await (admin.from("event_attendances") as any).insert({
+      event_id: event.id,
+      user_id: user.id,
     });
-    await (admin.from("certificates") as any).insert({
-      event_id: eventId,
-      user_id: currentUserId,
-      certificate_code: certCode,
-      pdf_url: `/api/certificates/${certCode}/pdf`,
+    if (insertError) {
+      if (insertError.code !== "23505") {
+        console.error("[events] attendance insert failed", insertError);
+        return { success: false, error: t.errors.generic };
+      }
+      alreadyCheckedIn = true;
+    }
+
+    const certificateCode = await ensureCertificate(event.id, user.id);
+
+    revalidatePath("/portal/etkinlikler");
+    revalidatePath("/portal/sertifikalarim");
+
+    const message = !certificateCode
+      ? t.checkIn.successNoCertificate
+      : alreadyCheckedIn
+        ? t.checkIn.alreadyMessage
+        : t.checkIn.successMessage;
+    return { success: true, data: { alreadyCheckedIn, certificateCode }, message };
+  });
+}
+
+/** Current code, QR content and attendee list for the host screen. Requires events.qr_host. */
+export async function getEventLiveTOTPAction(eventId: string): Promise<ActionResult<LiveCheckInSnapshot>> {
+  return guardedAction(async () => {
+    await requirePermission("events.qr_host");
+    const t = await text();
+    if (!z.string().uuid().safeParse(eventId).success) return { success: false, error: t.errors.invalidInput };
+    if (!isSupabaseAdminConfigured()) return { success: false, error: t.errors.notConfigured };
+
+    const event = await getEventSigningRecord(eventId, "host");
+    if (!event) return { success: false, error: t.errors.eventNotFound };
+
+    try {
+      const totp = generateEventTOTP(event.id, event.qrSigningSecret);
+      const attendees = await getEventAttendancesForHost(event.id);
+      return {
+        success: true,
+        data: {
+          code: totp.code,
+          qrValue: buildCheckInUrl(event.id, totp.code),
+          remainingSeconds: totp.remainingSeconds,
+          attendees,
+        },
+      };
+    } catch (error) {
+      if (error instanceof QrSigningError) {
+        console.error("[events] QR code generation unavailable:", error.message);
+        return { success: false, error: t.errors.qrUnavailable };
+      }
+      throw error;
+    }
+  });
+}
+
+/** Creates an event with a fresh random QR signing secret. Requires events.manage. */
+export async function createEventAction(input: {
+  title: string;
+  description: string;
+  venue: string;
+  dateTime: string;
+}): Promise<ActionResult<{ id: string }>> {
+  return guardedAction(async () => {
+    await requirePermission("events.manage");
+    const t = await text();
+
+    const schema = z.object({
+      title: z.string().trim().min(3, t.validation.titleLength).max(150, t.validation.titleLength),
+      description: z.string().trim().min(10, t.validation.descriptionLength).max(2000, t.validation.descriptionLength),
+      venue: z.string().trim().min(2, t.validation.venueLength).max(150, t.validation.venueLength),
+      dateTime: z
+        .string()
+        .max(64)
+        .refine((value) => {
+          const time = Date.parse(value);
+          return !Number.isNaN(time) && time > Date.UTC(2020, 0, 1) && time < Date.UTC(2100, 0, 1);
+        }, t.validation.dateTimeInvalid),
     });
-  } catch {
-    // Fallback
-  }
+    const parsed = schema.safeParse(input);
+    if (!parsed.success) return { success: false, error: parsed.error.errors[0]?.message ?? t.errors.invalidInput };
+    if (!isSupabaseAdminConfigured()) return { success: false, error: t.errors.notConfigured };
 
-  revalidatePath("/portal/etkinlikler");
-  revalidatePath("/portal/sertifikalarim");
+    // Service role after the permission check: RLS on events only knows the "leader" role, while
+    // events.manage is also held by admins. Only the id is selected back, never the secret.
+    const { data, error } = await (createAdminClient().from("events") as any)
+      .insert({
+        title: parsed.data.title,
+        description: parsed.data.description,
+        venue: parsed.data.venue,
+        date_time: new Date(parsed.data.dateTime).toISOString(),
+        qr_signing_secret: crypto.randomBytes(32).toString("hex"),
+      })
+      .select("id")
+      .single();
+    if (error || !data) {
+      console.error("[events] create failed", error);
+      return { success: false, error: t.errors.generic };
+    }
 
-  return {
-    success: true,
-    certificateCode: certCode,
-    certificate: newCertificate,
-  };
+    revalidatePath("/portal/etkinlikler");
+    return { success: true, data: { id: (data as { id: string }).id }, message: t.createEvent.created };
+  });
 }
-
-export async function getCertificatePdfBase64Action(certificateCode: string) {
-  const cert = await getCertificateByCode(certificateCode);
-  if (!cert) {
-    return { success: false, error: "Sertifika bulunamadı." };
-  }
-
-  try {
-    const pdfBytes = await generateCertificatePdf(cert);
-    const base64 = Buffer.from(pdfBytes).toString("base64");
-    return {
-      success: true,
-      base64,
-      fileName: `${cert.certificateCode}_${cert.userName.replace(/\s+/g, "_")}.pdf`,
-    };
-  } catch (err: any) {
-    return { success: false, error: err.message || "PDF üretilemedi." };
-  }
-}
-
-export async function getEventLiveTOTPAction(eventId: string) {
-  const event = memoryEvents.find((e) => e.id === eventId);
-  if (!event) {
-    return { success: false, error: "Etkinlik bulunamadı." };
-  }
-
-  const { code, payload, remainingSeconds } = generateEventTOTP(
-    event.id,
-    event.qrSigningSecret
-  );
-
-  const attendances = await getEventAttendances(eventId);
-
-  return {
-    success: true,
-    code,
-    payload,
-    remainingSeconds,
-    attendeesCount: attendances.length,
-    attendees: attendances,
-  };
-}
-

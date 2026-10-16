@@ -1,232 +1,268 @@
 import React from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
-  CheckCircle2,
-  Clock,
-  FolderGit2,
-  Trophy,
   ArrowRight,
-  Flame,
-  Plus,
+  Award,
   Calendar,
-  Sparkles,
+  CheckCircle2,
   ChevronRight,
+  Clock,
+  Flame,
+  FolderGit2,
+  ListTodo,
+  MapPin,
+  MessageSquare,
+  Trophy,
+  UserCog,
+  type LucideIcon,
 } from "lucide-react";
-import { getDashboardSummaryData } from "@/lib/tasks/task-queries";
+import { getSessionUser } from "@/lib/auth/session";
+import { getDashboardData, type DashboardTaskStatus } from "@/lib/portal/dashboard-queries";
+import { getServerLocale } from "@/lib/i18n/server";
+import { formatDate, formatDateTime } from "@/lib/i18n/format";
+import { portalShellText } from "@/lib/i18n/portal/shell";
+
+export async function generateMetadata() {
+  const locale = await getServerLocale();
+  return { title: portalShellText[locale].shell.nav.dashboard };
+}
+
+const STATUS_STYLES: Record<DashboardTaskStatus, string> = {
+  todo: "bg-slate-100 text-slate-700 border-slate-200",
+  in_progress: "bg-accent-50 text-accent-800 border-accent-200",
+  in_review: "bg-brand-50 text-brand-700 border-brand-200",
+  done: "bg-emerald-50 text-emerald-700 border-emerald-200",
+};
+
+function greetingFor(hour: number, t: (typeof portalShellText)["tr"]["dashboard"]): string {
+  if (hour < 12) return t.greetingMorning;
+  if (hour < 18) return t.greetingDay;
+  return t.greetingEvening;
+}
+
+function StatCard({
+  label,
+  value,
+  hint,
+  icon: Icon,
+  tone,
+}: {
+  label: string;
+  value: number;
+  hint: string;
+  icon: LucideIcon;
+  tone: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-slate-500">{label}</span>
+        <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${tone}`}>
+          <Icon className="w-4 h-4" aria-hidden="true" />
+        </span>
+      </div>
+      <div className="mt-3 font-display text-3xl font-bold tabular-nums text-slate-900">{value}</div>
+      <div className="mt-1 text-xs text-slate-500">{hint}</div>
+    </div>
+  );
+}
 
 export default async function PortalDashboardPage() {
-  const summary = await getDashboardSummaryData();
+  const user = await getSessionUser();
+  if (!user) redirect("/portal/giris");
+
+  const [locale, data] = await Promise.all([getServerLocale(), getDashboardData(user.id)]);
+  const t = portalShellText[locale].dashboard;
+  const hour = Number(
+    new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: "Europe/Sarajevo" }).format(new Date())
+  );
+  const firstName = user.fullName.split(/\s+/)[0] || user.fullName;
+  const now = Date.now();
+
+  const quickLinks: Array<{ href: string; label: string; icon: LucideIcon }> = [
+    { href: "/portal/hackathon", label: t.links.hackathons, icon: Trophy },
+    { href: "/portal/mesajlar", label: t.links.messages, icon: MessageSquare },
+    { href: "/portal/sertifikalarim", label: t.links.certificates, icon: Award },
+    { href: "/portal/profil", label: t.links.profile, icon: UserCog },
+  ];
 
   return (
-    <div className="space-y-6 max-w-6xl">
-      {/* Welcome banner */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-mono text-brand-600 font-semibold uppercase">
-              IEC Mühendislik Çalışma Alanı
-            </span>
+    <div className="mx-auto max-w-6xl space-y-6">
+      <section className="relative overflow-hidden rounded-3xl bg-ink-950 p-6 text-white sm:p-8">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(40rem_16rem_at_0%_0%,rgba(209,52,156,0.35),transparent_70%),radial-gradient(30rem_14rem_at_100%_100%,rgba(234,179,8,0.14),transparent_70%)]"
+        />
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-accent-300">{t.eyebrow}</p>
+            <h1 className="mt-2 font-display text-2xl font-bold sm:text-3xl">
+              {greetingFor(hour, t)}, {firstName}
+            </h1>
+            <p className="mt-2 max-w-xl text-sm text-slate-300">{t.intro}</p>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 font-display">
-            Hoş Geldin, Mühendis 👋
-          </h1>
-          <p className="text-xs text-slate-500 mt-1 max-w-xl">
-            Aktif sprint görevlerini, dahil olduğun donanım/yazılım projelerini ve yaklaşan etkinlik takvimini buradan yönetebilirsin.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5">
           <Link
             href="/portal/gorevler"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-xl transition-all shadow-sm shadow-brand-600/20"
+            className="inline-flex items-center gap-2 self-start rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-ink-950 transition-colors hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 sm:self-auto"
           >
-            <span>Görev Panosunu Aç</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <span>{t.openBoard}</span>
+            <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Link>
         </div>
-      </div>
+      </section>
 
-      {/* KPI Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-medium">Aktif Görevler</span>
-            <Clock className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900 mt-2 font-mono">
-            {summary.todoCount + summary.inProgressCount + summary.inReviewCount}
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] text-amber-600 mt-0.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-            <span>{summary.inProgressCount} devam ediyor</span>
-          </div>
-        </div>
+      <section className="grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label={t.quickLinks}>
+        <StatCard
+          label={t.stats.openTasks}
+          value={data.openTasks}
+          hint={`${data.inProgressTasks} ${t.stats.inProgress}`}
+          icon={Clock}
+          tone="bg-accent-100 text-accent-700"
+        />
+        <StatCard
+          label={t.stats.done}
+          value={data.doneTasks}
+          hint={t.stats.doneHint}
+          icon={CheckCircle2}
+          tone="bg-emerald-100 text-emerald-700"
+        />
+        <StatCard
+          label={t.stats.projects}
+          value={data.projects}
+          hint={t.stats.projectsHint}
+          icon={FolderGit2}
+          tone="bg-brand-100 text-brand-700"
+        />
+        <StatCard
+          label={t.stats.certificates}
+          value={data.certificates}
+          hint={t.stats.certificatesHint}
+          icon={Award}
+          tone="bg-violet-100 text-violet-700"
+        />
+      </section>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-medium">Tamamlanan</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-          </div>
-          <div className="text-2xl font-bold text-emerald-600 mt-2 font-mono">
-            {summary.doneCount}
-          </div>
-          <span className="text-[11px] text-slate-400">Bu dönem kapatılan</span>
-        </div>
-
-        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-medium">Aktif Projeler</span>
-            <FolderGit2 className="w-4 h-4 text-brand-500" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900 mt-2 font-mono">
-            {summary.userActiveProjectsCount}
-          </div>
-          <span className="text-[11px] text-slate-400">PowerHub & DevHack 2027</span>
-        </div>
-
-        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-medium">Yaklaşan Etkinlik</span>
-            <Trophy className="w-4 h-4 text-purple-500" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900 mt-2 font-mono">
-            DevHack
-          </div>
-          <span className="text-[11px] text-purple-600 font-medium">
-            24 Saatlik Maraton
-          </span>
-        </div>
-      </div>
-
-      {/* Main Two Columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Recent Tasks (2 cols) */}
-        <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 lg:col-span-2">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-brand-600" />
-              <h2 className="text-sm font-bold text-slate-900 font-display">
-                Sprint Görevleri & İlerleme
-              </h2>
-            </div>
-            <Link
-              href="/portal/gorevler"
-              className="text-xs text-brand-600 hover:text-brand-700 flex items-center gap-1 font-medium"
-            >
-              <span>Tüm Panoyu Gör</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+            <h2 className="flex items-center gap-2 font-display text-base font-semibold text-slate-900">
+              <ListTodo className="w-4 h-4 text-brand-600" aria-hidden="true" />
+              {t.myTasks}
+            </h2>
+            <Link href="/portal/gorevler" className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:text-brand-800">
+              {t.allTasks}
+              <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </Link>
           </div>
 
-          <div className="space-y-2.5">
-            {summary.recentTasks.map((task) => (
-              <Link
-                key={task.id}
-                href="/portal/gorevler"
-                className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 transition-colors group"
-              >
-                <div className="space-y-1 pr-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-slate-800 group-hover:text-brand-600 transition-colors line-clamp-1">
-                      {task.title}
-                    </span>
-                    {task.priority === "urgent" && (
-                      <span className="inline-flex items-center text-[10px] text-rose-600 font-bold font-mono">
-                        <Flame className="w-3 h-3 fill-rose-500" />
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono">
-                    <span className="text-slate-600">{task.projectName}</span>
-                    <span>•</span>
-                    <span>{task.assigneeName}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 shrink-0">
-                  <span
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-medium ${
-                      task.status === "done"
-                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                        : task.status === "in_review"
-                        ? "bg-brand-50 text-brand-700 border border-brand-200"
-                        : task.status === "in_progress"
-                        ? "bg-amber-50 text-amber-700 border border-amber-200"
-                        : "bg-slate-100 text-slate-700"
-                    }`}
-                  >
-                    {task.status === "done"
-                      ? "Tamamlandı"
-                      : task.status === "in_review"
-                      ? "İncelemede"
-                      : task.status === "in_progress"
-                      ? "Sürüyor"
-                      : "Yapılacak"}
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-brand-600 transition-colors" />
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Right Column: Events & Announcements (1 col) */}
-        <div className="space-y-6">
-          {/* Quick Hackathon Card */}
-          <div className="rounded-2xl p-5 bg-gradient-to-br from-brand-900 to-slate-900 text-white shadow-sm space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-brand-200 border border-white/20">
-                DEVHACK 2027
+          {data.nextTasks.length === 0 ? (
+            <div className="flex flex-col items-center py-10 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
+                <CheckCircle2 className="w-6 h-6" aria-hidden="true" />
               </span>
-              <Trophy className="w-4 h-4 text-amber-400" />
+              <p className="mt-3 text-sm font-medium text-slate-800">{t.noTasksTitle}</p>
+              <p className="mt-1 text-sm text-slate-500">{t.noTasksHint}</p>
+              <Link
+                href="/portal/projeler"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
+              >
+                {t.browseProjects}
+              </Link>
             </div>
+          ) : (
+            <ul className="mt-3 space-y-2">
+              {data.nextTasks.map((task) => {
+                const overdue = task.dueDate ? Date.parse(task.dueDate) < now : false;
+                return (
+                  <li key={task.id}>
+                    <Link
+                      href="/portal/gorevler"
+                      className="group flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/60 p-3.5 transition-colors hover:border-brand-200 hover:bg-brand-50/40"
+                    >
+                      <div className="min-w-0 space-y-1">
+                        <div className="flex items-center gap-2">
+                          {task.priority === "urgent" && (
+                            <Flame className="w-4 h-4 shrink-0 text-rose-500" aria-label={t.priority.urgent} />
+                          )}
+                          <span className="truncate text-sm font-semibold text-slate-800 group-hover:text-brand-700">
+                            {task.title}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-x-2 text-xs text-slate-500">
+                          <span>{task.projectTitle ? task.projectTitle[locale] : t.noProject}</span>
+                          {task.dueDate && (
+                            <>
+                              <span aria-hidden="true">·</span>
+                              <span className={overdue ? "font-medium text-rose-600" : ""}>
+                                {overdue ? t.overdue : t.due}: {formatDate(task.dueDate, locale, { day: "numeric", month: "short" })}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <span className={`rounded-lg border px-2.5 py-1 text-xs font-medium ${STATUS_STYLES[task.status]}`}>
+                          {t.status[task.status]}
+                        </span>
+                        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-brand-600" aria-hidden="true" />
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
 
-            <h3 className="text-sm font-bold font-display">
-              Takımını Kur veya Takımlara Katıl
-            </h3>
-            <p className="text-xs text-brand-200 leading-relaxed">
-              24 saatlik büyük maratonda yazılım, gömülü donanım veya yapay zekâ kategorisinde yarışmak için takım arkadaşı ara.
-            </p>
-
-            <Link
-              href="/portal/hackathon"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-300 hover:text-accent-200 transition-colors pt-1"
-            >
-              <span>Hackathon Merkezine Git</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          {/* Club News */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-              <h3 className="text-xs font-bold text-slate-800 font-display">
-                Son Gelişmeler
-              </h3>
-              <span className="text-[10px] text-slate-400 font-mono">Duyurular</span>
+        <div className="space-y-6">
+          <section className="rounded-2xl border border-slate-200 bg-white p-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h2 className="flex items-center gap-2 font-display text-base font-semibold text-slate-900">
+                <Calendar className="w-4 h-4 text-brand-600" aria-hidden="true" />
+                {t.upcomingEvents}
+              </h2>
+              <Link href="/portal/etkinlikler" className="text-sm font-medium text-brand-700 hover:text-brand-800">
+                {t.allEvents}
+              </Link>
             </div>
+            {data.upcomingEvents.length === 0 ? (
+              <p className="py-6 text-center text-sm text-slate-500">{t.noEvents}</p>
+            ) : (
+              <ul className="mt-3 space-y-3">
+                {data.upcomingEvents.map((event) => (
+                  <li key={event.id} className="rounded-xl bg-slate-50 p-3">
+                    <p className="text-sm font-semibold text-slate-900">{event.title}</p>
+                    <p className="mt-1 text-xs text-slate-500">{formatDateTime(event.dateTime, locale)}</p>
+                    <p className="mt-0.5 flex items-center gap-1 text-xs text-slate-500">
+                      <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
+                      {event.venue}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
 
-            <div className="space-y-3 text-xs">
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
-                <span className="font-semibold text-slate-900 block">
-                  Prof. Dr. Leila Miller Danışmanlığında SCC Başvurusu
-                </span>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  FENS Mühendislik Kulübü tüzüğü ve kurucu üye imzaları Öğrenci İşleri Merkezi koordinatörlüğüne teslim edildi.
-                </p>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
-                <span className="font-semibold text-slate-900 block">
-                  Linear Entegrasyonu ve Sprint Döngüsü
-                </span>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Kulüp içi görev takibi haftalık sprintler halinde bu panelden ve Linear panosundan senkronize yürütülmektedir.
-                </p>
-              </div>
-            </div>
-          </div>
+          <section className="rounded-2xl border border-slate-200 bg-white p-5">
+            <h2 className="border-b border-slate-100 pb-3 font-display text-base font-semibold text-slate-900">{t.quickLinks}</h2>
+            <ul className="mt-2">
+              {quickLinks.map(({ href, label, icon: Icon }) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    className="group flex items-center justify-between rounded-xl px-2 py-2.5 text-sm text-slate-700 transition-colors hover:bg-slate-50 hover:text-brand-700"
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <Icon className="w-4 h-4 text-slate-400 group-hover:text-brand-600" aria-hidden="true" />
+                      {label}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-brand-500" aria-hidden="true" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
         </div>
       </div>
     </div>

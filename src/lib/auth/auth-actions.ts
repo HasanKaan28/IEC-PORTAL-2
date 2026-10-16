@@ -76,7 +76,15 @@ function signInSchema(t: AuthText) {
 }
 
 function profileSchema(t: AuthText) {
-  const optionalUrl = z.string().trim().url(t.urlInvalid).max(300).optional().or(z.literal(""));
+  // Only web links: a javascript: or data: URL here would end up behind a link on the profile card.
+  const optionalUrl = z
+    .string()
+    .trim()
+    .max(300)
+    .url(t.urlInvalid)
+    .refine((value) => /^https?:\/\//i.test(value), t.urlInvalid)
+    .optional()
+    .or(z.literal(""));
   return z.object({
     fullName: z.string().trim().min(2, t.nameMin).max(100),
     bio: z.string().max(500).optional(),

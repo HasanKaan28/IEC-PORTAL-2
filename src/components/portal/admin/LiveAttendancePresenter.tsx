@@ -1,381 +1,371 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import {
-  Maximize2,
-  Minimize2,
-  Moon,
-  Sun,
-  Users,
-  Clock,
-  ArrowLeft,
-  Sparkles,
-  ShieldCheck,
-  CheckCircle2,
-  RefreshCw,
-} from "lucide-react";
 import QRCode from "qrcode";
-import { EventItem, EventAttendanceItem } from "@/lib/events/event-types";
+import { AlertTriangle, ArrowLeft, Maximize2, MapPin, Minimize2, Moon, ShieldCheck, Sun, Users } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { formatDate } from "@/lib/i18n/format";
+import { eventsHackathonsText } from "@/lib/i18n/portal/events-hackathons";
+import { EVENT_TIME_ZONE, type EventAttendanceItem, type PresenterEvent } from "@/lib/events/event-types";
 import { getEventLiveTOTPAction } from "@/lib/events/event-actions";
 
 interface LiveAttendancePresenterProps {
-  event: EventItem;
+  event: PresenterEvent;
   initialCode: string;
-  initialPayload: string;
+  initialQrValue: string;
   initialRemaining: number;
   initialAttendees: EventAttendanceItem[];
 }
 
+const ROTATION_SECONDS = 60;
+const POLL_INTERVAL_MS = 5000;
+const RING_RADIUS = 16;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
+/** Host projector screen: rotating QR code, the same code as digits, and the live attendee list. */
 export default function LiveAttendancePresenter({
   event,
   initialCode,
-  initialPayload,
+  initialQrValue,
   initialRemaining,
   initialAttendees,
 }: LiveAttendancePresenterProps) {
+  const { locale } = useLocale();
+  const t = eventsHackathonsText[locale].presenter;
+
   const [code, setCode] = useState(initialCode);
-  const [payload, setPayload] = useState(initialPayload);
+  const [qrValue, setQrValue] = useState(initialQrValue);
   const [remaining, setRemaining] = useState(initialRemaining);
   const [attendees, setAttendees] = useState<EventAttendanceItem[]>(initialAttendees);
-  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+  const [qrDataUrl, setQrDataUrl] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
+
   const containerRef = useRef<HTMLDivElement>(null);
+  const expiresAtRef = useRef(Date.now() + initialRemaining * 1000);
+  const inFlightRef = useRef(false);
 
-  // Generate QR Code data URL whenever payload updates
-  useEffect(() => {
-    const generateQr = async () => {
-      try {
-        const url = await QRCode.toDataURL(payload, {
-          width: 400,
-          margin: 1,
-          color: {
-            dark: isDarkMode ? "#ffffff" : "#0f172a",
-            light: isDarkMode ? "#00000000" : "#ffffff00",
-          },
-        });
-        setQrDataUrl(url);
-      } catch (err) {
-        console.error("QR Code generation error:", err);
+  const sync = useCallback(async () => {
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
+    try {
+      const res = await getEventLiveTOTPAction(event.id);
+      if (res.success && res.data) {
+        setCode(res.data.code);
+        setQrValue(res.data.qrValue);
+        setAttendees(res.data.attendees);
+        expiresAtRef.current = Date.now() + res.data.remainingSeconds * 1000;
+        setRemaining(res.data.remainingSeconds);
+        setSyncError(null);
+      } else {
+        setSyncError(res.success ? t.syncError : res.error);
       }
-    };
-    generateQr();
-  }, [payload, isDarkMode]);
+    } catch {
+      setSyncError(t.syncError);
+    } finally {
+      inFlightRef.current = false;
+    }
+  }, [event.id, t.syncError]);
 
-  // Tick timer every second
+  // Countdown from the server-provided expiry; fetch the next code as soon as it runs out.
   useEffect(() => {
     const timer = setInterval(() => {
-      setRemaining((prev) => {
-        if (prev <= 1) {
-          // Re-fetch next rotation
-          syncLiveTOTP();
-          return 60;
-        }
-        return prev - 1;
-      });
+      const left = Math.max(0, Math.ceil((expiresAtRef.current - Date.now()) / 1000));
+      setRemaining(left);
+      if (left <= 0) void sync();
     }, 1000);
-
     return () => clearInterval(timer);
-  }, []);
+  }, [sync]);
 
-  // Poll server for attendees and sync clock every 6 seconds
+  // Keep the attendee list and clock in step with the server.
   useEffect(() => {
-    const pollInterval = setInterval(() => {
-      syncLiveTOTP();
-    }, 6000);
+    const poll = setInterval(() => void sync(), POLL_INTERVAL_MS);
+    return () => clearInterval(poll);
+  }, [sync]);
 
-    return () => clearInterval(pollInterval);
+  useEffect(() => {
+    let cancelled = false;
+    QRCode.toDataURL(qrValue, {
+      width: 480,
+      margin: 1,
+      errorCorrectionLevel: "M",
+      color: { dark: isDarkMode ? "#ffffffff" : "#1c1623ff", light: "#00000000" },
+    })
+      .then((url) => {
+        if (!cancelled) setQrDataUrl(url);
+      })
+      .catch((error) => console.error("[presenter] QR render failed", error));
+    return () => {
+      cancelled = true;
+    };
+  }, [qrValue, isDarkMode]);
+
+  useEffect(() => {
+    const handleChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", handleChange);
+    return () => document.removeEventListener("fullscreenchange", handleChange);
   }, []);
-
-  const syncLiveTOTP = async () => {
-    setIsSyncing(true);
-    const res = await getEventLiveTOTPAction(event.id);
-    setIsSyncing(false);
-
-    if (res.success && res.code) {
-      setCode(res.code);
-      if (res.payload) setPayload(res.payload);
-      if (res.remainingSeconds) setRemaining(res.remainingSeconds);
-      if (res.attendees) setAttendees(res.attendees);
-    }
-  };
 
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
-      setIsFullscreen(true);
-    } else {
+    if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
-      setIsFullscreen(false);
+    } else {
+      containerRef.current?.requestFullscreen().catch(() => {});
     }
   };
 
-  // Format 6-digit code with a middle space: "482 913"
-  const formattedCode =
-    code.length === 6 ? `${code.substring(0, 3)} ${code.substring(3)}` : code;
+  const shownSeconds = Math.min(ROTATION_SECONDS, remaining);
+  const formattedCode = code.length === 6 ? `${code.slice(0, 3)} ${code.slice(3)}` : code;
+  const surface = isDarkMode ? "border-slate-800 bg-slate-900/70" : "border-slate-200 bg-white";
+  const mutedText = isDarkMode ? "text-slate-300" : "text-slate-600";
+  const focusRing = "focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400";
 
   return (
     <div
       ref={containerRef}
-      className={`min-h-screen transition-colors duration-300 flex flex-col justify-between ${
-        isDarkMode
-          ? "bg-ink-900 text-white selection:bg-brand-500 selection:text-white"
-          : "bg-slate-50 text-slate-900 selection:bg-brand-100"
+      className={`flex min-h-[80vh] flex-col overflow-y-auto rounded-2xl border transition-colors duration-300 ${
+        isDarkMode ? "border-slate-800 bg-ink-900 text-white" : "border-slate-200 bg-slate-50 text-slate-900"
       }`}
     >
-      {/* Top HUD Controls */}
       <header
-        className={`px-6 py-4 flex items-center justify-between border-b ${
-          isDarkMode ? "border-slate-800/80 bg-slate-950/60" : "border-slate-200 bg-white"
-        } backdrop-blur-md sticky top-0 z-20`}
+        className={`flex flex-wrap items-center justify-between gap-4 border-b px-6 py-4 ${
+          isDarkMode ? "border-slate-800 bg-ink-950/70" : "border-slate-200 bg-white"
+        }`}
       >
-        <div className="flex items-center gap-4">
+        <div className="flex min-w-0 items-center gap-4">
           <Link
             href="/portal/etkinlikler"
-            className={`p-2 rounded-xl transition-colors ${
-              isDarkMode
-                ? "bg-slate-800/80 hover:bg-slate-700 text-slate-300"
-                : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+            aria-label={t.back}
+            title={t.back}
+            className={`rounded-xl p-2 transition-colors ${focusRing} ${
+              isDarkMode ? "bg-slate-800 text-slate-200 hover:bg-slate-700" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
             }`}
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-5 w-5" aria-hidden="true" />
           </Link>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-brand-500/10 text-brand-400 border border-brand-500/20">
-                CANLI PROJEKSİYON EKRANI
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className={`rounded-md border px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ${
+                  isDarkMode ? "border-brand-500/40 bg-brand-500/15 text-brand-200" : "border-brand-200 bg-brand-50 text-brand-700"
+                }`}
+              >
+                {t.badge}
               </span>
-              <span className="flex items-center gap-1.5 text-xs text-emerald-400 font-mono">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                Dinamik TOTP Aktif
+              <span className={`flex items-center gap-1.5 text-xs ${isDarkMode ? "text-emerald-300" : "text-emerald-700"}`}>
+                <span className="h-2 w-2 rounded-full bg-emerald-500 motion-safe:animate-pulse" aria-hidden="true" />
+                {t.rotating}
               </span>
             </div>
-            <h1 className="text-base font-bold truncate max-w-xl mt-0.5">
-              {event.title}
-            </h1>
+            <h1 className="mt-1 truncate font-display text-lg font-bold">{event.title}</h1>
           </div>
         </div>
 
-        {/* Action Controls */}
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            title="Projektör / Aydınlık Mod"
-            className={`p-2.5 rounded-xl border transition-colors ${
+            type="button"
+            onClick={() => setIsDarkMode((value) => !value)}
+            aria-label={isDarkMode ? t.toLightMode : t.toDarkMode}
+            title={isDarkMode ? t.toLightMode : t.toDarkMode}
+            className={`rounded-xl border p-2.5 transition-colors ${focusRing} ${
               isDarkMode
-                ? "bg-slate-900 border-slate-700 text-amber-400 hover:bg-slate-800"
-                : "bg-white border-slate-200 text-slate-700 hover:bg-slate-100"
+                ? "border-slate-700 bg-slate-900 text-accent-300 hover:bg-slate-800"
+                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
             }`}
           >
-            {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            {isDarkMode ? <Sun className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
           </button>
-
           <button
+            type="button"
             onClick={toggleFullscreen}
-            title="Tam Ekran Modu (Projeksiyon)"
-            className={`inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl border font-semibold text-xs transition-colors ${
+            className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-colors ${focusRing} ${
               isDarkMode
-                ? "bg-brand-600/20 border-brand-500/40 text-brand-300 hover:bg-brand-600/30"
-                : "bg-brand-50 border-brand-200 text-brand-700 hover:bg-brand-100"
+                ? "border-brand-500/40 bg-brand-600/20 text-brand-100 hover:bg-brand-600/30"
+                : "border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100"
             }`}
           >
-            {isFullscreen ? (
-              <Minimize2 className="w-4 h-4" />
-            ) : (
-              <Maximize2 className="w-4 h-4" />
-            )}
-            <span>{isFullscreen ? "Tam Ekrandan Çık" : "Projeksiyon Tam Ekran"}</span>
+            {isFullscreen ? <Minimize2 className="h-4 w-4" aria-hidden="true" /> : <Maximize2 className="h-4 w-4" aria-hidden="true" />}
+            <span>{isFullscreen ? t.exitFullscreen : t.enterFullscreen}</span>
           </button>
         </div>
       </header>
 
-      {/* Main Showcase Stage */}
-      <main className="max-w-6xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center flex-1">
-        {/* Left Column: Rotating QR Stage */}
-        <div className="lg:col-span-7 flex flex-col items-center text-center space-y-6">
-          {/* Circular Countdown Progress */}
-          <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 flex items-center justify-center">
-              <svg className="w-full h-full -rotate-90">
+      {(syncError || !event.checkInOpen) && (
+        <div className="space-y-2 px-6 pt-4">
+          {!event.checkInOpen && (
+            <p className="flex items-start gap-2 rounded-xl border border-accent-300 bg-accent-50 px-4 py-2.5 text-sm text-accent-900">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              {t.closedNotice}
+            </p>
+          )}
+          {syncError && (
+            <p role="alert" className="flex items-start gap-2 rounded-xl border border-rose-300 bg-rose-50 px-4 py-2.5 text-sm text-rose-800">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              {syncError}
+            </p>
+          )}
+        </div>
+      )}
+
+      <main className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 items-center gap-8 p-6 lg:grid-cols-12">
+        <section className="flex flex-col items-center space-y-6 text-center lg:col-span-7">
+          <div className="flex items-center gap-3" role="timer" aria-label={t.countdownLabel(shownSeconds)}>
+            <div className="relative flex h-11 w-11 items-center justify-center">
+              <svg className="h-full w-full -rotate-90" viewBox="0 0 40 40" aria-hidden="true">
                 <circle
                   cx="20"
                   cy="20"
-                  r="16"
-                  className={`${isDarkMode ? "stroke-slate-800" : "stroke-slate-200"}`}
+                  r={RING_RADIUS}
+                  className={isDarkMode ? "stroke-slate-800" : "stroke-slate-200"}
                   strokeWidth="3"
                   fill="transparent"
                 />
                 <circle
                   cx="20"
                   cy="20"
-                  r="16"
+                  r={RING_RADIUS}
                   className="stroke-brand-500 transition-all duration-1000 ease-linear"
                   strokeWidth="3"
-                  strokeDasharray={100}
-                  strokeDashoffset={100 - (remaining / 60) * 100}
+                  strokeDasharray={RING_CIRCUMFERENCE}
+                  strokeDashoffset={RING_CIRCUMFERENCE * (1 - shownSeconds / ROTATION_SECONDS)}
                   strokeLinecap="round"
                   fill="transparent"
                 />
               </svg>
-              <span className="absolute text-[11px] font-mono font-bold">
-                {remaining}
+              <span className="absolute font-mono text-xs font-bold" aria-hidden="true">
+                {shownSeconds}
               </span>
             </div>
-            <div className="text-left">
-              <span className="text-xs text-slate-400 block font-mono">
-                KOD YENİLENİYOR:
-              </span>
-              <span className="text-xs font-semibold text-brand-400">
-                {remaining} saniye sonra yeni QR üretilecek
-              </span>
-            </div>
+            <span className={`text-sm font-semibold ${isDarkMode ? "text-brand-200" : "text-brand-700"}`} aria-hidden="true">
+              {t.nextCodeIn(shownSeconds)}
+            </span>
           </div>
 
-          {/* QR Code Presentation Frame */}
           <div
-            className={`p-6 rounded-3xl border shadow-2xl relative group transition-all ${
-              isDarkMode
-                ? "bg-slate-900/90 border-brand-500/30 shadow-brand-500/10"
-                : "bg-white border-slate-200 shadow-xl"
+            className={`relative rounded-3xl border p-6 shadow-2xl transition-colors ${
+              isDarkMode ? "border-brand-500/30 bg-slate-900/90" : "border-slate-200 bg-white"
             }`}
           >
-            {/* Glowing Corner Accents */}
-            <div className="absolute -top-1.5 -left-1.5 w-6 h-6 border-t-2 border-l-2 border-brand-500 rounded-tl-lg" />
-            <div className="absolute -top-1.5 -right-1.5 w-6 h-6 border-t-2 border-r-2 border-brand-500 rounded-tr-lg" />
-            <div className="absolute -bottom-1.5 -left-1.5 w-6 h-6 border-b-2 border-l-2 border-brand-500 rounded-bl-lg" />
-            <div className="absolute -bottom-1.5 -right-1.5 w-6 h-6 border-b-2 border-r-2 border-brand-500 rounded-br-lg" />
-
+            <div className="absolute -left-1.5 -top-1.5 h-6 w-6 rounded-tl-lg border-l-2 border-t-2 border-brand-500" aria-hidden="true" />
+            <div className="absolute -right-1.5 -top-1.5 h-6 w-6 rounded-tr-lg border-r-2 border-t-2 border-brand-500" aria-hidden="true" />
+            <div className="absolute -bottom-1.5 -left-1.5 h-6 w-6 rounded-bl-lg border-b-2 border-l-2 border-brand-500" aria-hidden="true" />
+            <div className="absolute -bottom-1.5 -right-1.5 h-6 w-6 rounded-br-lg border-b-2 border-r-2 border-brand-500" aria-hidden="true" />
             {qrDataUrl ? (
-              <img
-                src={qrDataUrl}
-                alt="Rotating Event Attendance QR"
-                className="w-72 h-72 sm:w-80 sm:h-80 object-contain mx-auto transition-transform duration-300"
-              />
+              // eslint-disable-next-line @next/next/no-img-element -- data URL generated in the browser
+              <img src={qrDataUrl} alt={t.qrAlt} className="mx-auto h-72 w-72 object-contain sm:h-80 sm:w-80" />
             ) : (
-              <div className="w-80 h-80 flex items-center justify-center text-slate-500 text-xs font-mono">
-                QR Yükleniyor...
-              </div>
+              <div className={`flex h-72 w-72 items-center justify-center text-sm sm:h-80 sm:w-80 ${mutedText}`}>{t.qrLoading}</div>
             )}
           </div>
 
-          {/* Manual Numeric Code Fallback */}
           <div className="space-y-2">
-            <span className="text-xs font-mono tracking-widest text-slate-400 block uppercase">
-              Kameranız çalışmıyorsa aşağıdaki 6 haneli kodu girin:
-            </span>
+            <p className={`max-w-md text-sm ${mutedText}`}>{t.manualCodeLabel}</p>
             <div
-              className={`inline-block px-8 py-3.5 rounded-2xl border text-3xl sm:text-4xl font-mono font-black tracking-widest shadow-inner ${
-                isDarkMode
-                  ? "bg-slate-950 border-brand-500/40 text-brand-300"
-                  : "bg-slate-100 border-slate-300 text-brand-700"
+              className={`inline-block rounded-2xl border px-8 py-3.5 font-mono text-4xl font-black tracking-widest shadow-inner sm:text-5xl ${
+                isDarkMode ? "border-brand-500/40 bg-ink-950 text-brand-200" : "border-slate-300 bg-slate-100 text-brand-700"
               }`}
             >
               {formattedCode}
             </div>
           </div>
 
-          <p className="text-xs text-slate-500 max-w-md">
-            🛡️ <strong>Anti-Cheat Koruması</strong>: Bu kod her 60 saniyede bir döner. Ekranın fotoğrafını çekip salonda olmayan arkadaşlarına gönderenlerin kodu geçerliliğini yitirir.
+          <p className={`flex max-w-md items-start gap-2 text-left text-sm ${mutedText}`}>
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" aria-hidden="true" />
+            <span>{t.antiCheat}</span>
           </p>
-        </div>
+        </section>
 
-        {/* Right Column: Live Attendees Stream */}
-        <div className="lg:col-span-5 flex flex-col h-full space-y-4">
-          <div
-            className={`p-5 rounded-2xl border flex items-center justify-between ${
-              isDarkMode
-                ? "bg-slate-900/60 border-slate-800"
-                : "bg-white border-slate-200"
-            }`}
-          >
+        <section className="flex h-full flex-col space-y-4 lg:col-span-5" aria-labelledby="presenter-attendees-heading">
+          <div className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-5 ${surface}`}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
-                <Users className="w-5 h-5" />
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
+                aria-hidden="true"
+              >
+                <Users className="h-5 w-5" />
               </div>
               <div>
-                <span className="text-[10px] font-mono tracking-wider text-slate-400 block">
-                  ANLIK YOKLAMA ONAYI
-                </span>
-                <span className="text-xl font-bold text-emerald-400">
-                  {attendees.length} Katılımcı
-                </span>
+                <h2 id="presenter-attendees-heading" className={`text-xs font-semibold uppercase tracking-wide ${mutedText}`}>
+                  {t.attendeesLabel}
+                </h2>
+                <p className={`text-xl font-bold ${isDarkMode ? "text-emerald-300" : "text-emerald-700"}`} aria-live="polite">
+                  {t.attendeesCount(attendees.length)}
+                </p>
               </div>
             </div>
-
-            <span className="text-xs font-mono text-slate-400 bg-slate-800/40 px-2.5 py-1 rounded-lg border border-slate-700/50">
-              Salon: {event.venue}
+            <span className={`inline-flex items-center gap-1.5 text-sm ${mutedText}`}>
+              <MapPin className="h-4 w-4" aria-hidden="true" />
+              <span className="sr-only">{t.venueLabel}: </span>
+              {event.venue}
             </span>
           </div>
 
-          {/* Realtime Attendees List */}
-          <div
-            className={`rounded-2xl border flex-1 p-4 overflow-y-auto max-h-[420px] space-y-2.5 ${
-              isDarkMode
-                ? "bg-slate-900/40 border-slate-800/70"
-                : "bg-white border-slate-200"
-            }`}
-          >
-            <div className="flex items-center justify-between text-xs font-mono text-slate-400 pb-2 border-b border-slate-800/50">
-              <span>CANLI KATILIM AKIŞI</span>
-              <span>DURUM</span>
-            </div>
-
+          <div className={`max-h-[440px] flex-1 overflow-y-auto rounded-2xl border p-4 ${surface}`}>
+            <p className={`border-b pb-2 text-xs font-semibold uppercase tracking-wide ${mutedText} ${isDarkMode ? "border-slate-800" : "border-slate-200"}`}>
+              {t.liveFeed}
+            </p>
             {attendees.length === 0 ? (
-              <div className="py-12 text-center text-xs text-slate-500 space-y-2">
-                <Users className="w-8 h-8 mx-auto opacity-30 animate-pulse" />
-                <p>Henüz yoklama veren katılımcı yok.</p>
-                <p className="text-[11px] text-slate-600">
-                  Öğrenciler QR tarattıkça buraya anında yansıyacaktır.
-                </p>
+              <div className={`space-y-2 py-12 text-center text-sm ${mutedText}`}>
+                <Users className="mx-auto h-8 w-8 opacity-40" aria-hidden="true" />
+                <p className="font-semibold">{t.emptyTitle}</p>
+                <p>{t.emptyBody}</p>
               </div>
             ) : (
-              attendees.map((a, i) => (
-                <div
-                  key={a.id}
-                  className={`p-3 rounded-xl border flex items-center justify-between text-xs transition-all animate-in fade-in slide-in-from-top-2 ${
-                    isDarkMode
-                      ? "bg-slate-950/70 border-slate-800 hover:border-slate-700"
-                      : "bg-slate-50 border-slate-200"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-7 h-7 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-[10px] shrink-0">
-                      {a.userName.charAt(0)}
-                    </div>
-                    <div className="truncate">
-                      <div className="font-semibold text-slate-200 truncate">
-                        {a.userName}
+              <ul className="mt-3 space-y-2.5">
+                {attendees.map((attendee) => {
+                  const name = attendee.userName || t.unknownAttendee;
+                  return (
+                    <li
+                      key={attendee.id}
+                      className={`flex items-center justify-between gap-3 rounded-xl border p-3 text-sm ${
+                        isDarkMode ? "border-slate-800 bg-ink-950/70" : "border-slate-200 bg-slate-50"
+                      }`}
+                    >
+                      <div className="flex min-w-0 items-center gap-2.5">
+                        <div
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                            isDarkMode ? "bg-brand-500/20 text-brand-200" : "bg-brand-100 text-brand-700"
+                          }`}
+                          aria-hidden="true"
+                        >
+                          {name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <p className={`truncate font-semibold ${isDarkMode ? "text-slate-100" : "text-slate-900"}`}>{name}</p>
+                          <p className={`text-xs ${mutedText}`}>
+                            <time dateTime={attendee.checkedInAt}>
+                              {t.checkedInAt(
+                                formatDate(attendee.checkedInAt, locale, {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  timeZone: EVENT_TIME_ZONE,
+                                })
+                              )}
+                            </time>
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-[10px] text-slate-400 truncate">
-                        {a.userEmail}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    <span className="text-[11px] font-mono text-emerald-400 font-semibold">
-                      Onaylandı
-                    </span>
-                  </div>
-                </div>
-              ))
+                      <span className={`flex shrink-0 items-center gap-1.5 text-xs font-semibold ${isDarkMode ? "text-emerald-300" : "text-emerald-700"}`}>
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+                        {t.confirmed}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
           </div>
-        </div>
+        </section>
       </main>
 
-      {/* Footer Info */}
       <footer
-        className={`px-6 py-3 border-t text-center text-xs font-mono ${
-          isDarkMode
-            ? "border-slate-800/80 bg-slate-950/40 text-slate-500"
-            : "border-slate-200 bg-white text-slate-400"
+        className={`border-t px-6 py-3 text-center text-xs ${
+          isDarkMode ? "border-slate-800 bg-ink-950/50 text-slate-400" : "border-slate-200 bg-white text-slate-500"
         }`}
       >
-        IUS Engineering Club • FENS Dinamik Yoklama Motoru • Geri Bildirim: student@ius.edu.ba
+        {t.footer}
       </footer>
     </div>
   );

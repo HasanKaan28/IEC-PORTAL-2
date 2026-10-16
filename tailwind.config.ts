@@ -39,10 +39,6 @@ const config: Config = {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
         },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -66,7 +62,10 @@ const config: Config = {
           900: "#651a48",
           950: "#3f0729",
         },
+        // Yellow scale plus the shadcn-style DEFAULT/foreground tokens driven by CSS variables.
         accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
           50: "#fefce8",
           100: "#fef9c3",
           200: "#fef08a",

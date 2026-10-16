@@ -79,7 +79,7 @@ export default function CreateProjectModal({
         {/* Header */}
         <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-brand-50 border border-brand-200 text-brand-600 flex items-center justify-center">
               <FolderGit2 className="w-4 h-4" />
             </div>
             <div>
@@ -118,7 +118,7 @@ export default function CreateProjectModal({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Örn: IUS PowerHub — Akıllı Şarj İstasyonu"
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
             />
           </div>
 
@@ -129,7 +129,7 @@ export default function CreateProjectModal({
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as any)}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-white"
+              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-white"
             >
               <option value="Gömülü Sistemler">Gömülü Sistemler</option>
               <option value="Web & Mobil">Web & Mobil</option>
@@ -148,7 +148,7 @@ export default function CreateProjectModal({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Projenin amacı, kullanılan donanım/yazılım bileşenleri ve hedefleri..."
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"
+              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all resize-none"
             />
           </div>
 
@@ -161,7 +161,7 @@ export default function CreateProjectModal({
               value={openPositions}
               onChange={(e) => setOpenPositions(e.target.value)}
               placeholder="Örn: Gömülü C++, React, PCB Tasarım"
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
             />
           </div>
 
@@ -175,7 +175,7 @@ export default function CreateProjectModal({
                 value={githubUrl}
                 onChange={(e) => setGithubUrl(e.target.value)}
                 placeholder="https://github.com/..."
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
               />
             </div>
             <div>
@@ -187,7 +187,7 @@ export default function CreateProjectModal({
                 value={demoUrl}
                 onChange={(e) => setDemoUrl(e.target.value)}
                 placeholder="https://..."
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
               />
             </div>
           </div>
@@ -204,7 +204,7 @@ export default function CreateProjectModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition-all shadow-xs disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold transition-all shadow-xs disabled:opacity-50"
             >
               <Plus className="w-4 h-4" />
               <span>{isSubmitting ? "Ekleniyor..." : "Projeyi Oluştur"}</span>

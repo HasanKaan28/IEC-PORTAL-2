@@ -131,7 +131,7 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
   });
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#070a11]">
+    <div className="flex flex-col min-h-screen bg-ink-950">
       <Navbar />
 
       <main className="flex-1 py-12 px-4 sm:px-6">
@@ -203,7 +203,7 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
                 alt={post.title}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#070a11]/60 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink-950/60 via-transparent to-transparent pointer-events-none" />
             </div>
           )}
 

@@ -88,12 +88,12 @@ export default function CertificateVerificationClient() {
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="Örn: IEC-2026-E49A"
-                className="w-full px-4 py-3.5 bg-slate-950 border border-slate-700/80 rounded-2xl text-sm font-mono uppercase text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all tracking-wider"
+                className="w-full px-4 py-3.5 bg-slate-950 border border-slate-700/80 rounded-2xl text-sm font-mono uppercase text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500 transition-all tracking-wider"
               />
               <button
                 type="submit"
                 disabled={isVerifying}
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg transition-all disabled:opacity-50"
+                className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 bg-gradient-to-r from-brand-600 to-brand-600 hover:from-brand-500 hover:to-brand-500 text-white rounded-xl text-xs font-semibold shadow-lg transition-all disabled:opacity-50"
               >
                 {isVerifying ? "Doğrulanıyor..." : "Sorgula"}
               </button>
@@ -139,7 +139,7 @@ export default function CertificateVerificationClient() {
                       <Award className="w-3.5 h-3.5 text-slate-500" />
                       ETKİNLİK / EĞİTİM
                     </span>
-                    <p className="text-sm font-bold text-indigo-300">{result.cert.eventTitle}</p>
+                    <p className="text-sm font-bold text-brand-300">{result.cert.eventTitle}</p>
                     <p className="text-[11px] text-slate-400">
                       Eğitmen: {result.cert.instructorName}
                     </p>
@@ -194,7 +194,7 @@ export default function CertificateVerificationClient() {
                   <a
                     href={`/api/certificates/${result.cert.certificateCode}/pdf`}
                     download
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-md transition-colors"
                   >
                     <Download className="w-4 h-4" />
                     <span>PDF olarak indir</span>

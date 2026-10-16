@@ -45,7 +45,7 @@ export default async function AdminBlogListPage() {
 
           <Link
             href="/portal/admin/blog/yeni"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition-all shadow-indigo-600/20"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-sm transition-all shadow-brand-600/20"
           >
             <Plus className="w-4 h-4" />
             <span>Yeni Yazı Yaz</span>
@@ -103,7 +103,7 @@ export default async function AdminBlogListPage() {
                       {post.title}
                     </div>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-medium">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-brand-50 text-brand-700 font-medium">
                         {post.category}
                       </span>
                       <span className="text-[10px] text-slate-400 font-mono">
@@ -158,7 +158,7 @@ export default async function AdminBlogListPage() {
                         href={`/blog/${post.slug}`}
                         target="_blank"
                         title="Web'de Görüntüle"
-                        className="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-slate-100 transition-colors"
+                        className="p-1.5 text-slate-400 hover:text-brand-600 rounded-lg hover:bg-slate-100 transition-colors"
                       >
                         <ExternalLink className="w-4 h-4" />
                       </Link>
@@ -166,7 +166,7 @@ export default async function AdminBlogListPage() {
                       <Link
                         href={`/portal/admin/blog/duzenle/${post.slug}`}
                         title="Düzenle"
-                        className="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-slate-100 transition-colors"
+                        className="p-1.5 text-slate-400 hover:text-brand-600 rounded-lg hover:bg-slate-100 transition-colors"
                       >
                         <Edit3 className="w-4 h-4" />
                       </Link>

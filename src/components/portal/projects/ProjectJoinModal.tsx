@@ -52,7 +52,7 @@ export default function ProjectJoinModal({
         {/* Header */}
         <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-brand-50 border border-brand-200 text-brand-600 flex items-center justify-center">
               <FolderGit2 className="w-4 h-4" />
             </div>
             <div>
@@ -85,7 +85,7 @@ export default function ProjectJoinModal({
           <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5">
             <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
               <span>Proje Lideri: <strong className="text-slate-800">{project.leadName}</strong></span>
-              <span className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded font-semibold">{project.category}</span>
+              <span className="text-brand-600 bg-brand-50 px-2 py-0.5 rounded font-semibold">{project.category}</span>
             </div>
             {project.openPositions.length > 0 && (
               <div className="pt-1">
@@ -110,7 +110,7 @@ export default function ProjectJoinModal({
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Örn: C++ ve FreeRTOS deneyimim var, SPI bus hattı optimizasyonu ve devre kartı testlerinde haftalık 6 saat aktif çalışabilirim..."
               rows={4}
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-600 resize-none leading-relaxed"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 resize-none leading-relaxed"
               required
             />
           </div>
@@ -126,7 +126,7 @@ export default function ProjectJoinModal({
             <button
               type="submit"
               disabled={isSubmitting || !message.trim()}
-              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
             >
               <Send className="w-3.5 h-3.5" />
               <span>{isSubmitting ? "İletiliyor..." : "Başvuruyu Gönder"}</span>

@@ -67,9 +67,9 @@ export default function PortalNotificationBell({
       case "cert":
         return <Award className="w-4 h-4 text-amber-500" />;
       case "task":
-        return <CheckSquare className="w-4 h-4 text-blue-500" />;
+        return <CheckSquare className="w-4 h-4 text-brand-500" />;
       case "event":
-        return <Calendar className="w-4 h-4 text-indigo-500" />;
+        return <Calendar className="w-4 h-4 text-brand-500" />;
       case "team":
         return <Trophy className="w-4 h-4 text-purple-500" />;
       default:
@@ -117,7 +117,7 @@ export default function PortalNotificationBell({
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
               >
                 {soundOn ? (
-                  <Volume2 className="w-3.5 h-3.5 text-indigo-600" />
+                  <Volume2 className="w-3.5 h-3.5 text-brand-600" />
                 ) : (
                   <VolumeX className="w-3.5 h-3.5 text-slate-400" />
                 )}
@@ -126,7 +126,7 @@ export default function PortalNotificationBell({
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllRead}
-                  className="inline-flex items-center gap-1 text-[11px] font-medium text-indigo-600 hover:text-indigo-800"
+                  className="inline-flex items-center gap-1 text-[11px] font-medium text-brand-600 hover:text-brand-800"
                 >
                   <CheckCheck className="w-3.5 h-3.5" />
                   <span>Tümünü Oku</span>
@@ -149,7 +149,7 @@ export default function PortalNotificationBell({
                   href={item.link}
                   onClick={() => setIsOpen(false)}
                   className={`p-3.5 flex items-start gap-3 hover:bg-slate-50 transition-colors block text-left ${
-                    !item.isRead ? "bg-indigo-50/20" : ""
+                    !item.isRead ? "bg-brand-50/20" : ""
                   }`}
                 >
                   <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 mt-0.5">
@@ -161,7 +161,7 @@ export default function PortalNotificationBell({
                         {item.title}
                       </span>
                       {!item.isRead && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 shrink-0" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-600 shrink-0" />
                       )}
                     </div>
                     <p className="text-slate-600 text-[11px] mt-0.5 line-clamp-2 leading-relaxed">

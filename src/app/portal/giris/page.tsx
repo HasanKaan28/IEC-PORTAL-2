@@ -51,12 +51,12 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col justify-center items-center p-4 selection:bg-blue-600/20">
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col justify-center items-center p-4 selection:bg-brand-600/20">
       {/* Brand & Title */}
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <Link href="/" className="inline-flex items-center gap-2 mb-2 group">
-            <ClubLogo size={56} priority className="group-hover:scale-105 transition-transform" />
+            <ClubLogo size={56} variant="color" priority className="group-hover:scale-105 transition-transform" />
           </Link>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight font-display">
             Öğrenci Portalına Giriş
@@ -87,7 +87,7 @@ function LoginForm() {
                   name="email"
                   required
                   placeholder="student@ius.edu.ba"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition-all"
                 />
               </div>
             </div>
@@ -99,7 +99,7 @@ function LoginForm() {
                 </label>
                 <Link
                   href="/portal/giris"
-                  className="text-[11px] text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-[11px] text-brand-600 hover:text-brand-700 font-medium"
                 >
                   Şifremi Unuttum
                 </Link>
@@ -111,7 +111,7 @@ function LoginForm() {
                   name="password"
                   required
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition-all"
                 />
               </div>
             </div>
@@ -119,7 +119,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loading || demoLoading}
-              className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -152,7 +152,7 @@ function LoginForm() {
             disabled={loading || demoLoading}
             className="w-full py-2.5 px-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"
           >
-            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+            <Sparkles className="w-3.5 h-3.5 text-brand-600" />
             <span>Tek Tıkla Demo Öğrenci Girişi Yap</span>
           </button>
         </div>
@@ -163,7 +163,7 @@ function LoginForm() {
             Hesabınız yok mu?{" "}
             <Link
               href="/portal/kayit"
-              className="text-blue-600 hover:text-blue-700 font-semibold"
+              className="text-brand-600 hover:text-brand-700 font-semibold"
             >
               Hemen Kayıt Olun
             </Link>
@@ -184,7 +184,7 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center">
-          <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+          <Loader2 className="w-6 h-6 animate-spin text-brand-600" />
         </div>
       }
     >

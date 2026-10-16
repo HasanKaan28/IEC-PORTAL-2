@@ -34,7 +34,7 @@ export default function PortalHeaderUserMenu() {
         aria-expanded={menuOpen}
         aria-label="Kullanıcı Menüsü"
       >
-        <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+        <div className="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
           KM
         </div>
         <div className="hidden sm:block leading-tight">
@@ -70,7 +70,7 @@ export default function PortalHeaderUserMenu() {
               }}
               className="w-full flex items-center gap-2.5 px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors text-left"
             >
-              <Sparkles className="w-4 h-4 text-cyan-500" />
+              <Sparkles className="w-4 h-4 text-accent-500" />
               <span>Discord Profil Kartım</span>
             </button>
           </div>

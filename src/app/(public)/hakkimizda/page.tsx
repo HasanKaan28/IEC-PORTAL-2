@@ -70,7 +70,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#070a11]">
+    <div className="flex flex-col min-h-screen bg-ink-950">
       <Navbar />
 
       <main className="flex-1 py-16 px-4 sm:px-6">
@@ -86,12 +86,12 @@ export default function AboutPage() {
           </div>
 
           {/* Academic Advisor Highlight */}
-          <div className="glass-panel p-8 rounded-3xl border border-blue-500/30 bg-gradient-to-r from-blue-950/40 via-slate-900 to-[#070a11] flex flex-col md:flex-row items-center gap-8">
-            <div className="w-20 h-20 rounded-2xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 shrink-0 shadow-glow">
+          <div className="glass-panel p-8 rounded-3xl border border-brand-500/30 bg-gradient-to-r from-brand-950/40 via-slate-900 to-ink-950 flex flex-col md:flex-row items-center gap-8">
+            <div className="w-20 h-20 rounded-2xl bg-brand-600/20 border border-brand-500/40 flex items-center justify-center text-brand-400 shrink-0 shadow-glow">
               <GraduationCap className="w-10 h-10" />
             </div>
             <div className="flex-1 text-center md:text-left">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-cyan-400 block mb-1">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-accent-400 block mb-1">
                 Fakülte Akademik Danışmanımız
               </span>
               <h2 className="text-2xl font-bold text-white font-display">
@@ -127,7 +127,7 @@ export default function AboutPage() {
                     <h3 className="font-bold text-white text-base">
                       {member.name}
                     </h3>
-                    <div className="text-xs font-medium text-cyan-400 mt-0.5">
+                    <div className="text-xs font-medium text-accent-400 mt-0.5">
                       {member.role}
                     </div>
                     <div className="text-[11px] text-slate-500 font-mono mt-1">
@@ -161,7 +161,7 @@ export default function AboutPage() {
                 >
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[11px] font-mono text-cyan-400 font-semibold">
+                      <span className="text-[11px] font-mono text-accent-400 font-semibold">
                         {m.phase}
                       </span>
                       <span
@@ -195,7 +195,7 @@ export default function AboutPage() {
             <div className="mt-5">
               <Link
                 href="/basvuru"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-glow transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs shadow-glow transition-all"
               >
                 <span>Başvuru formunu aç</span>
                 <ArrowRight className="w-4 h-4" />

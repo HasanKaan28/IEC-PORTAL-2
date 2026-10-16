@@ -64,7 +64,7 @@ export default function CertificatePreviewModal({
               href={`/api/certificates/${cert.certificateCode}/pdf`}
               target="_blank"
               download
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
             >
               <Download className="w-3.5 h-3.5" />
               <span>PDF İndir</span>
@@ -110,7 +110,7 @@ export default function CertificatePreviewModal({
               <p className="text-xs text-slate-600 font-serif max-w-lg mx-auto pt-1">
                 for outstanding participation and successful completion of the engineering event
               </p>
-              <p className="text-base sm:text-lg font-bold text-indigo-700 font-display">
+              <p className="text-base sm:text-lg font-bold text-brand-700 font-display">
                 "{cert.eventTitle}"
               </p>
             </div>
@@ -152,7 +152,7 @@ export default function CertificatePreviewModal({
 
               {/* Official Stamp */}
               <div className="flex flex-col items-center justify-center">
-                <ClubLogo size={48} alt="IUS Engineering Club mührü" />
+                <ClubLogo size={48} variant="color" alt="IUS Engineering Club mührü" />
                 <span className="text-[9px] font-mono text-amber-800 font-semibold mt-1">
                   {cert.certificateCode}
                 </span>
@@ -214,7 +214,7 @@ export default function CertificatePreviewModal({
             <a
               href={`/api/certificates/${cert.certificateCode}/pdf`}
               download
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
             >
               <Download className="w-3.5 h-3.5" />
               <span>PDF İndir</span>

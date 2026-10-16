@@ -77,13 +77,13 @@ export default function BlogDetailClientBar({
       {/* 1. Top Viewport Scroll Progress Bar */}
       <div className="fixed top-0 left-0 right-0 h-1 z-50 bg-slate-900/50">
         <div
-          className="h-full bg-gradient-to-r from-purple-500 via-indigo-500 to-pink-500 transition-all duration-150 ease-out"
+          className="h-full bg-gradient-to-r from-purple-500 via-brand-500 to-pink-500 transition-all duration-150 ease-out"
           style={{ width: `${scrollProgress}%` }}
         />
       </div>
 
       {/* 2. Interactive Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-[#090e1c]/90 border border-slate-800/80 backdrop-blur-md">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-ink-900/90 border border-slate-800/80 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <button
             onClick={handleLike}
@@ -127,7 +127,7 @@ export default function BlogDetailClientBar({
             target="_blank"
             rel="noopener noreferrer"
             title="X (Twitter) ile Paylaş"
-            className="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-sky-500/50 text-slate-400 hover:text-sky-400 text-xs transition-colors"
+            className="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-brand-500/50 text-slate-400 hover:text-brand-400 text-xs transition-colors"
           >
             <Twitter className="w-4 h-4" />
           </a>
@@ -137,7 +137,7 @@ export default function BlogDetailClientBar({
             target="_blank"
             rel="noopener noreferrer"
             title="LinkedIn ile Paylaş"
-            className="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-blue-500/50 text-slate-400 hover:text-blue-400 text-xs transition-colors"
+            className="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-brand-500/50 text-slate-400 hover:text-brand-400 text-xs transition-colors"
           >
             <Linkedin className="w-4 h-4" />
           </a>

@@ -78,9 +78,9 @@ export default async function PortalLayout({
             </div>
             <Link
               href="/portal/admin"
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-indigo-700 bg-indigo-50/70 hover:bg-indigo-100/70 transition-colors"
+              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-brand-700 bg-brand-50/70 hover:bg-brand-100/70 transition-colors"
             >
-              <Shield className="w-4 h-4 text-indigo-600" />
+              <Shield className="w-4 h-4 text-brand-600" />
               <span>Yönetici Konsolu</span>
             </Link>
           </nav>
@@ -117,7 +117,7 @@ export default async function PortalLayout({
               <input
                 type="text"
                 placeholder="Görev, proje veya üye ara..."
-                className="w-full pl-9 pr-4 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                className="w-full pl-9 pr-4 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
               />
             </div>
           </div>

@@ -211,10 +211,10 @@ export default function MessagesPortalClient({
         <div className="p-4 border-b border-slate-100 space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-slate-900 font-display flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-indigo-600" />
+              <MessageSquare className="w-4 h-4 text-brand-600" />
               <span>Birebir Mesajlar (DM)</span>
             </h2>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200">
               {contacts.length} Kişi
             </span>
           </div>
@@ -226,7 +226,7 @@ export default function MessagesPortalClient({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Üye veya unvan ara..."
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
             />
           </div>
         </div>
@@ -247,7 +247,7 @@ export default function MessagesPortalClient({
                   onClick={() => setActiveContactId(contact.id)}
                   className={`w-full p-3.5 flex items-start gap-3 transition-colors text-left ${
                     isSelected
-                      ? "bg-indigo-50/50 border-r-2 border-indigo-600"
+                      ? "bg-brand-50/50 border-r-2 border-brand-600"
                       : "hover:bg-slate-50"
                   }`}
                 >
@@ -274,7 +274,7 @@ export default function MessagesPortalClient({
                     <div className="flex items-center justify-between gap-1">
                       <span
                         className={`font-semibold text-xs truncate ${
-                          isSelected ? "text-indigo-950 font-bold" : "text-slate-900"
+                          isSelected ? "text-brand-950 font-bold" : "text-slate-900"
                         }`}
                       >
                         {contact.name}
@@ -293,7 +293,7 @@ export default function MessagesPortalClient({
                         {contact.lastMessage || "Sohbet başlatın..."}
                       </p>
                       {contact.unreadCount > 0 && (
-                        <span className="w-4 h-4 rounded-full bg-indigo-600 text-white font-mono text-[9px] flex items-center justify-center font-bold shrink-0">
+                        <span className="w-4 h-4 rounded-full bg-brand-600 text-white font-mono text-[9px] flex items-center justify-center font-bold shrink-0">
                           {contact.unreadCount}
                         </span>
                       )}
@@ -396,7 +396,7 @@ export default function MessagesPortalClient({
                   <div
                     className={`max-w-[82%] sm:max-w-md rounded-2xl px-4 py-2.5 shadow-2xs space-y-1 ${
                       isMine
-                        ? "bg-indigo-600 text-white rounded-br-xs"
+                        ? "bg-brand-600 text-white rounded-br-xs"
                         : "bg-white text-slate-900 border border-slate-200/80 rounded-bl-xs"
                     }`}
                   >
@@ -405,7 +405,7 @@ export default function MessagesPortalClient({
                     </p>
                     <div
                       className={`flex items-center justify-end gap-1 text-[10px] font-mono ${
-                        isMine ? "text-indigo-200" : "text-slate-400"
+                        isMine ? "text-brand-200" : "text-slate-400"
                       }`}
                     >
                       <span>
@@ -417,9 +417,9 @@ export default function MessagesPortalClient({
                       {isMine && (
                         <span>
                           {msg.isRead ? (
-                            <CheckCheck className="w-3 h-3 text-sky-300" />
+                            <CheckCheck className="w-3 h-3 text-brand-300" />
                           ) : (
-                            <Check className="w-3 h-3 text-indigo-300" />
+                            <Check className="w-3 h-3 text-brand-300" />
                           )}
                         </span>
                       )}
@@ -455,12 +455,12 @@ export default function MessagesPortalClient({
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Mesajınızı yazın... (Enter ile gönder)"
-                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-slate-50 focus:bg-white"
+                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-slate-50 focus:bg-white"
               />
               <button
                 type="submit"
                 disabled={!inputText.trim() || isSending}
-                className="p-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-colors disabled:opacity-40 shrink-0"
+                className="p-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white shadow-xs transition-colors disabled:opacity-40 shrink-0"
               >
                 <Send className="w-4 h-4" />
               </button>

@@ -46,7 +46,7 @@ export default function ProjectDetailDialog({ project, onClose }: ProjectDetailD
       aria-labelledby={titleId}
       onClose={onClose}
       onClick={closeWhenBackdropClicked}
-      className="w-[calc(100%-2rem)] max-w-2xl max-h-[90dvh] p-0 rounded-2xl border border-slate-700 bg-[#0a0d14] text-left text-slate-200 shadow-2xl backdrop:bg-black/80 backdrop:backdrop-blur-sm"
+      className="w-[calc(100%-2rem)] max-w-2xl max-h-[90dvh] p-0 rounded-2xl border border-slate-700 bg-ink-900 text-left text-slate-200 shadow-2xl backdrop:bg-black/80 backdrop:backdrop-blur-sm"
     >
       <div className="relative p-6 sm:p-8">
         <button
@@ -58,7 +58,7 @@ export default function ProjectDetailDialog({ project, onClose }: ProjectDetailD
           <X className="w-5 h-5" aria-hidden="true" />
         </button>
 
-        <p className="text-sm text-blue-300 pr-12">
+        <p className="text-sm text-brand-300 pr-12">
           {project.category[locale]} · {project.badge[locale]}
         </p>
 
@@ -99,7 +99,7 @@ export default function ProjectDetailDialog({ project, onClose }: ProjectDetailD
           <Link
             href="/basvuru"
             onClick={onClose}
-            className="px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors"
+            className="px-4 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold transition-colors"
           >
             {t.projects.joinProject}
           </Link>

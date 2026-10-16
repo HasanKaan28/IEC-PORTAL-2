@@ -35,7 +35,7 @@ export default function LanguageSwitcher({ className = "" }: LanguageSwitcherPro
             aria-pressed={isActive}
             aria-label={option.name}
             className={`min-w-[2rem] min-h-[2rem] px-2 rounded-md font-semibold transition-colors ${
-              isActive ? "bg-blue-500/20 text-blue-300" : "text-slate-400 hover:text-white"
+              isActive ? "bg-brand-500/20 text-brand-300" : "text-slate-400 hover:text-white"
             }`}
           >
             {option.label}

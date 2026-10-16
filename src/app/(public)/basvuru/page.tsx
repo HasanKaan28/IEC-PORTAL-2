@@ -56,14 +56,14 @@ export default function ApplicationPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#070a11]">
+    <div className="flex flex-col min-h-screen bg-ink-950">
       <Navbar />
 
       <main className="flex-1 py-16 px-4 sm:px-6">
         <div className="max-w-2xl mx-auto">
           {/* Form Header */}
           <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-blue-500/10 border border-blue-500/20 text-xs font-mono text-cyan-400 mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-brand-500/10 border border-brand-500/20 text-xs font-mono text-accent-400 mb-4">
               <Sparkles className="w-3.5 h-3.5" />
               <span>2026/2027 GÜZ BAŞVURULARI</span>
             </div>
@@ -95,7 +95,7 @@ export default function ApplicationPage() {
                   </Link>
                   <Link
                     href="/portal"
-                    className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-glow transition-all"
+                    className="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-glow transition-all"
                   >
                     Öğrenci Portalı
                   </Link>
@@ -121,7 +121,7 @@ export default function ApplicationPage() {
                     placeholder="Örn: Ahmet Yılmaz"
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors"
                   />
                 </div>
 
@@ -137,7 +137,7 @@ export default function ApplicationPage() {
                       placeholder="student@ius.edu.ba"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
+                      className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors"
                     />
                   </div>
                   <div>
@@ -149,7 +149,7 @@ export default function ApplicationPage() {
                       placeholder="+387 60 ... veya +90 5..."
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
+                      className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors"
                     />
                   </div>
                 </div>
@@ -164,7 +164,7 @@ export default function ApplicationPage() {
                       required
                       value={formData.department}
                       onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-blue-500 transition-colors"
+                      className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-brand-500 transition-colors"
                     >
                       <option value="">Bölümünüzü seçiniz</option>
                       <option value="Computer Sciences and Engineering (CSE)">Bilgisayar Bilimleri (CSE)</option>
@@ -182,7 +182,7 @@ export default function ApplicationPage() {
                     <select
                       value={formData.classYear}
                       onChange={(e) => setFormData({ ...formData, classYear: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-blue-500 transition-colors"
+                      className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-brand-500 transition-colors"
                     >
                       <option value="Hazırlık (ELS)">Hazırlık Okulu (ELS)</option>
                       <option value="1. Sınıf (Freshman)">1. Sınıf (Freshman)</option>
@@ -205,7 +205,7 @@ export default function ApplicationPage() {
                     placeholder="İlgi duyduğunuz komite (Donanım, Yazılım/AI, Hackathon, PR), varsa önceki deneyimleriniz veya kulüpten beklentileriniz..."
                     value={formData.statement}
                     onChange={(e) => setFormData({ ...formData, statement: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors"
                   />
                 </div>
 
@@ -216,10 +216,10 @@ export default function ApplicationPage() {
                     id="kvkk"
                     checked={formData.kvkkConsent}
                     onChange={(e) => setFormData({ ...formData, kvkkConsent: e.target.checked })}
-                    className="mt-0.5 rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4"
+                    className="mt-0.5 rounded border-slate-700 text-brand-600 focus:ring-0 w-4 h-4"
                   />
                   <label htmlFor="kvkk" className="text-[11px] text-slate-400 leading-relaxed cursor-pointer">
-                    <Link href="/kvkk" target="_blank" className="text-blue-400 hover:underline">
+                    <Link href="/kvkk" target="_blank" className="text-brand-400 hover:underline">
                       KVKK Aydınlatma Metni
                     </Link>
                     &apos;ni okudum, kişisel verilerimin kulüp üyelik ve iletişim süreçleri kapsamında işlenmesini onaylıyorum.
@@ -230,7 +230,7 @@ export default function ApplicationPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-glow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs shadow-glow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {loading ? (
                     <>

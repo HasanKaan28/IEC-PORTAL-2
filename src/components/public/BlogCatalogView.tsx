@@ -149,7 +149,7 @@ export default function BlogCatalogView({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Teknik makale, konu, yazar veya etiket ara (örn: ESP32, Linear, RAG)..."
-            className="w-full bg-[#0a0f1d] border border-slate-800 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500/80 transition-colors shadow-xl"
+            className="w-full bg-ink-900 border border-slate-800 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500/80 transition-colors shadow-xl"
           />
           {searchQuery && (
             <button
@@ -250,7 +250,7 @@ export default function BlogCatalogView({
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-3 left-3">
-                    <span className="text-[10px] font-mono text-purple-300 bg-[#070a11]/80 backdrop-blur-md px-2.5 py-1 rounded-md border border-purple-500/30">
+                    <span className="text-[10px] font-mono text-purple-300 bg-ink-950/80 backdrop-blur-md px-2.5 py-1 rounded-md border border-purple-500/30">
                       {post.category}
                     </span>
                   </div>

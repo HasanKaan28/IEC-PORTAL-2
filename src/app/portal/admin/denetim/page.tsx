@@ -69,7 +69,7 @@ export default function AuditLogsPage() {
       <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
         {loading ? (
           <div className="p-12 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+            <Loader2 className="w-4 h-4 animate-spin text-brand-600" />
             <span>Denetim kayıtları yükleniyor...</span>
           </div>
         ) : filteredLogs.length === 0 ? (

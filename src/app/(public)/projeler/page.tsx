@@ -27,7 +27,7 @@ export default function ProjectsCatalogPage() {
   });
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#070a11]">
+    <div className="flex flex-col min-h-screen bg-ink-950">
       <Navbar />
 
       <main className="flex-1 py-16 px-4 sm:px-6">
@@ -51,7 +51,7 @@ export default function ProjectsCatalogPage() {
                 placeholder="Proje adı, teknoloji veya anahtar kelime ara..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:border-brand-500 transition-colors"
               />
             </div>
 
@@ -68,7 +68,7 @@ export default function ProjectsCatalogPage() {
                   onClick={() => setSelectedCategory(tab.id)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     selectedCategory === tab.id
-                      ? "bg-blue-600 text-white"
+                      ? "bg-brand-600 text-white"
                       : "bg-slate-900 text-slate-400 hover:text-white border border-slate-800"
                   }`}
                 >
@@ -114,7 +114,7 @@ export default function ProjectsCatalogPage() {
 
                 {/* Technical Deep Dive */}
                 <div className="lg:col-span-7 space-y-4">
-                  <div className="text-xs font-mono text-cyan-400">
+                  <div className="text-xs font-mono text-accent-400">
                     {project.category.tr}
                   </div>
 
@@ -165,7 +165,7 @@ export default function ProjectsCatalogPage() {
                     <div className="flex items-center gap-3">
                       <Link
                         href="/basvuru"
-                        className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-glow transition-all"
+                        className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs shadow-glow transition-all"
                       >
                         Projeye Katıl
                       </Link>

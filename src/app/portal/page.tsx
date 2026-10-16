@@ -24,7 +24,7 @@ export default async function PortalDashboardPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-mono text-indigo-600 font-semibold uppercase">
+            <span className="text-xs font-mono text-brand-600 font-semibold uppercase">
               IEC Mühendislik Çalışma Alanı
             </span>
           </div>
@@ -39,7 +39,7 @@ export default async function PortalDashboardPage() {
         <div className="flex items-center gap-2.5">
           <Link
             href="/portal/gorevler"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition-all shadow-sm shadow-indigo-600/20"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-xl transition-all shadow-sm shadow-brand-600/20"
           >
             <span>Görev Panosunu Aç</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -77,7 +77,7 @@ export default async function PortalDashboardPage() {
         <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-medium">Aktif Projeler</span>
-            <FolderGit2 className="w-4 h-4 text-blue-500" />
+            <FolderGit2 className="w-4 h-4 text-brand-500" />
           </div>
           <div className="text-2xl font-bold text-slate-900 mt-2 font-mono">
             {summary.userActiveProjectsCount}
@@ -105,14 +105,14 @@ export default async function PortalDashboardPage() {
         <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-indigo-600" />
+              <Clock className="w-4 h-4 text-brand-600" />
               <h2 className="text-sm font-bold text-slate-900 font-display">
                 Sprint Görevleri & İlerleme
               </h2>
             </div>
             <Link
               href="/portal/gorevler"
-              className="text-xs text-indigo-600 hover:text-indigo-700 flex items-center gap-1 font-medium"
+              className="text-xs text-brand-600 hover:text-brand-700 flex items-center gap-1 font-medium"
             >
               <span>Tüm Panoyu Gör</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -128,7 +128,7 @@ export default async function PortalDashboardPage() {
               >
                 <div className="space-y-1 pr-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                    <span className="text-xs font-semibold text-slate-800 group-hover:text-brand-600 transition-colors line-clamp-1">
                       {task.title}
                     </span>
                     {task.priority === "urgent" && (
@@ -150,7 +150,7 @@ export default async function PortalDashboardPage() {
                       task.status === "done"
                         ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                         : task.status === "in_review"
-                        ? "bg-blue-50 text-blue-700 border border-blue-200"
+                        ? "bg-brand-50 text-brand-700 border border-brand-200"
                         : task.status === "in_progress"
                         ? "bg-amber-50 text-amber-700 border border-amber-200"
                         : "bg-slate-100 text-slate-700"
@@ -164,7 +164,7 @@ export default async function PortalDashboardPage() {
                       ? "Sürüyor"
                       : "Yapılacak"}
                   </span>
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-brand-600 transition-colors" />
                 </div>
               </Link>
             ))}
@@ -174,9 +174,9 @@ export default async function PortalDashboardPage() {
         {/* Right Column: Events & Announcements (1 col) */}
         <div className="space-y-6">
           {/* Quick Hackathon Card */}
-          <div className="rounded-2xl p-5 bg-gradient-to-br from-indigo-900 to-slate-900 text-white shadow-sm space-y-3">
+          <div className="rounded-2xl p-5 bg-gradient-to-br from-brand-900 to-slate-900 text-white shadow-sm space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-indigo-200 border border-white/20">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-brand-200 border border-white/20">
                 DEVHACK 2027
               </span>
               <Trophy className="w-4 h-4 text-amber-400" />
@@ -185,13 +185,13 @@ export default async function PortalDashboardPage() {
             <h3 className="text-sm font-bold font-display">
               Takımını Kur veya Takımlara Katıl
             </h3>
-            <p className="text-xs text-indigo-200 leading-relaxed">
+            <p className="text-xs text-brand-200 leading-relaxed">
               24 saatlik büyük maratonda yazılım, gömülü donanım veya yapay zekâ kategorisinde yarışmak için takım arkadaşı ara.
             </p>
 
             <Link
               href="/portal/hackathon"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-300 hover:text-cyan-200 transition-colors pt-1"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-300 hover:text-accent-200 transition-colors pt-1"
             >
               <span>Hackathon Merkezine Git</span>
               <ArrowRight className="w-3.5 h-3.5" />

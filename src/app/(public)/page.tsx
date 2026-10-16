@@ -8,7 +8,7 @@ import CookieBanner from "@/components/public/CookieBanner";
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col min-h-screen bg-[#070a11]">
+    <div className="flex flex-col min-h-screen bg-ink-950">
       <Navbar overlay />
       <main id="main-content" className="flex-1">
         <HeroSection />

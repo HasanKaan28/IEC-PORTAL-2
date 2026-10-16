@@ -116,7 +116,7 @@ export default function TasksManagerClient({
             <h1 className="text-xl font-bold text-slate-900 font-display">
               IEC Görev Panosu
             </h1>
-            <span className="text-xs font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200">
+            <span className="text-xs font-mono font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-200">
               {filteredTasks.length} Aktif Görev
             </span>
           </div>
@@ -154,7 +154,7 @@ export default function TasksManagerClient({
 
           <button
             onClick={() => setIsCreateOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition-all shadow-indigo-600/20"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-sm transition-all shadow-brand-600/20"
           >
             <Plus className="w-4 h-4" />
             <span>Yeni Görev</span>
@@ -172,7 +172,7 @@ export default function TasksManagerClient({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Görev ara (başlık, sorumlu, proje)..."
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-indigo-600"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-brand-600"
           />
         </div>
 
@@ -182,7 +182,7 @@ export default function TasksManagerClient({
           <select
             value={selectedProject}
             onChange={(e) => setSelectedProject(e.target.value)}
-            className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-indigo-600 font-medium cursor-pointer"
+            className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-brand-600 font-medium cursor-pointer"
           >
             <option value="all">Tüm Projeler</option>
             {projects.map((p) => (
@@ -198,7 +198,7 @@ export default function TasksManagerClient({
             onChange={(e) =>
               setSelectedPriority(e.target.value as TaskPriority | "all")
             }
-            className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-indigo-600 font-medium cursor-pointer"
+            className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-brand-600 font-medium cursor-pointer"
           >
             <option value="all">Tüm Öncelikler</option>
             <option value="urgent">Acil</option>
@@ -211,7 +211,7 @@ export default function TasksManagerClient({
           <select
             value={selectedAssignee}
             onChange={(e) => setSelectedAssignee(e.target.value)}
-            className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-indigo-600 font-medium cursor-pointer"
+            className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-brand-600 font-medium cursor-pointer"
           >
             <option value="all">Tüm Sorumlular</option>
             {members.map((m) => (
@@ -232,7 +232,7 @@ export default function TasksManagerClient({
                 setSelectedAssignee("all");
                 setSearchQuery("");
               }}
-              className="px-2 py-1.5 text-indigo-600 hover:underline text-[11px] font-mono"
+              className="px-2 py-1.5 text-brand-600 hover:underline text-[11px] font-mono"
             >
               Filtreleri Temizle
             </button>

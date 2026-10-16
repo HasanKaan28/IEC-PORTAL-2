@@ -100,7 +100,7 @@ export default function EventsPortalClient({
             <h1 className="text-xl font-bold text-slate-900 font-display">
               Kulüp Etkinlikleri & Atölyeler
             </h1>
-            <span className="text-xs font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200">
+            <span className="text-xs font-mono font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-200">
               {events.filter((e) => !e.isPast).length} Yaklaşan Etkinlik
             </span>
           </div>
@@ -135,7 +135,7 @@ export default function EventsPortalClient({
             onClick={() => setActiveTab(tab.id as any)}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
               activeTab === tab.id
-                ? "bg-indigo-600 text-white shadow-xs font-semibold"
+                ? "bg-brand-600 text-white shadow-xs font-semibold"
                 : "bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
             }`}
           >
@@ -160,8 +160,8 @@ export default function EventsPortalClient({
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     {/* Calendar Badge */}
-                    <div className="w-12 h-12 rounded-xl bg-indigo-50/80 border border-indigo-200 flex flex-col items-center justify-center shrink-0">
-                      <span className="text-[10px] font-mono font-bold text-indigo-600 leading-none">
+                    <div className="w-12 h-12 rounded-xl bg-brand-50/80 border border-brand-200 flex flex-col items-center justify-center shrink-0">
+                      <span className="text-[10px] font-mono font-bold text-brand-600 leading-none">
                         {dateObj.month}
                       </span>
                       <span className="text-base font-bold text-slate-900 leading-tight">
@@ -200,7 +200,7 @@ export default function EventsPortalClient({
                     <Link
                       href={`/portal/admin/etkinlikler/${event.id}/yoklama`}
                       title="Organizatör Yoklama Projeksiyon Ekranını Aç"
-                      className="p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50/50 transition-colors shrink-0"
+                      className="p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 hover:text-brand-600 hover:border-brand-200 hover:bg-brand-50/50 transition-colors shrink-0"
                     >
                       <Tv className="w-4 h-4" />
                     </Link>
@@ -209,7 +209,7 @@ export default function EventsPortalClient({
 
                 {/* Title & Desc */}
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors leading-snug">
+                  <h3 className="text-base font-bold text-slate-900 group-hover:text-brand-600 transition-colors leading-snug">
                     {event.title}
                   </h3>
                   <p className="text-xs text-slate-600 mt-2 leading-relaxed line-clamp-3">
@@ -233,7 +233,7 @@ export default function EventsPortalClient({
                     </div>
                     <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-indigo-600 rounded-full transition-all"
+                        className="h-full bg-brand-600 rounded-full transition-all"
                         style={{
                           width: `${Math.min(
                             100,
@@ -284,7 +284,7 @@ export default function EventsPortalClient({
                   ) : event.userStatus === "registered" ? (
                     <button
                       onClick={() => setCheckInEvent(event)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
                     >
                       <QrCode className="w-3.5 h-3.5" />
                       <span>Yoklama Ver</span>
@@ -295,7 +295,7 @@ export default function EventsPortalClient({
                     <button
                       onClick={() => handleRegister(event.id)}
                       disabled={isCapacityFull}
-                      className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-semibold transition-colors disabled:opacity-50"
+                      className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-brand-600 text-white text-xs font-semibold transition-colors disabled:opacity-50"
                     >
                       <span>Kayıt Ol</span>
                       <ChevronRight className="w-3.5 h-3.5" />

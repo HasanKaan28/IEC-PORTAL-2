@@ -49,11 +49,11 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col justify-center items-center p-4 selection:bg-blue-600/20 py-12">
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col justify-center items-center p-4 selection:bg-brand-600/20 py-12">
       <div className="w-full max-w-lg space-y-6">
         <div className="text-center space-y-2">
           <Link href="/" className="inline-flex items-center gap-2 mb-2 group">
-            <ClubLogo size={56} priority className="group-hover:scale-105 transition-transform" />
+            <ClubLogo size={56} variant="color" priority className="group-hover:scale-105 transition-transform" />
           </Link>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight font-display">
             Öğrenci Portalı Kaydı
@@ -94,7 +94,7 @@ export default function RegisterPage() {
                   name="fullName"
                   required
                   placeholder="Ahmet Yılmaz"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition-all"
                 />
               </div>
             </div>
@@ -111,7 +111,7 @@ export default function RegisterPage() {
                   name="email"
                   required
                   placeholder="student@ius.edu.ba"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition-all"
                 />
               </div>
             </div>
@@ -129,7 +129,7 @@ export default function RegisterPage() {
                   required
                   minLength={6}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition-all"
                 />
               </div>
             </div>
@@ -143,7 +143,7 @@ export default function RegisterPage() {
                 <select
                   name="department"
                   required
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition-all"
                 >
                   <option value="Computer Sciences and Engineering (CSE)">CSE (Bilgisayar)</option>
                   <option value="Software Engineering (SE)">SE (Yazılım)</option>
@@ -161,7 +161,7 @@ export default function RegisterPage() {
                 <select
                   name="classYear"
                   required
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition-all"
                 >
                   <option value="1. Sınıf">1. Sınıf (Freshman)</option>
                   <option value="2. Sınıf">2. Sınıf (Sophomore)</option>
@@ -182,7 +182,7 @@ export default function RegisterPage() {
                 type="tel"
                 name="phone"
                 placeholder="+387 60 ... veya +90 5..."
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition-all"
               />
             </div>
 
@@ -194,10 +194,10 @@ export default function RegisterPage() {
                   name="kvkkConsent"
                   id="regKvkk"
                   required
-                  className="mt-0.5 rounded border-slate-300 text-blue-600 focus:ring-0 w-4 h-4 cursor-pointer"
+                  className="mt-0.5 rounded border-slate-300 text-brand-600 focus:ring-0 w-4 h-4 cursor-pointer"
                 />
                 <label htmlFor="regKvkk" className="text-[11px] text-slate-600 leading-normal cursor-pointer">
-                  <Link href="/kvkk" target="_blank" className="text-blue-600 font-semibold hover:underline">
+                  <Link href="/kvkk" target="_blank" className="text-brand-600 font-semibold hover:underline">
                     KVKK Aydınlatma Metni
                   </Link>
                   &apos;ni okudum, kişisel verilerimin kulüp faaliyetleri ve üye kayıt defteri kapsamında işlenmesini onaylıyorum. <span className="text-rose-500 font-bold">*</span>
@@ -210,7 +210,7 @@ export default function RegisterPage() {
                   type="checkbox"
                   name="marketingConsent"
                   id="regMarketing"
-                  className="mt-0.5 rounded border-slate-300 text-blue-600 focus:ring-0 w-4 h-4 cursor-pointer"
+                  className="mt-0.5 rounded border-slate-300 text-brand-600 focus:ring-0 w-4 h-4 cursor-pointer"
                 />
                 <label htmlFor="regMarketing" className="text-[11px] text-slate-500 leading-normal cursor-pointer">
                   (İsteğe bağlı) Kulüp hackathonları, atölyeler ve teknik iş ilanları hakkında e-posta bildirimleri almayı kabul ediyorum.
@@ -221,7 +221,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -242,7 +242,7 @@ export default function RegisterPage() {
           Zaten bir hesabınız var mı?{" "}
           <Link
             href="/portal/giris"
-            className="text-blue-600 hover:text-blue-700 font-semibold"
+            className="text-brand-600 hover:text-brand-700 font-semibold"
           >
             Giriş Yapın
           </Link>

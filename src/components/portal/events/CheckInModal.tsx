@@ -68,7 +68,7 @@ export default function CheckInModal({
         {/* Header */}
         <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-brand-50 border border-brand-200 text-brand-600 flex items-center justify-center">
               <QrCode className="w-4 h-4" />
             </div>
             <div>
@@ -107,7 +107,7 @@ export default function CheckInModal({
                 <span className="text-[10px] text-slate-400 font-mono block">
                   SERTİFİKA DOĞRULAMA KODU:
                 </span>
-                <span className="text-sm font-mono font-bold text-indigo-600">
+                <span className="text-sm font-mono font-bold text-brand-600">
                   {successCertCode}
                 </span>
               </div>
@@ -116,7 +116,7 @@ export default function CheckInModal({
                 <Link
                   href="/portal/sertifikalarim"
                   onClick={handleClose}
-                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
                 >
                   <Award className="w-4 h-4" />
                   <span>Sertifikalarıma Git & İndir</span>
@@ -156,7 +156,7 @@ export default function CheckInModal({
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="Örn: 482 913"
-                  className="w-full text-center tracking-widest text-xl font-mono font-bold py-3 rounded-xl border border-slate-200 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-slate-50/50"
+                  className="w-full text-center tracking-widest text-xl font-mono font-bold py-3 rounded-xl border border-slate-200 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-slate-50/50"
                 />
               </div>
 
@@ -171,7 +171,7 @@ export default function CheckInModal({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition-all shadow-xs disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold transition-all shadow-xs disabled:opacity-50"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>{isSubmitting ? "Kontrol Ediliyor..." : "Yoklamayı Onayla"}</span>

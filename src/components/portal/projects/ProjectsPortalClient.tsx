@@ -93,7 +93,7 @@ export default function ProjectsPortalClient({
             <h1 className="text-xl font-bold text-slate-900 font-display">
               Kulüp Projeleri & Çalışma Grupları
             </h1>
-            <span className="text-xs font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200">
+            <span className="text-xs font-mono font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-200">
               {projects.length} Aktif Proje
             </span>
           </div>
@@ -105,7 +105,7 @@ export default function ProjectsPortalClient({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition-all shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold transition-all shadow-xs"
           >
             <Plus className="w-4 h-4" />
             <span>Yeni Proje Ekle</span>
@@ -133,7 +133,7 @@ export default function ProjectsPortalClient({
             onClick={() => setSelectedCategory(cat.id)}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
               selectedCategory === cat.id
-                ? "bg-indigo-600 text-white shadow-xs font-semibold"
+                ? "bg-brand-600 text-white shadow-xs font-semibold"
                 : "bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
             }`}
           >
@@ -152,14 +152,14 @@ export default function ProjectsPortalClient({
             <div className="space-y-3">
               {/* Category & Status */}
               <div className="flex items-center justify-between text-[11px] font-mono">
-                <span className="px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-semibold border border-indigo-200">
+                <span className="px-2.5 py-0.5 rounded-md bg-brand-50 text-brand-700 font-semibold border border-brand-200">
                   {project.category}
                 </span>
                 <span
                   className={`px-2 py-0.5 rounded font-medium ${
                     project.status === "in_progress"
                       ? "text-amber-700 bg-amber-50 border border-amber-200"
-                      : "text-blue-700 bg-blue-50 border border-blue-200"
+                      : "text-brand-700 bg-brand-50 border border-brand-200"
                   }`}
                 >
                   {project.status === "in_progress" ? "Geliştiriliyor" : "Planlama"}
@@ -168,7 +168,7 @@ export default function ProjectsPortalClient({
 
               {/* Title & Desc */}
               <div>
-                <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors leading-snug">
+                <h3 className="text-base font-bold text-slate-900 group-hover:text-brand-600 transition-colors leading-snug">
                   {project.title}
                 </h3>
                 <p className="text-xs text-slate-600 mt-2 leading-relaxed line-clamp-3">
@@ -202,7 +202,7 @@ export default function ProjectsPortalClient({
                 {/* Lead Profile */}
                 {project.leadName ? (
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-indigo-50 border border-indigo-200 overflow-hidden flex items-center justify-center text-indigo-700 font-bold text-[10px]">
+                    <div className="w-7 h-7 rounded-full bg-brand-50 border border-brand-200 overflow-hidden flex items-center justify-center text-brand-700 font-bold text-[10px]">
                       {project.leadAvatar ? (
                         <img
                           src={project.leadAvatar}
@@ -265,7 +265,7 @@ export default function ProjectsPortalClient({
                       target="_blank"
                       rel="noopener noreferrer"
                       title="Canlı Demo / Web"
-                      className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors"
+                      className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:text-brand-600 hover:bg-slate-50 transition-colors"
                     >
                       <ExternalLink className="w-4 h-4" />
                     </a>
@@ -287,7 +287,7 @@ export default function ProjectsPortalClient({
                 ) : (
                   <button
                     onClick={() => setActiveJoinProject(project)}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
                   >
                     <span>Projeye Katıl</span>
                     <ArrowRight className="w-3.5 h-3.5" />

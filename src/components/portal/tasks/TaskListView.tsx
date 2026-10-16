@@ -86,7 +86,7 @@ export default function TaskListView({
                   className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
                 >
                   <td className="py-3.5 px-4 max-w-sm">
-                    <div className="font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                    <div className="font-semibold text-slate-900 group-hover:text-brand-600 transition-colors line-clamp-1">
                       {task.title}
                     </div>
                     {task.projectName && (
@@ -109,7 +109,7 @@ export default function TaskListView({
                         task.status === "done"
                           ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                           : task.status === "in_review"
-                          ? "bg-blue-50 text-blue-700 border-blue-200"
+                          ? "bg-brand-50 text-brand-700 border-brand-200"
                           : task.status === "in_progress"
                           ? "bg-amber-50 text-amber-700 border-amber-200"
                           : "bg-slate-50 text-slate-700 border-slate-200"
@@ -128,7 +128,7 @@ export default function TaskListView({
 
                   <td className="py-3.5 px-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-full bg-indigo-50 border border-indigo-200 flex items-center justify-center text-[9px] font-bold text-indigo-700">
+                      <div className="w-5 h-5 rounded-full bg-brand-50 border border-brand-200 flex items-center justify-center text-[9px] font-bold text-brand-700">
                         {task.assigneeAvatar ? (
                           <img
                             src={task.assigneeAvatar}
@@ -170,7 +170,7 @@ export default function TaskListView({
                   </td>
 
                   <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                    <span className="text-slate-400 group-hover:text-indigo-600 transition-colors inline-flex items-center">
+                    <span className="text-slate-400 group-hover:text-brand-600 transition-colors inline-flex items-center">
                       <ChevronRight className="w-4 h-4" />
                     </span>
                   </td>

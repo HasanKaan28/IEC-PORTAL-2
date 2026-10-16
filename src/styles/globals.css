@@ -5,74 +5,74 @@
 @layer base {
   /* Default: Dark Cinematic Theme (Public Website) */
   :root {
-    --background: 222 47% 5%;
-    --foreground: 210 40% 98%;
+    --background: 270 33% 5%;
+    --foreground: 280 20% 98%;
 
-    --card: 222 44% 8%;
-    --card-foreground: 210 40% 98%;
+    --card: 273 30% 7%;
+    --card-foreground: 280 20% 98%;
 
-    --popover: 222 44% 8%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 273 30% 7%;
+    --popover-foreground: 280 20% 98%;
 
-    --primary: 217 91% 60%;
+    --primary: 320 63% 51%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 33% 14%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 270 29% 11%;
+    --secondary-foreground: 280 20% 98%;
 
-    --muted: 217 33% 12%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 270 29% 10%;
+    --muted-foreground: 271 12% 66%;
 
-    --accent: 189 94% 43%;
-    --accent-foreground: 222 47% 5%;
+    --accent: 48 96% 53%;
+    --accent-foreground: 270 33% 5%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217 33% 18%;
-    --input: 217 33% 18%;
-    --ring: 217 91% 60%;
+    --border: 268 17% 17%;
+    --input: 268 17% 17%;
+    --ring: 320 63% 51%;
 
     --radius: 0.75rem;
 
     /* Portal specific light tokens */
-    --portal-bg: #f8fafc;
+    --portal-bg: #faf8fb;
     --portal-surface: #ffffff;
     --portal-sidebar: #ffffff;
-    --portal-border: #e2e8f0;
-    --portal-text: #0f172a;
-    --portal-muted: #64748b;
+    --portal-border: #e7e2eb;
+    --portal-text: #1c1623;
+    --portal-muted: #776c82;
   }
 
   /* Member Portal Theme (Clean, Light, SIS/Linear Dashboard Language) */
   .theme-portal {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    --background: 276 25% 98%;
+    --foreground: 268 22% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 268 22% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 268 22% 11%;
 
-    --primary: 221 83% 53%;
+    --primary: 323 68% 43%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 276 25% 95%;
+    --secondary-foreground: 268 22% 11%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 276 25% 95%;
+    --muted-foreground: 270 9% 47%;
 
-    --accent: 210 40% 92%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 320 80% 97%;
+    --accent-foreground: 323 68% 30%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 83% 53%;
+    --border: 274 18% 90%;
+    --input: 274 18% 90%;
+    --ring: 323 68% 43%;
 
     --radius: 0.5rem;
   }
@@ -101,14 +101,14 @@
 
 /* Glassmorphism and glow utilities */
 .glass-panel {
-  background: rgba(10, 13, 20, 0.75);
+  background: rgba(19, 13, 24, 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .glass-panel-subtle {
-  background: rgba(15, 23, 42, 0.45);
+  background: rgba(28, 20, 36, 0.45);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -118,7 +118,7 @@
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e7e2eb;
 }
 
 /* Fallback for users with prefers-reduced-motion */

@@ -53,7 +53,7 @@ export default function LookingForTeamModal({
       <div className="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-cyan-50 border border-cyan-200 text-cyan-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-accent-50 border border-accent-200 text-accent-600 flex items-center justify-center">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
@@ -91,7 +91,7 @@ export default function LookingForTeamModal({
               value={skillsInput}
               onChange={(e) => setSkillsInput(e.target.value)}
               placeholder="C++, Python, Gömülü Sistemler, Figma, Sunum"
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-600"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600"
               required
             />
           </div>
@@ -105,7 +105,7 @@ export default function LookingForTeamModal({
               onChange={(e) => setStatement(e.target.value)}
               placeholder="Örn: DevHack 2027 maratonunda IoT veya sosyal fayda kategorisinde yarışacak bir takımda donanım ve gömülü yazılım geliştirmek istiyorum..."
               rows={3}
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-600 resize-none leading-relaxed"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 resize-none leading-relaxed"
               required
             />
           </div>
@@ -121,7 +121,7 @@ export default function LookingForTeamModal({
             <button
               type="submit"
               disabled={isSubmitting || !statement.trim()}
-              className="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
+              className="px-5 py-2 rounded-xl bg-accent-600 hover:bg-accent-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
             >
               {isSubmitting ? "Kaydediliyor..." : "Vitrine Ekle"}
             </button>

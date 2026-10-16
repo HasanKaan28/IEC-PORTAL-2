@@ -140,7 +140,7 @@ export default function BlogCommentSection({
               onChange={(e) => setNewContent(e.target.value)}
               placeholder="Teknik soru, geri bildirim veya katkınızı buraya yazın..."
               rows={3}
-              className="w-full bg-[#080d1a] border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500/80 transition-colors resize-none"
+              className="w-full bg-ink-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500/80 transition-colors resize-none"
             />
 
             {errorMsg && (
@@ -270,7 +270,7 @@ export default function BlogCommentSection({
 
               {/* Reply Input Box */}
               {replyingTo === comment.id && (
-                <div className="ml-11 mt-3 p-3 rounded-xl bg-[#090d19] border border-slate-800 space-y-2">
+                <div className="ml-11 mt-3 p-3 rounded-xl bg-ink-900 border border-slate-800 space-y-2">
                   <textarea
                     value={replyContent}
                     onChange={(e) => setReplyContent(e.target.value)}

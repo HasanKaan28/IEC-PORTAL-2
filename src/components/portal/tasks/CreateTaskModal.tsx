@@ -72,7 +72,7 @@ export default function CreateTaskModal({
         {/* Modal Header */}
         <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-brand-50 border border-brand-200 text-brand-600 flex items-center justify-center">
               <Plus className="w-4 h-4" />
             </div>
             <div>
@@ -111,7 +111,7 @@ export default function CreateTaskModal({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Örn: SPI Bus çakışmasını çöz ve FreeRTOS task oluştur"
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-600"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600"
               required
             />
           </div>
@@ -124,7 +124,7 @@ export default function CreateTaskModal({
               <select
                 value={projectId}
                 onChange={(e) => setProjectId(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-600 bg-white"
+                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 bg-white"
               >
                 {projects.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -141,7 +141,7 @@ export default function CreateTaskModal({
               <select
                 value={assigneeId}
                 onChange={(e) => setAssigneeId(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-600 bg-white"
+                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 bg-white"
               >
                 <option value="">Atanmamış</option>
                 {members.map((m) => (
@@ -161,7 +161,7 @@ export default function CreateTaskModal({
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as TaskPriority)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-600 bg-white"
+                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 bg-white"
               >
                 <option value="urgent">Acil</option>
                 <option value="high">Yüksek</option>
@@ -177,7 +177,7 @@ export default function CreateTaskModal({
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as TaskStatus)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-600 bg-white"
+                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 bg-white"
               >
                 <option value="todo">Yapılacak</option>
                 <option value="in_progress">Devam Ediyor</option>
@@ -192,7 +192,7 @@ export default function CreateTaskModal({
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-600 bg-white font-mono"
+                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 bg-white font-mono"
               >
               </input>
             </div>
@@ -207,7 +207,7 @@ export default function CreateTaskModal({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Gereksinimler, dikkat edilmesi gereken kütüphaneler veya test adımları..."
               rows={3}
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-600 resize-none"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 resize-none"
             />
           </div>
 
@@ -223,7 +223,7 @@ export default function CreateTaskModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
+              className="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
             >
               {isSubmitting ? "Oluşturuluyor..." : "Görevi Kaydet"}
             </button>

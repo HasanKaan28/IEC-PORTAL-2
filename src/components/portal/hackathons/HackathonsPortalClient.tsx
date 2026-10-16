@@ -97,10 +97,10 @@ export default function HackathonsPortalClient({
       )}
 
       {/* Featured Hackathon Banner */}
-      <div className="rounded-2xl p-6 bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+      <div className="rounded-2xl p-6 bg-gradient-to-r from-purple-900 via-brand-900 to-slate-900 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
         <div className="relative z-10 space-y-2 max-w-xl">
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-cyan-400/20 text-cyan-300 font-mono text-xs border border-cyan-400/30">
+            <span className="px-2.5 py-0.5 rounded-full bg-accent-400/20 text-accent-300 font-mono text-xs border border-accent-400/30">
               AMİRAL GEMİSİ HACKATHON
             </span>
             <span className="text-xs text-purple-200 font-mono">15-16 Mayıs 2027</span>
@@ -108,7 +108,7 @@ export default function HackathonsPortalClient({
           <h1 className="text-xl sm:text-2xl font-extrabold font-display tracking-tight">
             DevHack 2027 — 24 Saatlik Saraybosna Maratonu
           </h1>
-          <p className="text-xs text-indigo-200 leading-relaxed">
+          <p className="text-xs text-brand-200 leading-relaxed">
             Akıllı Kampüs & IoT, FinTech ve Sosyal Fayda kategorilerinde üniversiteler arası büyük yarışma! Takımını kur veya takım arkadaşı bul.
           </p>
         </div>
@@ -116,7 +116,7 @@ export default function HackathonsPortalClient({
         <div className="relative z-10 flex flex-wrap items-center gap-2 shrink-0">
           <button
             onClick={() => setIsCreateTeamOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white text-indigo-900 hover:bg-indigo-50 text-xs font-semibold shadow-sm transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white text-brand-900 hover:bg-brand-50 text-xs font-semibold shadow-sm transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>Yeni Takım Kur</span>
@@ -125,7 +125,7 @@ export default function HackathonsPortalClient({
             onClick={() => setIsLookingModalOpen(true)}
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-purple-800/80 hover:bg-purple-700/80 text-white border border-purple-500/30 text-xs font-semibold transition-all"
           >
-            <Sparkles className="w-4 h-4 text-cyan-300" />
+            <Sparkles className="w-4 h-4 text-accent-300" />
             <span>Takım Arıyorum</span>
           </button>
         </div>
@@ -154,7 +154,7 @@ export default function HackathonsPortalClient({
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            <Sparkles className="w-4 h-4 text-cyan-600" />
+            <Sparkles className="w-4 h-4 text-accent-600" />
             <span>Takım Arayan Mühendisler ({lookingMembers.length})</span>
           </button>
 
@@ -177,7 +177,7 @@ export default function HackathonsPortalClient({
             <select
               value={selectedHackathon}
               onChange={(e) => setSelectedHackathon(e.target.value)}
-              className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-indigo-600 font-medium"
+              className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-brand-600 font-medium"
             >
               <option value="all">Tüm Hackathonlar</option>
               {hackathons.map((h) => (
@@ -317,7 +317,7 @@ export default function HackathonsPortalClient({
             </div>
             <button
               onClick={() => setIsLookingModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-semibold transition-colors"
+              className="px-3.5 py-2 rounded-xl bg-accent-600 hover:bg-accent-700 text-white text-xs font-semibold transition-colors"
             >
               Ben de Vitrine Katılmak İstiyorum
             </button>
@@ -331,7 +331,7 @@ export default function HackathonsPortalClient({
               >
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-cyan-50 border border-cyan-200 overflow-hidden flex items-center justify-center text-cyan-700 font-bold text-xs">
+                    <div className="w-10 h-10 rounded-full bg-accent-50 border border-accent-200 overflow-hidden flex items-center justify-center text-accent-700 font-bold text-xs">
                       {member.avatar ? (
                         <img
                           src={member.avatar}
@@ -360,7 +360,7 @@ export default function HackathonsPortalClient({
                     {member.skills.map((skill) => (
                       <span
                         key={skill}
-                        className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-50 text-cyan-800 border border-cyan-200 font-medium"
+                        className="text-[10px] font-mono px-2 py-0.5 rounded bg-accent-50 text-accent-800 border border-accent-200 font-medium"
                       >
                         #{skill}
                       </span>

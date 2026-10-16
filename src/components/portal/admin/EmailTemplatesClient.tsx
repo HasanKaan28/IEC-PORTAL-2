@@ -73,7 +73,7 @@ export default function EmailTemplatesClient() {
             <h1 className="text-xl font-bold text-slate-900 font-display">
               Sistem E-posta Şablonları & Önizleme
             </h1>
-            <span className="text-xs font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200">
+            <span className="text-xs font-mono font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-200">
               Supabase & Resend Uyumlu
             </span>
           </div>
@@ -89,7 +89,7 @@ export default function EmailTemplatesClient() {
               onClick={() => setViewMode("desktop")}
               className={`p-1.5 rounded-lg transition-colors ${
                 viewMode === "desktop"
-                  ? "bg-white text-indigo-600 shadow-2xs font-semibold"
+                  ? "bg-white text-brand-600 shadow-2xs font-semibold"
                   : "text-slate-500 hover:text-slate-900"
               }`}
               title="Masaüstü Görünüm"
@@ -100,7 +100,7 @@ export default function EmailTemplatesClient() {
               onClick={() => setViewMode("mobile")}
               className={`p-1.5 rounded-lg transition-colors ${
                 viewMode === "mobile"
-                  ? "bg-white text-indigo-600 shadow-2xs font-semibold"
+                  ? "bg-white text-brand-600 shadow-2xs font-semibold"
                   : "text-slate-500 hover:text-slate-900"
               }`}
               title="Mobil Görünüm"
@@ -111,7 +111,7 @@ export default function EmailTemplatesClient() {
 
           <button
             onClick={copyHtml}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
           >
             {copied ? (
               <>
@@ -138,7 +138,7 @@ export default function EmailTemplatesClient() {
               onClick={() => setActiveTemplate(t.key)}
               className={`p-4 rounded-2xl border text-left transition-all ${
                 isSelected
-                  ? "bg-white border-indigo-600 shadow-xs ring-2 ring-indigo-500/10"
+                  ? "bg-white border-brand-600 shadow-xs ring-2 ring-brand-500/10"
                   : "bg-white/60 border-slate-200 hover:bg-white hover:border-slate-300"
               }`}
             >
@@ -148,7 +148,7 @@ export default function EmailTemplatesClient() {
                 </span>
                 <Mail
                   className={`w-3.5 h-3.5 ${
-                    isSelected ? "text-indigo-600" : "text-slate-400"
+                    isSelected ? "text-brand-600" : "text-slate-400"
                   }`}
                 />
               </div>
@@ -163,7 +163,7 @@ export default function EmailTemplatesClient() {
       {/* Email Subject Line Bar */}
       <div className="p-3.5 bg-slate-900 text-white rounded-2xl border border-slate-800 flex items-center justify-between text-xs font-mono">
         <div className="flex items-center gap-2 truncate">
-          <span className="text-indigo-400 font-bold shrink-0">E-POSTA KONUSU:</span>
+          <span className="text-brand-400 font-bold shrink-0">E-POSTA KONUSU:</span>
           <span className="text-slate-200 truncate">{rendered.subject}</span>
         </div>
         <span className="text-[10px] text-slate-400 uppercase shrink-0 hidden sm:inline">
@@ -181,7 +181,7 @@ export default function EmailTemplatesClient() {
           <iframe
             srcDoc={rendered.html}
             title="Email Template Live Preview"
-            className="w-full h-[620px] border-none rounded-2xl bg-[#090d16]"
+            className="w-full h-[620px] border-none rounded-2xl bg-ink-900"
           />
         </div>
       </div>

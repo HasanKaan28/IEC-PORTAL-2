@@ -18,7 +18,7 @@ export default async function AdminDashboardPage() {
         <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-semibold">Toplam Kayıtlı Üye</span>
-            <Users className="w-4 h-4 text-blue-600" />
+            <Users className="w-4 h-4 text-brand-600" />
           </div>
           <div className="text-2xl font-bold text-slate-900 mt-2">{users.length}</div>
           <span className="text-[11px] text-slate-400">Tüm aktif öğrenci profilleri</span>
@@ -36,10 +36,10 @@ export default async function AdminDashboardPage() {
         <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-semibold">Yetkili Yöneticiler</span>
-            <Shield className="w-4 h-4 text-indigo-600" />
+            <Shield className="w-4 h-4 text-brand-600" />
           </div>
           <div className="text-2xl font-bold text-slate-900 mt-2">{adminCount}</div>
-          <span className="text-[11px] text-indigo-600 font-medium">Super Admin & Liderler</span>
+          <span className="text-[11px] text-brand-600 font-medium">Super Admin & Liderler</span>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
@@ -63,7 +63,7 @@ export default async function AdminDashboardPage() {
             </div>
             <Link
               href="/portal/admin/basvurular"
-              className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold flex items-center gap-1"
+              className="text-xs text-brand-600 hover:text-brand-700 font-semibold flex items-center gap-1"
             >
               <span>Tümünü Gör</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -85,7 +85,7 @@ export default async function AdminDashboardPage() {
                   </div>
                   <Link
                     href="/portal/admin/basvurular"
-                    className="px-3 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-semibold transition-colors"
+                    className="px-3 py-1 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-700 text-[11px] font-semibold transition-colors"
                   >
                     İncele
                   </Link>
@@ -108,7 +108,7 @@ export default async function AdminDashboardPage() {
             </div>
             <Link
               href="/portal/admin/denetim"
-              className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold flex items-center gap-1"
+              className="text-xs text-brand-600 hover:text-brand-700 font-semibold flex items-center gap-1"
             >
               <span>Günlüğü Aç</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -121,7 +121,7 @@ export default async function AdminDashboardPage() {
                 key={log.id}
                 className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs flex items-start gap-3"
               >
-                <div className="w-2 h-2 rounded-full bg-indigo-600 mt-1.5 shrink-0" />
+                <div className="w-2 h-2 rounded-full bg-brand-600 mt-1.5 shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-semibold text-slate-900">{log.action}</span>

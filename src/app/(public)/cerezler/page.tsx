@@ -32,7 +32,7 @@ export default function CookiesPage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#070a11]">
+    <div className="flex flex-col min-h-screen bg-ink-950">
       <Navbar />
 
       <main className="flex-1 py-16 px-4 sm:px-6">
@@ -58,7 +58,7 @@ export default function CookiesPage() {
           <div className="glass-panel p-8 rounded-3xl border border-slate-800 space-y-6 text-slate-300 text-xs sm:text-sm leading-relaxed">
             <section className="space-y-2">
               <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <Cookie className="w-4 h-4 text-cyan-400" />
+                <Cookie className="w-4 h-4 text-accent-400" />
                 1. Çerez (Cookie) Nedir?
               </h2>
               <p>
@@ -82,7 +82,7 @@ export default function CookiesPage() {
                   <tbody className="divide-y divide-slate-800/60">
                     {cookiesList.map((item, i) => (
                       <tr key={i} className="hover:bg-slate-900/40">
-                        <td className="py-3 px-3 font-mono text-cyan-300 font-semibold">{item.name}</td>
+                        <td className="py-3 px-3 font-mono text-accent-300 font-semibold">{item.name}</td>
                         <td className="py-3 px-3 text-slate-300">{item.category}</td>
                         <td className="py-3 px-3 text-slate-400 font-mono">{item.duration}</td>
                         <td className="py-3 px-3 text-slate-300 leading-normal">{item.purpose}</td>

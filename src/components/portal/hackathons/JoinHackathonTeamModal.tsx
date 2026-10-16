@@ -108,7 +108,7 @@ export default function JoinHackathonTeamModal({
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Örn: Python/FastAPI ile REST API geliştirebilirim, daha önce hackathon tecrübem var..."
               rows={4}
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-600 resize-none leading-relaxed"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 resize-none leading-relaxed"
               required
             />
           </div>

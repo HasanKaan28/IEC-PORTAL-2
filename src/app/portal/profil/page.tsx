@@ -105,7 +105,7 @@ export default function ProfilePage() {
           onClick={() => setIsCardModalOpen(true)}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm transition-all"
         >
-          <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+          <Sparkles className="w-3.5 h-3.5 text-accent-400" />
           <span>Discord Tarzı Profil Kartımı Önizle</span>
         </button>
       </div>
@@ -129,7 +129,7 @@ export default function ProfilePage() {
         <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
           {/* Avatar and Basic info */}
           <div className="flex items-center gap-5 pb-6 border-b border-slate-100">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-500 flex items-center justify-center text-white font-bold text-xl shadow-md shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-accent-500 flex items-center justify-center text-white font-bold text-xl shadow-md shrink-0">
               {formData.fullName
                 .split(" ")
                 .map((n) => n[0])
@@ -139,7 +139,7 @@ export default function ProfilePage() {
               <h2 className="text-base font-bold text-slate-900">{formData.fullName}</h2>
               <p className="text-xs text-slate-500 font-mono">{formData.email}</p>
               <div className="mt-2 flex gap-1.5">
-                <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-800">
+                <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-brand-100 text-brand-800">
                   Kulüp Lideri
                 </span>
                 <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">
@@ -159,7 +159,7 @@ export default function ProfilePage() {
                 required
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition-all"
               />
             </div>
 
@@ -185,7 +185,7 @@ export default function ProfilePage() {
               <select
                 value={formData.department}
                 onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition-all"
               >
                 <option value="Computer Sciences and Engineering (CSE)">CSE (Bilgisayar)</option>
                 <option value="Software Engineering (SE)">SE (Yazılım)</option>
@@ -203,7 +203,7 @@ export default function ProfilePage() {
               <select
                 value={formData.classYear}
                 onChange={(e) => setFormData({ ...formData, classYear: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition-all"
               >
                 <option value="1. Sınıf">1. Sınıf</option>
                 <option value="2. Sınıf">2. Sınıf</option>
@@ -224,7 +224,7 @@ export default function ProfilePage() {
               rows={3}
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all leading-relaxed"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition-all leading-relaxed"
             />
           </div>
 
@@ -235,13 +235,13 @@ export default function ProfilePage() {
                 LinkedIn Profili
               </label>
               <div className="relative">
-                <Linkedin className="w-4 h-4 text-blue-600 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Linkedin className="w-4 h-4 text-brand-600 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="url"
                   placeholder="https://linkedin.com/in/..."
                   value={formData.linkedinUrl}
                   onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition-all"
                 />
               </div>
             </div>
@@ -257,7 +257,7 @@ export default function ProfilePage() {
                   placeholder="https://github.com/..."
                   value={formData.githubUrl}
                   onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition-all"
                 />
               </div>
             </div>
@@ -275,7 +275,7 @@ export default function ProfilePage() {
                 placeholder="+387 60 ... veya +90 5..."
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition-all"
               />
             </div>
           </div>
@@ -299,7 +299,7 @@ export default function ProfilePage() {
                 type="checkbox"
                 checked={formData.hidePhone}
                 onChange={(e) => setFormData({ ...formData, hidePhone: e.target.checked })}
-                className="rounded border-slate-300 text-blue-600 focus:ring-0 w-4 h-4 cursor-pointer"
+                className="rounded border-slate-300 text-brand-600 focus:ring-0 w-4 h-4 cursor-pointer"
               />
             </div>
 
@@ -316,7 +316,7 @@ export default function ProfilePage() {
                 type="checkbox"
                 checked={formData.hideEmail}
                 onChange={(e) => setFormData({ ...formData, hideEmail: e.target.checked })}
-                className="rounded border-slate-300 text-blue-600 focus:ring-0 w-4 h-4 cursor-pointer"
+                className="rounded border-slate-300 text-brand-600 focus:ring-0 w-4 h-4 cursor-pointer"
               />
             </div>
           </div>
@@ -327,7 +327,7 @@ export default function ProfilePage() {
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
+            className="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
           >
             {loading ? (
               <>

@@ -25,16 +25,16 @@ export default function AdminLayout({
   return (
     <div className="space-y-6 max-w-6xl">
       {/* Admin Top Header Banner */}
-      <div className="bg-indigo-900 text-white rounded-2xl p-6 sm:p-7 shadow-sm relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-brand-900 text-white rounded-2xl p-6 sm:p-7 shadow-sm relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 text-xs font-mono mb-2 text-indigo-200 backdrop-blur-md">
-            <Shield className="w-3.5 h-3.5 text-cyan-300" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/10 text-xs font-mono mb-2 text-brand-200 backdrop-blur-md">
+            <Shield className="w-3.5 h-3.5 text-accent-300" />
             <span>YÖNETİM KONSOLU // ADMIN MODE</span>
           </div>
           <h1 className="text-2xl font-bold font-display tracking-tight">
             IEC Yönetim & Denetim Masası
           </h1>
-          <p className="text-xs text-indigo-200 mt-1 max-w-xl">
+          <p className="text-xs text-brand-200 mt-1 max-w-xl">
             Üye rolleri, yetkilendirmeler, yeni üyelik başvuruları ve sistem güvenlik kayıtlarını bu ekrandan yönetebilirsiniz.
           </p>
         </div>
@@ -50,7 +50,7 @@ export default function AdminLayout({
         </div>
 
         {/* Ambient subtle background element */}
-        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-indigo-800 to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-brand-800 to-transparent pointer-events-none" />
       </div>
 
       {/* Admin Sub Navigation Tabs */}
@@ -64,7 +64,7 @@ export default function AdminLayout({
               href={tab.href}
               className={`flex items-center gap-2 px-4 py-2.5 text-xs font-medium border-b-2 whitespace-nowrap transition-colors ${
                 isActive
-                  ? "border-indigo-600 text-indigo-600 font-semibold"
+                  ? "border-brand-600 text-brand-600 font-semibold"
                   : "border-transparent text-slate-500 hover:text-slate-900 hover:border-slate-300"
               }`}
             >

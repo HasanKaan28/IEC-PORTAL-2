@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { LocaleProvider } from "@/lib/i18n/locale-context";
+import { getServerLocale } from "@/lib/i18n/server";
 import { SITE_URL } from "@/lib/site-url";
 import "@/styles/globals.css";
 
@@ -23,7 +24,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#070a11",
+  themeColor: "#0c0810",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -91,15 +92,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getServerLocale();
   return (
-    <html lang="tr" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-screen font-sans bg-background text-foreground antialiased selection:bg-sky-500/20 selection:text-sky-300">
-        <LocaleProvider>{children}</LocaleProvider>
+    <html lang={locale} className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+      <body className="min-h-screen font-sans bg-background text-foreground antialiased selection:bg-brand-500/20 selection:text-brand-300">
+        <LocaleProvider initialLocale={locale}>{children}</LocaleProvider>
       </body>
     </html>
   );

@@ -16,7 +16,7 @@ export default function Footer() {
   const { t } = useLocale();
 
   return (
-    <footer className="border-t border-slate-800/80 bg-[#05070d] text-slate-400 text-sm py-16 px-4 sm:px-6 relative z-10">
+    <footer className="border-t border-slate-800/80 bg-ink-990 text-slate-400 text-sm py-16 px-4 sm:px-6 relative z-10">
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-10">
         <div className="sm:col-span-2 md:col-span-5 space-y-4">
           <div className="flex items-center gap-3">
@@ -66,7 +66,7 @@ export default function Footer() {
             <li><Link href="/hakkimizda" className={linkClass}>{t.nav.about}</Link></li>
             <li><Link href="/basvuru" className={linkClass}>{t.footer.membership}</Link></li>
             <li>
-              <Link href="/portal" className="text-blue-300 hover:text-white transition-colors font-medium">
+              <Link href="/portal" className="text-brand-300 hover:text-white transition-colors font-medium">
                 {t.common.portalButton}
               </Link>
             </li>
@@ -77,7 +77,7 @@ export default function Footer() {
           <h2 className="font-semibold text-white text-sm">{t.footer.certification}</h2>
           <ul className="space-y-2">
             <li>
-              <Link href="/dogrula" className="inline-flex items-center gap-1.5 text-blue-300 hover:text-white transition-colors">
+              <Link href="/dogrula" className="inline-flex items-center gap-1.5 text-brand-300 hover:text-white transition-colors">
                 <Award className="w-4 h-4" aria-hidden="true" />
                 <span>{t.footer.verifyCertificate}</span>
               </Link>

@@ -42,7 +42,7 @@ export default function ProjectJoinRequestsDrawer({
         <div className="p-6 border-b border-slate-200 bg-slate-50/50 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <FolderGit2 className="w-5 h-5 text-indigo-600" />
+              <FolderGit2 className="w-5 h-5 text-brand-600" />
               <h2 className="text-base font-bold text-slate-900 font-display">
                 Proje Katılım Başvuruları
               </h2>
@@ -108,7 +108,7 @@ export default function ProjectJoinRequestsDrawer({
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-semibold border border-indigo-200">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-brand-50 text-brand-700 font-semibold border border-brand-200">
                       {req.projectTitle}
                     </span>
                     <h4 className="text-xs font-bold text-slate-900 mt-1.5">

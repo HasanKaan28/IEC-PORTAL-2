@@ -23,7 +23,7 @@ export default async function BlogListingPage() {
   const posts = await getBlogPosts({ status: "published" });
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#070a11]">
+    <div className="flex flex-col min-h-screen bg-ink-950">
       <Navbar />
 
       <main className="flex-1 py-16 px-4 sm:px-6">

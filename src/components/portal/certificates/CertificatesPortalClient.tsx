@@ -66,7 +66,7 @@ export default function CertificatesPortalClient({
           </Link>
           <Link
             href="/portal/etkinlikler"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
           >
             <Calendar className="w-4 h-4" />
             <span>Etkinliklere Katıl</span>
@@ -77,7 +77,7 @@ export default function CertificatesPortalClient({
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-xl bg-brand-50 border border-brand-200 text-brand-600 flex items-center justify-center font-bold">
             <Award className="w-5 h-5" />
           </div>
           <div>
@@ -115,7 +115,7 @@ export default function CertificatesPortalClient({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Sertifika adı, kod (Örn: IEC-2026-E49A) veya yetenek ara..."
-          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
         />
       </div>
 
@@ -135,7 +135,7 @@ export default function CertificatesPortalClient({
           </div>
           <Link
             href="/portal/etkinlikler"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
           >
             <Calendar className="w-4 h-4" />
             <span>Yaklaşan Etkinlikleri İncele</span>
@@ -152,7 +152,7 @@ export default function CertificatesPortalClient({
                 className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-md transition-all p-5 flex flex-col justify-between space-y-4 group relative overflow-hidden"
               >
                 {/* Gold Accent Top Bar */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-indigo-600 to-amber-500" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-brand-600 to-amber-500" />
 
                 <div className="space-y-3 pt-1">
                   {/* Top Badges */}
@@ -168,7 +168,7 @@ export default function CertificatesPortalClient({
 
                   {/* Title & Event */}
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors leading-snug">
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-brand-600 transition-colors leading-snug">
                       {cert.eventTitle}
                     </h3>
                     <div className="flex items-center gap-2 mt-1 text-xs text-slate-500">
@@ -217,7 +217,7 @@ export default function CertificatesPortalClient({
                     <a
                       href={`/api/certificates/${cert.certificateCode}/pdf`}
                       download
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition-colors"
                     >
                       <Download className="w-3.5 h-3.5" />
                       <span>PDF İndir</span>

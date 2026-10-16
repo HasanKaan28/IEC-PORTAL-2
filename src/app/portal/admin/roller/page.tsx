@@ -94,7 +94,7 @@ export default function RoleManagementPage() {
             placeholder="İsim veya e-posta ara..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all"
+            className="w-full pl-9 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition-all"
           />
         </div>
       </div>
@@ -110,7 +110,7 @@ export default function RoleManagementPage() {
       <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
         {loading ? (
           <div className="p-12 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+            <Loader2 className="w-4 h-4 animate-spin text-brand-600" />
             <span>Kullanıcı listesi yükleniyor...</span>
           </div>
         ) : (
@@ -144,9 +144,9 @@ export default function RoleManagementPage() {
                               r === "super_admin"
                                 ? "bg-purple-100 text-purple-800 border-purple-200"
                                 : r === "admin"
-                                ? "bg-indigo-100 text-indigo-800 border-indigo-200"
+                                ? "bg-brand-100 text-brand-800 border-brand-200"
                                 : r === "leader"
-                                ? "bg-blue-100 text-blue-800 border-blue-200"
+                                ? "bg-brand-100 text-brand-800 border-brand-200"
                                 : "bg-slate-100 text-slate-700 border-slate-200"
                             }`}
                           >
@@ -158,7 +158,7 @@ export default function RoleManagementPage() {
                     <td className="py-3.5 px-4 text-right">
                       <button
                         onClick={() => setSelectedUser(selectedUser?.id === user.id ? null : user)}
-                        className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition-colors"
+                        className="px-3 py-1.5 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-semibold transition-colors"
                       >
                         {selectedUser?.id === user.id ? "Kapat" : "Rolleri Düzenle"}
                       </button>
@@ -176,7 +176,7 @@ export default function RoleManagementPage() {
         <div className="p-6 bg-slate-900 text-white rounded-2xl shadow-xl space-y-4 animate-in fade-in duration-200">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
-              <span className="text-[10px] font-mono text-cyan-400 block uppercase tracking-wider">
+              <span className="text-[10px] font-mono text-accent-400 block uppercase tracking-wider">
                 Rol Yetkilendirme Paneli
               </span>
               <h3 className="text-base font-bold text-white">
@@ -203,16 +203,16 @@ export default function RoleManagementPage() {
                   onClick={() => handleToggle(selectedUser.id, role, hasRole)}
                   className={`p-3 rounded-xl border text-left transition-all text-xs flex flex-col justify-between ${
                     hasRole
-                      ? "bg-indigo-600/30 border-indigo-500 text-white"
+                      ? "bg-brand-600/30 border-brand-500 text-white"
                       : "bg-slate-850 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200"
                   }`}
                 >
                   <div className="flex items-center justify-between w-full mb-1">
                     <span className="font-bold text-xs">{ROLE_LABELS[role]?.tr}</span>
                     {isUpdating ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-400" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-accent-400" />
                     ) : hasRole ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-accent-400" />
                     ) : (
                       <Plus className="w-3.5 h-3.5 text-slate-500" />
                     )}

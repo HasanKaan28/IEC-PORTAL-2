@@ -24,9 +24,9 @@ export function renderEmailTemplate(
   templateKey: EmailTemplateKey,
   data: EmailTemplateData
 ): { subject: string; html: string } {
-  const primaryBg = "#090d16";
+  const primaryBg = "#0c0810";
   const cardBg = "#0f172a";
-  const accentIndigo = "#4f46e5";
+  const accentIndigo = "#b8237f";
   const accentGold = "#d97706";
   const textMuted = "#94a3b8";
 
@@ -83,10 +83,10 @@ export function renderEmailTemplate(
         <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #cbd5e1;">
           Kayıt olduğunuz <strong>${data.eventTitle}</strong> etkinliği yarın başlıyor.
         </p>
-        <div style="background-color: #1e293b; border-left: 4px solid #4f46e5; padding: 14px 18px; border-radius: 8px; margin: 20px 0;">
+        <div style="background-color: #1e293b; border-left: 4px solid #b8237f; padding: 14px 18px; border-radius: 8px; margin: 20px 0;">
           <div style="font-size: 12px; color: #94a3b8; font-family: monospace;">ETKİNLİK DETAYLARI:</div>
           <div style="font-size: 14px; font-weight: bold; color: #ffffff; margin-top: 4px;">Salon: ${data.eventVenue || "A-Block Lab 102"}</div>
-          <div style="font-size: 13px; color: #38bdf8; margin-top: 2px;">Tarih & Saat: ${data.eventDate || "Yarın 14:00"}</div>
+          <div style="font-size: 13px; color: #ec6cc0; margin-top: 2px;">Tarih & Saat: ${data.eventDate || "Yarın 14:00"}</div>
         </div>
         <p style="margin: 0 0 20px 0; font-size: 13px; line-height: 22px; color: #94a3b8;">
           💡 <em>Hatırlatma: Salondaki projeksiyonda 60 saniyede bir dönen dinamik QR kodu taratarak yoklama vermeyi ve resmi başarı sertifikanızı almayı unutmayın.</em>
@@ -180,7 +180,7 @@ export function renderEmailTemplate(
 
           <!-- Footer -->
           <tr>
-            <td style="padding: 24px 32px; background-color: #090d16; border-top: 1px solid #1e293b; text-align: center;">
+            <td style="padding: 24px 32px; background-color: #0c0810; border-top: 1px solid #1e293b; text-align: center;">
               <p style="margin: 0 0 6px 0; font-size: 11px; color: ${textMuted}; font-family: monospace;">
                 International University of Sarajevo • Hrasnička cesta 15, Ilidža 71210 Sarajevo
               </p>

@@ -19,7 +19,7 @@ export default function GlobalError({
           </p>
           <button
             onClick={() => reset()}
-            className="px-5 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-500 transition-colors"
+            className="px-5 py-2.5 rounded-xl bg-brand-600 text-white text-xs font-semibold hover:bg-brand-500 transition-colors"
           >
             Sistemi Yeniden Başlat
           </button>

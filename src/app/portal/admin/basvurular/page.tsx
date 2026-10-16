@@ -106,7 +106,7 @@ export default function ApplicationsReviewPage() {
       <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
         {loading ? (
           <div className="p-12 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+            <Loader2 className="w-4 h-4 animate-spin text-brand-600" />
             <span>Başvurular yükleniyor...</span>
           </div>
         ) : filteredApps.length === 0 ? (
@@ -164,7 +164,7 @@ export default function ApplicationsReviewPage() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setSelectedApp(app)}
-                        className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition-colors"
+                        className="px-3 py-1.5 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-semibold transition-colors"
                       >
                         Karar Ver
                       </button>
@@ -194,7 +194,7 @@ export default function ApplicationsReviewPage() {
           <div className="w-full max-w-lg bg-white rounded-2xl p-6 shadow-2xl border border-slate-200 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <span className="text-[10px] font-mono text-indigo-600 uppercase font-bold">
+                <span className="text-[10px] font-mono text-brand-600 uppercase font-bold">
                   Başvuru Değerlendirmesi
                 </span>
                 <h3 className="text-base font-bold text-slate-900">
@@ -225,7 +225,7 @@ export default function ApplicationsReviewPage() {
                 placeholder="Örn: Yazılım ve AI komitesi için kabul edildi..."
                 value={reviewerNote}
                 onChange={(e) => setReviewerNote(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"
               />
             </div>
 

@@ -123,7 +123,7 @@ export default function AdminCommentModerator({
                   </div>
 
                   {comment.postSlug && (
-                    <div className="flex items-center gap-1.5 text-xs text-indigo-600 font-mono">
+                    <div className="flex items-center gap-1.5 text-xs text-brand-600 font-mono">
                       <span>İlgili Yazı:</span>
                       <Link
                         href={`/blog/${comment.postSlug}`}

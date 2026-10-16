@@ -1,72 +1,58 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+const AUTH_ROUTES = new Set(["/portal/giris", "/portal/kayit"]);
+
+function isSupabaseConfigured(): boolean {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  return Boolean(url && key && !url.includes("placeholder") && url.startsWith("https://"));
+}
+
+/**
+ * Portal gate. Only a real Supabase session counts as signed in; there is no demo cookie.
+ * Also refreshes the Supabase auth cookies on every portal request.
+ */
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
-
+  let response = NextResponse.next({ request });
   const path = request.nextUrl.pathname;
+  let isAuthenticated = false;
 
-  // Check demo session cookie for local evaluation
-  const hasDemoSession = request.cookies.get("iec_demo_session")?.value === "true";
-
-  // Check Supabase session
-  let hasSupabaseUser = false;
-  try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (supabaseUrl && supabaseKey && !supabaseUrl.includes("placeholder")) {
-      const supabase = createServerClient(supabaseUrl, supabaseKey, {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll();
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            getAll() {
+              return request.cookies.getAll();
+            },
+            setAll(cookiesToSet: Array<{ name: string; value: string; options?: any }>) {
+              cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+              response = NextResponse.next({ request });
+              cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+            },
           },
-          setAll(cookiesToSet: Array<{ name: string; value: string; options?: any }>) {
-            cookiesToSet.forEach(({ name, value }) =>
-              request.cookies.set(name, value)
-            );
-            response = NextResponse.next({
-              request,
-            });
-            cookiesToSet.forEach(({ name, value, options }) =>
-              response.cookies.set(name, value, options)
-            );
-          },
-        },
-      });
-
+        }
+      );
       const {
         data: { user },
       } = await supabase.auth.getUser();
-
-      hasSupabaseUser = !!user;
+      isAuthenticated = Boolean(user);
+    } catch {
+      isAuthenticated = false;
     }
-  } catch {
-    hasSupabaseUser = false;
   }
 
-  const isAuthenticated = hasSupabaseUser || hasDemoSession;
+  const isAuthRoute = AUTH_ROUTES.has(path);
 
-  const isAuthRoute =
-    path === "/portal/giris" ||
-    path === "/portal/kayit" ||
-    path === "/portal/sifremi-unuttum";
-
-  const isProtectedPortalRoute =
-    path.startsWith("/portal") && !isAuthRoute;
-
-  // Redirect unauthenticated users trying to access protected portal pages
-  if (isProtectedPortalRoute && !isAuthenticated) {
+  if (!isAuthRoute && !isAuthenticated) {
     const loginUrl = new URL("/portal/giris", request.url);
-    loginUrl.searchParams.set("redirect", path);
+    if (path !== "/portal") loginUrl.searchParams.set("redirect", path);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Redirect already authenticated users away from login/register to dashboard
   if (isAuthRoute && isAuthenticated) {
     return NextResponse.redirect(new URL("/portal", request.url));
   }
@@ -75,7 +61,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/portal/:path*",
-  ],
+  matcher: ["/portal/:path*"],
 };

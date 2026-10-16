@@ -1,240 +1,242 @@
 "use server";
 
 import { z } from "zod";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured, isSupabaseAdminConfigured } from "@/lib/supabase/config";
+import { ALLOWED_EMAIL_DOMAIN, isAllowedStudentEmail } from "@/lib/auth/email-policy";
+import { guardedAction, requireUser, type ActionResult } from "@/lib/auth/session";
+import { getServerLocale } from "@/lib/i18n/server";
+import type { SupportedLocale } from "@/lib/i18n/translations";
+import { SITE_URL } from "@/lib/site-url";
 
-const signUpSchema = z.object({
-  fullName: z.string().min(2, "Ad Soyad en az 2 karakter olmalıdır"),
-  email: z.string().email("Geçerli bir üniversite e-postası giriniz"),
-  password: z.string().min(6, "Şifre en az 6 karakter olmalıdır"),
-  department: z.string().min(2, "Lütfen bölümünüzü belirtiniz"),
-  classYear: z.string().min(1, "Lütfen sınıfınızı seçiniz"),
-  phone: z.string().optional(),
-  kvkkConsent: z.boolean().refine((val) => val === true, {
-    message: "KVKK Aydınlatma Metni'ni onaylamanız zorunludur",
-  }),
-});
+const TEXT = {
+  tr: {
+    notConfigured: "Portal henüz veritabanına bağlı değil; giriş ve kayıt şu an kapalı.",
+    nameMin: "Ad soyad en az 2 karakter olmalı.",
+    emailInvalid: "Geçerli bir e-posta adresi girin.",
+    emailDomain: `Yalnızca @${ALLOWED_EMAIL_DOMAIN} uzantılı öğrenci e-postalarıyla kayıt olunabilir.`,
+    passwordMin: "Şifre en az 8 karakter olmalı.",
+    passwordRequired: "Şifrenizi girin.",
+    departmentRequired: "Bölümünüzü seçin.",
+    classYearRequired: "Sınıfınızı seçin.",
+    kvkkRequired: "KVKK Aydınlatma Metni'ni onaylamanız gerekiyor.",
+    signUpDone: "Kayıt alındı. E-posta adresinize gönderilen doğrulama bağlantısına tıklayarak hesabınızı etkinleştirin.",
+    invalidCredentials: "E-posta veya şifre hatalı.",
+    emailNotConfirmed: "E-posta adresiniz henüz doğrulanmadı. Gelen kutunuzdaki bağlantıya tıklayın.",
+    alreadyRegistered: "Bu e-posta adresiyle zaten bir hesap var.",
+    urlInvalid: "Geçerli bir bağlantı girin (https://...).",
+    profileSaved: "Profiliniz güncellendi.",
+    genericError: "İşlem tamamlanamadı. Lütfen tekrar deneyin.",
+  },
+  en: {
+    notConfigured: "The portal is not connected to its database yet; sign-in and registration are closed for now.",
+    nameMin: "Full name must be at least 2 characters.",
+    emailInvalid: "Enter a valid email address.",
+    emailDomain: `Only @${ALLOWED_EMAIL_DOMAIN} student email addresses can register.`,
+    passwordMin: "Password must be at least 8 characters.",
+    passwordRequired: "Enter your password.",
+    departmentRequired: "Select your department.",
+    classYearRequired: "Select your year of study.",
+    kvkkRequired: "You need to accept the KVKK privacy notice.",
+    signUpDone: "Registration received. Click the verification link sent to your email to activate your account.",
+    invalidCredentials: "Incorrect email or password.",
+    emailNotConfirmed: "Your email address is not verified yet. Click the link in your inbox.",
+    alreadyRegistered: "An account with this email address already exists.",
+    urlInvalid: "Enter a valid link (https://...).",
+    profileSaved: "Your profile has been updated.",
+    genericError: "Could not complete the request. Please try again.",
+  },
+} satisfies Record<SupportedLocale, Record<string, string>>;
 
-const signInSchema = z.object({
-  email: z.string().email("Geçerli bir e-posta adresi giriniz"),
-  password: z.string().min(1, "Şifre giriniz"),
-});
+type AuthText = (typeof TEXT)["en"];
 
-const profileUpdateSchema = z.object({
-  fullName: z.string().min(2),
-  bio: z.string().max(500).optional(),
-  department: z.string().optional(),
-  classYear: z.string().optional(),
-  linkedinUrl: z.string().url("Geçerli bir URL giriniz").optional().or(z.literal("")),
-  githubUrl: z.string().url("Geçerli bir URL giriniz").optional().or(z.literal("")),
-  phone: z.string().optional(),
-  hidePhone: z.boolean(),
-  hideEmail: z.boolean(),
-});
+function signUpSchema(t: AuthText) {
+  return z.object({
+    fullName: z.string().trim().min(2, t.nameMin).max(100),
+    email: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .email(t.emailInvalid)
+      .refine(isAllowedStudentEmail, t.emailDomain),
+    password: z.string().min(8, t.passwordMin).max(128),
+    department: z.string().trim().min(2, t.departmentRequired).max(120),
+    classYear: z.string().trim().min(1, t.classYearRequired).max(60),
+    phone: z.string().trim().max(40).optional(),
+    kvkkConsent: z.literal(true, { errorMap: () => ({ message: t.kvkkRequired }) }),
+  });
+}
 
-export async function signUpAction(formData: FormData) {
-  const rawData = {
-    fullName: formData.get("fullName") as string,
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-    department: formData.get("department") as string,
-    classYear: formData.get("classYear") as string,
+function signInSchema(t: AuthText) {
+  return z.object({
+    email: z.string().trim().toLowerCase().email(t.emailInvalid),
+    password: z.string().min(1, t.passwordRequired).max(128),
+  });
+}
+
+function profileSchema(t: AuthText) {
+  const optionalUrl = z.string().trim().url(t.urlInvalid).max(300).optional().or(z.literal(""));
+  return z.object({
+    fullName: z.string().trim().min(2, t.nameMin).max(100),
+    bio: z.string().max(500).optional(),
+    department: z.string().max(120).optional(),
+    classYear: z.string().max(60).optional(),
+    linkedinUrl: optionalUrl,
+    githubUrl: optionalUrl,
+    phone: z.string().max(40).optional(),
+    hidePhone: z.boolean(),
+    hideEmail: z.boolean(),
+  });
+}
+
+function firstError(error: z.ZodError): string {
+  return error.errors[0]?.message ?? "";
+}
+
+/** Maps Supabase auth errors to friendly text without leaking whether an account exists on sign-in. */
+function authErrorMessage(message: string, t: AuthText): string {
+  const lower = message.toLowerCase();
+  if (lower.includes("email not confirmed")) return t.emailNotConfirmed;
+  if (lower.includes("already registered") || lower.includes("already exists")) return t.alreadyRegistered;
+  if (lower.includes("invalid login") || lower.includes("invalid credentials")) return t.invalidCredentials;
+  if (lower.includes("student.ius.edu.ba")) return t.emailDomain;
+  return t.genericError;
+}
+
+export async function signUpAction(formData: FormData): Promise<ActionResult> {
+  const t = TEXT[await getServerLocale()];
+  if (!isSupabaseConfigured()) return { success: false, error: t.notConfigured };
+
+  const parsed = signUpSchema(t).safeParse({
+    fullName: formData.get("fullName"),
+    email: formData.get("email"),
+    password: formData.get("password"),
+    department: formData.get("department"),
+    classYear: formData.get("classYear"),
     phone: (formData.get("phone") as string) || undefined,
     kvkkConsent: formData.get("kvkkConsent") === "on" || formData.get("kvkkConsent") === "true",
-  };
-
-  const parsed = signUpSchema.safeParse(rawData);
-  if (!parsed.success) {
-    return {
-      success: false,
-      error: parsed.error.errors.map((e) => e.message).join(", "),
-    };
-  }
+  });
+  if (!parsed.success) return { success: false, error: firstError(parsed.error) };
 
   const { fullName, email, password, department, classYear, phone } = parsed.data;
-
   try {
     const supabase = await createClient();
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: {
-          full_name: fullName,
-          department,
-          class_year: classYear,
-        },
+        data: { full_name: fullName, department, class_year: classYear, phone: phone ?? null },
+        emailRedirectTo: `${SITE_URL}/portal/giris`,
       },
     });
+    if (error) return { success: false, error: authErrorMessage(error.message, t) };
 
-    if (authError) {
-      // If Supabase is in local unconfigured mode, allow demo fallback
-      if (authError.message.includes("fetch failed") || authError.message.includes("placeholder")) {
-        return handleLocalFallbackSignUp(rawData);
-      }
-      return { success: false, error: authError.message };
-    }
-
-    const userId = authData.user?.id;
-
-    if (userId) {
-      // Record consent log into consent_logs table
+    // Profile and default member role are created by the on_auth_user_created trigger.
+    if (data.user && isSupabaseAdminConfigured()) {
       try {
-        const adminSupabase = createAdminClient();
-        await (adminSupabase.from("consent_logs") as any).insert({
-          user_id: userId,
+        await (createAdminClient().from("consent_logs") as any).insert({
+          user_id: data.user.id,
           document_type: "kvkk_aydinlatma",
           document_version: "v1.0",
           consented_at: new Date().toISOString(),
         });
-
-        // Check if user is super admin bootstrap
-        const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
-        if (superAdminEmail && email.toLowerCase() === superAdminEmail.toLowerCase()) {
-          await (adminSupabase.from("user_roles") as any).insert({
-            user_id: userId,
-            role: "super_admin",
-          });
-        }
-      } catch (logErr) {
-        console.warn("Consent logging notice:", logErr);
+      } catch (consentError) {
+        console.error("[auth] consent log failed", consentError);
       }
     }
-
-    return {
-      success: true,
-      message:
-        "Kayıt başarılı! E-posta adresinize bir doğrulama bağlantısı gönderildi. Lütfen gelen kutunuzu kontrol ediniz.",
-    };
-  } catch (err: any) {
-    return handleLocalFallbackSignUp(rawData);
+    return { success: true, message: t.signUpDone };
+  } catch (error) {
+    console.error("[auth] sign-up failed", error);
+    return { success: false, error: t.genericError };
   }
 }
 
-export async function signInAction(formData: FormData) {
-  const rawData = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  };
+export async function signInAction(formData: FormData): Promise<ActionResult> {
+  const t = TEXT[await getServerLocale()];
+  if (!isSupabaseConfigured()) return { success: false, error: t.notConfigured };
 
-  const parsed = signInSchema.safeParse(rawData);
-  if (!parsed.success) {
-    return {
-      success: false,
-      error: parsed.error.errors.map((e) => e.message).join(", "),
-    };
-  }
-
-  const { email, password } = parsed.data;
+  const parsed = signInSchema(t).safeParse({ email: formData.get("email"), password: formData.get("password") });
+  if (!parsed.success) return { success: false, error: firstError(parsed.error) };
 
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      if (error.message.includes("fetch failed") || error.message.includes("placeholder")) {
-        return handleDemoLogin();
-      }
-      return { success: false, error: error.message };
-    }
-
+    const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
+    if (error) return { success: false, error: authErrorMessage(error.message, t) };
+    if (data.user) await ensureBootstrapSuperAdmin(data.user.id, data.user.email, data.user.email_confirmed_at);
     return { success: true };
-  } catch {
-    return handleDemoLogin();
+  } catch (error) {
+    console.error("[auth] sign-in failed", error);
+    return { success: false, error: t.genericError };
   }
 }
 
-export async function demoLoginAction(role: string = "member") {
-  const cookieStore = await cookies();
-  cookieStore.set("iec_demo_session", "true", {
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
-    httpOnly: false,
-  });
-  cookieStore.set("iec_demo_role", role, {
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
-  });
-
-  return { success: true };
+/**
+ * Grants super_admin to SUPER_ADMIN_EMAIL, but only after that mailbox has been verified, so nobody
+ * can claim the role by registering the address first.
+ */
+async function ensureBootstrapSuperAdmin(userId: string, email: string | undefined, confirmedAt: string | null | undefined) {
+  const bootstrapEmail = process.env.SUPER_ADMIN_EMAIL?.trim().toLowerCase();
+  if (!bootstrapEmail || !email || !confirmedAt || email.toLowerCase() !== bootstrapEmail) return;
+  if (!isSupabaseAdminConfigured()) return;
+  try {
+    await (createAdminClient().from("user_roles") as any).upsert(
+      { user_id: userId, role: "super_admin" },
+      { onConflict: "user_id,role", ignoreDuplicates: true }
+    );
+  } catch (error) {
+    console.error("[auth] super admin bootstrap failed", error);
+  }
 }
 
 export async function signOutAction() {
-  try {
-    const supabase = await createClient();
-    await supabase.auth.signOut();
-  } catch {
-    // Ignore error in demo mode
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = await createClient();
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("[auth] sign-out failed", error);
+    }
   }
-
-  const cookieStore = await cookies();
-  cookieStore.delete("iec_demo_session");
-  cookieStore.delete("iec_demo_role");
-
   redirect("/portal/giris");
 }
 
-export async function updateProfileAction(data: z.infer<typeof profileUpdateSchema>) {
-  const parsed = profileUpdateSchema.safeParse(data);
-  if (!parsed.success) {
-    return {
-      success: false,
-      error: parsed.error.errors.map((e) => e.message).join(", "),
-    };
-  }
+export async function updateProfileAction(input: {
+  fullName: string;
+  bio?: string;
+  department?: string;
+  classYear?: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
+  phone?: string;
+  hidePhone: boolean;
+  hideEmail: boolean;
+}): Promise<ActionResult> {
+  return guardedAction(async () => {
+    const user = await requireUser();
+    const t = TEXT[await getServerLocale()];
+    const parsed = profileSchema(t).safeParse(input);
+    if (!parsed.success) return { success: false, error: firstError(parsed.error) };
 
-  try {
     const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (user) {
-      const { error } = await (supabase.from("profiles") as any)
-        .update({
-          full_name: parsed.data.fullName,
-          bio: parsed.data.bio || null,
-          department: parsed.data.department || null,
-          class_year: parsed.data.classYear || null,
-          linkedin_url: parsed.data.linkedinUrl || null,
-          github_url: parsed.data.githubUrl || null,
-          phone: parsed.data.phone || null,
-          hide_phone: parsed.data.hidePhone,
-          hide_email: parsed.data.hideEmail,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", user.id);
-
-      if (error) return { success: false, error: error.message };
+    const { error } = await (supabase.from("profiles") as any)
+      .update({
+        full_name: parsed.data.fullName,
+        bio: parsed.data.bio || null,
+        department: parsed.data.department || null,
+        class_year: parsed.data.classYear || null,
+        linkedin_url: parsed.data.linkedinUrl || null,
+        github_url: parsed.data.githubUrl || null,
+        phone: parsed.data.phone || null,
+        hide_phone: parsed.data.hidePhone,
+        hide_email: parsed.data.hideEmail,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", user.id);
+    if (error) {
+      console.error("[auth] profile update failed", error);
+      return { success: false, error: t.genericError };
     }
-
-    // In demo / preview mode, store local cookie update
-    const cookieStore = await cookies();
-    cookieStore.set("iec_profile_name", parsed.data.fullName, { path: "/" });
-
-    return { success: true, message: "Profiliniz başarıyla güncellendi." };
-  } catch (err: any) {
-    return { success: true, message: "Profil ayarları yerel oturuma kaydedildi." };
-  }
-}
-
-async function handleDemoLogin(): Promise<{ success: boolean; error?: string; isDemo?: boolean }> {
-  const cookieStore = await cookies();
-  cookieStore.set("iec_demo_session", "true", { path: "/" });
-  return { success: true, isDemo: true, error: undefined };
-}
-
-async function handleLocalFallbackSignUp(data: any) {
-  const cookieStore = await cookies();
-  cookieStore.set("iec_demo_session", "true", { path: "/" });
-  cookieStore.set("iec_profile_name", data.fullName, { path: "/" });
-  return {
-    success: true,
-    message: "Kayıt tamamlandı! Geliştirme modu oturumu aktif edildi.",
-  };
+    return { success: true, message: t.profileSaved };
+  });
 }

@@ -188,7 +188,7 @@ export default function BlogEditorStudio({
           <button
             onClick={handleSave}
             disabled={isPending}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition-all shadow-indigo-600/20 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-sm transition-all shadow-brand-600/20 disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             <span>{isPending ? "Kaydediliyor..." : "Kaydet & Tamamla"}</span>
@@ -215,7 +215,7 @@ export default function BlogEditorStudio({
               value={title}
               onChange={(e) => handleTitleChange(e.target.value)}
               placeholder="Örn: ESP32 ve RFID ile Otonom Güç İstasyonu"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"
             />
           </div>
 
@@ -227,12 +227,12 @@ export default function BlogEditorStudio({
               <button
                 type="button"
                 onClick={() => setAutoSlug(!autoSlug)}
-                className="text-[10px] text-indigo-600 font-mono hover:underline"
+                className="text-[10px] text-brand-600 font-mono hover:underline"
               >
                 {autoSlug ? "Manuel Düzenle" : "Otomatik Oluştur"}
               </button>
             </div>
-            <div className="flex items-center rounded-xl border border-slate-300 overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-600">
+            <div className="flex items-center rounded-xl border border-slate-300 overflow-hidden focus-within:ring-2 focus-within:ring-brand-500/20 focus-within:border-brand-600">
               <span className="bg-slate-50 px-3 py-2.5 text-xs text-slate-400 font-mono border-r border-slate-200">
                 /blog/
               </span>
@@ -257,7 +257,7 @@ export default function BlogEditorStudio({
               onChange={(e) =>
                 setCategory(e.target.value as BlogPostItem["category"])
               }
-              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-indigo-600"
+              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-brand-600"
             >
               <option value="Gömülü Sistemler">Gömülü Sistemler</option>
               <option value="Mühendislik Kültürü">Mühendislik Kültürü</option>
@@ -276,7 +276,7 @@ export default function BlogEditorStudio({
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
               placeholder="ESP32, C++, Hardware"
-              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-indigo-600"
+              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-brand-600"
             />
           </div>
 
@@ -289,7 +289,7 @@ export default function BlogEditorStudio({
               value={coverImage}
               onChange={(e) => setCoverImage(e.target.value)}
               placeholder="https://images.unsplash.com/..."
-              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-indigo-600"
+              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-brand-600"
             />
           </div>
         </div>
@@ -303,7 +303,7 @@ export default function BlogEditorStudio({
             onChange={(e) => setExcerpt(e.target.value)}
             rows={2}
             placeholder="Arama motorları ve sosyal kartlar için 1-2 cümlelik vurucu teknik özet..."
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-indigo-600 resize-none"
+            className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-brand-600 resize-none"
           />
         </div>
       </div>
@@ -406,7 +406,7 @@ export default function BlogEditorStudio({
               onClick={() => setActiveTab("edit")}
               className={`px-2.5 py-1 rounded transition-colors ${
                 activeTab === "edit"
-                  ? "bg-indigo-50 text-indigo-700 font-semibold"
+                  ? "bg-brand-50 text-brand-700 font-semibold"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -419,7 +419,7 @@ export default function BlogEditorStudio({
               onClick={() => setActiveTab("preview")}
               className={`px-2.5 py-1 rounded transition-colors ${
                 activeTab === "preview"
-                  ? "bg-indigo-50 text-indigo-700 font-semibold"
+                  ? "bg-brand-50 text-brand-700 font-semibold"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -432,7 +432,7 @@ export default function BlogEditorStudio({
               onClick={() => setActiveTab("split")}
               className={`hidden md:block px-2.5 py-1 rounded transition-colors ${
                 activeTab === "split"
-                  ? "bg-indigo-50 text-indigo-700 font-semibold"
+                  ? "bg-brand-50 text-brand-700 font-semibold"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -445,7 +445,7 @@ export default function BlogEditorStudio({
         <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200 min-h-[500px]">
           {/* Edit Pane */}
           {(activeTab === "split" || activeTab === "edit") && (
-            <div className="p-4 flex flex-col bg-[#0b0f19]">
+            <div className="p-4 flex flex-col bg-ink-900">
               <div className="text-[11px] font-mono text-purple-400 mb-2 flex items-center justify-between">
                 <span>MARKDOWN KAYNAK KODU</span>
                 <span>{wordCount} kelime</span>
@@ -462,7 +462,7 @@ export default function BlogEditorStudio({
 
           {/* Preview Pane */}
           {(activeTab === "split" || activeTab === "preview") && (
-            <div className="p-6 overflow-y-auto max-h-[600px] bg-[#070a11]">
+            <div className="p-6 overflow-y-auto max-h-[600px] bg-ink-950">
               <div className="text-[11px] font-mono text-slate-400 mb-4 pb-2 border-b border-slate-800 flex items-center justify-between">
                 <span>CANLI ÖNİZLEME (DARK CINEMATIC)</span>
                 <span className="text-emerald-400 flex items-center gap-1">

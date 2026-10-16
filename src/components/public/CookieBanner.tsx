@@ -55,10 +55,10 @@ export default function CookieBanner() {
     <div
       role="region"
       aria-label={t.cookieBanner.regionLabel}
-      className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-lg z-50 bg-[#0a0d14] border border-slate-700 rounded-2xl p-5 sm:p-6 shadow-2xl text-slate-300 text-sm animate-in fade-in slide-in-from-bottom-5 duration-300"
+      className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-lg z-50 bg-ink-900 border border-slate-700 rounded-2xl p-5 sm:p-6 shadow-2xl text-slate-300 text-sm animate-in fade-in slide-in-from-bottom-5 duration-300"
     >
       <div className="flex items-start gap-3">
-        <div className="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300 flex items-center justify-center shrink-0">
+        <div className="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-300 flex items-center justify-center shrink-0">
           <Cookie className="w-4 h-4" aria-hidden="true" />
         </div>
         <div className="flex-1">
@@ -92,7 +92,7 @@ export default function CookieBanner() {
               type="checkbox"
               checked={prefs.analytics}
               onChange={(event) => setPrefs({ ...prefs, analytics: event.target.checked })}
-              className="shrink-0 w-5 h-5 rounded border-slate-600 accent-blue-600"
+              className="shrink-0 w-5 h-5 rounded border-slate-600 accent-brand-600"
             />
           </label>
 
@@ -109,17 +109,17 @@ export default function CookieBanner() {
               type="checkbox"
               checked={prefs.preferences}
               onChange={(event) => setPrefs({ ...prefs, preferences: event.target.checked })}
-              className="shrink-0 w-5 h-5 rounded border-slate-600 accent-blue-600"
+              className="shrink-0 w-5 h-5 rounded border-slate-600 accent-brand-600"
             />
           </label>
         </div>
       )}
 
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
-        <Link href="/cerezler" className="text-blue-300 hover:text-white underline-offset-2 hover:underline">
+        <Link href="/cerezler" className="text-brand-300 hover:text-white underline-offset-2 hover:underline">
           {t.cookieBanner.cookiePolicy}
         </Link>
-        <Link href="/kvkk" className="text-blue-300 hover:text-white underline-offset-2 hover:underline">
+        <Link href="/kvkk" className="text-brand-300 hover:text-white underline-offset-2 hover:underline">
           {t.cookieBanner.readKvkk}
         </Link>
         <button
@@ -155,7 +155,7 @@ export default function CookieBanner() {
         <button
           type="button"
           onClick={() => saveConsent(ALL_ACCEPTED)}
-          className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-colors"
+          className="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold transition-colors"
         >
           {t.cookieBanner.acceptAll}
         </button>

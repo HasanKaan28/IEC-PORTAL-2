@@ -121,8 +121,8 @@ export default function LiveAttendancePresenter({
       ref={containerRef}
       className={`min-h-screen transition-colors duration-300 flex flex-col justify-between ${
         isDarkMode
-          ? "bg-[#090d16] text-white selection:bg-indigo-500 selection:text-white"
-          : "bg-slate-50 text-slate-900 selection:bg-indigo-100"
+          ? "bg-ink-900 text-white selection:bg-brand-500 selection:text-white"
+          : "bg-slate-50 text-slate-900 selection:bg-brand-100"
       }`}
     >
       {/* Top HUD Controls */}
@@ -144,7 +144,7 @@ export default function LiveAttendancePresenter({
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-brand-500/10 text-brand-400 border border-brand-500/20">
                 CANLI PROJEKSİYON EKRANI
               </span>
               <span className="flex items-center gap-1.5 text-xs text-emerald-400 font-mono">
@@ -177,8 +177,8 @@ export default function LiveAttendancePresenter({
             title="Tam Ekran Modu (Projeksiyon)"
             className={`inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl border font-semibold text-xs transition-colors ${
               isDarkMode
-                ? "bg-indigo-600/20 border-indigo-500/40 text-indigo-300 hover:bg-indigo-600/30"
-                : "bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100"
+                ? "bg-brand-600/20 border-brand-500/40 text-brand-300 hover:bg-brand-600/30"
+                : "bg-brand-50 border-brand-200 text-brand-700 hover:bg-brand-100"
             }`}
           >
             {isFullscreen ? (
@@ -211,7 +211,7 @@ export default function LiveAttendancePresenter({
                   cx="20"
                   cy="20"
                   r="16"
-                  className="stroke-indigo-500 transition-all duration-1000 ease-linear"
+                  className="stroke-brand-500 transition-all duration-1000 ease-linear"
                   strokeWidth="3"
                   strokeDasharray={100}
                   strokeDashoffset={100 - (remaining / 60) * 100}
@@ -227,7 +227,7 @@ export default function LiveAttendancePresenter({
               <span className="text-xs text-slate-400 block font-mono">
                 KOD YENİLENİYOR:
               </span>
-              <span className="text-xs font-semibold text-indigo-400">
+              <span className="text-xs font-semibold text-brand-400">
                 {remaining} saniye sonra yeni QR üretilecek
               </span>
             </div>
@@ -237,15 +237,15 @@ export default function LiveAttendancePresenter({
           <div
             className={`p-6 rounded-3xl border shadow-2xl relative group transition-all ${
               isDarkMode
-                ? "bg-slate-900/90 border-indigo-500/30 shadow-indigo-500/10"
+                ? "bg-slate-900/90 border-brand-500/30 shadow-brand-500/10"
                 : "bg-white border-slate-200 shadow-xl"
             }`}
           >
             {/* Glowing Corner Accents */}
-            <div className="absolute -top-1.5 -left-1.5 w-6 h-6 border-t-2 border-l-2 border-indigo-500 rounded-tl-lg" />
-            <div className="absolute -top-1.5 -right-1.5 w-6 h-6 border-t-2 border-r-2 border-indigo-500 rounded-tr-lg" />
-            <div className="absolute -bottom-1.5 -left-1.5 w-6 h-6 border-b-2 border-l-2 border-indigo-500 rounded-bl-lg" />
-            <div className="absolute -bottom-1.5 -right-1.5 w-6 h-6 border-b-2 border-r-2 border-indigo-500 rounded-br-lg" />
+            <div className="absolute -top-1.5 -left-1.5 w-6 h-6 border-t-2 border-l-2 border-brand-500 rounded-tl-lg" />
+            <div className="absolute -top-1.5 -right-1.5 w-6 h-6 border-t-2 border-r-2 border-brand-500 rounded-tr-lg" />
+            <div className="absolute -bottom-1.5 -left-1.5 w-6 h-6 border-b-2 border-l-2 border-brand-500 rounded-bl-lg" />
+            <div className="absolute -bottom-1.5 -right-1.5 w-6 h-6 border-b-2 border-r-2 border-brand-500 rounded-br-lg" />
 
             {qrDataUrl ? (
               <img
@@ -268,8 +268,8 @@ export default function LiveAttendancePresenter({
             <div
               className={`inline-block px-8 py-3.5 rounded-2xl border text-3xl sm:text-4xl font-mono font-black tracking-widest shadow-inner ${
                 isDarkMode
-                  ? "bg-slate-950 border-indigo-500/40 text-indigo-300"
-                  : "bg-slate-100 border-slate-300 text-indigo-700"
+                  ? "bg-slate-950 border-brand-500/40 text-brand-300"
+                  : "bg-slate-100 border-slate-300 text-brand-700"
               }`}
             >
               {formattedCode}
@@ -341,7 +341,7 @@ export default function LiveAttendancePresenter({
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-7 h-7 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-[10px] shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-[10px] shrink-0">
                       {a.userName.charAt(0)}
                     </div>
                     <div className="truncate">

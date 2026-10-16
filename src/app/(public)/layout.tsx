@@ -6,7 +6,7 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative min-h-screen bg-[#070a11] text-slate-100 flex flex-col selection:bg-blue-600/30 selection:text-blue-300">
+    <div className="relative min-h-screen bg-ink-950 text-slate-100 flex flex-col selection:bg-brand-600/30 selection:text-brand-300">
       {/* Background ambient radial gradients */}
       <div
         className="pointer-events-none fixed inset-0 z-0 opacity-40"

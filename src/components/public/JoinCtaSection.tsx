@@ -8,17 +8,17 @@ export default function JoinCtaSection() {
   const { t } = useLocale();
 
   return (
-    <section className="px-4 sm:px-6 pb-20 sm:pb-24 relative z-10 bg-[#070a11]">
-      <div className="max-w-7xl mx-auto rounded-3xl border border-blue-500/30 bg-blue-950/40 p-8 sm:p-12">
+    <section className="px-4 sm:px-6 pb-20 sm:pb-24 relative z-10 bg-ink-950">
+      <div className="max-w-7xl mx-auto rounded-3xl border border-brand-500/30 bg-brand-950/40 p-8 sm:p-12">
         <div className="max-w-2xl">
-          <p className="text-sm font-medium text-blue-300">{t.joinCta.badge}</p>
+          <p className="text-sm font-medium text-brand-300">{t.joinCta.badge}</p>
           <h2 className="mt-3 text-2xl sm:text-3xl font-bold text-white font-display tracking-tight">{t.joinCta.title}</h2>
           <p className="text-base text-slate-300 mt-3 leading-relaxed">{t.joinCta.description}</p>
 
           <div className="mt-7 flex flex-col sm:flex-row gap-3">
             <Link
               href="/basvuru"
-              className="inline-flex justify-center px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors"
+              className="inline-flex justify-center px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-colors"
             >
               {t.common.apply}
             </Link>

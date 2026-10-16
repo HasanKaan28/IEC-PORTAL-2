@@ -5,7 +5,7 @@ import { ShieldAlert, Lock, Eye, FileText } from "lucide-react";
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-[#070a11]">
+    <div className="flex flex-col min-h-screen bg-ink-950">
       <Navbar />
 
       <main className="flex-1 py-16 px-4 sm:px-6">
@@ -31,7 +31,7 @@ export default function PrivacyPolicyPage() {
           <div className="glass-panel p-8 rounded-3xl border border-slate-800 space-y-6 text-slate-300 text-xs sm:text-sm leading-relaxed">
             <section className="space-y-2">
               <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <Lock className="w-4 h-4 text-cyan-400" />
+                <Lock className="w-4 h-4 text-accent-400" />
                 1. Veri Sorumlusu ve Kapsam
               </h2>
               <p>
@@ -41,7 +41,7 @@ export default function PrivacyPolicyPage() {
 
             <section className="space-y-2">
               <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <Eye className="w-4 h-4 text-cyan-400" />
+                <Eye className="w-4 h-4 text-accent-400" />
                 2. Toplanan Kişisel Veriler
               </h2>
               <ul className="list-disc list-inside space-y-1 text-slate-400 pl-2">
@@ -54,7 +54,7 @@ export default function PrivacyPolicyPage() {
 
             <section className="space-y-2">
               <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <FileText className="w-4 h-4 text-cyan-400" />
+                <FileText className="w-4 h-4 text-accent-400" />
                 3. Verilerin İşlenme Amaçları ve Paylaşım
               </h2>
               <p>

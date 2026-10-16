@@ -104,7 +104,7 @@ export default function CreateHackathonTeamModal({
             <select
               value={hackathonId}
               onChange={(e) => setHackathonId(e.target.value)}
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-600 bg-white"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 bg-white"
             >
               {hackathons.map((h) => (
                 <option key={h.id} value={h.id}>
@@ -123,7 +123,7 @@ export default function CreateHackathonTeamModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Örn: Sarajevo Pulse IoT"
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-600"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600"
               required
             />
           </div>
@@ -137,7 +137,7 @@ export default function CreateHackathonTeamModal({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Hackathonda geliştirmeyi planladığınız prototip ve fikir..."
               rows={3}
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-600 resize-none"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600 resize-none"
               required
             />
           </div>
@@ -151,7 +151,7 @@ export default function CreateHackathonTeamModal({
               value={lookingForInput}
               onChange={(e) => setLookingForInput(e.target.value)}
               placeholder="C++ Gömülü, React Native, UI Tasarımcısı"
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-600"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600"
             />
           </div>
 

@@ -45,9 +45,9 @@ const COLUMNS: Array<{
   {
     id: "in_review",
     title: "İncelemede",
-    dotColor: "bg-blue-500",
-    badgeBg: "bg-blue-50",
-    badgeText: "text-blue-700",
+    dotColor: "bg-brand-500",
+    badgeBg: "bg-brand-50",
+    badgeText: "text-brand-700",
   },
   {
     id: "done",
@@ -150,7 +150,7 @@ export default function TaskKanbanBoard({
                     <div
                       key={task.id}
                       onClick={() => onSelectTask(task)}
-                      className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer space-y-3 group"
+                      className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-brand-300 transition-all cursor-pointer space-y-3 group"
                     >
                       {/* Priority and Project */}
                       <div className="flex items-center justify-between gap-2">
@@ -163,7 +163,7 @@ export default function TaskKanbanBoard({
                       </div>
 
                       {/* Title */}
-                      <h4 className="text-xs font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors leading-snug line-clamp-2">
+                      <h4 className="text-xs font-semibold text-slate-900 group-hover:text-brand-600 transition-colors leading-snug line-clamp-2">
                         {task.title}
                       </h4>
 
@@ -171,7 +171,7 @@ export default function TaskKanbanBoard({
                       <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[11px]">
                         {/* Assignee */}
                         <div className="flex items-center gap-1.5">
-                          <div className="w-5 h-5 rounded-full bg-indigo-50 border border-indigo-200 flex items-center justify-center text-[9px] font-bold text-indigo-700">
+                          <div className="w-5 h-5 rounded-full bg-brand-50 border border-brand-200 flex items-center justify-center text-[9px] font-bold text-brand-700">
                             {task.assigneeAvatar ? (
                               <img
                                 src={task.assigneeAvatar}
@@ -229,7 +229,7 @@ export default function TaskKanbanBoard({
                           <button
                             onClick={() => onUpdateStatus(task.id, next)}
                             title="Sonraki Aşamaya İlerlet"
-                            className="p-1 px-1.5 rounded bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] flex items-center gap-0.5 font-medium ml-auto"
+                            className="p-1 px-1.5 rounded bg-brand-50 hover:bg-brand-100 text-brand-700 text-[10px] flex items-center gap-0.5 font-medium ml-auto"
                           >
                             <span>İlerlet</span>
                             <ChevronRight className="w-3 h-3" />

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, ArrowRight, UserCheck } from "lucide-react";
@@ -9,10 +9,31 @@ import { useLocale } from "@/lib/i18n/locale-context";
 
 const MOBILE_MENU_ID = "mobile-navigation";
 
-export default function Navbar() {
+interface NavbarProps {
+  /** Float the bar over the page hero, fully transparent until the page is scrolled. */
+  overlay?: boolean;
+}
+
+export default function Navbar({ overlay = false }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAtTop, setIsAtTop] = useState(true);
+  const topSentinelRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const { t } = useLocale();
+
+  useEffect(() => {
+    const sentinel = topSentinelRef.current;
+    if (!overlay || !sentinel) return;
+    const observer = new IntersectionObserver(([entry]) => setIsAtTop(entry.isIntersecting));
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [overlay]);
+
+  const isTransparent = overlay && isAtTop && !mobileMenuOpen;
+  const headerPosition = overlay ? "fixed inset-x-0 top-0" : "sticky top-0";
+  const headerSurface = isTransparent
+    ? "border-transparent bg-transparent"
+    : "border-slate-800/80 bg-[#070a11]/85 backdrop-blur-xl";
 
   const navLinks = [
     { href: "/", label: t.nav.home },
@@ -43,7 +64,11 @@ export default function Navbar() {
         {t.common.skipToContent}
       </a>
 
-      <header className="sticky top-0 z-40 w-full border-b border-slate-800/80 bg-[#070a11]/85 backdrop-blur-xl">
+      {overlay && <div ref={topSentinelRef} aria-hidden="true" className="pointer-events-none absolute top-0 left-0 h-8 w-px" />}
+
+      <header
+        className={`${headerPosition} z-40 w-full border-b transition-[background-color,border-color] duration-300 ${headerSurface}`}
+      >
         <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3 group min-w-0">
             <div className="w-9 h-9 shrink-0 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 p-0.5 transition-transform group-hover:scale-105">

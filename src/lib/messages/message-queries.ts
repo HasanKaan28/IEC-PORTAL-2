@@ -10,7 +10,7 @@ export const initialContacts: ConversationContact[] = [
     id: "usr-2",
     name: "Mahmut İhsan Avcı",
     email: "mavci@student.ius.edu.ba",
-    role: "Başkan Yardımcısı & Fullstack",
+    role: "Asistan & Fullstack",
     department: "Yazılım Mühendisliği (SE)",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
     isOnline: true,

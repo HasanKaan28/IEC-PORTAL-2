@@ -63,7 +63,7 @@ export const initialEvents: EventItem[] = [
     category: "hackathon",
     instructor: {
       name: "Mahmut İhsan Avcı",
-      title: "Başkan Yardımcısı & DevHack Direktörü",
+      title: "Asistan & DevHack Direktörü",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
     },
     capacity: 100,
@@ -146,7 +146,7 @@ export async function getEvents(): Promise<EventItem[]> {
         dateTime: e.date_time,
         endTime: new Date(new Date(e.date_time).getTime() + 3.5 * 3600000).toISOString(),
         category: "workshop",
-        instructor: { name: "Hasan Kaan Karabulut", title: "Kulüp Başkanı" },
+        instructor: { name: "Hasan Kaan Karabulut", title: "Başkan Yardımcısı" },
         capacity: 40,
         registeredCount: 15,
         attendeesCount: 0,

@@ -157,7 +157,7 @@ export async function addTaskCommentAction(taskId: string, content: string) {
   }
 
   let currentUserName = "Kaan Mete Şenyıldız";
-  let currentUserRole = "Kurucu Başkan";
+  let currentUserRole = "Başkan";
 
   const cookieStore = await cookies();
   const hasDemo = cookieStore.get("iec_demo_session")?.value === "true";

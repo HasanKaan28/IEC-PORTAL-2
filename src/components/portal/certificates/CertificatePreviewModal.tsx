@@ -164,10 +164,10 @@ export default function CertificatePreviewModal({
               {/* President Signature */}
               <div className="space-y-0.5">
                 <div className="w-24 sm:w-32 mx-auto border-b border-slate-400 pb-1 text-[11px] font-serif font-bold text-slate-800">
-                  Hasan Kaan Karabulut
+                  Kaan Mete Şenyıldız
                 </div>
                 <p className="text-[9px] text-slate-500 font-mono">
-                  Kulüp Başkanı & Kurucu
+                  Kulüp Başkanı
                 </p>
               </div>
             </div>

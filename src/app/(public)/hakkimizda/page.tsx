@@ -7,14 +7,20 @@ import Link from "next/link";
 export default function AboutPage() {
   const leadership = [
     {
+      name: "Kaan Mete Şenyıldız",
+      role: "Başkan",
+      dept: "Mühendislik & Doğa Bilimleri (FENS)",
+      focus: "Kulübün resmi temsili ve yönetim kurulunun koordinasyonu",
+    },
+    {
       name: "Hasan Kaan Karabulut",
-      role: "Kurucu Ortak & Başkan",
+      role: "Kurucu Ortak & Başkan Yardımcısı",
       dept: "Bilgisayar Bilimleri (FENS)",
       focus: "Teknik altyapı, PowerHub donanım projesi ve topluluk koordinasyonu",
     },
     {
       name: "Mahmut İhsan Avcı",
-      role: "Kurucu Ortak & Başkan Yardımcısı",
+      role: "Kurucu Ortak & Asistan",
       dept: "Yazılım Mühendisliği (FENS)",
       focus: "Operasyon, Linear üzerinden görev takibi ve resmi yazışmalar",
     },
@@ -108,7 +114,7 @@ export default function AboutPage() {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
               {leadership.map((member, i) => (
                 <div
                   key={i}

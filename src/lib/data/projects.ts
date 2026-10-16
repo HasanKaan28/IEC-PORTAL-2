@@ -67,7 +67,7 @@ export const PROJECTS_DATA: ProjectItem[] = [
       tr: "Öğrenci kartını okutunca şarjlı powerbank veren istasyon.",
       en: "A station that hands out a charged powerbank when you tap your student card.",
     },
-    author: "Hasan Kaan Karabulut (Başkan)",
+    author: "Hasan Kaan Karabulut (Başkan Yrd.)",
     ownership: {
       tr: "Hasan Kaan Karabulut (Proje Lideri & Donanım)",
       en: "Hasan Kaan Karabulut (Project Lead & Hardware)",
@@ -124,7 +124,7 @@ export const PROJECTS_DATA: ProjectItem[] = [
       tr: "Günlük yemekhane menüsü, kalori bilgisi ve öğrenci geri bildirimi tek uygulamada.",
       en: "The daily cafeteria menu, calorie information and student feedback in one app.",
     },
-    author: "Mahmut İhsan Avcı (Başkan Yrd.)",
+    author: "Mahmut İhsan Avcı (Asistan)",
     ownership: {
       tr: "Mahmut İhsan Avcı & Yazılım Komitesi",
       en: "Mahmut İhsan Avcı & Software Committee",

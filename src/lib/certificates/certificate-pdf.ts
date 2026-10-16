@@ -230,14 +230,14 @@ function toSafePdfText(str: string): string {
     thickness: 1,
     color: slateDark,
   });
-  page.drawText("Hasan Kaan Karabulut", {
+  page.drawText(toSafePdfText("Kaan Mete Şenyıldız"), {
     x: 415,
     y: sigY + 12,
     size: 11,
     font: fontHelveticaBold,
     color: navy,
   });
-  page.drawText("Club President & Co-Founder, IEC", {
+  page.drawText("Club President, IEC", {
     x: 405,
     y: sigY - 2,
     size: 9,

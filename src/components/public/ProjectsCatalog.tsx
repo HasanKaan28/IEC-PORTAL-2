@@ -126,14 +126,14 @@ export default function ProjectsCatalog() {
                   sizes="(max-width: 1024px) 100vw, 40vw"
                   className="h-64 sm:h-72"
                 />
-                {/* Solid chips: tinted glass let dark or busy photos swallow the text. */}
+                {/* iOS-style frosted glass: light enough behind the text to stay readable on dark photos. */}
                 <div className="pointer-events-none absolute left-3 top-3 flex flex-wrap gap-2">
-                  <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-slate-900 shadow-sm ring-1 ring-black/5">
+                  <span className="flex items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-3 py-1 text-xs font-semibold text-slate-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_4px_14px_rgba(15,23,42,0.18)] backdrop-blur-xl backdrop-saturate-[1.8]">
                     <span className="h-2 w-2 rounded-full" style={{ backgroundColor: project.accentColor }} aria-hidden="true" />
                     {project.badge[locale]}
                   </span>
                   {project.isFlagship && (
-                    <span className="flex items-center gap-1 rounded-full bg-accent-300 px-3 py-1 text-xs font-semibold text-accent-950 shadow-sm ring-1 ring-black/5">
+                    <span className="flex items-center gap-1 rounded-full border border-accent-100/80 bg-accent-200/80 px-3 py-1 text-xs font-semibold text-accent-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_4px_14px_rgba(15,23,42,0.18)] backdrop-blur-xl backdrop-saturate-[1.8]">
                       <Sparkles className="h-3 w-3" aria-hidden="true" />
                       {t.featured}
                     </span>

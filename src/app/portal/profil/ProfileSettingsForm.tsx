@@ -12,6 +12,16 @@ import type { ProfileCardData } from "@/lib/messages/message-types";
 import { safeHttpUrl } from "@/lib/messages/utils";
 import DiscordProfileCard from "@/components/shared/DiscordProfileCard";
 import MemberAvatar from "@/components/portal/messages/MemberAvatar";
+import {
+  DEPARTMENTS,
+  OTHER_DEPARTMENT_OPTION,
+  OTHER_DEPARTMENT_TEXT,
+  cleanDepartmentName,
+  isEnglishDepartmentName,
+  isGenericOtherDepartment,
+  isListedDepartment,
+  normalizeDepartment,
+} from "@/lib/profile/departments";
 
 const BIO_MAX = 500;
 const LEGACY_CLASS_YEARS: Record<string, string> = { "Hazırlık": "Hazırlık (ELS)" };
@@ -25,7 +35,10 @@ interface ProfileSettingsFormProps {
 
 interface FormState {
   fullName: string;
+  /** A listed department value, OTHER_DEPARTMENT_OPTION, or "" when not set. */
   department: string;
+  /** English department name typed when "Other" is selected. */
+  departmentOther: string;
   classYear: string;
   bio: string;
   linkedinUrl: string;
@@ -35,7 +48,14 @@ interface FormState {
   hideEmail: boolean;
 }
 
-type FieldName = "fullName" | "linkedinUrl" | "githubUrl" | "phone";
+type FieldName = "fullName" | "departmentOther" | "linkedinUrl" | "githubUrl" | "phone";
+
+/** Splits a stored department into the select choice and, for "Other", the typed English name. */
+function initialDepartment(stored: string | null): { department: string; departmentOther: string } {
+  if (!stored) return { department: "", departmentOther: "" };
+  if (isListedDepartment(stored)) return { department: normalizeDepartment(stored) ?? "", departmentOther: "" };
+  return { department: OTHER_DEPARTMENT_OPTION, departmentOther: isGenericOtherDepartment(stored) ? "" : stored };
+}
 type FieldErrors = Partial<Record<FieldName, string>>;
 
 const inputBase =
@@ -70,7 +90,7 @@ export default function ProfileSettingsForm({ profile, roles, projects, memberSi
 
   const [form, setForm] = useState<FormState>(() => ({
     fullName: profile.fullName ?? "",
-    department: profile.department ?? "",
+    ...initialDepartment(profile.department),
     classYear: profile.classYear ? LEGACY_CLASS_YEARS[profile.classYear] ?? profile.classYear : "",
     bio: profile.bio ?? "",
     linkedinUrl: profile.linkedinUrl ?? "",
@@ -84,6 +104,9 @@ export default function ProfileSettingsForm({ profile, roles, projects, memberSi
   const [feedback, setFeedback] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [cardOpen, setCardOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  /** What gets saved: the listed value, or the typed English name for "Other". */
+  const resolvedDepartment =
+    form.department === OTHER_DEPARTMENT_OPTION ? cleanDepartmentName(form.departmentOther) : form.department;
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -94,6 +117,9 @@ export default function ProfileSettingsForm({ profile, roles, projects, memberSi
   const validate = (state: FormState): FieldErrors => {
     const result: FieldErrors = {};
     if (state.fullName.trim().length < 2) result.fullName = t.errorFullName;
+    if (state.department === OTHER_DEPARTMENT_OPTION && !isEnglishDepartmentName(state.departmentOther)) {
+      result.departmentOther = OTHER_DEPARTMENT_TEXT[locale].error;
+    }
     if (state.linkedinUrl.trim() && !isValidLink(state.linkedinUrl.trim())) result.linkedinUrl = t.errorUrl;
     if (state.githubUrl.trim() && !isValidLink(state.githubUrl.trim())) result.githubUrl = t.errorUrl;
     if (state.phone.trim() && !isValidPhone(state.phone.trim())) result.phone = t.errorPhone;
@@ -117,7 +143,7 @@ export default function ProfileSettingsForm({ profile, roles, projects, memberSi
     const result = await updateProfileAction({
       fullName: form.fullName.trim(),
       bio: form.bio.trim(),
-      department: form.department,
+      department: resolvedDepartment,
       classYear: form.classYear,
       linkedinUrl: form.linkedinUrl.trim(),
       githubUrl: form.githubUrl.trim(),
@@ -135,8 +161,8 @@ export default function ProfileSettingsForm({ profile, roles, projects, memberSi
     }
   };
 
-  const departmentOptions = Object.entries(text.departments);
-  if (form.department && !text.departments[form.department]) departmentOptions.push([form.department, form.department]);
+  const otherText = OTHER_DEPARTMENT_TEXT[locale];
+  const isOtherDepartment = form.department === OTHER_DEPARTMENT_OPTION;
   const classYearOptions = Object.entries(text.classYears);
   if (form.classYear && !text.classYears[form.classYear]) {
     classYearOptions.push([form.classYear, localizeClassYear(form.classYear, locale) ?? form.classYear]);
@@ -148,7 +174,7 @@ export default function ProfileSettingsForm({ profile, roles, projects, memberSi
     fullName: displayName,
     email: profile.email,
     avatarUrl: profile.avatarUrl,
-    department: form.department || null,
+    department: resolvedDepartment || null,
     classYear: form.classYear || null,
     bio: form.bio.trim() || null,
     linkedinUrl: safeHttpUrl(form.linkedinUrl.trim()),
@@ -260,11 +286,12 @@ export default function ProfileSettingsForm({ profile, roles, projects, memberSi
                 className={`${inputBase} ${inputOk}`}
               >
                 <option value="">{t.selectPlaceholder}</option>
-                {departmentOptions.map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
+                {DEPARTMENTS.map((department) => (
+                  <option key={department.value} value={department.value}>
+                    {department[locale]}
                   </option>
                 ))}
+                <option value={OTHER_DEPARTMENT_OPTION}>{otherText.option}</option>
               </select>
             </div>
 
@@ -287,6 +314,33 @@ export default function ProfileSettingsForm({ profile, roles, projects, memberSi
                 ))}
               </select>
             </div>
+
+            {isOtherDepartment && (
+              <div className="sm:col-span-2">
+                <label htmlFor="departmentOther" className="mb-1.5 block text-sm font-semibold text-slate-700">
+                  {otherText.label}
+                </label>
+                <input
+                  id="departmentOther"
+                  name="departmentOther"
+                  type="text"
+                  lang="en"
+                  autoComplete="off"
+                  spellCheck={false}
+                  maxLength={80}
+                  value={form.departmentOther}
+                  onChange={(event) => update("departmentOther", event.target.value)}
+                  placeholder={otherText.placeholder}
+                  aria-invalid={errors.departmentOther ? true : undefined}
+                  aria-describedby={describedBy("departmentOther-hint", errors.departmentOther && "departmentOther-error")}
+                  className={`${inputBase} ${errors.departmentOther ? inputError : inputOk}`}
+                />
+                <p id="departmentOther-hint" className="mt-1 text-xs text-slate-500">
+                  {otherText.hint}
+                </p>
+                {errorText("departmentOther")}
+              </div>
+            )}
 
             <div className="sm:col-span-2">
               <div className="mb-1.5 flex items-baseline justify-between gap-3">

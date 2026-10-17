@@ -9,6 +9,7 @@ import { guardedAction, requireUser, type ActionResult } from "@/lib/auth/sessio
 import { getServerLocale } from "@/lib/i18n/server";
 import type { SupportedLocale } from "@/lib/i18n/translations";
 import { SITE_URL } from "@/lib/site-url";
+import { OTHER_DEPARTMENT_OPTION, cleanDepartmentName, isAcceptableDepartment } from "@/lib/profile/departments";
 
 const TEXT = {
   tr: {
@@ -19,6 +20,7 @@ const TEXT = {
     passwordMin: "Şifre en az 8 karakter olmalı.",
     passwordRequired: "Şifrenizi girin.",
     departmentRequired: "Bölümünüzü seçin.",
+    departmentEnglish: "Diğer bölüm adını İngilizce ve Türkçe karakter kullanmadan yazın (ör. Data Science and Artificial Intelligence).",
     classYearRequired: "Sınıfınızı seçin.",
     kvkkRequired: "KVKK Aydınlatma Metni'ni onaylamanız gerekiyor.",
     signUpDone: "Kayıt alındı. E-posta adresinize gönderilen doğrulama bağlantısına tıklayarak hesabınızı etkinleştirin.",
@@ -37,6 +39,7 @@ const TEXT = {
     passwordMin: "Password must be at least 8 characters.",
     passwordRequired: "Enter your password.",
     departmentRequired: "Select your department.",
+    departmentEnglish: "Write the other department's name in English, using plain Latin letters (e.g. Data Science and Artificial Intelligence).",
     classYearRequired: "Select your year of study.",
     kvkkRequired: "You need to accept the KVKK privacy notice.",
     signUpDone: "Registration received. Click the verification link sent to your email to activate your account.",
@@ -61,7 +64,12 @@ function signUpSchema(t: AuthText) {
       .email(t.emailInvalid)
       .refine(isAllowedStudentEmail, t.emailDomain),
     password: z.string().min(8, t.passwordMin).max(128),
-    department: z.string().trim().min(2, t.departmentRequired).max(120),
+    department: z
+      .string()
+      .trim()
+      .min(1, t.departmentRequired)
+      .max(80, t.departmentEnglish)
+      .refine(isAcceptableDepartment, t.departmentEnglish),
     classYear: z.string().trim().min(1, t.classYearRequired).max(60),
     phone: z.string().trim().max(40).optional(),
     kvkkConsent: z.literal(true, { errorMap: () => ({ message: t.kvkkRequired }) }),
@@ -88,7 +96,12 @@ function profileSchema(t: AuthText) {
   return z.object({
     fullName: z.string().trim().min(2, t.nameMin).max(100),
     bio: z.string().max(500).optional(),
-    department: z.string().max(120).optional(),
+    department: z
+      .string()
+      .trim()
+      .max(80, t.departmentEnglish)
+      .refine((value) => value === "" || isAcceptableDepartment(value), t.departmentEnglish)
+      .optional(),
     classYear: z.string().max(60).optional(),
     linkedinUrl: optionalUrl,
     githubUrl: optionalUrl,
@@ -116,11 +129,18 @@ export async function signUpAction(formData: FormData): Promise<ActionResult> {
   const t = TEXT[await getServerLocale()];
   if (!isSupabaseConfigured()) return { success: false, error: t.notConfigured };
 
+  // "Other" arrives as a marker plus the typed English name, which is what gets stored.
+  const departmentChoice = String(formData.get("department") ?? "");
+  const submittedDepartment =
+    departmentChoice === OTHER_DEPARTMENT_OPTION
+      ? cleanDepartmentName(String(formData.get("departmentOther") ?? ""))
+      : departmentChoice;
+
   const parsed = signUpSchema(t).safeParse({
     fullName: formData.get("fullName"),
     email: formData.get("email"),
     password: formData.get("password"),
-    department: formData.get("department"),
+    department: submittedDepartment,
     classYear: formData.get("classYear"),
     phone: (formData.get("phone") as string) || undefined,
     kvkkConsent: formData.get("kvkkConsent") === "on" || formData.get("kvkkConsent") === "true",

@@ -119,15 +119,6 @@ const tr = {
       haveAccount: "Zaten hesabın var mı?",
       signIn: "Giriş yap",
       failed: "Kayıt tamamlanamadı. Lütfen tekrar dene.",
-      departments: {
-        cse: "Bilgisayar Bilimleri ve Mühendisliği",
-        se: "Yazılım Mühendisliği",
-        ee: "Elektrik-Elektronik Mühendisliği",
-        me: "Makine Mühendisliği",
-        ie: "Endüstri Mühendisliği",
-        arch: "Mimarlık",
-        other: "Diğer",
-      },
       years: {
         prep: "Hazırlık",
         y1: "1. sınıf",
@@ -258,15 +249,6 @@ const en: typeof tr = {
       haveAccount: "Already have an account?",
       signIn: "Sign in",
       failed: "Registration could not be completed. Please try again.",
-      departments: {
-        cse: "Computer Sciences and Engineering",
-        se: "Software Engineering",
-        ee: "Electrical and Electronics Engineering",
-        me: "Mechanical Engineering",
-        ie: "Industrial Engineering",
-        arch: "Architecture",
-        other: "Other",
-      },
       years: {
         prep: "Preparatory year",
         y1: "1st year",

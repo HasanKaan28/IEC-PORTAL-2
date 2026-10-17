@@ -8,25 +8,21 @@ import { signUpAction } from "@/lib/auth/auth-actions";
 import { isAllowedStudentEmail } from "@/lib/auth/email-policy";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { portalShellText } from "@/lib/i18n/portal/shell";
+import {
+  DEPARTMENTS,
+  OTHER_DEPARTMENT_OPTION,
+  OTHER_DEPARTMENT_TEXT,
+  isEnglishDepartmentName,
+} from "@/lib/profile/departments";
 
-/** Stored values stay in English so lists and filters are consistent; labels follow the UI language. */
-const DEPARTMENTS = [
-  { value: "Computer Sciences and Engineering", key: "cse" },
-  { value: "Software Engineering", key: "se" },
-  { value: "Electrical and Electronics Engineering", key: "ee" },
-  { value: "Mechanical Engineering", key: "me" },
-  { value: "Industrial Engineering", key: "ie" },
-  { value: "Architecture", key: "arch" },
-  { value: "Other", key: "other" },
-] as const;
-
+/** Stored values match the profile form (messages-profile classYears keys); labels follow the UI language. */
 const CLASS_YEARS = [
-  { value: "Preparatory", key: "prep" },
-  { value: "1st year", key: "y1" },
-  { value: "2nd year", key: "y2" },
-  { value: "3rd year", key: "y3" },
-  { value: "4th year", key: "y4" },
-  { value: "Graduate", key: "grad" },
+  { value: "Hazırlık (ELS)", key: "prep" },
+  { value: "1. Sınıf", key: "y1" },
+  { value: "2. Sınıf", key: "y2" },
+  { value: "3. Sınıf", key: "y3" },
+  { value: "4. Sınıf", key: "y4" },
+  { value: "Yüksek Lisans", key: "grad" },
 ] as const;
 
 export default function SignUpForm({ configured }: { configured: boolean }) {
@@ -38,6 +34,11 @@ export default function SignUpForm({ configured }: { configured: boolean }) {
   const [emailError, setEmailError] = useState(false);
   const [done, setDone] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [departmentChoice, setDepartmentChoice] = useState("");
+  const [otherDepartment, setOtherDepartment] = useState("");
+  const [otherDepartmentError, setOtherDepartmentError] = useState(false);
+  const other = OTHER_DEPARTMENT_TEXT[locale];
+  const isOtherDepartment = departmentChoice === OTHER_DEPARTMENT_OPTION;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -50,6 +51,12 @@ export default function SignUpForm({ configured }: { configured: boolean }) {
       return;
     }
     setEmailError(false);
+    if (isOtherDepartment && !isEnglishDepartmentName(otherDepartment)) {
+      setOtherDepartmentError(true);
+      document.getElementById("signup-department-other")?.focus();
+      return;
+    }
+    setOtherDepartmentError(false);
     setLoading(true);
     try {
       const result = await signUpAction(formData);
@@ -183,15 +190,26 @@ export default function SignUpForm({ configured }: { configured: boolean }) {
               <label htmlFor="signup-department" className={labelClass}>
                 {s.department}
               </label>
-              <select id="signup-department" name="department" required defaultValue="" className={inputClass}>
+              <select
+                id="signup-department"
+                name="department"
+                required
+                value={departmentChoice}
+                onChange={(event) => {
+                  setDepartmentChoice(event.target.value);
+                  setOtherDepartmentError(false);
+                }}
+                className={inputClass}
+              >
                 <option value="" disabled>
                   {s.departmentPlaceholder}
                 </option>
                 {DEPARTMENTS.map((department) => (
-                  <option key={department.key} value={department.value}>
-                    {s.departments[department.key]}
+                  <option key={department.value} value={department.value}>
+                    {department[locale]}
                   </option>
                 ))}
+                <option value={OTHER_DEPARTMENT_OPTION}>{other.option}</option>
               </select>
             </div>
             <div>
@@ -210,6 +228,39 @@ export default function SignUpForm({ configured }: { configured: boolean }) {
               </select>
             </div>
           </div>
+
+          {isOtherDepartment && (
+            <div>
+              <label htmlFor="signup-department-other" className={labelClass}>
+                {other.label}
+              </label>
+              <input
+                id="signup-department-other"
+                type="text"
+                name="departmentOther"
+                required
+                maxLength={80}
+                lang="en"
+                autoComplete="off"
+                spellCheck={false}
+                value={otherDepartment}
+                onChange={(event) => {
+                  setOtherDepartment(event.target.value);
+                  if (otherDepartmentError) setOtherDepartmentError(false);
+                }}
+                placeholder={other.placeholder}
+                aria-invalid={otherDepartmentError}
+                aria-describedby="signup-department-other-hint"
+                className={inputClass}
+              />
+              <p
+                id="signup-department-other-hint"
+                className={`mt-1.5 text-xs ${otherDepartmentError ? "font-medium text-rose-600" : "text-slate-500"}`}
+              >
+                {otherDepartmentError ? other.error : other.hint}
+              </p>
+            </div>
+          )}
 
           <div>
             <label htmlFor="signup-phone" className={labelClass}>

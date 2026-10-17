@@ -1,9 +1,10 @@
 import type { SupportedLocale } from "@/lib/i18n/translations";
+import { departmentLabel } from "@/lib/profile/departments";
 
 /**
  * Text for the portal messages, notifications and profile areas.
- * Keys under `departments` and `classYears` are the values stored in profiles (same as the
- * registration form); the values are what we show.
+ * Keys under `classYears` are the values stored in profiles; the values are what we show.
+ * Department labels come from src/lib/profile/departments.ts.
  */
 
 const tr = {
@@ -157,14 +158,6 @@ const tr = {
     errorPhone: "Geçerli bir telefon numarası girin.",
     errorSummary: "Lütfen işaretli alanları düzeltin.",
   },
-  departments: {
-    "Computer Sciences and Engineering (CSE)": "Bilgisayar Bilimleri ve Mühendisliği (CSE)",
-    "Software Engineering (SE)": "Yazılım Mühendisliği (SE)",
-    "Electrical and Electronics (EE)": "Elektrik ve Elektronik Mühendisliği (EE)",
-    "Mechanical Engineering (ME)": "Makine Mühendisliği (ME)",
-    "Industrial Engineering (IE)": "Endüstri Mühendisliği (IE)",
-    "Diğer": "Diğer",
-  } as Record<string, string>,
   classYears: {
     "Hazırlık (ELS)": "Hazırlık (ELS)",
     "1. Sınıf": "1. sınıf",
@@ -324,14 +317,6 @@ const en: typeof tr = {
     errorPhone: "Enter a valid phone number.",
     errorSummary: "Please fix the highlighted fields.",
   },
-  departments: {
-    "Computer Sciences and Engineering (CSE)": "Computer Sciences and Engineering (CSE)",
-    "Software Engineering (SE)": "Software Engineering (SE)",
-    "Electrical and Electronics (EE)": "Electrical and Electronics Engineering (EE)",
-    "Mechanical Engineering (ME)": "Mechanical Engineering (ME)",
-    "Industrial Engineering (IE)": "Industrial Engineering (IE)",
-    "Diğer": "Other",
-  },
   classYears: {
     "Hazırlık (ELS)": "Preparatory year (ELS)",
     "1. Sınıf": "1st year",
@@ -351,8 +336,7 @@ const LEGACY_CLASS_YEARS: Record<string, string> = { "Hazırlık": "Hazırlık (
 
 /** Stored department value to a label in the given language (unknown values are shown as typed). */
 export function localizeDepartment(value: string | null | undefined, locale: SupportedLocale): string | null {
-  if (!value) return null;
-  return messagesProfileText[locale].departments[value] ?? value;
+  return departmentLabel(value, locale);
 }
 
 /** Stored class-year value to a label in the given language (unknown values are shown as typed). */

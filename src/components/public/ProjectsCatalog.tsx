@@ -126,16 +126,15 @@ export default function ProjectsCatalog() {
                   sizes="(max-width: 1024px) 100vw, 40vw"
                   className="h-64 sm:h-72"
                 />
-                <div className="pointer-events-none absolute left-3 top-3 flex gap-2">
-                  <span
-                    className="rounded border px-2.5 py-1 text-xs font-semibold text-slate-900 backdrop-blur-md"
-                    style={{ backgroundColor: `${project.accentColor}30`, borderColor: `${project.accentColor}60` }}
-                  >
+                {/* Solid chips: tinted glass let dark or busy photos swallow the text. */}
+                <div className="pointer-events-none absolute left-3 top-3 flex flex-wrap gap-2">
+                  <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-slate-900 shadow-sm ring-1 ring-black/5">
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: project.accentColor }} aria-hidden="true" />
                     {project.badge[locale]}
                   </span>
                   {project.isFlagship && (
-                    <span className="flex items-center gap-1 rounded border border-accent-500/40 bg-accent-500/20 px-2.5 py-1 text-xs font-semibold text-accent-800 backdrop-blur-md">
-                      <Sparkles className="h-3 w-3 text-accent-700" aria-hidden="true" />
+                    <span className="flex items-center gap-1 rounded-full bg-accent-300 px-3 py-1 text-xs font-semibold text-accent-950 shadow-sm ring-1 ring-black/5">
+                      <Sparkles className="h-3 w-3" aria-hidden="true" />
                       {t.featured}
                     </span>
                   )}

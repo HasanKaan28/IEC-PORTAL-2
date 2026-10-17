@@ -9,6 +9,6 @@ export const BOARD_PHOTOS: Record<string, string | null> = {
   "Kaan Mete Şenyıldız": null, // /team/kaan-mete-senyildiz.jpg
   "Hasan Kaan Karabulut": null, // /team/hasan-kaan-karabulut.jpg
   "Mahmut İhsan Avcı": null, // /team/mahmut-ihsan-avci.jpg
-  "Bekir Enes Çokbekler": "/team/bekir-enes-cokbekler.jpg",
+  "Bekir Enes Çokbekler": "/team/bekir-enes-cokbekler-v2.jpg",
   "Muhammed Efe Ural": null, // /team/muhammed-efe-ural.jpg
 };

@@ -21,7 +21,7 @@ export const ADMIN_SECTIONS: { key: AdminSectionKey; href: string; anyOf: Permis
   { key: "blog", href: "/portal/admin/blog", anyOf: ["blog.write", "blog.publish", "blog.moderate"] },
   { key: "comments", href: "/portal/admin/blog/yorumlar", anyOf: ["blog.moderate"] },
   { key: "audit", href: "/portal/admin/denetim", anyOf: ["audit.view"] },
-  { key: "emails", href: "/portal/admin/eposta-onizleme", anyOf: ["roles.manage"] },
+  { key: "emails", href: "/portal/admin/eposta-onizleme", anyOf: ["emails.view"] },
 ];
 
 /**

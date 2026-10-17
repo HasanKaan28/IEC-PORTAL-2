@@ -19,6 +19,7 @@ Site yayında, ama üye portalı bir Supabase veritabanına bağlanana kadar bak
 3. `supabase/migrations/20261018000000_custom_roles.sql`
 4. `supabase/migrations/20261019000000_default_member_role.sql`
 5. `supabase/migrations/20261020000000_monthly_plan.sql` (Hakkımızda sayfasındaki aylık plan ve portaldaki Planlama sayfası)
+6. `supabase/migrations/20261021000000_email_templates_permission.sql` (e-posta şablonları için ayrı yetki)
 
 İkinci dosya şunları yapar:
 

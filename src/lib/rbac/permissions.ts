@@ -16,6 +16,7 @@ export type Permission =
   | "pages.certificates"
   | "pages.messages"
   | "roles.manage"
+  | "emails.view"
   | "applications.review"
   | "audit.view"
   | "planning.manage"
@@ -41,6 +42,7 @@ export const ALL_PERMISSIONS: Permission[] = [
   "pages.certificates",
   "pages.messages",
   "roles.manage",
+  "emails.view",
   "audit.view",
   "applications.review",
   "planning.manage",
@@ -84,6 +86,7 @@ export function permissionsForRoles(roles: UserRole[]): Permission[] {
 export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   super_admin: [
     "roles.manage",
+    "emails.view",
     "applications.review",
     "audit.view",
     "planning.manage",
@@ -102,6 +105,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   ],
   admin: [
     "roles.manage",
+    "emails.view",
     "applications.review",
     "audit.view",
     "planning.manage",
@@ -120,6 +124,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   ],
   leader: [
     "roles.manage",
+    "emails.view",
     "applications.review",
     "planning.manage",
     "projects.create",

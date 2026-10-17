@@ -51,10 +51,18 @@ export const PERMISSION_INFO: Record<Permission, PermissionInfo> = {
   "roles.manage": {
     label: { tr: "Rolleri yönet", en: "Manage roles" },
     description: {
-      tr: "Üyelere kendinden alt rolleri ve izin verilen özel rolleri atar, e-posta şablonlarını görür.",
-      en: "Assigns lower built-in roles and permitted custom roles to members, and sees email templates.",
+      tr: "Üyelere kendinden alt rolleri ve izin verilen özel rolleri atar.",
+      en: "Assigns lower built-in roles and permitted custom roles to members.",
     },
-    page: { tr: "Yönetici Konsolu: Roller, E-posta şablonları", en: "Admin console: Roles, Email templates" },
+    page: { tr: "Yönetici Konsolu: Roller", en: "Admin console: Roles" },
+  },
+  "emails.view": {
+    label: { tr: "E-posta şablonlarını gör", en: "View email templates" },
+    description: {
+      tr: "Kulübün otomatik gönderdiği e-postaların şablonlarını önizler.",
+      en: "Previews the templates of the emails the club sends automatically.",
+    },
+    page: { tr: "Yönetici Konsolu: E-posta şablonları", en: "Admin console: Email templates" },
   },
   "audit.view": {
     label: { tr: "Denetim günlüğünü gör", en: "View audit log" },
@@ -159,7 +167,7 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
   {
     key: "management",
     label: { tr: "Yönetim", en: "Management" },
-    permissions: ["roles.manage", "audit.view", "applications.review", "planning.manage"],
+    permissions: ["roles.manage", "emails.view", "audit.view", "applications.review", "planning.manage"],
   },
   {
     key: "projects",

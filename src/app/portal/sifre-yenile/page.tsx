@@ -10,10 +10,18 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * Landing page of the reset email. The middleware has already turned the link's one-time code into
- * a session (or sent the visitor back to /portal/sifre-sifirla), so a user is signed in here.
+ * Landing page of the reset email. A link from the club template carries `token_hash`, which the
+ * form sends along with the new password (see updatePasswordAction). Otherwise the middleware has
+ * already opened a recovery session, or sent the visitor back to /portal/sifre-sifirla.
  */
-export default async function ResetPasswordPage() {
-  const user = await getSessionUser();
-  return <ResetPasswordForm configured={isSupabaseConfigured()} email={user?.email ?? null} />;
+export default async function ResetPasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const tokenHash = typeof params.token_hash === "string" ? params.token_hash : null;
+  // Until the code is verified we do not know its account, so a session in this browser is not shown.
+  const user = tokenHash ? null : await getSessionUser();
+  return <ResetPasswordForm configured={isSupabaseConfigured()} email={user?.email ?? null} tokenHash={tokenHash} />;
 }

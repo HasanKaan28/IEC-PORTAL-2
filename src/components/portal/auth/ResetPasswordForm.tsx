@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertCircle, ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
 import AuthFrame, { PortalNotConfiguredNotice, inputClass } from "@/components/portal/auth/AuthFrame";
@@ -12,11 +13,13 @@ interface ResetPasswordFormProps {
   configured: boolean;
   /** Account the reset link signed in, shown so the member knows which password they are changing. */
   email: string | null;
+  /** One-time code from the reset email, verified when the form is submitted. */
+  tokenHash: string | null;
 }
 
 type FieldError = { field: "password" | "confirmPassword"; message: string };
 
-export default function ResetPasswordForm({ configured, email }: ResetPasswordFormProps) {
+export default function ResetPasswordForm({ configured, email, tokenHash }: ResetPasswordFormProps) {
   const router = useRouter();
   const { locale } = useLocale();
   const t = portalShellText[locale].auth;
@@ -64,7 +67,20 @@ export default function ResetPasswordForm({ configured, email }: ResetPasswordFo
   const confirmInvalid = fieldError?.field === "confirmPassword";
 
   return (
-    <AuthFrame title={r.title} subtitle={r.subtitle}>
+    <AuthFrame
+      title={r.title}
+      subtitle={r.subtitle}
+      footer={
+        configured && (
+          <p>
+            {r.linkTrouble}{" "}
+            <Link href="/portal/sifre-sifirla" className="font-semibold text-brand-700 hover:text-brand-800">
+              {r.requestNew}
+            </Link>
+          </p>
+        )
+      }
+    >
       {!configured ? (
         <PortalNotConfiguredNotice />
       ) : (
@@ -75,6 +91,8 @@ export default function ResetPasswordForm({ configured, email }: ResetPasswordFo
               <span>{error}</span>
             </div>
           )}
+
+          {tokenHash && <input type="hidden" name="tokenHash" value={tokenHash} />}
 
           {email && (
             <>

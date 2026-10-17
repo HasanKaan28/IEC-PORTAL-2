@@ -40,6 +40,23 @@ interface MessagesPortalClientProps {
 }
 
 type Notice = { kind: "success" | "error"; text: string };
+type BrowserSupabase = ReturnType<typeof createBrowserSupabase>;
+
+/** While my last messages are unseen, check this often in case a realtime receipt was missed. */
+const RECEIPT_RESYNC_MS = 10_000;
+
+/** One browser client per page: shared by the realtime channel and the direct read-receipt writes. */
+function useBrowserSupabase(): BrowserSupabase | null {
+  const [client] = useState<BrowserSupabase | null>(() => {
+    if (typeof window === "undefined" || !isSupabaseConfigured()) return null;
+    try {
+      return createBrowserSupabase();
+    } catch {
+      return null;
+    }
+  });
+  return client;
+}
 
 function parseMessageRow(raw: unknown): DirectMessageItem | null {
   if (!raw || typeof raw !== "object") return null;
@@ -81,6 +98,7 @@ export default function MessagesPortalClient({
   const { locale } = useLocale();
   const text = messagesProfileText[locale];
   const now = useNow();
+  const supabase = useBrowserSupabase();
 
   const [contacts, setContacts] = useState<ConversationContact[]>(initialContacts);
   const [threads, setThreads] = useState<Record<string, ThreadState>>({});
@@ -147,6 +165,25 @@ export default function MessagesPortalClient({
     });
   }, []);
 
+  /**
+   * Writes the read flag straight from the browser (RLS lets only the receiver flip is_read), so the
+   * sender's realtime receipt is not held up by a server round trip. The server action is the fallback.
+   */
+  const persistRead = useCallback(
+    async (contactId: string) => {
+      if (supabase && isUuid(currentUserId)) {
+        const { error } = await (supabase.from("direct_messages") as any)
+          .update({ is_read: true })
+          .eq("sender_id", contactId)
+          .eq("receiver_id", currentUserId)
+          .eq("is_read", false);
+        if (!error) return;
+      }
+      await markMessagesAsReadAction(contactId);
+    },
+    [supabase, currentUserId]
+  );
+
   const markRead = useCallback(
     (contactId: string) => {
       setContacts((previous) =>
@@ -158,9 +195,34 @@ export default function MessagesPortalClient({
           message.senderId === contactId && !message.isRead ? { ...message, isRead: true } : message
         ),
       }));
-      void markMessagesAsReadAction(contactId);
+      void persistRead(contactId);
     },
-    [updateThread]
+    [updateThread, persistRead]
+  );
+
+  /** Ids of messages I sent that the receiver has read before my send call returned. */
+  const earlyReceiptsRef = useRef(new Set<string>());
+
+  /** Re-reads the seen state of my unseen messages in a thread, for receipts realtime may have missed. */
+  const syncReceipts = useCallback(
+    async (contactId: string) => {
+      if (!supabase) return;
+      const unseen = (threadsRef.current[contactId]?.messages ?? [])
+        .filter((message) => message.senderId === currentUserId && !message.isRead && !message.pending)
+        .map((message) => message.id);
+      if (unseen.length === 0) return;
+      const { data, error } = await (supabase.from("direct_messages") as any)
+        .select("id")
+        .in("id", unseen.slice(-50))
+        .eq("is_read", true);
+      if (error || !Array.isArray(data) || data.length === 0) return;
+      const seen = new Set((data as Array<{ id: string }>).map((row) => row.id));
+      updateThread(contactId, (thread) => ({
+        ...thread,
+        messages: thread.messages.map((message) => (seen.has(message.id) ? { ...message, isRead: true } : message)),
+      }));
+    },
+    [supabase, currentUserId, updateThread]
   );
 
   const loadThread = useCallback(
@@ -272,7 +334,7 @@ export default function MessagesPortalClient({
           };
           return [updated, ...previous.slice(0, index), ...previous.slice(index + 1)];
         });
-        if (viewing) void markMessagesAsReadAction(senderId);
+        if (viewing) void persistRead(senderId);
       } else {
         void loadThread(senderId);
       }
@@ -282,6 +344,9 @@ export default function MessagesPortalClient({
     handlersRef.current.receipt = (raw: unknown) => {
       const message = parseMessageRow(raw);
       if (!message || message.senderId !== currentUserId || !message.isRead) return;
+      const known = threadsRef.current[message.receiverId]?.messages.some((item) => item.id === message.id);
+      // The receipt can beat my own send call back; keep it until the real id replaces the pending one.
+      if (!known) earlyReceiptsRef.current.add(message.id);
       updateThread(message.receiverId, (thread) => ({
         ...thread,
         messages: thread.messages.map((item) => (item.id === message.id ? { ...item, isRead: true } : item)),
@@ -290,13 +355,8 @@ export default function MessagesPortalClient({
   });
 
   useEffect(() => {
-    if (!isSupabaseConfigured() || !isUuid(currentUserId)) return;
-    let supabase: ReturnType<typeof createBrowserSupabase>;
-    try {
-      supabase = createBrowserSupabase();
-    } catch {
-      return;
-    }
+    if (!supabase || !isUuid(currentUserId)) return;
+    let subscribedBefore = false;
     const channel = supabase
       .channel(`direct-messages:${currentUserId}`)
       .on(
@@ -309,23 +369,44 @@ export default function MessagesPortalClient({
         { event: "UPDATE", schema: "public", table: "direct_messages", filter: `sender_id=eq.${currentUserId}` },
         (payload: { new: unknown }) => handlersRef.current.receipt(payload.new)
       )
-      .subscribe();
+      .subscribe((status: string) => {
+        if (status !== "SUBSCRIBED") return;
+        // Events sent while the socket was down are not replayed, so catch up after a reconnect.
+        if (subscribedBefore && activeIdRef.current) void syncReceipts(activeIdRef.current);
+        subscribedBefore = true;
+      });
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [currentUserId]);
+  }, [supabase, currentUserId, syncReceipts]);
 
-  // Coming back to the tab counts as reading the open conversation.
+  // Coming back to the tab counts as reading the open conversation, and refreshes my receipts.
   useEffect(() => {
     const onVisibilityChange = () => {
       if (document.visibilityState !== "visible") return;
       const contactId = activeIdRef.current;
-      const contact = contactId ? contactsRef.current.find((item) => item.id === contactId) : null;
-      if (contactId && contact && contact.unreadCount > 0) markRead(contactId);
+      if (!contactId) return;
+      const contact = contactsRef.current.find((item) => item.id === contactId);
+      if (contact && contact.unreadCount > 0) markRead(contactId);
+      void syncReceipts(contactId);
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
     return () => document.removeEventListener("visibilitychange", onVisibilityChange);
-  }, [markRead]);
+  }, [markRead, syncReceipts]);
+
+  // Safety net: while my latest message in the open conversation is unseen, re-check now and then.
+  const activeThread = activeId ? threads[activeId] : undefined;
+  const waitingForReceipt = useMemo(() => {
+    const mine = activeThread?.messages.filter((message) => message.senderId === currentUserId && !message.pending);
+    return Boolean(mine && mine.length > 0 && !mine[mine.length - 1].isRead);
+  }, [activeThread, currentUserId]);
+  useEffect(() => {
+    if (!activeId || !waitingForReceipt) return;
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible") void syncReceipts(activeId);
+    }, RECEIPT_RESYNC_MS);
+    return () => window.clearInterval(timer);
+  }, [activeId, waitingForReceipt, syncReceipts]);
 
   const handleSend = async (value: string): Promise<boolean> => {
     const contactId = activeIdRef.current;
@@ -360,7 +441,8 @@ export default function MessagesPortalClient({
       return false;
     }
 
-    const sent = result.data;
+    const readEarly = earlyReceiptsRef.current.delete(result.data.id);
+    const sent = readEarly ? { ...result.data, isRead: true } : result.data;
     updateThread(contactId, (thread) => ({
       ...thread,
       messages: thread.messages.map((message) => (message.id === tempId ? sent : message)),

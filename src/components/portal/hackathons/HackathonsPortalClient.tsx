@@ -29,6 +29,8 @@ import CreateHackathonModal from "./CreateHackathonModal";
 import CreateHackathonTeamModal from "./CreateHackathonTeamModal";
 import JoinHackathonTeamModal from "./JoinHackathonTeamModal";
 import { MemberName, useMemberCard } from "@/components/portal/MemberCard";
+import { useSearchFocus } from "@/components/portal/search/use-search-focus";
+import { SEARCH_FOCUS_PARAM } from "@/lib/search/search-types";
 
 interface HackathonsPortalClientProps {
   hackathons: HackathonItem[];
@@ -77,6 +79,7 @@ export default function HackathonsPortalClient({
   const { toast, show: showToast, dismiss: dismissToast } = useToast();
 
   const [activeTab, setActiveTab] = useState<HackathonTab>(teams.length > 0 ? "teams" : "hackathons");
+  useSearchFocus(SEARCH_FOCUS_PARAM.hackathons, () => setActiveTab("hackathons"));
   const [selectedHackathon, setSelectedHackathon] = useState("all");
   const [createTeamFor, setCreateTeamFor] = useState<string | null>(null);
   const [joinTeamId, setJoinTeamId] = useState<string | null>(null);
@@ -251,7 +254,7 @@ export default function HackathonsPortalClient({
           <ul className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             {hackathons.map((hackathon) => (
               <li key={hackathon.id}>
-                <article className={`${cardClass} flex h-full flex-col p-5`}>
+                <article data-search-target={hackathon.id} className={`${cardClass} flex h-full flex-col p-5`}>
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span
                       className={`${chipClass} ${

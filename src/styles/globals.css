@@ -502,6 +502,11 @@
     border: 1px solid #e2e8f0;
   }
 
+  /* The card a header search result opened: a brand ring that fades out (see use-search-focus.ts). */
+  [data-search-focused="true"] {
+    animation: search-focus-ring 2.4s ease-out;
+  }
+
   /* 3D tilt cards (see components/public/Tilt.tsx): a soft light spot follows the cursor. */
   .tilt-card {
     position: relative;
@@ -567,6 +572,16 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+@keyframes search-focus-ring {
+  0%,
+  45% {
+    box-shadow: 0 0 0 3px rgba(31, 90, 148, 0.55), 0 12px 32px -12px rgba(31, 90, 148, 0.35);
+  }
+  100% {
+    box-shadow: 0 0 0 3px rgba(31, 90, 148, 0);
   }
 }
 

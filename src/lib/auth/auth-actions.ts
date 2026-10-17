@@ -35,6 +35,8 @@ const TEXT = {
     passwordMismatch: "Şifreler eşleşmiyor.",
     samePassword: "Yeni şifre eskisinden farklı olmalı.",
     weakPassword: "Bu şifre çok zayıf. Daha uzun ve tahmin edilmesi zor bir şifre seçin.",
+    resetLinkInvalid:
+      "Bu şifre yenileme bağlantısı geçersiz ya da süresi dolmuş. Yeni bir bağlantı iste; birden fazla e-posta geldiyse en sonuncusunu kullan.",
     genericError: "İşlem tamamlanamadı. Lütfen tekrar deneyin.",
     tooManyAttempts: "Çok fazla deneme yapıldı. Birkaç dakika bekleyip tekrar deneyin.",
     tooFast: "Form çok hızlı gönderildi. Birkaç saniye bekleyip tekrar deneyin.",
@@ -60,6 +62,8 @@ const TEXT = {
     passwordMismatch: "Passwords do not match.",
     samePassword: "The new password must be different from the old one.",
     weakPassword: "This password is too weak. Choose a longer password that is hard to guess.",
+    resetLinkInvalid:
+      "This password reset link is invalid or has expired. Request a new link; if several emails arrived, use the latest one.",
     genericError: "Could not complete the request. Please try again.",
     tooManyAttempts: "Too many attempts. Wait a few minutes and try again.",
     tooFast: "The form was sent too quickly. Wait a few seconds and try again.",
@@ -108,11 +112,15 @@ function passwordResetRequestSchema(t: AuthText) {
   });
 }
 
+const RESET_TOKEN_PATTERN = /^[A-Za-z0-9_-]+$/;
+
 function newPasswordSchema(t: AuthText) {
   return z
     .object({
       password: z.string().min(8, t.passwordMin).max(128),
       confirmPassword: z.string().max(128),
+      // The reset email's one-time code ("pkce_" plus a hex hash), when the page was opened from it.
+      tokenHash: z.string().trim().max(256).regex(RESET_TOKEN_PATTERN, t.resetLinkInvalid).optional(),
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: t.passwordMismatch,
@@ -318,7 +326,7 @@ export async function requestPasswordResetAction(formData: FormData): Promise<Ac
     if (!ipAllowed || !emailAllowed) return { success: false, error: t.tooManyAttempts };
 
     const supabase = await createClient();
-    // The link comes back with a one-time code; the middleware turns it into a session on /portal/sifre-yenile.
+    // The club template links to /portal/sifre-yenile with a one-time code, checked when the new password is saved.
     const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
       redirectTo: `${SITE_URL}/portal/sifre-yenile`,
     });
@@ -328,18 +336,34 @@ export async function requestPasswordResetAction(formData: FormData): Promise<Ac
   });
 }
 
-/** Sets a new password for the session opened by the reset link, then signs out every other device. */
+/**
+ * Sets a new password, then signs out every other device.
+ *
+ * The reset email's code is verified here, on submit, and not when the page opens: mail scanners
+ * (Outlook Safe Links) open links before the member does and would use up the one-time code. The
+ * password is checked first, so a typo does not spend the code. When the code is already used, a
+ * session in this browser (opened by an earlier submit whose password was rejected) still counts.
+ */
 export async function updatePasswordAction(formData: FormData): Promise<ActionResult> {
   return guardedAction(async () => {
-    await requireUser();
     const t = TEXT[await getServerLocale()];
     const parsed = newPasswordSchema(t).safeParse({
       password: formData.get("password"),
       confirmPassword: formData.get("confirmPassword"),
+      tokenHash: (formData.get("tokenHash") as string) || undefined,
     });
     if (!parsed.success) return { success: false, error: firstError(parsed.error) };
 
     const supabase = await createClient();
+    const { tokenHash } = parsed.data;
+    const linkError = tokenHash ? (await supabase.auth.verifyOtp({ type: "recovery", token_hash: tokenHash })).error : null;
+    if (!tokenHash || linkError) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return { success: false, error: t.resetLinkInvalid };
+    }
+
     const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
     if (error) return { success: false, error: passwordUpdateErrorMessage(error.message, t) };
 

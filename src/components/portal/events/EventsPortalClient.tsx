@@ -8,6 +8,8 @@ import { useLocale } from "@/lib/i18n/locale-context";
 import { formatDate } from "@/lib/i18n/format";
 import { eventsHackathonsText } from "@/lib/i18n/portal/events-hackathons";
 import { EVENT_TIME_ZONE, type EventItem, type EventStatus } from "@/lib/events/event-types";
+import { SEARCH_FOCUS_PARAM } from "@/lib/search/search-types";
+import { useSearchFocus } from "@/components/portal/search/use-search-focus";
 import CheckInModal from "./CheckInModal";
 import CreateEventModal from "./CreateEventModal";
 import EmptyState from "./EmptyState";
@@ -37,6 +39,7 @@ export default function EventsPortalClient({ events, canManage, canHost, initial
   const { toast, show: showToast, dismiss: dismissToast } = useToast();
 
   const [activeTab, setActiveTab] = useState<EventsTab>("all");
+  useSearchFocus(SEARCH_FOCUS_PARAM.events, () => setActiveTab("all"));
   const [checkIn, setCheckIn] = useState<{ eventId: string; code?: string } | null>(initialCheckIn);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
@@ -152,7 +155,10 @@ export default function EventsPortalClient({ events, canManage, canHost, initial
                 const parts = formatParts(event.dateTime);
                 return (
                   <li key={event.id}>
-                    <article className={`${cardClass} flex h-full flex-col p-5 transition-shadow hover:shadow-md`}>
+                    <article
+                      data-search-target={event.id}
+                      className={`${cardClass} flex h-full flex-col p-5 transition-shadow hover:shadow-md`}
+                    >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3">
                           <div

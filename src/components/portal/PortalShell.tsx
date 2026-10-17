@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -22,6 +22,7 @@ import {
 import ClubLogo from "@/components/shared/ClubLogo";
 import PortalAvatar from "@/components/portal/PortalAvatar";
 import { MemberCardProvider } from "@/components/portal/MemberCard";
+import PortalSearch, { type SearchPageLink } from "@/components/portal/search/PortalSearch";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { portalShellText } from "@/lib/i18n/portal/shell";
 import type { PortalPage } from "@/lib/rbac/page-access";
@@ -101,6 +102,34 @@ function NavLink({
       <span className="truncate">{label}</span>
     </Link>
   );
+}
+
+/** The pages this member may open, for the header search. Labels match in both languages. */
+function searchablePages(user: PortalShellUser, showAdmin: boolean, t: (typeof portalShellText)["tr"]["shell"]): SearchPageLink[] {
+  const { tr, en } = portalShellText;
+  const links: SearchPageLink[] = NAV_ITEMS.filter((item) => !item.page || user.pages.includes(item.page)).map((item) => ({
+    href: item.href,
+    label: t.nav[item.key],
+    keywords: `${tr.shell.nav[item.key]} ${en.shell.nav[item.key]}`,
+    icon: item.icon,
+  }));
+  if (showAdmin) {
+    links.push({
+      href: "/portal/admin",
+      label: t.adminConsole,
+      keywords: `${tr.shell.adminConsole} ${en.shell.adminConsole}`,
+      icon: Shield,
+    });
+  }
+  if (user.canPlan) {
+    links.push({
+      href: "/portal/planlama",
+      label: t.planning,
+      keywords: `${tr.shell.planning} ${en.shell.planning}`,
+      icon: CalendarRange,
+    });
+  }
+  return links;
 }
 
 function SidebarContent({ user, showAdmin, pathname }: { user: PortalShellUser; showAdmin: boolean; pathname: string }) {
@@ -191,6 +220,7 @@ export default function PortalShell({ user, showAdmin, headerActions, children }
   const { locale } = useLocale();
   const t = portalShellText[locale].shell;
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const searchPages = useMemo(() => searchablePages(user, showAdmin, t), [user, showAdmin, t]);
 
   useEffect(() => {
     setDrawerOpen(false);
@@ -215,68 +245,74 @@ export default function PortalShell({ user, showAdmin, headerActions, children }
   }
 
   return (
-    <div className="theme-portal bg-portal-flow min-h-screen text-slate-900 antialiased">
-      <a
-        href="#portal-main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-60 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-brand-700 focus:shadow-lg"
-      >
-        {t.skipToContent}
-      </a>
+    <MemberCardProvider>
+      <div className="theme-portal bg-portal-flow min-h-screen text-slate-900 antialiased">
+        <a
+          href="#portal-main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-60 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-brand-700 focus:shadow-lg"
+        >
+          {t.skipToContent}
+        </a>
 
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-brand-100 bg-white/55 backdrop-blur-xl md:block">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(ellipse_at_top,rgba(160,194,232,0.4),transparent_70%)]" />
-        <div className="relative h-full">
-          <SidebarContent user={user} showAdmin={showAdmin} pathname={pathname} />
-        </div>
-      </aside>
-
-      {drawerOpen && (
-        <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label={t.mainNav}>
-          <button
-            type="button"
-            className="absolute inset-0 bg-slate-900/30 backdrop-blur-xs"
-            aria-label={t.closeMenu}
-            onClick={() => setDrawerOpen(false)}
-          />
-          <div className="relative h-full w-72 max-w-[85vw] bg-canvas shadow-soft">
-            <button
-              type="button"
-              onClick={() => setDrawerOpen(false)}
-              aria-label={t.closeMenu}
-              className="absolute right-3 top-4 z-10 rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400/60"
-            >
-              <X className="w-5 h-5" aria-hidden="true" />
-            </button>
+        <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-brand-100 bg-white/55 backdrop-blur-xl md:block">
+          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(ellipse_at_top,rgba(160,194,232,0.4),transparent_70%)]" />
+          <div className="relative h-full">
             <SidebarContent user={user} showAdmin={showAdmin} pathname={pathname} />
           </div>
-        </div>
-      )}
+        </aside>
 
-      <div className="flex min-h-screen flex-col md:pl-64">
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-brand-100 bg-white/60 px-4 backdrop-blur-xl supports-backdrop-filter:bg-white/45 sm:px-6">
-          <div className="flex items-center gap-2 md:hidden">
+        {drawerOpen && (
+          <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label={t.mainNav}>
             <button
               type="button"
-              onClick={() => setDrawerOpen(true)}
-              aria-label={t.openMenu}
-              aria-expanded={drawerOpen}
-              className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/40"
-            >
-              <Menu className="w-5 h-5" aria-hidden="true" />
-            </button>
-            <Link href="/portal" className="flex items-center gap-2">
-              <ClubLogo size={32} alt="" />
-              <span className="font-display text-sm font-semibold text-slate-900">{t.portalName}</span>
-            </Link>
+              className="absolute inset-0 bg-slate-900/30 backdrop-blur-xs"
+              aria-label={t.closeMenu}
+              onClick={() => setDrawerOpen(false)}
+            />
+            <div className="relative h-full w-72 max-w-[85vw] bg-canvas shadow-soft">
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(false)}
+                aria-label={t.closeMenu}
+                className="absolute right-3 top-4 z-10 rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400/60"
+              >
+                <X className="w-5 h-5" aria-hidden="true" />
+              </button>
+              <SidebarContent user={user} showAdmin={showAdmin} pathname={pathname} />
+            </div>
           </div>
-          <div className="hidden md:block" />
-          <div className="flex items-center gap-2 sm:gap-3">{headerActions}</div>
-        </header>
+        )}
 
-        <main id="portal-main" className="flex-1 px-4 py-6 sm:px-6 md:px-8 md:py-8">
-          <MemberCardProvider>{children}</MemberCardProvider>
-        </main>
+        <div className="flex min-h-screen flex-col md:pl-64">
+          <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-brand-100 bg-white/60 px-4 backdrop-blur-xl supports-backdrop-filter:bg-white/45 sm:px-6">
+            <div className="flex items-center gap-2 md:hidden">
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(true)}
+                aria-label={t.openMenu}
+                aria-expanded={drawerOpen}
+                className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/40"
+              >
+                <Menu className="w-5 h-5" aria-hidden="true" />
+              </button>
+              <Link href="/portal" className="flex items-center gap-2">
+                <ClubLogo size={32} alt="" />
+                <span className="sr-only whitespace-nowrap font-display text-sm font-semibold text-slate-900 min-[420px]:not-sr-only">
+                  {t.portalName}
+                </span>
+              </Link>
+            </div>
+            <div className="flex min-w-0 flex-1 items-center justify-end md:justify-start">
+              <PortalSearch pages={searchPages} />
+            </div>
+            <div className="flex items-center gap-2 sm:gap-3">{headerActions}</div>
+          </header>
+
+          <main id="portal-main" className="flex-1 px-4 py-6 sm:px-6 md:px-8 md:py-8">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </MemberCardProvider>
   );
 }

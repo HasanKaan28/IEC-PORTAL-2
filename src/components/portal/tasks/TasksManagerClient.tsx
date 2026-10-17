@@ -14,6 +14,8 @@ import {
   type TaskViewer,
 } from "@/lib/tasks/task-types";
 import { updateTaskStatusAction } from "@/lib/tasks/task-actions";
+import { SEARCH_FOCUS_PARAM } from "@/lib/search/search-types";
+import { useSearchFocus } from "@/components/portal/search/use-search-focus";
 import TaskKanbanBoard from "./TaskKanbanBoard";
 import TaskListView from "./TaskListView";
 import TaskDetailDrawer from "./TaskDetailDrawer";
@@ -56,6 +58,7 @@ export default function TasksManagerClient({ initialTasks, members, projects, vi
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | "all">("all");
   const [assigneeFilter, setAssigneeFilter] = useState("all");
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  useSearchFocus(SEARCH_FOCUS_PARAM.tasks, setActiveTaskId);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { toast, showToast, dismiss } = useToast();
 

@@ -27,7 +27,7 @@
   - Zorunlu KVKK rıza loglama (`consent_logs`).
 - **PWA & SEO 95+**:
   - Dinamik `sitemap.xml`, `robots.txt`, Web App Manifest (`manifest.webmanifest`), Vercel tarzı özel 404 & 500 sayfaları.
-  - Çift dil (TR varsayılan, EN hazır) dil seçici (`LanguageSwitcher`).
+  - Çift dil (TR ve EN) ve dil seçici (`LanguageSwitcher`). İlk ziyarette tarayıcısı Türkçe olana Türkçe, diğerlerine İngilizce açılır; seçilen dil çerezde hatırlanır.
 
 ---
 

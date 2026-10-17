@@ -25,8 +25,9 @@ function persistLocale(locale: SupportedLocale) {
 }
 
 /**
- * Locale comes from the NEXT_LOCALE cookie, read on the server (root layout) and passed in, so the
- * first paint is already in the right language. Switching re-renders server components too.
+ * Locale comes from the NEXT_LOCALE cookie (or, before any choice, the browser language), read on
+ * the server (root layout) and passed in, so the first paint is already in the right language.
+ * Switching re-renders server components too.
  */
 export function LocaleProvider({
   initialLocale,

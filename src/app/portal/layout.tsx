@@ -4,7 +4,7 @@ import PortalShell from "@/components/portal/PortalShell";
 import PortalHeaderUserMenu from "@/components/portal/PortalHeaderUserMenu";
 import PortalNotificationBell from "@/components/portal/PortalNotificationBell";
 import LanguageSwitcher from "@/components/shared/LanguageSwitcher";
-import { getSessionUser } from "@/lib/auth/session";
+import { getSessionUser, userCan } from "@/lib/auth/session";
 import { canAccessAdminConsole } from "@/lib/admin/admin-access";
 import { visiblePages } from "@/lib/rbac/page-access";
 import { getNotifications } from "@/lib/messages/message-queries";
@@ -40,7 +40,7 @@ export default async function PortalLayout({ children }: { children: React.React
 
   return (
     <PortalShell
-      user={{ fullName: user.fullName, email: user.email, avatarUrl: user.avatarUrl, roleLabel, pages: visiblePages(user) }}
+      user={{ fullName: user.fullName, email: user.email, avatarUrl: user.avatarUrl, roleLabel, pages: visiblePages(user), canPlan: userCan(user, "planning.manage") }}
       showAdmin={showAdmin}
       headerActions={
         <>

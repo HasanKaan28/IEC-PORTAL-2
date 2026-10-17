@@ -72,8 +72,15 @@ export const PERMISSION_INFO: Record<Permission, PermissionInfo> = {
     },
     page: { tr: "Yönetici Konsolu: Başvurular", en: "Admin console: Applications" },
   },
-  "projects.create": {
-    label: { tr: "Proje oluştur", en: "Create projects" },
+  "planning.manage": {
+    label: { tr: "Planlamayı yönet", en: "Manage the plan" },
+    description: {
+      tr: "Hakkımızda sayfasındaki dört haftalık aylık planı düzenler.",
+      en: "Edits the four-week monthly plan on the About page.",
+    },
+    page: { tr: "Yönetim: Planlama", en: "Management: Planning" },
+  },
+  "projects.create": {    label: { tr: "Proje oluştur", en: "Create projects" },
     description: { tr: "Yeni kulüp projesi açar ve projenin lideri olur.", en: "Opens new club projects and becomes their lead." },
     page: { tr: "Projeler", en: "Projects" },
   },
@@ -152,7 +159,7 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
   {
     key: "management",
     label: { tr: "Yönetim", en: "Management" },
-    permissions: ["roles.manage", "audit.view", "applications.review"],
+    permissions: ["roles.manage", "audit.view", "applications.review", "planning.manage"],
   },
   {
     key: "projects",

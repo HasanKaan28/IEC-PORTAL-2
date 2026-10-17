@@ -16,6 +16,9 @@ Site yayında, ama üye portalı bir Supabase veritabanına bağlanana kadar bak
 
 1. `supabase/migrations/20261015000000_init_iec_schema.sql`
 2. `supabase/migrations/20261017000000_security_hardening.sql`
+3. `supabase/migrations/20261018000000_custom_roles.sql`
+4. `supabase/migrations/20261019000000_default_member_role.sql`
+5. `supabase/migrations/20261020000000_monthly_plan.sql` (Hakkımızda sayfasındaki aylık plan ve portaldaki Planlama sayfası)
 
 İkinci dosya şunları yapar:
 

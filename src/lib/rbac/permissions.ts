@@ -18,6 +18,7 @@ export type Permission =
   | "roles.manage"
   | "applications.review"
   | "audit.view"
+  | "planning.manage"
   | "projects.create"
   | "projects.edit"
   | "projects.review_requests"
@@ -42,6 +43,7 @@ export const ALL_PERMISSIONS: Permission[] = [
   "roles.manage",
   "audit.view",
   "applications.review",
+  "planning.manage",
   "projects.create",
   "projects.edit",
   "projects.review_requests",
@@ -84,6 +86,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "roles.manage",
     "applications.review",
     "audit.view",
+    "planning.manage",
     "projects.create",
     "projects.edit",
     "projects.review_requests",
@@ -101,6 +104,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "roles.manage",
     "applications.review",
     "audit.view",
+    "planning.manage",
     "projects.create",
     "projects.edit",
     "projects.review_requests",
@@ -117,6 +121,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   leader: [
     "roles.manage",
     "applications.review",
+    "planning.manage",
     "projects.create",
     "projects.edit",
     "projects.review_requests",

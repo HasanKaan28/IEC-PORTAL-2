@@ -13,6 +13,7 @@ import {
   MessageSquare,
   User,
   Shield,
+  CalendarRange,
   ArrowUpRight,
   Menu,
   X,
@@ -32,6 +33,8 @@ export interface PortalShellUser {
   roleLabel: string;
   /** Role-controlled pages this member may open (overview and profile are always shown). */
   pages: PortalPage[];
+  /** Holds planning.manage: shows Management > Planning. */
+  canPlan?: boolean;
 }
 
 interface PortalShellProps {
@@ -123,16 +126,32 @@ function SidebarContent({ user, showAdmin, pathname }: { user: PortalShellUser; 
           ))}
         </ul>
 
-        {showAdmin && (
+        {(showAdmin || user.canPlan) && (
           <>
             <p className="px-3 pb-2 pt-6 text-xs font-semibold uppercase tracking-wider text-slate-500">{t.management}</p>
-            <NavLink
-              href="/portal/admin"
-              label={t.adminConsole}
-              icon={Shield}
-              active={isActive(pathname, "/portal/admin")}
-              emphasis
-            />
+            <ul className="space-y-1">
+              {showAdmin && (
+                <li>
+                  <NavLink
+                    href="/portal/admin"
+                    label={t.adminConsole}
+                    icon={Shield}
+                    active={isActive(pathname, "/portal/admin")}
+                    emphasis
+                  />
+                </li>
+              )}
+              {user.canPlan && (
+                <li>
+                  <NavLink
+                    href="/portal/planlama"
+                    label={t.planning}
+                    icon={CalendarRange}
+                    active={isActive(pathname, "/portal/planlama")}
+                  />
+                </li>
+              )}
+            </ul>
           </>
         )}
       </nav>

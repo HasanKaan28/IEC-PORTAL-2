@@ -5,6 +5,8 @@ config/linear_config.json
 
 # Local sensitive form and member data
 data/
+# ...but the site's own data modules (project list, board photo map) are source code.
+!src/lib/data/
 scripts/*.txt
 extracted_form.txt
 assets/*_b64.txt

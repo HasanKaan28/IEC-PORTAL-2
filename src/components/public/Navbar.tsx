@@ -39,9 +39,13 @@ export default function Navbar({ overlay = false }: NavbarProps) {
   const navLinks = [
     { href: "/", label: t.nav.home },
     { href: "/projeler", label: t.nav.projects },
+    { href: "/blog", label: t.nav.blog },
     { href: "/hakkimizda", label: t.nav.about },
     { href: "/basvuru", label: t.nav.apply },
   ];
+  // Section pages stay highlighted on their sub-pages too (a blog post keeps "Blog" active).
+  const isActiveLink = (href: string) =>
+    href === "/" ? pathname === "/" : pathname === href || Boolean(pathname?.startsWith(`${href}/`));
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -83,13 +87,13 @@ export default function Navbar({ overlay = false }: NavbarProps) {
 
           <nav aria-label={t.nav.mainNavigation} className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => {
-              const isActive = pathname === link.href;
+              const isActive = isActiveLink(link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`whitespace-nowrap px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`whitespace-nowrap px-2.5 xl:px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive ? "text-brand-700 bg-brand-50" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                   }`}
                 >
@@ -131,7 +135,7 @@ export default function Navbar({ overlay = false }: NavbarProps) {
               <Link
                 key={link.href}
                 href={link.href}
-                aria-current={pathname === link.href ? "page" : undefined}
+                aria-current={isActiveLink(link.href) ? "page" : undefined}
                 className="block px-3 py-3 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100"
               >
                 {link.label}

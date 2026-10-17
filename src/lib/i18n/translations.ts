@@ -25,7 +25,7 @@ const tr = {
   nav: {
     home: "Ana Sayfa",
     projects: "Projelerimiz",
-    blog: "Blog & Teknik Yazılar",
+    blog: "Blog",
     about: "Hakkımızda",
     apply: "Başvuru Yap",
     portal: "Üye Portalı",
@@ -205,7 +205,7 @@ const en: Dictionary = {
   nav: {
     home: "Home",
     projects: "Our Projects",
-    blog: "Blog & Insights",
+    blog: "Blog",
     about: "About Us",
     apply: "Apply Now",
     portal: "Member Portal",

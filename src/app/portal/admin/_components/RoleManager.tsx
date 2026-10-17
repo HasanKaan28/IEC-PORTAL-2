@@ -148,6 +148,10 @@ export default function RoleManager({
                   const isOpen = openUserId === user.id;
                   const panelId = `role-panel-${user.id}`;
                   const lock = memberLock(user);
+                  const builtInRoles = visibleBuiltInRoles(user.roles);
+                  const extraRoles = user.customRoleIds
+                    .map((roleId) => customRolesById.get(roleId))
+                    .filter((role): role is CustomRoleItem => Boolean(role && !role.isDefault));
                   return (
                     <React.Fragment key={user.id}>
                       <tr className="align-top">
@@ -165,27 +169,23 @@ export default function RoleManager({
                           <div className="text-xs text-slate-500">{user.classYear ?? text.common.notSet}</div>
                         </td>
                         <td className="px-4 py-3.5">
-                          <ul className="flex flex-wrap gap-1">
-                            {visibleBuiltInRoles(user.roles).map((role) => (
-                              <li key={role} className="rounded-md border border-brand-200 bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-800">
-                                {ROLE_LABELS[role]?.[locale] ?? role}
-                              </li>
-                            ))}
-                            {defaultRole && (
-                              <li className={`rounded-md border px-2 py-0.5 text-xs font-medium ${customRoleChipClass(defaultRole.color)}`}>
-                                {defaultRole.name}
-                              </li>
-                            )}
-                            {user.customRoleIds.map((roleId) => {
-                              const role = customRolesById.get(roleId);
-                              if (!role || role.isDefault) return null;
-                              return (
-                                <li key={roleId} className={`rounded-md border px-2 py-0.5 text-xs font-medium ${customRoleChipClass(role.color)}`}>
+                          {/* Everyone holds the default role (the note above says so), so it is not repeated per row. */}
+                          {builtInRoles.length + extraRoles.length === 0 ? (
+                            <span className="text-xs text-slate-400">{ct.members.noExtraRoles}</span>
+                          ) : (
+                            <ul className="flex flex-wrap gap-1">
+                              {builtInRoles.map((role) => (
+                                <li key={role} className="rounded-md border border-brand-200 bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-800">
+                                  {ROLE_LABELS[role]?.[locale] ?? role}
+                                </li>
+                              ))}
+                              {extraRoles.map((role) => (
+                                <li key={role.id} className={`rounded-md border px-2 py-0.5 text-xs font-medium ${customRoleChipClass(role.color)}`}>
                                   {role.name}
                                 </li>
-                              );
-                            })}
-                          </ul>
+                              ))}
+                            </ul>
+                          )}
                         </td>
                         <td className="px-4 py-3.5 text-right">
                           <button

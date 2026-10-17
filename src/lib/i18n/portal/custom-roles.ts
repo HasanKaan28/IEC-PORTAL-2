@@ -61,6 +61,7 @@ const tr = {
     customRolesHeading: "Atanabilir roller",
     noCustomRoles: "Henüz atanabilir rol yok. Özel roller sekmesinden oluşturabilirsin.",
     defaultRoleNote: (name: string) => `Herkes ${name} rolüne otomatik olarak sahip; yetkilerini Özel roller sekmesinden ayarlayabilirsin.`,
+    noExtraRoles: "Ek rol yok",
   },
   messages: {
     invalidInput: "Girilen bilgiler geçersiz.",
@@ -147,6 +148,7 @@ const en: typeof tr = {
     customRolesHeading: "Assignable roles",
     noCustomRoles: "No assignable roles yet. Create one in the Custom roles tab.",
     defaultRoleNote: (name: string) => `Everyone holds the ${name} role automatically; set its permissions in the Custom roles tab.`,
+    noExtraRoles: "No extra roles",
   },
   messages: {
     invalidInput: "The details you entered are not valid.",

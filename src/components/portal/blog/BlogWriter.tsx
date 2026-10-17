@@ -147,6 +147,7 @@ export default function BlogWriter({ post, canPublish }: BlogWriterProps) {
   const lastErrorRef = useRef<string | null>(null);
   const savingRef = useRef<Promise<unknown> | null>(null);
   const insertFilesRef = useRef<(files: File[], position?: number) => void>(() => {});
+  const bodyUsedRef = useRef(false);
 
   // Published posts are not autosaved: a change only reaches the site when it is published again.
   const autosave = status === "draft";
@@ -221,11 +222,23 @@ export default function BlogWriter({ post, canPublish }: BlogWriterProps) {
       setStats((previous) => (previous.words === words ? previous : { words, minutes: readingMinutesForWords(words) }));
     };
     count();
+    const markBodyUsed = () => {
+      bodyUsedRef.current = true;
+    };
+    editor.on("focus", markBodyUsed);
     editor.on("update", count);
     return () => {
       editor.off("update", count);
+      editor.off("focus", markBodyUsed);
     };
   }, [editor]);
+
+  /** The photo button in the header: adds at the cursor, or at the end if the text was never clicked. */
+  const pickImage = () => {
+    if (!editor) return;
+    if (!bodyUsedRef.current) editor.commands.focus("end");
+    fileRef.current?.click();
+  };
 
   /* ---------------------------------------------------------- saving */
 
@@ -480,6 +493,22 @@ export default function BlogWriter({ post, canPublish }: BlogWriterProps) {
               >
                 <ExternalLink className="h-4 w-4" aria-hidden="true" />
               </a>
+            )}
+            {mode === "edit" && (
+              <button
+                type="button"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={pickImage}
+                disabled={!editor}
+                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:opacity-60 ${focusRing}`}
+              >
+                {pendingUploads > 0 ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-brand-600" aria-hidden="true" />
+                ) : (
+                  <ImagePlus className="h-4 w-4 text-brand-600" aria-hidden="true" />
+                )}
+                <span className="sr-only sm:not-sr-only">{t.addPhoto}</span>
+              </button>
             )}
             <button
               type="button"

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCertificateForPdf } from "@/lib/events/event-queries";
 import { normalizeCertificateCode } from "@/lib/events/event-types";
 import { generateCertificatePdf } from "@/lib/certificates/certificate-pdf";
+import { RATE_LIMITS, clientIp, consumeRateLimit, retryAfterSeconds } from "@/lib/security/rate-limit";
 
 /**
  * Certificate PDF by exact verification code (validated format, exact match, no pattern search).
@@ -14,6 +15,14 @@ export const dynamic = "force-dynamic";
 const PLAIN_HEADERS = { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" };
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ code: string }> }) {
+  // Building a PDF costs CPU, so one address cannot request them in bulk.
+  if (!(await consumeRateLimit(RATE_LIMITS.certificatePdf, await clientIp()))) {
+    return new NextResponse("Too many requests", {
+      status: 429,
+      headers: { ...PLAIN_HEADERS, "Retry-After": retryAfterSeconds(RATE_LIMITS.certificatePdf) },
+    });
+  }
+
   const { code: rawCode } = await params;
   const code = normalizeCertificateCode(rawCode ?? "");
   if (!code) {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, ArrowRight, Eye, EyeOff, Loader2, MailCheck } from "lucide-react";
 import AuthFrame, { PortalNotConfiguredNotice, inputClass } from "@/components/portal/auth/AuthFrame";
@@ -14,6 +14,7 @@ import {
   OTHER_DEPARTMENT_TEXT,
   isEnglishDepartmentName,
 } from "@/lib/profile/departments";
+import { FILL_TIME_FIELD, HONEYPOT_FIELD } from "@/lib/security/spam-guard";
 
 /** Stored values match the profile form (messages-profile classYears keys); labels follow the UI language. */
 const CLASS_YEARS = [
@@ -39,11 +40,17 @@ export default function SignUpForm({ configured }: { configured: boolean }) {
   const [otherDepartmentError, setOtherDepartmentError] = useState(false);
   const other = OTHER_DEPARTMENT_TEXT[locale];
   const isOtherDepartment = departmentChoice === OTHER_DEPARTMENT_OPTION;
+  const shownAt = useRef(0);
+
+  useEffect(() => {
+    shownAt.current = performance.now();
+  }, []);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
     const formData = new FormData(event.currentTarget);
+    formData.set(FILL_TIME_FIELD, String(Math.round(performance.now() - shownAt.current)));
     const email = String(formData.get("email") ?? "");
     if (!isAllowedStudentEmail(email)) {
       setEmailError(true);
@@ -292,6 +299,12 @@ export default function SignUpForm({ configured }: { configured: boolean }) {
               </Link>
               {s.kvkkAfter}
             </label>
+          </div>
+
+          {/* Spam trap: off screen and hidden from screen readers, so only bots fill it in. */}
+          <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+            <label htmlFor="signup-hp">Leave this field empty</label>
+            <input id="signup-hp" type="text" name={HONEYPOT_FIELD} tabIndex={-1} autoComplete="off" defaultValue="" />
           </div>
 
           <button

@@ -8,6 +8,7 @@ import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
 import { requirePageAccess, guardedAction, requirePermission, type ActionResult } from "@/lib/auth/session";
 import { getServerLocale } from "@/lib/i18n/server";
 import { eventsHackathonsText } from "@/lib/i18n/portal/events-hackathons";
+import { RATE_LIMITS, consumeRateLimit } from "@/lib/security/rate-limit";
 import { buildCheckInUrl, generateEventTOTP, QrSigningError, verifyEventTOTP } from "./totp";
 import { getEventAttendancesForHost, getEventSigningRecord } from "./event-queries";
 import {
@@ -25,34 +26,6 @@ import {
 
 async function text() {
   return eventsHackathonsText[await getServerLocale()];
-}
-
-/**
- * Wrong check-in codes per user and event. A 6-digit code could otherwise be brute-forced through this
- * endpoint. In-memory, so it is per server instance: a durable limiter would be stronger.
- */
-const FAILED_ATTEMPT_LIMIT = 8;
-const FAILED_ATTEMPT_WINDOW_MS = 10 * 60 * 1000;
-const failedAttempts = new Map<string, { count: number; resetAt: number }>();
-
-function isCheckInLocked(key: string): boolean {
-  const entry = failedAttempts.get(key);
-  if (!entry) return false;
-  if (entry.resetAt <= Date.now()) {
-    failedAttempts.delete(key);
-    return false;
-  }
-  return entry.count >= FAILED_ATTEMPT_LIMIT;
-}
-
-function recordFailedCheckIn(key: string) {
-  const now = Date.now();
-  if (failedAttempts.size > 10_000) {
-    for (const [entryKey, entry] of failedAttempts) if (entry.resetAt <= now) failedAttempts.delete(entryKey);
-  }
-  const entry = failedAttempts.get(key);
-  if (!entry || entry.resetAt <= now) failedAttempts.set(key, { count: 1, resetAt: now + FAILED_ATTEMPT_WINDOW_MS });
-  else entry.count += 1;
 }
 
 const CERTIFICATE_CODE_ALPHABET ="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 32 symbols, no 0/O/1/I
@@ -111,8 +84,11 @@ export async function checkInWithTOTPAction(
     if (!code) return { success: false, error: t.errors.codeFormat };
     if (!isSupabaseAdminConfigured()) return { success: false, error: t.errors.notConfigured };
 
-    const attemptKey = `${user.id}:${parsed.data.eventId}`;
-    if (isCheckInLocked(attemptKey)) return { success: false, error: t.errors.tooManyAttempts };
+    // A 6-digit code could otherwise be brute-forced here. The shared limiter counts every attempt per
+    // member and event, across all server instances.
+    if (!(await consumeRateLimit(RATE_LIMITS.checkIn, `${user.id}:${parsed.data.eventId}`))) {
+      return { success: false, error: t.errors.tooManyAttempts };
+    }
 
     const event = await getEventSigningRecord(parsed.data.eventId, "check-in");
     if (!event) return { success: false, error: t.errors.eventNotFound };
@@ -128,11 +104,7 @@ export async function checkInWithTOTPAction(
       }
       throw error;
     }
-    if (!valid) {
-      recordFailedCheckIn(attemptKey);
-      return { success: false, error: t.errors.codeInvalid };
-    }
-    failedAttempts.delete(attemptKey);
+    if (!valid) return { success: false, error: t.errors.codeInvalid };
 
     // Members cannot insert attendance through RLS; the server writes it after verifying the code,
     // for the session user only. The unique (event_id, user_id) constraint keeps it to one per event.

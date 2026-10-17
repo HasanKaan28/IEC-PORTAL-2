@@ -10,6 +10,8 @@ import { getServerLocale } from "@/lib/i18n/server";
 import type { SupportedLocale } from "@/lib/i18n/translations";
 import { SITE_URL } from "@/lib/site-url";
 import { OTHER_DEPARTMENT_OPTION, cleanDepartmentName, isAcceptableDepartment } from "@/lib/profile/departments";
+import { RATE_LIMITS, clientIp, consumeRateLimit } from "@/lib/security/rate-limit";
+import { checkSpamTraps } from "@/lib/security/spam-guard";
 
 const TEXT = {
   tr: {
@@ -30,6 +32,8 @@ const TEXT = {
     urlInvalid: "Geçerli bir bağlantı girin (https://...).",
     profileSaved: "Profiliniz güncellendi.",
     genericError: "İşlem tamamlanamadı. Lütfen tekrar deneyin.",
+    tooManyAttempts: "Çok fazla deneme yapıldı. Birkaç dakika bekleyip tekrar deneyin.",
+    tooFast: "Form çok hızlı gönderildi. Birkaç saniye bekleyip tekrar deneyin.",
   },
   en: {
     notConfigured: "The portal is not connected to its database yet; sign-in and registration are closed for now.",
@@ -49,6 +53,8 @@ const TEXT = {
     urlInvalid: "Enter a valid link (https://...).",
     profileSaved: "Your profile has been updated.",
     genericError: "Could not complete the request. Please try again.",
+    tooManyAttempts: "Too many attempts. Wait a few minutes and try again.",
+    tooFast: "The form was sent too quickly. Wait a few seconds and try again.",
   },
 } satisfies Record<SupportedLocale, Record<string, string>>;
 
@@ -129,6 +135,11 @@ export async function signUpAction(formData: FormData): Promise<ActionResult> {
   const t = TEXT[await getServerLocale()];
   if (!isSupabaseConfigured()) return { success: false, error: t.notConfigured };
 
+  // A filled honeypot gets the normal success text, so the bot learns nothing and no email goes out.
+  const spam = checkSpamTraps(formData);
+  if (spam === "honeypot") return { success: true, message: t.signUpDone };
+  if (spam === "too-fast") return { success: false, error: t.tooFast };
+
   // "Other" arrives as a marker plus the typed English name, which is what gets stored.
   const departmentChoice = String(formData.get("department") ?? "");
   const submittedDepartment =
@@ -148,6 +159,15 @@ export async function signUpAction(formData: FormData): Promise<ActionResult> {
   if (!parsed.success) return { success: false, error: firstError(parsed.error) };
 
   const { fullName, email, password, department, classYear, phone } = parsed.data;
+
+  // Each sign-up (or repeat for an unverified address) sends an email: cap it per address and inbox.
+  const ip = await clientIp();
+  const [ipAllowed, emailAllowed] = await Promise.all([
+    consumeRateLimit(RATE_LIMITS.signUpPerIp, ip),
+    consumeRateLimit(RATE_LIMITS.signUpPerEmail, email),
+  ]);
+  if (!ipAllowed || !emailAllowed) return { success: false, error: t.tooManyAttempts };
+
   try {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.signUp({
@@ -186,6 +206,14 @@ export async function signInAction(formData: FormData): Promise<ActionResult> {
 
   const parsed = signInSchema(t).safeParse({ email: formData.get("email"), password: formData.get("password") });
   if (!parsed.success) return { success: false, error: firstError(parsed.error) };
+
+  // Password guessing: a tight cap per account, a loose one per address (shared campus Wi-Fi).
+  const ip = await clientIp();
+  const [ipAllowed, emailAllowed] = await Promise.all([
+    consumeRateLimit(RATE_LIMITS.signInPerIp, ip),
+    consumeRateLimit(RATE_LIMITS.signInPerEmail, parsed.data.email),
+  ]);
+  if (!ipAllowed || !emailAllowed) return { success: false, error: t.tooManyAttempts };
 
   try {
     const supabase = await createClient();

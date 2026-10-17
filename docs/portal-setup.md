@@ -12,7 +12,7 @@ Site yayında, ama üye portalı bir Supabase veritabanına bağlanana kadar bak
 
 ## 2. Veritabanını kur
 
-**SQL Editor** içinde bu iki dosyayı sırayla çalıştır:
+**SQL Editor** içinde bu dosyaları sırayla çalıştır:
 
 1. `supabase/migrations/20261015000000_init_iec_schema.sql`
 2. `supabase/migrations/20261017000000_security_hardening.sql`
@@ -20,6 +20,7 @@ Site yayında, ama üye portalı bir Supabase veritabanına bağlanana kadar bak
 4. `supabase/migrations/20261019000000_default_member_role.sql`
 5. `supabase/migrations/20261020000000_monthly_plan.sql` (Hakkımızda sayfasındaki aylık plan ve portaldaki Planlama sayfası)
 6. `supabase/migrations/20261021000000_email_templates_permission.sql` (e-posta şablonları için ayrı yetki)
+7. `supabase/migrations/20261022000000_rate_limits.sql` (giriş, kayıt, QR yoklama, yorum ve sertifika istekleri için ortak deneme sınırları)
 
 İkinci dosya şunları yapar:
 
@@ -72,8 +73,28 @@ Supabase'in kendi e-posta servisi yalnızca proje ekibindeki adreslere e-posta g
    - **Subject:** `IEC Portal hesabını doğrula / Verify your IEC Portal account`
    - **Body:** `supabase/templates/confirm-signup.html` dosyasının tüm içeriği
 
+## 6. Deneme sınırları ve spam koruması
+
+Giriş ve kayıt sunucu üzerinden yapılır. Bu yüzden Supabase her ziyaretçiyi sitenin sunucu adresinden geliyor görür ve kendi IP sınırları ziyaretçileri ayırt edemez. Uygulama bu yüzden kendi sınırlarını uygular. Sayaçlar 7. dosyadaki `rate_limits` tablosunda tutulur ve tüm sunucu örnekleri aynı sayacı kullanır. Tabloya ham IP veya e-posta yazılmaz, yalnızca özetleri (SHA-256) yazılır, ve bir günden eski kayıtlar silinir. Tablo kurulmamışsa her sunucu örneği kendi bellek sayacını kullanır.
+
+| İşlem | Sınır |
+| --- | --- |
+| Giriş | Hesap başına 15 dakikada 10, IP başına 10 dakikada 60 deneme |
+| Kayıt | E-posta başına saatte 3, IP başına saatte 40 deneme |
+| QR yoklama | Üye ve etkinlik başına 10 dakikada 10 deneme |
+| Blog yorumu | Üye başına 5 dakikada 8 yorum |
+| Sertifika doğrulama | IP başına 10 dakikada 60 istek |
+| Sertifika PDF'i | IP başına 10 dakikada 20 istek |
+| Mesaj | Üye başına dakikada sınırlı (uygulama içinde) |
+
+IP sınırları geniş tutuldu, çünkü kampüs ağında birçok öğrenci aynı IP adresinden çıkar. Asıl koruma hesap başına sınırlardır.
+
+Kayıt formunda iki bot tuzağı var: insanların görmediği gizli bir alan ve formun en az 2,5 saniyede doldurulması şartı. Gizli alanı dolduran bota başarılı mesajı gösterilir ama hesap açılmaz ve e-posta gitmez.
+
+Supabase tarafında **Authentication > Rate Limits** altındaki saatlik e-posta sınırını kayıt dönemlerinde yükselt. Bot saldırısı görülürse **Authentication > Attack Protection** altından Cloudflare Turnstile ile CAPTCHA açılabilir. Bunun için Cloudflare hesabı ve forma bir doğrulama kutusu eklenmesi gerekir.
+
 ## Bilinen sınırlar
 
 - Şifre sıfırlama akışı henüz yok. Gerekirse Supabase panelinden kullanıcıya sıfırlama e-postası gönderilebilir.
-- Yanlış QR kodu deneme sınırı her sunucu örneğinde ayrı tutulur. Kötüye kullanım görülürse ortak bir sınırlayıcı eklenmeli.
 - Engelleme özelliği uygulama içinde çalışır ve servis anahtarı gerektirir.
+- `npm audit` derleme araçlarında (PostCSS, Tailwind 3'ün alt paketleri) bilinen açıklar gösteriyor. Bunlar yalnızca derleme sırasında projenin kendi CSS dosyalarını işler, kullanıcı girdisine dokunmaz. Tamamen kapanmaları için Tailwind 4'e geçmek gerekiyor.

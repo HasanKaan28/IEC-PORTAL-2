@@ -46,7 +46,7 @@ export default function CertificateVerificationClient() {
       const response = await fetch(`/api/certificates/verify?code=${encodeURIComponent(value)}`, { cache: "no-store" });
       const data = (await response.json().catch(() => null)) as { verified?: boolean; cert?: PublicCertificate } | null;
       if (data?.verified && data.cert) setState({ kind: "verified", cert: data.cert });
-      else if (response.status >= 500) setState({ kind: "error" });
+      else if (response.status >= 500 || response.status === 429) setState({ kind: "error" });
       else setState({ kind: "not-found", code: value });
     } catch {
       setState({ kind: "error" });

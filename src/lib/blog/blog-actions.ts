@@ -20,6 +20,7 @@ import {
   readingMinutes,
   slugify,
 } from "@/lib/admin/blog-meta";
+import { RATE_LIMITS, consumeRateLimit } from "@/lib/security/rate-limit";
 import type { BlogPostItem, BlogCommentItem } from "./blog-data";
 import {
   getBlogPosts,
@@ -187,6 +188,9 @@ export async function addBlogCommentAction(data: {
       return { success: false, error: field === "content" ? t.commentLength : t.invalidInput };
     }
     const input = parsed.data;
+    if (!(await consumeRateLimit(RATE_LIMITS.blogComment, actor.id))) {
+      return { success: false, error: t.commentRateLimited };
+    }
 
     const supabase = await createClient();
     const { data: post } = await (supabase.from("blog_posts") as any)

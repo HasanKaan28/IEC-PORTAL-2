@@ -7,8 +7,8 @@ Site yayında, ama üye portalı bir Supabase veritabanına bağlanana kadar bak
 1. https://supabase.com adresinde yeni bir proje aç. Bölge olarak Frankfurt (eu-central-1) Saraybosna'ya en yakın olanıdır.
 2. **Authentication > Providers > Email** altında e-posta ile girişi açık bırak ve **Confirm email** seçeneğini aç.
 3. **Authentication > URL Configuration** altında:
-   - **Site URL:** `https://iec-portal-2.vercel.app`
-   - **Redirect URLs:** `https://iec-portal-2.vercel.app/portal/giris`
+   - **Site URL:** `https://iusengclub.vercel.app`
+   - **Redirect URLs:** `https://iusengclub.vercel.app/portal/giris`
 
 ## 2. Veritabanını kur
 
@@ -42,7 +42,7 @@ Rastgele QR anahtarı üretmek için:
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-`NEXT_PUBLIC_SITE_URL` daha önce eski GitHub Pages adresine ayarlandıysa sil ya da `https://iec-portal-2.vercel.app` yap.
+`NEXT_PUBLIC_SITE_URL` Vercel'de `https://iusengclub.vercel.app` olarak ayarlı. Paylaşım önizlemeleri, site haritası ve e-posta bağlantıları bu adresi kullanır; alan adı değişirse bu değeri de güncelle. Eski `iec-portal-2.vercel.app` adresi yeni adrese kalıcı olarak (308) yönlendirilir.
 
 Değişkenleri ekledikten sonra Vercel'de **Deployments > Redeploy** ile siteyi yeniden yayınla.
 

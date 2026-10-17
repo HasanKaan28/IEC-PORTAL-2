@@ -1,4 +1,4 @@
-const PRODUCTION_FALLBACK_URL = "https://iec-portal-2.vercel.app";
+const PRODUCTION_FALLBACK_URL = "https://iusengclub.vercel.app";
 
 function resolveSiteUrl(): string {
   if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;

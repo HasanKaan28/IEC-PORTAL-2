@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 /** Only for signed-out visitors; a signed-in visitor is sent to the dashboard. */
 const AUTH_ROUTES = new Set(["/portal/giris", "/portal/kayit", "/portal/sifre-sifirla"]);
 const PASSWORD_RESET_ROUTE = "/portal/sifre-sifirla";
-/** Target of the reset email; needs the recovery session that the link's one-time code opens. */
+/** Target of the reset email: either carries the link's one-time code or needs a recovery session. */
 const PASSWORD_UPDATE_ROUTE = "/portal/sifre-yenile";
 
 type SupabaseClient = ReturnType<typeof createServerClient>;
@@ -16,18 +16,17 @@ function isSupabaseConfigured(): boolean {
 }
 
 /**
- * Turns the reset email's link into a session. The default template returns a PKCE `code`, which
- * only works in the browser that asked for the email; a template sending `token_hash` works anywhere.
+ * Handles the reset links that open a session on page load. The club template sends `token_hash`,
+ * which is NOT verified here but when the new password is submitted: mail scanners such as Outlook
+ * Safe Links open links before the member does, and verifying on load let them use up the code.
+ * Supabase's default template sends a PKCE `code` instead; it only works with the code verifier
+ * cookie of the browser that asked for the email, so a scanner cannot use it up.
  */
-async function openRecoveryLink(supabase: SupabaseClient, params: URLSearchParams): Promise<"opened" | "invalid" | "none"> {
+async function openRecoveryLink(supabase: SupabaseClient, params: URLSearchParams): Promise<"opened" | "invalid" | "deferred" | "none"> {
+  if (params.has("token_hash")) return "deferred";
   const code = params.get("code");
-  const tokenHash = params.get("token_hash");
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    return error ? "invalid" : "opened";
-  }
-  if (tokenHash) {
-    const { error } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: tokenHash });
     return error ? "invalid" : "opened";
   }
   // Supabase sends expired or already used links back with an error instead of a code.
@@ -71,6 +70,8 @@ export async function middleware(request: NextRequest) {
 
       if (path === PASSWORD_UPDATE_ROUTE) {
         const link = await openRecoveryLink(supabase, request.nextUrl.searchParams);
+        // The page shows the form and passes the code on to the submit action.
+        if (link === "deferred") return response;
         if (link !== "none") {
           // Reload without the one-time code in the address bar, carrying the new session cookies along.
           const target = link === "opened" ? new URL(PASSWORD_UPDATE_ROUTE, request.url) : invalidLinkRedirect(request);

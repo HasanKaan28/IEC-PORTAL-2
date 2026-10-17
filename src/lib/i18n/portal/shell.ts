@@ -107,9 +107,9 @@ const tr = {
       submitting: "Gönderiliyor...",
       sentTitle: "E-postanı kontrol et",
       sentBody:
-        "Bu adrese kayıtlı bir hesap varsa birkaç dakika içinde bir şifre yenileme bağlantısı gelecek. Gelmezse gereksiz klasörüne de bak. Bağlantıyı bu tarayıcıda aç.",
+        "Bu adrese kayıtlı bir hesap varsa birkaç dakika içinde bir şifre yenileme bağlantısı gelecek. Gelmezse gereksiz klasörüne de bak. Birden fazla istersen yalnızca en son gelen bağlantı çalışır.",
       linkInvalid:
-        "Şifre yenileme bağlantısı geçersiz ya da süresi dolmuş. Yeni bir bağlantı iste ve e-postadaki bağlantıyı bu tarayıcıda aç.",
+        "Şifre yenileme bağlantısı geçersiz ya da süresi dolmuş. Yeni bir bağlantı iste; birden fazla e-posta geldiyse en sonuncusunu kullan.",
       remembered: "Şifreni hatırladın mı?",
       backToSignIn: "Giriş yap",
       failed: "İstek gönderilemedi. Lütfen tekrar dene.",
@@ -126,6 +126,8 @@ const tr = {
       submit: "Şifreyi kaydet",
       submitting: "Kaydediliyor...",
       failed: "Şifre güncellenemedi. Lütfen tekrar dene.",
+      linkTrouble: "Bağlantı çalışmıyor mu?",
+      requestNew: "Yeni bağlantı iste",
     },
     signUp: {
       title: "Portala kayıt",
@@ -266,9 +268,9 @@ const en: typeof tr = {
       submitting: "Sending...",
       sentTitle: "Check your email",
       sentBody:
-        "If an account exists for this address, a password reset link will arrive in a few minutes. If it does not, check your spam folder too. Open the link in this browser.",
+        "If an account exists for this address, a password reset link will arrive in a few minutes. If it does not, check your spam folder too. If you ask more than once, only the latest link works.",
       linkInvalid:
-        "The password reset link is invalid or has expired. Request a new link and open it in this browser.",
+        "The password reset link is invalid or has expired. Request a new link; if several emails arrived, use the latest one.",
       remembered: "Remembered your password?",
       backToSignIn: "Sign in",
       failed: "Could not send the request. Please try again.",
@@ -285,6 +287,8 @@ const en: typeof tr = {
       submit: "Save password",
       submitting: "Saving...",
       failed: "Could not update your password. Please try again.",
+      linkTrouble: "Link not working?",
+      requestNew: "Request a new link",
     },
     signUp: {
       title: "Create your portal account",

@@ -53,6 +53,21 @@ Değişkenleri ekledikten sonra Vercel'de **Deployments > Redeploy** ile siteyi 
 3. `/portal/giris` sayfasından giriş yap. Süper yönetici rolü bu ilk girişte verilir.
 4. Diğer üyelere **Yönetici Konsolu > Roller** sayfasından rol ver.
 
+## 5. E-posta gönderimi ve kulüp şablonu
+
+Supabase'in kendi e-posta servisi yalnızca proje ekibindeki adreslere e-posta gönderir. Öğrencilere doğrulama ve şifre sıfırlama e-postası gitmesi için kendi SMTP servisini bağla. Şablonlar da ancak bundan sonra düzenlenebilir.
+
+1. Kulübün bir Gmail hesabında iki adımlı doğrulamayı aç. Sonra **Google Hesabı > Güvenlik > Uygulama şifreleri** altından bir uygulama şifresi oluştur. Gmail günde yaklaşık 500 alıcıya izin verir.
+2. Supabase'de **Authentication > Emails > SMTP Settings** altında **Enable custom SMTP** seçeneğini aç:
+   - **Sender email:** kulübün Gmail adresi
+   - **Sender name:** `IUS Engineering Club`
+   - **Host:** `smtp.gmail.com`, **Port:** `465`
+   - **Username:** kulübün Gmail adresi, **Password:** uygulama şifresi
+3. **Authentication > Rate Limits** altında saatlik e-posta sınırını kontrol et. Kayıt dönemlerinde yükseltmen gerekebilir.
+4. **Authentication > Emails > Templates > Confirm sign up** şablonunda:
+   - **Subject:** `IEC Portal hesabını doğrula / Verify your IEC Portal account`
+   - **Body:** `supabase/templates/confirm-signup.html` dosyasının tüm içeriği
+
 ## Bilinen sınırlar
 
 - Şifre sıfırlama akışı henüz yok. Gerekirse Supabase panelinden kullanıcıya sıfırlama e-postası gönderilebilir.

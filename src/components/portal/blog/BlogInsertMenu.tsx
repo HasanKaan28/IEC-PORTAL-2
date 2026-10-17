@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useId, useLayoutEffect, useState } from "react";
+import React, { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useEditorState, type Editor } from "@tiptap/react";
 import { Code2, ImagePlus, List, Minus, Plus, type LucideIcon } from "lucide-react";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -28,16 +28,35 @@ export default function BlogInsertMenu({ editor, container, onPickImage }: BlogI
   const [place, setPlace] = useState<{ top: number; left: number | null } | null>(null);
   const menuId = useId();
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [editorFocused, setEditorFocused] = useState(() => editor.isFocused);
+
   const line = useEditorState({
     editor,
     selector: ({ editor: e }) => {
       const { $from, empty } = e.state.selection;
       const emptyLine = empty && $from.parent.type.name === "paragraph" && $from.parent.content.size === 0 && $from.depth === 1;
-      return { emptyLine, pos: emptyLine ? $from.before() : -1, focused: e.isFocused, editable: e.isEditable };
+      return { emptyLine, pos: emptyLine ? $from.before() : -1, editable: e.isEditable };
     },
   });
 
-  const visible = line.editable && line.emptyLine && (line.focused || focusInside || open);
+  // Focus changes do not always produce a transaction, so follow the editor's own events. Tabbing
+  // from the text onto the button counts as staying inside, so the button does not vanish.
+  useEffect(() => {
+    const onFocus = () => setEditorFocused(true);
+    const onBlur = ({ event }: { event: FocusEvent }) => {
+      setEditorFocused(false);
+      if (wrapperRef.current?.contains(event.relatedTarget as Node | null)) setFocusInside(true);
+    };
+    editor.on("focus", onFocus);
+    editor.on("blur", onBlur);
+    return () => {
+      editor.off("focus", onFocus);
+      editor.off("blur", onBlur);
+    };
+  }, [editor]);
+
+  const visible = line.editable && line.emptyLine && (editorFocused || focusInside || open);
 
   useLayoutEffect(() => {
     if (!visible || !container) {
@@ -72,6 +91,7 @@ export default function BlogInsertMenu({ editor, container, onPickImage }: BlogI
 
   return (
     <div
+      ref={wrapperRef}
       className="absolute z-20 flex items-center gap-2 font-sans"
       style={place.left === null ? { top: place.top, right: 0 } : { top: place.top, left: place.left }}
       onFocus={() => setFocusInside(true)}

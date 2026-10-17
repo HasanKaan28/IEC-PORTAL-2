@@ -117,7 +117,7 @@ export default function ProjectsCatalog() {
           {filtered.map((project) => (
             <article
               key={project.id}
-              className="glass-panel grid grid-cols-1 items-center gap-8 rounded-3xl border border-slate-200 p-6 transition-colors hover:border-slate-300 sm:p-8 lg:grid-cols-12"
+              className="reveal-3d glass-panel grid grid-cols-1 items-center gap-8 rounded-3xl border border-slate-200 p-6 transition-colors hover:border-slate-300 sm:p-8 lg:grid-cols-12"
             >
               <div className="relative overflow-hidden rounded-2xl border border-slate-200 lg:col-span-5">
                 <ProjectGallery

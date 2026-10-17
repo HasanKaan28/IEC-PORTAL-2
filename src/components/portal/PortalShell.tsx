@@ -194,7 +194,7 @@ export default function PortalShell({ user, showAdmin, headerActions, children }
       </a>
 
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-brand-100 bg-white/55 backdrop-blur-xl md:block">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(ellipse_at_top,rgba(190,165,217,0.4),transparent_70%)]" />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(ellipse_at_top,rgba(160,194,232,0.4),transparent_70%)]" />
         <div className="relative h-full">
           <SidebarContent user={user} showAdmin={showAdmin} pathname={pathname} />
         </div>

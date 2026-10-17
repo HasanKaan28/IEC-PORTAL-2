@@ -6,6 +6,7 @@ import { ArrowRight, Sparkles, Cpu, Users, Terminal } from "lucide-react";
 import HeroBackground from "./HeroBackground";
 import { useLocale } from "@/lib/i18n/locale-context";
 import ClubLogo from "@/components/shared/ClubLogo";
+import Tilt from "./Tilt";
 
 export default function HeroSection() {
   const { t } = useLocale();
@@ -21,7 +22,7 @@ export default function HeroSection() {
       <HeroBackground />
 
       <div className="relative z-10 max-w-5xl mx-auto text-center flex flex-col items-center">
-        <ClubLogo size={104} priority className="mb-6" />
+        <ClubLogo size={104} priority className="logo-spin mb-6" />
 
         <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-brand-200 bg-white/70 text-xs font-mono text-brand-700 mb-6 backdrop-blur-md shadow-soft">
           <Sparkles className="w-3.5 h-3.5 text-accent-700" aria-hidden="true" />
@@ -71,7 +72,7 @@ export default function HeroSection() {
 
         <dl aria-label={t.metrics.label} className="mt-16 w-full max-w-3xl grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-left">
           {metrics.map(({ label, value, note, Icon, iconClass }) => (
-            <div key={label} className="glass-panel p-4 rounded-xl">
+            <Tilt key={label} className="glass-panel p-4 rounded-xl">
               <dt className="flex items-center justify-between mb-1">
                 <span className="text-xs font-mono uppercase tracking-wider text-slate-500">{label}</span>
                 <Icon className={`w-4 h-4 ${iconClass}`} aria-hidden="true" />
@@ -80,7 +81,7 @@ export default function HeroSection() {
                 <span className="block text-2xl font-bold font-display text-slate-900">{value}</span>
                 <span className="block text-xs text-slate-500 mt-0.5">{note}</span>
               </dd>
-            </div>
+            </Tilt>
           ))}
         </dl>
       </div>

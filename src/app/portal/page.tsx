@@ -92,7 +92,7 @@ export default async function PortalDashboardPage() {
       <section className="relative overflow-hidden rounded-3xl border border-white/70 bg-gradient-to-br from-brand-100 via-accent-50 to-emerald-50 p-6 text-slate-900 shadow-soft sm:p-8">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(36rem_14rem_at_0%_0%,rgba(190,165,217,0.5),transparent_70%),radial-gradient(28rem_12rem_at_100%_100%,rgba(181,214,191,0.5),transparent_70%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(36rem_14rem_at_0%_0%,rgba(160,194,232,0.5),transparent_70%),radial-gradient(28rem_12rem_at_100%_100%,rgba(181,214,191,0.5),transparent_70%)]"
         />
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -139,7 +139,7 @@ export default async function PortalDashboardPage() {
           value={data.certificates}
           hint={t.stats.certificatesHint}
           icon={Award}
-          tone="bg-violet-100 text-violet-700"
+          tone="bg-accent-200/60 text-accent-800"
         />
       </section>
 

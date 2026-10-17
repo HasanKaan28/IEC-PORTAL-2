@@ -47,21 +47,21 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // IEC brand palette from the club's colour triangle: violet (brand), honey yellow (accent)
-        // and leaf green (emerald). The violet leans blue rather than pink on purpose; brand-600
-        // passes 7:1 on white, so it carries buttons, links and headings.
+        // IEC brand palette: the navy of the club seal (brand-700 is the seal's own #154a7f), with
+        // honey yellow (accent) and leaf green (emerald) as warm complements. brand-600 passes 7:1
+        // on white, so it carries buttons, links and headings.
         brand: {
-          50: "#f6f3fa",
-          100: "#ece5f5",
-          200: "#d9cbea",
-          300: "#bea5d9",
-          400: "#9d78c2",
-          500: "#8156aa",
-          600: "#6c4294",
-          700: "#5a367b",
-          800: "#4b2f65",
-          900: "#3f2954",
-          950: "#261634",
+          50: "#f0f6fc",
+          100: "#dde9f6",
+          200: "#bcd3ec",
+          300: "#8db3dc",
+          400: "#5a8cc5",
+          500: "#336daa",
+          600: "#1f5a94",
+          700: "#154a7f",
+          800: "#143e69",
+          900: "#133556",
+          950: "#0b2038",
         },
         // Honey yellow plus the shadcn-style DEFAULT/foreground tokens driven by CSS variables.
         accent: {
@@ -93,28 +93,28 @@ const config: Config = {
           900: "#21402c",
           950: "#0f2318",
         },
-        // Page background: soft lavender grey rather than white; most pages also paint a colour flow.
-        canvas: "#f4f1f7",
-        // Near-black violet, kept only for the optional projector mode of the live attendance screen.
+        // Page background: soft cool grey-blue rather than white; most pages also paint a colour flow.
+        canvas: "#f2f5fa",
+        // Near-black navy, kept only for the optional projector mode of the live attendance screen.
         ink: {
-          800: "#1c1424",
-          900: "#130d18",
-          950: "#0c0810",
-          990: "#08050b",
+          800: "#14223a",
+          900: "#0d182b",
+          950: "#08101f",
+          990: "#050b16",
         },
-        // Neutrals re-tinted toward violet so greys sit with the brand colour everywhere.
+        // Neutrals: Tailwind's cool blue-grey slate, which sits naturally next to the seal navy.
         slate: {
-          50: "#faf8fb",
-          100: "#f4f1f6",
-          200: "#e7e2eb",
-          300: "#d3cbd9",
-          400: "#a99fb4",
-          500: "#776c82",
-          600: "#5d5368",
-          700: "#453c4f",
-          800: "#2c2534",
-          900: "#1c1623",
-          950: "#110c16",
+          50: "#f8fafc",
+          100: "#f1f5f9",
+          200: "#e2e8f0",
+          300: "#cbd5e1",
+          400: "#94a3b8",
+          500: "#64748b",
+          600: "#475569",
+          700: "#334155",
+          800: "#1e293b",
+          900: "#0f172a",
+          950: "#020617",
         },
         portal: {
           bg: "var(--portal-bg)",
@@ -161,10 +161,10 @@ const config: Config = {
       },
       boxShadow: {
         // Shadows are tinted with the brand hue instead of black, so they read soft on the light theme.
-        glow: "0 8px 24px -8px rgba(108, 66, 148, 0.45)",
+        glow: "0 8px 24px -8px rgba(31, 90, 148, 0.45)",
         "glow-cyan": "0 8px 24px -10px rgba(217, 169, 42, 0.45)",
-        "glow-subtle": "0 1px 2px rgba(38, 22, 52, 0.04), 0 8px 24px -12px rgba(38, 22, 52, 0.12)",
-        soft: "0 1px 2px rgba(38, 22, 52, 0.05), 0 12px 32px -16px rgba(38, 22, 52, 0.18)",
+        "glow-subtle": "0 1px 2px rgba(15, 30, 55, 0.04), 0 8px 24px -12px rgba(15, 30, 55, 0.12)",
+        soft: "0 1px 2px rgba(15, 30, 55, 0.05), 0 12px 32px -16px rgba(15, 30, 55, 0.18)",
         portal: "0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03)",
         "portal-card": "0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02)",
       },

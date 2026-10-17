@@ -9,9 +9,9 @@ const FADE_OUT: React.CSSProperties = {
   WebkitMaskImage: "linear-gradient(to bottom, black 55%, transparent 100%)",
 };
 
-// Violet, honey and sage from the club palette, on the lavender the page starts with.
+// Seal blue, honey and sage from the club palette, on the pale blue the page starts with.
 const SHADER_URL =
-  "https://www.shadergradient.co/customize?animate=on&axesHelper=off&bgColor1=%23eee8f6&bgColor2=%23eee8f6&brightness=1.15&cAzimuthAngle=180&cDistance=3.6&cPolarAngle=90&cameraZoom=1&color1=%23cdb9e6&color2=%23f3d98a&color3=%23aed3b8&destination=onCanvas&embedMode=off&envPreset=city&format=gif&fov=45&frameRate=10&grain=off&lightType=3d&pixelDensity=1&positionX=-0.5&positionY=0.1&positionZ=0&range=enabled&rangeEnd=40&rangeStart=0&reflection=0.1&rotationX=0&rotationY=0&rotationZ=235&shader=defaults&type=waterPlane&uAmplitude=0&uDensity=1.3&uFrequency=5.5&uSpeed=0.15&uStrength=2.4&uTime=0&wireframe=false";
+  "https://www.shadergradient.co/customize?animate=on&axesHelper=off&bgColor1=%23e8f0fa&bgColor2=%23e8f0fa&brightness=1.15&cAzimuthAngle=180&cDistance=3.6&cPolarAngle=90&cameraZoom=1&color1=%23b9d0ee&color2=%23f3d98a&color3=%23aed3b8&destination=onCanvas&embedMode=off&envPreset=city&format=gif&fov=45&frameRate=10&grain=off&lightType=3d&pixelDensity=1&positionX=-0.5&positionY=0.1&positionZ=0&range=enabled&rangeEnd=40&rangeStart=0&reflection=0.1&rotationX=0&rotationY=0&rotationZ=235&shader=defaults&type=waterPlane&uAmplitude=0&uDensity=1.3&uFrequency=5.5&uSpeed=0.15&uStrength=2.4&uTime=0&wireframe=false";
 
 export default function ShaderGradientBackground() {
   const [canRender3D, setCanRender3D] = useState(false);

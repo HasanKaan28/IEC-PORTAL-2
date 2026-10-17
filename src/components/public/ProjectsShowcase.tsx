@@ -8,6 +8,7 @@ import { useLocale } from "@/lib/i18n/locale-context";
 import type { Dictionary } from "@/lib/i18n/translations";
 import ProjectDetailDialog from "./ProjectDetailDialog";
 import ProjectGallery from "./ProjectGallery";
+import Tilt from "./Tilt";
 
 type CategoryId = "all" | "hardware" | "software" | "hackathon" | "ai";
 
@@ -76,12 +77,11 @@ export default function ProjectsShowcase() {
             {filteredProjects.map((project, index) => {
               const isLead = featuresLeadProject && index === 0;
               return (
-                <li
-                  key={project.id}
-                  className={`group flex flex-col rounded-2xl overflow-hidden border border-white/70 bg-white/70 backdrop-blur-sm shadow-soft hover:border-brand-200 transition-colors ${
-                    isLead ? "md:col-span-2" : ""
-                  }`}
-                >
+                <li key={project.id} className={`reveal-3d ${isLead ? "md:col-span-2" : ""}`}>
+                  <Tilt
+                    max={isLead ? 4 : 7}
+                    className="group flex h-full flex-col rounded-2xl overflow-hidden border border-white/70 bg-white/70 backdrop-blur-sm shadow-soft hover:border-brand-200 transition-colors"
+                  >
                   <ProjectGallery
                     images={project.gallery}
                     alt={project.title[locale]}
@@ -123,6 +123,7 @@ export default function ProjectsShowcase() {
                       </button>
                     </div>
                   </div>
+                  </Tilt>
                 </li>
               );
             })}

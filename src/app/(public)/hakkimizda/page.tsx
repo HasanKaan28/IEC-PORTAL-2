@@ -8,6 +8,7 @@ import Footer from "@/components/public/Footer";
 import { getServerLocale } from "@/lib/i18n/server";
 import { publicPagesText } from "@/lib/i18n/public/pages";
 import { BOARD_PHOTOS } from "@/lib/data/board-photos";
+import Tilt from "@/components/public/Tilt";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = publicPagesText[await getServerLocale()].about;
@@ -40,7 +41,7 @@ export default async function AboutPage() {
             <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">{t.intro}</p>
           </header>
 
-          <section className="glass-panel flex flex-col items-center gap-8 rounded-3xl bg-gradient-to-r from-brand-100/80 via-accent-50/70 to-emerald-100/70 p-8 md:flex-row">
+          <section className="reveal-3d glass-panel flex flex-col items-center gap-8 rounded-3xl bg-gradient-to-r from-brand-100/80 via-accent-50/70 to-emerald-100/70 p-8 md:flex-row">
             <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-glow">
               <GraduationCap className="h-10 w-10" aria-hidden="true" />
             </div>
@@ -60,10 +61,8 @@ export default async function AboutPage() {
               {t.board.map((member) => {
                 const photo = BOARD_PHOTOS[member.name] ?? null;
                 return (
-                  <li
-                    key={member.name}
-                    className="glass-panel group flex flex-col overflow-hidden rounded-2xl transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-glow motion-reduce:hover:translate-y-0"
-                  >
+                  <li key={member.name} className="reveal-3d">
+                    <Tilt className="glass-panel group flex h-full flex-col overflow-hidden rounded-2xl transition-shadow duration-300 hover:shadow-glow">
                     <div className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-br from-brand-200 via-accent-100 to-emerald-200">
                       {photo ? (
                         <Image
@@ -88,6 +87,7 @@ export default async function AboutPage() {
                       <p className="mt-1 text-xs text-slate-500">{member.dept}</p>
                       <p className="mt-3 text-sm leading-relaxed text-slate-600">{member.focus}</p>
                     </div>
+                    </Tilt>
                   </li>
                 );
               })}
@@ -103,7 +103,7 @@ export default async function AboutPage() {
             </div>
             <ol className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {t.milestones.map((milestone) => (
-                <li key={milestone.phase} className="glass-panel rounded-2xl border border-slate-200 p-6">
+                <li key={milestone.phase} className="reveal-3d glass-panel rounded-2xl p-6">
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <span className="text-xs font-semibold text-accent-700">{milestone.phase}</span>
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[milestone.status]}`}>

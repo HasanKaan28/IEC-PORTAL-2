@@ -5,7 +5,7 @@ interface ClubLogoProps {
   /** Rendered width and height in CSS pixels. */
   size: number;
   /**
-   * "badge" (default): the white seal on a red-violet disc, for the light site.
+   * "badge" (default): the white seal on a seal-blue disc, for the light site.
    * "white": the bare white seal, for brand-coloured surfaces.
    * "color": the original navy seal, for printed-style documents such as certificates.
    */

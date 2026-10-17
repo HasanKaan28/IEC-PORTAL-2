@@ -52,10 +52,10 @@ export function renderEmailTemplate(
   templateKey: EmailTemplateKey,
   data: EmailTemplateData
 ): { subject: string; html: string } {
-  const primaryBg = "#f4f1f7";
+  const primaryBg = "#f2f5fa";
   const cardBg = "#ffffff";
-  const accentBrand = "#6c4294";
-  const textMuted = "#776c82";
+  const accentBrand = "#1f5a94";
+  const textMuted = "#64748b";
 
   const name = escapeHtml(data.recipientName);
   const eventTitleText = data.eventTitle || "Mühendislik Atölyesi";
@@ -81,13 +81,13 @@ export function renderEmailTemplate(
       subject = "IUS Engineering Club'a hoş geldiniz: hesabınızı doğrulayın";
       headline = "Mühendislik ekosistemine hoş geldin!";
       messageHtml = `
-        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #453c4f;">
+        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #334155;">
           Sevgili <strong>${name}</strong>,
         </p>
-        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #453c4f;">
+        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #334155;">
           International University of Sarajevo (IUS) bünyesinde faaliyet gösteren <strong>IUS Engineering Club (IEC)</strong> ailesine katıldığınız için teşekkür ederiz.
         </p>
-        <p style="margin: 0 0 20px 0; font-size: 14px; line-height: 24px; color: #453c4f;">
+        <p style="margin: 0 0 20px 0; font-size: 14px; line-height: 24px; color: #334155;">
           Donanım projelerine katılmak, atölyelerde yer almak ve DevHack maratonunda yarışmak için hesabınızı aşağıdaki bağlantıdan doğrulayın:
         </p>
       `;
@@ -99,13 +99,13 @@ export function renderEmailTemplate(
       subject = "Tebrikler! IEC üyelik başvurunuz kabul edildi";
       headline = "Başvurunuz onaylandı, aramıza hoş geldin!";
       messageHtml = `
-        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #453c4f;">
+        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #334155;">
           Tebrikler <strong>${name}</strong>,
         </p>
-        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #453c4f;">
+        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #334155;">
           Kulüp yönetimi tarafından yapılan değerlendirme sonucunda üyelik başvurunuz <strong>onaylanmıştır</strong>.
         </p>
-        <p style="margin: 0 0 20px 0; font-size: 14px; line-height: 24px; color: #453c4f;">
+        <p style="margin: 0 0 20px 0; font-size: 14px; line-height: 24px; color: #334155;">
           Görevlere, projelere ve üye kanallarına erişmek için @student.ius.edu.ba adresinizle üye portalına giriş yapabilirsiniz:
         </p>
       `;
@@ -117,18 +117,18 @@ export function renderEmailTemplate(
       subject = `Hatırlatma: "${eventTitleText}" yarın başlıyor`;
       headline = "Yarın salonda buluşuyoruz!";
       messageHtml = `
-        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #453c4f;">
+        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #334155;">
           Merhaba <strong>${name}</strong>,
         </p>
-        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #453c4f;">
+        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #334155;">
           Kayıt olduğunuz <strong>${eventTitle}</strong> etkinliği yarın başlıyor.
         </p>
-        <div style="background-color: #f6f3fa; border-left: 4px solid ${accentBrand}; padding: 14px 18px; border-radius: 8px; margin: 20px 0;">
-          <div style="font-size: 12px; color: #776c82; font-family: monospace;">ETKİNLİK DETAYLARI</div>
-          <div style="font-size: 14px; font-weight: bold; color: #1c1623; margin-top: 4px;">Salon: ${eventVenue}</div>
-          <div style="font-size: 13px; color: #5a367b; margin-top: 2px;">Tarih ve saat: ${eventDate}</div>
+        <div style="background-color: #f0f6fc; border-left: 4px solid ${accentBrand}; padding: 14px 18px; border-radius: 8px; margin: 20px 0;">
+          <div style="font-size: 12px; color: #64748b; font-family: monospace;">ETKİNLİK DETAYLARI</div>
+          <div style="font-size: 14px; font-weight: bold; color: #0f172a; margin-top: 4px;">Salon: ${eventVenue}</div>
+          <div style="font-size: 13px; color: #154a7f; margin-top: 2px;">Tarih ve saat: ${eventDate}</div>
         </div>
-        <p style="margin: 0 0 20px 0; font-size: 13px; line-height: 22px; color: #776c82;">
+        <p style="margin: 0 0 20px 0; font-size: 13px; line-height: 22px; color: #64748b;">
           <em>Hatırlatma: Salondaki ekranda gösterilen QR kodu okutarak yoklama vermeyi unutmayın. Sertifikanız yoklamaya göre hazırlanır.</em>
         </p>
       `;
@@ -140,18 +140,18 @@ export function renderEmailTemplate(
       subject = `Tebrikler! Katılım sertifikanız hazır (${certificateCodeText})`;
       headline = "Katılım sertifikanız hazırlandı!";
       messageHtml = `
-        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #453c4f;">
+        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #334155;">
           Tebrikler <strong>${name}</strong>,
         </p>
-        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #453c4f;">
+        <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 24px; color: #334155;">
           <strong>"${eventTitle}"</strong> etkinliğini tamamladığınız için katılım sertifikanız hazırlandı.
         </p>
-        <div style="background-color: #f6f3fa; border: 1px solid #ecc246; padding: 16px; border-radius: 12px; text-align: center; margin: 24px 0;">
+        <div style="background-color: #f0f6fc; border: 1px solid #ecc246; padding: 16px; border-radius: 12px; text-align: center; margin: 24px 0;">
           <div style="font-size: 12px; font-family: monospace; color: #8c651a; letter-spacing: 1px;">DOĞRULAMA KODU</div>
-          <div style="font-size: 20px; font-weight: bold; color: #1c1623; font-family: monospace; margin: 6px 0;">${certificateCode}</div>
-          <div style="font-size: 12px; color: #776c82;">Eğitim süresi: ${trainingHours} saat</div>
+          <div style="font-size: 20px; font-weight: bold; color: #0f172a; font-family: monospace; margin: 6px 0;">${certificateCode}</div>
+          <div style="font-size: 12px; color: #64748b;">Eğitim süresi: ${trainingHours} saat</div>
         </div>
-        <p style="margin: 0 0 20px 0; font-size: 13px; line-height: 22px; color: #776c82;">
+        <p style="margin: 0 0 20px 0; font-size: 13px; line-height: 22px; color: #64748b;">
           Sertifikanızı PDF olarak indirebilir ve doğrulama koduyla LinkedIn profilinize ekleyebilirsiniz.
         </p>
       `;
@@ -168,20 +168,20 @@ export function renderEmailTemplate(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(subject)}</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: ${primaryBg}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1c1623;">
+<body style="margin: 0; padding: 0; background-color: ${primaryBg}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0f172a;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: ${primaryBg}; padding: 40px 16px;">
     <tr>
       <td align="center">
-        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: ${cardBg}; border: 1px solid #e7e2eb; border-radius: 16px; overflow: hidden;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: ${cardBg}; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;">
           <tr>
-            <td style="padding: 32px 32px 24px 32px; text-align: center; border-bottom: 1px solid #e7e2eb;">
+            <td style="padding: 32px 32px 24px 32px; text-align: center; border-bottom: 1px solid #e2e8f0;">
               <table role="presentation" align="center" cellspacing="0" cellpadding="0">
                 <tr>
                   <td style="background-color: ${accentBrand}; width: 36px; height: 36px; border-radius: 10px; text-align: center; vertical-align: middle; color: #ffffff; font-weight: bold; font-size: 14px;">
                     IEC
                   </td>
                   <td style="padding-left: 12px; text-align: left;">
-                    <div style="font-size: 16px; font-weight: bold; color: #1c1623; letter-spacing: -0.5px;">IUS ENGINEERING CLUB</div>
+                    <div style="font-size: 16px; font-weight: bold; color: #0f172a; letter-spacing: -0.5px;">IUS ENGINEERING CLUB</div>
                     <div style="font-size: 12px; color: ${textMuted}; font-family: monospace;">Faculty of Engineering and Natural Sciences</div>
                   </td>
                 </tr>
@@ -190,7 +190,7 @@ export function renderEmailTemplate(
           </tr>
           <tr>
             <td style="padding: 28px 32px 8px 32px; text-align: center;">
-              <h2 style="margin: 0; font-size: 22px; font-weight: 800; color: #1c1623; letter-spacing: -0.5px;">
+              <h2 style="margin: 0; font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;">
                 ${escapeHtml(headline)}
               </h2>
             </td>
@@ -210,11 +210,11 @@ export function renderEmailTemplate(
             </td>
           </tr>
           <tr>
-            <td style="padding: 24px 32px; background-color: ${primaryBg}; border-top: 1px solid #e7e2eb; text-align: center;">
+            <td style="padding: 24px 32px; background-color: ${primaryBg}; border-top: 1px solid #e2e8f0; text-align: center;">
               <p style="margin: 0 0 6px 0; font-size: 12px; color: ${textMuted}; font-family: monospace;">
                 International University of Sarajevo, Hrasnička cesta 15, Ilidža 71210 Sarajevo
               </p>
-              <p style="margin: 0; font-size: 12px; color: #776c82;">
+              <p style="margin: 0; font-size: 12px; color: #64748b;">
                 Bu e-posta IUS Engineering Club platformundaki üyeliğiniz nedeniyle gönderilmiştir.
               </p>
             </td>

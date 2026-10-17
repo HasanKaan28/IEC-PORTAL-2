@@ -3,27 +3,27 @@
 @tailwind utilities;
 
 @layer base {
-  /* Default: soft light theme for the public website (violet, honey yellow, leaf green) */
+  /* Default: soft light theme for the public website (seal navy, honey yellow, leaf green) */
   :root {
     color-scheme: light;
 
-    --background: 270 24% 96%;
-    --foreground: 268 23% 11%;
+    --background: 217 44% 96%;
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 268 23% 11%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 268 23% 11%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 271 38% 42%;
+    --primary: 210 65% 35%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 276 23% 95%;
-    --secondary-foreground: 268 23% 11%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 276 23% 95%;
-    --muted-foreground: 270 9% 47%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
 
     --accent: 48 89% 90%;
     --accent-foreground: 37 62% 28%;
@@ -31,50 +31,50 @@
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 273 18% 90%;
-    --input: 273 18% 90%;
-    --ring: 271 38% 42%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 210 65% 35%;
 
     --radius: 0.75rem;
 
     /* Portal specific light tokens */
-    --portal-bg: #f4f1f7;
+    --portal-bg: #f2f5fa;
     --portal-surface: #ffffff;
     --portal-sidebar: #ffffff;
-    --portal-border: #e7e2eb;
-    --portal-text: #1c1623;
-    --portal-muted: #776c82;
+    --portal-border: #e2e8f0;
+    --portal-text: #0f172a;
+    --portal-muted: #64748b;
   }
 
   /* Member Portal Theme (Clean, Light, SIS/Linear Dashboard Language) */
   .theme-portal {
-    --background: 270 24% 96%;
-    --foreground: 268 22% 11%;
+    --background: 217 44% 96%;
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 268 22% 11%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 268 22% 11%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 271 38% 42%;
+    --primary: 210 65% 35%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 276 25% 95%;
-    --secondary-foreground: 268 22% 11%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 276 25% 95%;
-    --muted-foreground: 270 9% 47%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 271 38% 96%;
-    --accent-foreground: 271 38% 32%;
+    --accent: 210 65% 96%;
+    --accent-foreground: 210 65% 30%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 274 18% 90%;
-    --input: 274 18% 90%;
-    --ring: 271 38% 42%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 210 65% 35%;
 
     --radius: 0.5rem;
   }
@@ -106,50 +106,50 @@
   background: rgba(255, 255, 255, 0.62);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(90, 54, 123, 0.12);
-  box-shadow: 0 1px 2px rgba(38, 22, 52, 0.05), 0 12px 32px -18px rgba(38, 22, 52, 0.2);
+  border: 1px solid rgba(21, 74, 127, 0.12);
+  box-shadow: 0 1px 2px rgba(15, 30, 55, 0.05), 0 12px 32px -18px rgba(15, 30, 55, 0.2);
 }
 
 .glass-panel-subtle {
   background: rgba(255, 255, 255, 0.45);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(90, 54, 123, 0.1);
+  border: 1px solid rgba(21, 74, 127, 0.1);
 }
 
 /*
- * Colour flow for the public site: the page drifts from lavender through honey to sage and back
+ * Colour flow for the public site: the page drifts from sky blue through honey to sage and back
  * as you scroll, so sections never sit on flat white. Painted once behind the whole page.
  */
 .bg-site-flow {
-  background-color: #f4f1f7;
+  background-color: #f2f5fa;
   background-image:
-    radial-gradient(60rem 36rem at 8% 2%, rgba(190, 165, 217, 0.7), transparent 70%),
+    radial-gradient(60rem 36rem at 8% 2%, rgba(160, 194, 232, 0.7), transparent 70%),
     radial-gradient(52rem 32rem at 95% 6%, rgba(245, 220, 142, 0.65), transparent 70%),
     radial-gradient(56rem 34rem at 12% 34%, rgba(181, 214, 191, 0.7), transparent 70%),
-    radial-gradient(54rem 34rem at 92% 50%, rgba(190, 165, 217, 0.62), transparent 70%),
+    radial-gradient(54rem 34rem at 92% 50%, rgba(160, 194, 232, 0.62), transparent 70%),
     radial-gradient(56rem 34rem at 8% 74%, rgba(245, 220, 142, 0.58), transparent 70%),
     radial-gradient(60rem 36rem at 88% 96%, rgba(181, 214, 191, 0.7), transparent 70%),
-    linear-gradient(180deg, #e9e0f4 0%, #f5ebcf 24%, #e0eee4 48%, #e9e0f4 70%, #f4eacb 86%, #e2efe6 100%);
+    linear-gradient(180deg, #dfeaf7 0%, #f5ebcf 24%, #e0eee4 48%, #dfeaf7 70%, #f4eacb 86%, #e2efe6 100%);
 }
 
 /* The same three hues in a single screen, for the hero fallback and the sign-in pages. */
 .bg-palette-wash {
-  background-color: #f1ecf7;
+  background-color: #edf3fa;
   background-image:
-    radial-gradient(48rem 30rem at 10% -10%, rgba(190, 165, 217, 0.7), transparent 70%),
+    radial-gradient(48rem 30rem at 10% -10%, rgba(160, 194, 232, 0.7), transparent 70%),
     radial-gradient(42rem 26rem at 95% 5%, rgba(245, 220, 142, 0.65), transparent 70%),
     radial-gradient(40rem 26rem at 65% 110%, rgba(181, 214, 191, 0.7), transparent 70%),
-    linear-gradient(160deg, #efe8f6 0%, #f6f0e1 50%, #e7f1e9 100%);
+    linear-gradient(160deg, #e8f0fa 0%, #f6f0e1 50%, #e7f1e9 100%);
 }
 
 /* Calmer version for the member portal, where content density matters more than mood. */
 .bg-portal-flow {
-  background-color: #f4f1f7;
+  background-color: #f2f5fa;
   background-image:
-    radial-gradient(48rem 28rem at 0% 0%, rgba(190, 165, 217, 0.35), transparent 70%),
+    radial-gradient(48rem 28rem at 0% 0%, rgba(160, 194, 232, 0.35), transparent 70%),
     radial-gradient(40rem 26rem at 100% 100%, rgba(181, 214, 191, 0.35), transparent 70%),
-    linear-gradient(160deg, #f3eff8 0%, #f9f5ea 55%, #eef5f0 100%);
+    linear-gradient(160deg, #eef3fa 0%, #f9f5ea 55%, #eef5f0 100%);
   background-attachment: fixed;
 }
 
@@ -157,7 +157,64 @@
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid #e7e2eb;
+  border: 1px solid #e2e8f0;
+}
+
+/* 3D tilt cards (see components/public/Tilt.tsx): a soft light spot follows the cursor. */
+.tilt-card {
+  position: relative;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.tilt-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(22rem circle at var(--tilt-x, 50%) var(--tilt-y, 50%), rgba(255, 255, 255, 0.45), transparent 55%);
+}
+
+.tilt-card[data-tilting]::after {
+  opacity: 1;
+}
+
+/*
+ * Sections rise out of the page in 3D as they scroll into view. Pure CSS scroll-driven animation:
+ * browsers without view timelines simply show the content, and reduced-motion visitors are skipped.
+ */
+@keyframes reveal-3d {
+  from {
+    opacity: 0;
+    transform: perspective(1100px) translateY(48px) rotateX(12deg) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(1100px) translateY(0) rotateX(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal-3d {
+      transform-origin: 50% 100%;
+      animation: reveal-3d linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+  }
+}
+
+/* The hero badge does a full 3D turn when hovered. */
+.logo-spin {
+  transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.logo-spin:hover {
+  transform: perspective(600px) rotateY(360deg);
 }
 
 /* Fallback for users with prefers-reduced-motion */

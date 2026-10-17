@@ -13,7 +13,7 @@ export default function HeroSection() {
 
   const metrics = [
     { label: t.metrics.projectsLabel, value: t.metrics.projectsValue, note: t.metrics.projectsNote, Icon: Cpu, iconClass: "text-accent-700" },
-    { label: t.metrics.foundersLabel, value: t.metrics.foundersValue, note: t.metrics.foundersNote, Icon: Users, iconClass: "text-emerald-600" },
+    { label: t.metrics.membersLabel, value: t.metrics.membersValue, note: t.metrics.membersNote, Icon: Users, iconClass: "text-emerald-600" },
     { label: t.metrics.advisorLabel, value: t.metrics.advisorValue, note: t.metrics.advisorNote, Icon: Sparkles, iconClass: "text-brand-600" },
   ];
 

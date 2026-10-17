@@ -40,7 +40,7 @@ export default function AdminTabs({ items }: { items: { key: AdminSectionKey; hr
               <Link
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
-                className={`-mb-px flex items-center gap-2 whitespace-nowrap rounded-t-lg border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 ${
+                className={`-mb-px flex items-center gap-2 whitespace-nowrap rounded-t-lg border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 ${
                   isActive
                     ? "border-brand-600 text-brand-700"
                     : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-900"

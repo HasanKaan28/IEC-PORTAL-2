@@ -4,7 +4,7 @@ import type { LucideIcon } from "lucide-react";
 /** Small presentational pieces shared by admin pages (usable from server and client components). */
 
 export const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2";
+  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2";
 
 export function PageHeader({
   title,

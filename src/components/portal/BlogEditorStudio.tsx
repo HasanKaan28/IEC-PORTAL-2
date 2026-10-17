@@ -40,9 +40,9 @@ import { useLocale } from "@/lib/i18n/locale-context";
 import { adminText } from "@/lib/i18n/portal/admin";
 
 const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2";
+  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2";
 const inputClass =
-  "w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20";
+  "w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-brand-600 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20";
 
 interface BlogEditorStudioProps {
   initialPost?: BlogPostItem;
@@ -193,7 +193,7 @@ export default function BlogEditorStudio({ initialPost, canPublish = false }: Bl
               aria-checked={status === "draft"}
               onClick={() => setStatus("draft")}
               className={`rounded-lg px-3 py-1.5 transition-colors ${focusRing} ${
-                status === "draft" ? "bg-white font-semibold text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                status === "draft" ? "bg-white font-semibold text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-800"
               }`}
             >
               {t.draft}
@@ -205,7 +205,7 @@ export default function BlogEditorStudio({ initialPost, canPublish = false }: Bl
               onClick={() => setStatus("published")}
               disabled={!canPublish}
               className={`rounded-lg px-3 py-1.5 transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${focusRing} ${
-                status === "published" ? "bg-emerald-600 font-semibold text-white shadow-sm" : "text-slate-500 hover:text-slate-800"
+                status === "published" ? "bg-emerald-600 font-semibold text-white shadow-xs" : "text-slate-500 hover:text-slate-800"
               }`}
             >
               {t.published}
@@ -286,7 +286,7 @@ export default function BlogEditorStudio({ initialPost, canPublish = false }: Bl
                 maxLength={BLOG_LIMITS.slugMax}
                 aria-describedby="post-slug-hint"
                 onChange={(e) => setSlug(e.target.value.toLowerCase())}
-                className="w-full px-3 py-2.5 font-mono text-sm text-slate-800 read-only:bg-slate-50 focus:outline-none"
+                className="w-full px-3 py-2.5 font-mono text-sm text-slate-800 read-only:bg-slate-50 focus:outline-hidden"
               />
             </div>
             <p id="post-slug-hint" className="mt-1 text-xs text-slate-500">
@@ -434,7 +434,7 @@ export default function BlogEditorStudio({ initialPost, canPublish = false }: Bl
                 maxLength={BLOG_LIMITS.contentMax}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder={t.contentPlaceholder}
-                className="min-h-[460px] w-full flex-1 resize-y rounded-xl border border-slate-200 bg-slate-50 p-3 font-mono text-sm leading-relaxed text-slate-900 placeholder-slate-400 focus:border-brand-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                className="min-h-[460px] w-full flex-1 resize-y rounded-xl border border-slate-200 bg-slate-50 p-3 font-mono text-sm leading-relaxed text-slate-900 placeholder-slate-400 focus:border-brand-600 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-brand-500/20"
               />
             </div>
           )}

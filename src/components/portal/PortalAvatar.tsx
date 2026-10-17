@@ -34,7 +34,7 @@ export default function PortalAvatar({ name, avatarUrl, size = "sm", className =
   return (
     <span
       aria-hidden="true"
-      className={`${SIZES[size]} shrink-0 rounded-full bg-gradient-to-br from-brand-500 to-brand-800 text-white font-semibold flex items-center justify-center ${className}`}
+      className={`${SIZES[size]} shrink-0 rounded-full bg-linear-to-br/srgb from-brand-500 to-brand-800 text-white font-semibold flex items-center justify-center ${className}`}
     >
       {initialsOf(name)}
     </span>

@@ -121,7 +121,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       elements.push(
         <li
           key={`li-${i}`}
-          className="ml-6 list-disc text-slate-600 text-sm sm:text-base leading-relaxed my-1 marker:text-brand-600"
+          className="ml-6 list-disc text-slate-600 text-sm sm:text-base/6 leading-relaxed my-1 marker:text-brand-600"
         >
           {renderFormattedInline(line.trim().replace(/^[-*]\s+/, ""))}
         </li>
@@ -134,7 +134,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       elements.push(
         <li
           key={`oli-${i}`}
-          className="ml-6 list-decimal text-slate-600 text-sm sm:text-base leading-relaxed my-1 marker:text-brand-600 font-mono"
+          className="ml-6 list-decimal text-slate-600 text-sm sm:text-base/6 leading-relaxed my-1 marker:text-brand-600 font-mono"
         >
           <span className="font-sans">
             {renderFormattedInline(line.trim().replace(/^\d+\.\s+/, ""))}
@@ -148,7 +148,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
     elements.push(
       <p
         key={`p-${i}`}
-        className="text-slate-600 text-sm sm:text-base leading-relaxed my-2"
+        className="text-slate-600 text-sm sm:text-base/6 leading-relaxed my-2"
       >
         {renderFormattedInline(line)}
       </p>
@@ -182,7 +182,7 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
         <button
           type="button"
           onClick={handleCopy}
-          className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70"
+          className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors text-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400/70"
         >
           {copyState === "copied" ? (
             <>
@@ -202,7 +202,7 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
           {copyState === "copied" ? t.copied : copyState === "failed" ? t.copyFailed : ""}
         </span>
       </div>
-      <pre className="p-4 overflow-x-auto text-xs sm:text-sm font-mono text-slate-700 leading-relaxed selection:bg-brand-900 selection:text-white">
+      <pre className="p-4 overflow-x-auto text-xs sm:text-sm/5 font-mono text-slate-700 leading-relaxed selection:bg-brand-900 selection:text-white">
         <code>{code}</code>
       </pre>
     </div>
@@ -262,7 +262,7 @@ function renderFormattedInline(text: string): React.ReactNode {
               href={href}
               target="_blank"
               rel="noopener noreferrer nofollow ugc"
-              className="rounded text-brand-700 hover:text-brand-800 underline underline-offset-4 decoration-brand-500/50 hover:decoration-brand-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70"
+              className="rounded text-brand-700 hover:text-brand-800 underline underline-offset-4 decoration-brand-500/50 hover:decoration-brand-400 transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400/70"
             >
               {linkMatch[1]}
             </a>

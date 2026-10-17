@@ -83,7 +83,7 @@ export default function RolesWorkspace({
               aria-controls={`roles-panel-${key}`}
               onClick={() => setTab(key)}
               className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${focusRing} ${
-                active ? "bg-white text-brand-700 shadow-sm" : "text-slate-600 hover:text-slate-900"
+                active ? "bg-white text-brand-700 shadow-xs" : "text-slate-600 hover:text-slate-900"
               }`}
             >
               <Icon className="h-4 w-4" aria-hidden="true" />

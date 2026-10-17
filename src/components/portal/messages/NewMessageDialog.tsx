@@ -63,7 +63,7 @@ function NewMessageDialogPanel({ locale, initialQuery = "", onClose, onSelect }:
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-slate-900/50 p-4 pt-[10vh] backdrop-blur-sm animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-slate-900/50 p-4 pt-[10vh] backdrop-blur-xs animate-in fade-in duration-150"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -83,7 +83,7 @@ function NewMessageDialogPanel({ locale, initialQuery = "", onClose, onSelect }:
             type="button"
             onClick={onClose}
             aria-label={common.close}
-            className="rounded-xl p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="rounded-xl p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -108,12 +108,12 @@ function NewMessageDialogPanel({ locale, initialQuery = "", onClose, onSelect }:
               autoComplete="off"
               maxLength={60}
               aria-describedby="member-search-status"
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-brand-500 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-brand-500/20"
             />
           </div>
         </div>
 
-        <div className="min-h-[8rem] flex-1 overflow-y-auto">
+        <div className="min-h-32 flex-1 overflow-y-auto">
           <div id="member-search-status" aria-live="polite" className="px-5">
             {status === "idle" && <p className="py-6 text-center text-sm text-slate-500">{t.minChars}</p>}
             {status === "searching" && results.length === 0 && (
@@ -130,7 +130,7 @@ function NewMessageDialogPanel({ locale, initialQuery = "", onClose, onSelect }:
             {status === "done" && results.length === 0 && (
               <div className="flex flex-col items-center gap-2 py-6 text-center">
                 <UserRound className="h-6 w-6 text-slate-400" aria-hidden="true" />
-                <p className="break-words text-sm text-slate-500">{t.noResults(trimmed)}</p>
+                <p className="wrap-break-word text-sm text-slate-500">{t.noResults(trimmed)}</p>
               </div>
             )}
           </div>
@@ -144,7 +144,7 @@ function NewMessageDialogPanel({ locale, initialQuery = "", onClose, onSelect }:
                     <button
                       type="button"
                       onClick={() => onSelect(member)}
-                      className="flex w-full items-center gap-3 px-5 py-3 text-left transition-colors hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
+                      className="flex w-full items-center gap-3 px-5 py-3 text-left transition-colors hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
                     >
                       <MemberAvatar name={member.name} src={member.avatarUrl} locale={locale} />
                       <span className="min-w-0">

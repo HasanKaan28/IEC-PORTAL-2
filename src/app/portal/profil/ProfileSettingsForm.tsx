@@ -59,7 +59,7 @@ function initialDepartment(stored: string | null): { department: string; departm
 type FieldErrors = Partial<Record<FieldName, string>>;
 
 const inputBase =
-  "w-full rounded-xl border bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:bg-white focus:outline-none focus:ring-2";
+  "w-full rounded-xl border bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:bg-white focus:outline-hidden focus:ring-2";
 const inputOk = "border-slate-200 focus:border-brand-500 focus:ring-brand-500/20";
 const inputError = "border-rose-300 focus:border-rose-500 focus:ring-rose-500/20";
 
@@ -206,7 +206,7 @@ export default function ProfileSettingsForm({ profile, roles, projects, memberSi
         <button
           type="button"
           onClick={() => setCardOpen(true)}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
         >
           <IdCard className="h-4 w-4 text-brand-600" aria-hidden="true" />
           <span>{t.previewCard}</span>
@@ -287,7 +287,7 @@ export default function ProfileSettingsForm({ profile, roles, projects, memberSi
                 readOnly
                 value={profile.email}
                 aria-describedby="email-hint"
-                className="w-full cursor-not-allowed rounded-xl border border-slate-200 bg-slate-100 px-3.5 py-2.5 text-sm text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                className="w-full cursor-not-allowed rounded-xl border border-slate-200 bg-slate-100 px-3.5 py-2.5 text-sm text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20"
               />
               <p id="email-hint" className="mt-1 text-xs text-slate-500">
                 {t.emailHint}
@@ -506,7 +506,7 @@ export default function ProfileSettingsForm({ profile, roles, projects, memberSi
                 checked={form[key]}
                 onChange={(event) => update(key, event.target.checked)}
                 aria-describedby={`${key}-hint`}
-                className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer rounded accent-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+                className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer rounded accent-brand-600 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
               />
             </div>
           ))}
@@ -533,7 +533,7 @@ export default function ProfileSettingsForm({ profile, roles, projects, memberSi
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving && <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />}
             <span>{saving ? t.saving : t.save}</span>

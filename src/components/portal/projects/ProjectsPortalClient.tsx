@@ -107,7 +107,7 @@ export default function ProjectsPortalClient({ initialProjects, initialRequests,
   const tabClass = (active: boolean) =>
     `whitespace-nowrap rounded-xl px-3.5 py-1.5 text-sm font-medium transition-colors ${focusRing} ${
       active
-        ? "bg-brand-600 text-white shadow-sm"
+        ? "bg-brand-600 text-white shadow-xs"
         : "border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900"
     }`;
 
@@ -116,7 +116,7 @@ export default function ProjectsPortalClient({ initialProjects, initialRequests,
       <ToastRegion toast={toast} onDismiss={dismiss} dismissLabel={t.common.dismissToast} />
 
       {/* Header */}
-      <div className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs sm:flex-row sm:items-center">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="font-display text-xl font-bold text-slate-900">{t.projects.heading}</h1>
@@ -202,7 +202,7 @@ export default function ProjectsPortalClient({ initialProjects, initialRequests,
 
                 return (
                   <li key={project.id}>
-                    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+                    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs transition-shadow hover:shadow-md">
                       <div
                         className="h-1.5 w-full bg-brand-500"
                         style={accent ? { backgroundColor: accent } : undefined}

@@ -28,9 +28,9 @@ const ROOT_TARGET = "root";
 const MIN_COMMENT_LENGTH = 3;
 
 const FOCUS_RING =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas";
+  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas";
 const TEXTAREA_CLASS =
-  "w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-brand-500/80 focus:ring-2 focus:ring-brand-500/30 transition-colors resize-none";
+  "w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 placeholder-slate-400 focus:outline-hidden focus:border-brand-500/80 focus:ring-2 focus:ring-brand-500/30 transition-colors resize-none";
 
 export default function BlogCommentSection({
   postSlug,
@@ -295,7 +295,7 @@ export default function BlogCommentSection({
                   )}
                 </div>
 
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pl-11 whitespace-pre-line break-words">
+                <p className="text-xs sm:text-sm/5 text-slate-600 leading-relaxed pl-11 whitespace-pre-line wrap-break-word">
                   {comment.content}
                 </p>
 
@@ -385,7 +385,7 @@ export default function BlogCommentSection({
                             {formatDate(reply.createdAt, locale, { day: "numeric", month: "short", year: "numeric" })}
                           </time>
                         </div>
-                        <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line break-words">
+                        <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line wrap-break-word">
                           {reply.content}
                         </p>
                       </li>

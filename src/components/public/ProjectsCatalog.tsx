@@ -59,7 +59,7 @@ export default function ProjectsCatalog() {
     <div className="mx-auto max-w-7xl">
       <header className="mx-auto mb-12 max-w-3xl text-center">
         <h1 className="font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">{t.title}</h1>
-        <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">{t.intro}</p>
+        <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base/6">{t.intro}</p>
       </header>
 
       <div className="glass-panel mb-10 flex flex-col items-center justify-between gap-4 rounded-2xl border border-slate-200 p-4 lg:flex-row">
@@ -74,7 +74,7 @@ export default function ProjectsCatalog() {
             placeholder={t.searchPlaceholder}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+            className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-brand-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500/30"
           />
         </div>
 
@@ -85,7 +85,7 @@ export default function ProjectsCatalog() {
               type="button"
               onClick={() => setFilter(id)}
               aria-pressed={filter === id}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60 ${
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400/60 ${
                 filter === id
                   ? "bg-brand-600 text-white"
                   : "border border-slate-200 bg-white/70 text-slate-600 hover:text-slate-900"
@@ -172,7 +172,7 @@ export default function ProjectsCatalog() {
                   </div>
                   <Link
                     href="/basvuru"
-                    className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-glow transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                    className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-glow transition-colors hover:bg-brand-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400"
                   >
                     {t.join}
                   </Link>

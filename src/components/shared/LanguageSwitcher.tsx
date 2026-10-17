@@ -19,9 +19,9 @@ const TONES = {
     idle: "text-slate-400 hover:text-white",
   },
   light: {
-    group: "bg-white/70 border-slate-200 backdrop-blur",
+    group: "bg-white/70 border-slate-200 backdrop-blur-sm",
     icon: "text-slate-500",
-    active: "bg-brand-50 text-brand-700 shadow-sm",
+    active: "bg-brand-50 text-brand-700 shadow-xs",
     idle: "text-slate-500 hover:text-slate-900",
   },
 };
@@ -52,7 +52,7 @@ export default function LanguageSwitcher({ className = "", tone = "light" }: Lan
             onClick={() => setLocale(option.locale)}
             aria-pressed={isActive}
             aria-label={option.name}
-            className={`min-w-[2rem] min-h-[2rem] px-2 rounded-md font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 ${
+            className={`min-w-8 min-h-8 px-2 rounded-md font-semibold transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/50 ${
               isActive ? styles.active : styles.idle
             }`}
           >

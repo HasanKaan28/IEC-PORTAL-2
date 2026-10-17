@@ -28,7 +28,7 @@ export default function TaskListView({ tasks, viewer, onSelectTask, onUpdateStat
   const t = tasksProjectsText[locale];
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <caption className="sr-only">{t.tasks.table.caption}</caption>
@@ -96,7 +96,7 @@ export default function TaskListView({ tasks, viewer, onSelectTask, onUpdateStat
                           id={statusId}
                           value={task.status}
                           onChange={(event) => onUpdateStatus(task.id, event.target.value as TaskStatus)}
-                          className={`cursor-pointer rounded-lg border px-2.5 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500/40 ${TASK_STATUS_STYLES[task.status].badge}`}
+                          className={`cursor-pointer rounded-lg border px-2.5 py-1 text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-brand-500/40 ${TASK_STATUS_STYLES[task.status].badge}`}
                         >
                           {TASK_STATUSES.map((status) => (
                             <option key={status} value={status}>

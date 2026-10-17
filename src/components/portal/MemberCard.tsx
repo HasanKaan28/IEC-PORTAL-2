@@ -87,7 +87,7 @@ export function MemberName({ userId, name, className = "" }: MemberNameProps) {
         context.openMemberCard(userId);
       }}
       title={messagesProfileText[locale].card.openCard}
-      className={`rounded text-left underline-offset-2 hover:text-brand-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 ${className}`}
+      className={`rounded text-left underline-offset-2 hover:text-brand-700 hover:underline focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/50 ${className}`}
     >
       {name}
     </button>

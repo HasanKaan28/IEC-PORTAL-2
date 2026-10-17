@@ -58,7 +58,7 @@ function ProfileCardDialog({ user, onClose, footer }: DiscordProfileCardProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-xs animate-in fade-in duration-150"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -69,14 +69,14 @@ function ProfileCardDialog({ user, onClose, footer }: DiscordProfileCardProps) {
         aria-modal="true"
         aria-label={t.dialogLabel(user.fullName)}
         tabIndex={-1}
-        className="relative max-h-[calc(100dvh-2rem)] w-full max-w-sm overflow-y-auto rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-2xl focus:outline-none"
+        className="relative max-h-[calc(100dvh-2rem)] w-full max-w-sm overflow-y-auto rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-2xl focus:outline-hidden"
       >
-        <div className="relative h-24 bg-gradient-to-r from-brand-700 via-brand-600 to-brand-400">
+        <div className="relative h-24 bg-linear-to-r/srgb from-brand-700 via-brand-600 to-brand-400">
           <button
             type="button"
             onClick={onClose}
             aria-label={common.close}
-            className="absolute right-3 top-3 rounded-full bg-black/25 p-1.5 text-white transition-colors hover:bg-black/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="absolute right-3 top-3 rounded-full bg-black/25 p-1.5 text-white transition-colors hover:bg-black/40 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
           >
             <X className="h-4 w-4" aria-hidden="true" />
           </button>
@@ -117,7 +117,7 @@ function ProfileCardDialog({ user, onClose, footer }: DiscordProfileCardProps) {
           {user.bio && (
             <section className="mt-4 border-t border-slate-100 pt-3">
               <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">{t.about}</h3>
-              <p className="whitespace-pre-line break-words text-sm leading-relaxed text-slate-700">{user.bio}</p>
+              <p className="whitespace-pre-line wrap-break-word text-sm leading-relaxed text-slate-700">{user.bio}</p>
             </section>
           )}
 
@@ -154,7 +154,7 @@ function ProfileCardDialog({ user, onClose, footer }: DiscordProfileCardProps) {
                       href={`https://wa.me/${phoneDigits}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+                      className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
                     >
                       <MessageCircle className="h-4 w-4" aria-hidden="true" />
                       <span>{t.whatsapp}</span>
@@ -170,7 +170,7 @@ function ProfileCardDialog({ user, onClose, footer }: DiscordProfileCardProps) {
                   {canEmail ? (
                     <a
                       href={`mailto:${user.email}`}
-                      className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+                      className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
                     >
                       <Mail className="h-4 w-4" aria-hidden="true" />
                       <span>{t.email}</span>
@@ -192,7 +192,7 @@ function ProfileCardDialog({ user, onClose, footer }: DiscordProfileCardProps) {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`${t.github} ${t.opensInNewTab}`}
-                      className="rounded-xl border border-slate-200 p-2 text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                      className="rounded-xl border border-slate-200 p-2 text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500"
                     >
                       <Github className="h-4 w-4" aria-hidden="true" />
                     </a>
@@ -203,7 +203,7 @@ function ProfileCardDialog({ user, onClose, footer }: DiscordProfileCardProps) {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`${t.linkedin} ${t.opensInNewTab}`}
-                      className="rounded-xl border border-slate-200 p-2 text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                      className="rounded-xl border border-slate-200 p-2 text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500"
                     >
                       <Linkedin className="h-4 w-4" aria-hidden="true" />
                     </a>

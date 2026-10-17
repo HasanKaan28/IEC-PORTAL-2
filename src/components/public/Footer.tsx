@@ -16,7 +16,7 @@ export default function Footer() {
   const { t } = useLocale();
 
   return (
-    <footer className="border-t border-brand-100 bg-gradient-to-b from-transparent to-brand-100/70 text-slate-600 text-sm py-16 px-4 sm:px-6 relative z-10">
+    <footer className="border-t border-brand-100 bg-linear-to-b/srgb from-transparent to-brand-100/70 text-slate-600 text-sm py-16 px-4 sm:px-6 relative z-10">
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-10">
         <div className="sm:col-span-2 md:col-span-5 space-y-4">
           <div className="flex items-center gap-3">

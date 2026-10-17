@@ -71,7 +71,7 @@ export default function TaskKanbanBoard({ tasks, viewer, onSelectTask, onUpdateS
 
                   return (
                     <li key={task.id}>
-                      <article className="group relative space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:border-brand-300 hover:shadow-md">
+                      <article className="group relative space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition-all hover:border-brand-300 hover:shadow-md">
                         <div className="flex items-center justify-between gap-2">
                           <PriorityBadge priority={task.priority} label={t.taskPriority[task.priority]} />
                           <span className="max-w-[60%] truncate text-xs text-slate-500">

@@ -120,7 +120,7 @@ export default function LiveAttendancePresenter({
   const formattedCode = code.length === 6 ? `${code.slice(0, 3)} ${code.slice(3)}` : code;
   const surface = isDarkMode ? "border-slate-800 bg-slate-900/70" : "border-slate-200 bg-white";
   const mutedText = isDarkMode ? "text-slate-300" : "text-slate-600";
-  const focusRing = "focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400";
+  const focusRing = "focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400";
 
   return (
     <div

@@ -21,7 +21,7 @@ type LikeNotice = { kind: "error"; text: string } | { kind: "signIn" };
 type CopyState = "idle" | "copied" | "failed";
 
 const FOCUS_RING =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white";
+  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white";
 
 const SHARE_LINK_CLASS = `p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 text-xs transition-colors ${FOCUS_RING}`;
 
@@ -111,7 +111,7 @@ export default function BlogDetailClientBar({
       {/* Reading progress bar (decorative) */}
       <div className="fixed top-0 left-0 right-0 h-1 z-50 bg-slate-50" aria-hidden="true">
         <div
-          className="h-full bg-gradient-to-r from-brand-600 via-brand-500 to-accent-400 transition-[width] duration-150 ease-out motion-reduce:transition-none"
+          className="h-full bg-linear-to-r/srgb from-brand-600 via-brand-500 to-accent-400 transition-[width] duration-150 ease-out motion-reduce:transition-none"
           style={{ width: `${scrollProgress}%` }}
         />
       </div>

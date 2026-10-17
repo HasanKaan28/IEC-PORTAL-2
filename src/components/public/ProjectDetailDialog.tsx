@@ -46,7 +46,7 @@ export default function ProjectDetailDialog({ project, onClose }: ProjectDetailD
       aria-labelledby={titleId}
       onClose={onClose}
       onClick={closeWhenBackdropClicked}
-      className="w-[calc(100%-2rem)] max-w-2xl max-h-[90dvh] p-0 rounded-2xl border border-slate-200 bg-white text-left text-slate-700 shadow-soft backdrop:bg-slate-900/30 backdrop:backdrop-blur-sm"
+      className="w-[calc(100%-2rem)] max-w-2xl max-h-[90dvh] p-0 rounded-2xl border border-slate-200 bg-white text-left text-slate-700 shadow-soft backdrop:bg-slate-900/30 backdrop:backdrop-blur-xs"
     >
       <div className="relative p-6 sm:p-8">
         <button
@@ -72,7 +72,7 @@ export default function ProjectDetailDialog({ project, onClose }: ProjectDetailD
           images={project.gallery}
           alt={project.title[locale]}
           sizes="(max-width: 768px) 100vw, 640px"
-          className="mt-5 aspect-[16/9] rounded-xl border border-slate-200"
+          className="mt-5 aspect-video rounded-xl border border-slate-200"
         />
 
         <div className="mt-6 space-y-4 text-sm">

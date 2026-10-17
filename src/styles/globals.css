@@ -1,6 +1,288 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Tailwind 3 behaviour kept on purpose: hover styles also apply on touch screens, and `dark:` follows a .dark class. */
+@custom-variant hover (&:hover);
+@custom-variant dark (&:is(.dark *));
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+  @media (width >= --theme(--breakpoint-sm)) {
+    max-width: none;
+  }
+  @media (width >= 1400px) {
+    max-width: 1400px;
+  }
+}
+
+/*
+ * Tailwind 3's space-x/space-y, which the layouts were built on: the gap goes before every child but
+ * the first and outranks the children's own margins. Tailwind 4 puts it after every child but the
+ * last at zero specificity, which moves gaps around absolutely positioned or hidden children and lets
+ * child margins through. These rules restore v3's selector; the end of this file clears the margin
+ * v4 still gives the first child.
+ */
+@utility space-y-* {
+  & > :not([hidden]) ~ :not([hidden]) {
+    margin-top: calc(var(--spacing) * --value(number));
+    margin-bottom: 0;
+  }
+}
+
+@utility space-x-* {
+  & > :not([hidden]) ~ :not([hidden]) {
+    margin-right: 0;
+    margin-left: calc(var(--spacing) * --value(number));
+  }
+}
+
+@utility -space-x-* {
+  & > :not([hidden]) ~ :not([hidden]) {
+    margin-right: 0;
+    margin-left: calc(var(--spacing) * --value(number) * -1);
+  }
+}
+
+@theme {
+  /*
+   * IEC brand palette: the navy of the club seal (brand-700 is the seal's own #154a7f), with honey
+   * yellow (accent) and leaf green (emerald) as warm complements. brand-600 passes 7:1 on white, so
+   * it carries buttons, links and headings.
+   */
+  --color-brand-50: #f0f6fc;
+  --color-brand-100: #dde9f6;
+  --color-brand-200: #bcd3ec;
+  --color-brand-300: #8db3dc;
+  --color-brand-400: #5a8cc5;
+  --color-brand-500: #336daa;
+  --color-brand-600: #1f5a94;
+  --color-brand-700: #154a7f;
+  --color-brand-800: #143e69;
+  --color-brand-900: #133556;
+  --color-brand-950: #0b2038;
+
+  /* Honey yellow; the bare `accent` token below follows the shadcn CSS variables. */
+  --color-accent-50: #fefbed;
+  --color-accent-100: #fcf3cf;
+  --color-accent-200: #f9e7a0;
+  --color-accent-300: #f4d56b;
+  --color-accent-400: #ecc246;
+  --color-accent-500: #d9a92a;
+  --color-accent-600: #b5861d;
+  --color-accent-700: #8c651a;
+  --color-accent-800: #73521b;
+  --color-accent-900: #61451b;
+  --color-accent-950: #38260b;
+
+  /* Leaf green replaces Tailwind's teal-leaning emerald so success states match the palette. */
+  --color-emerald-50: #f2f8f4;
+  --color-emerald-100: #e0f0e5;
+  --color-emerald-200: #c2e1cc;
+  --color-emerald-300: #96cba8;
+  --color-emerald-400: #65ae7f;
+  --color-emerald-500: #43925f;
+  --color-emerald-600: #33774b;
+  --color-emerald-700: #2b5f3e;
+  --color-emerald-800: #264d34;
+  --color-emerald-900: #21402c;
+  --color-emerald-950: #0f2318;
+
+  /* Page background: soft cool grey-blue rather than white; most pages also paint a colour flow. */
+  --color-canvas: #f2f5fa;
+
+  /* Near-black navy, kept only for the optional projector mode of the live attendance screen. */
+  --color-ink-800: #14223a;
+  --color-ink-900: #0d182b;
+  --color-ink-950: #08101f;
+  --color-ink-990: #050b16;
+
+  /* Neutrals: Tailwind's cool blue-grey slate, which sits naturally next to the seal navy. */
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+
+  /* Tailwind 3's hex values for the other default hues in use; v4's OKLCH versions are a shade off. */
+  --color-rose-50: #fff1f2;
+  --color-rose-100: #ffe4e6;
+  --color-rose-200: #fecdd3;
+  --color-rose-300: #fda4af;
+  --color-rose-400: #fb7185;
+  --color-rose-500: #f43f5e;
+  --color-rose-600: #e11d48;
+  --color-rose-700: #be123c;
+  --color-rose-800: #9f1239;
+  --color-rose-900: #881337;
+  --color-rose-950: #4c0519;
+
+  --color-orange-50: #fff7ed;
+  --color-orange-100: #ffedd5;
+  --color-orange-200: #fed7aa;
+  --color-orange-300: #fdba74;
+  --color-orange-400: #fb923c;
+  --color-orange-500: #f97316;
+  --color-orange-600: #ea580c;
+  --color-orange-700: #c2410c;
+  --color-orange-800: #9a3412;
+  --color-orange-900: #7c2d12;
+  --color-orange-950: #431407;
+
+  --color-amber-50: #fffbeb;
+  --color-amber-100: #fef3c7;
+  --color-amber-200: #fde68a;
+  --color-amber-300: #fcd34d;
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
+  --color-amber-800: #92400e;
+  --color-amber-900: #78350f;
+  --color-amber-950: #451a03;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-pulse-subtle: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-float: float 6s ease-in-out infinite;
+
+  /* Shadows are tinted with the brand hue instead of black, so they read soft on the light theme. */
+  --shadow-glow: 0 8px 24px -8px rgba(31, 90, 148, 0.45);
+  --shadow-glow-cyan: 0 8px 24px -10px rgba(217, 169, 42, 0.45);
+  --shadow-glow-subtle: 0 1px 2px rgba(15, 30, 55, 0.04), 0 8px 24px -12px rgba(15, 30, 55, 0.12);
+  --shadow-soft: 0 1px 2px rgba(15, 30, 55, 0.05), 0 12px 32px -16px rgba(15, 30, 55, 0.18);
+  --shadow-portal: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-portal-card: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+  @keyframes pulse-subtle {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+}
+
+/*
+ * Tokens that read CSS variables stay inline, so they resolve on each element: .theme-portal swaps
+ * --accent and --radius, and next/font sets --font-sans, --font-display and --font-mono on <html>.
+ */
+@theme inline {
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-portal-bg: var(--portal-bg);
+  --color-portal-surface: var(--portal-surface);
+  --color-portal-sidebar: var(--portal-sidebar);
+  --color-portal-border: var(--portal-border);
+  --color-portal-text: var(--portal-text);
+  --color-portal-muted: var(--portal-muted);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --font-sans: var(--font-sans), Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: var(--font-display), Space Grotesk, sans-serif;
+  --font-mono: var(--font-mono), JetBrains Mono, monospace;
+}
+
+/*
+ * Tailwind 3 preflight defaults that v4 changed: grey borders on pseudo-elements, grey placeholders,
+ * pointer cursor on buttons, centred <dialog> elements and the browser's padding on options and cells.
+ */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: #e5e7eb;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #9ca3af;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  dialog {
+    margin: auto;
+  }
+
+  option,
+  td,
+  th {
+    padding: revert;
+  }
+
+  input:where(:not([type="button"], [type="reset"], [type="submit"])),
+  optgroup,
+  select,
+  textarea {
+    background-color: revert;
+    border-radius: revert;
+  }
+
+  [type="search"] {
+    -webkit-appearance: textfield;
+    outline-offset: -2px;
+  }
+}
 
 @layer base {
   /* Default: soft light theme for the public website (seal navy, honey yellow, leaf green) */
@@ -101,146 +383,193 @@
   }
 }
 
-/* Frosted panels: translucent so the colour flow behind them still shows through. */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.62);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(21, 74, 127, 0.12);
-  box-shadow: 0 1px 2px rgba(15, 30, 55, 0.05), 0 12px 32px -18px rgba(15, 30, 55, 0.2);
-}
-
-.glass-panel-subtle {
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(21, 74, 127, 0.1);
-}
-
 /*
- * iOS-style Liquid Glass chip for labels that sit on photos: a nearly clear lens (light blur,
- * boosted colour), a bright specular rim that fades round the edge, an inner glow, and a soft
- * shadow tint so white text stays readable on light and dark images alike.
+ * The site's own classes sit at the end of the utilities layer, where Tailwind 3 printed them: they
+ * beat plain utilities on the same element, while hover:, focus: and other state variants still win.
  */
-.liquid-glass {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  color: #ffffff;
-  text-shadow: 0 1px 2px rgba(5, 15, 30, 0.55);
-  background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.06) 45%, rgba(255, 255, 255, 0.14) 100%),
-    rgba(12, 24, 42, 0.26);
-  backdrop-filter: blur(5px) saturate(190%) brightness(1.05);
-  -webkit-backdrop-filter: blur(5px) saturate(190%) brightness(1.05);
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.7),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.18),
-    inset 0 0 10px rgba(255, 255, 255, 0.16),
-    0 6px 18px -4px rgba(5, 15, 30, 0.45);
+@layer utilities {
+  /* Frosted panels: translucent so the colour flow behind them still shows through. */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(21, 74, 127, 0.12);
+    box-shadow: 0 1px 2px rgba(15, 30, 55, 0.05), 0 12px 32px -18px rgba(15, 30, 55, 0.2);
+  }
+
+  .glass-panel-subtle {
+    background: rgba(255, 255, 255, 0.45);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(21, 74, 127, 0.1);
+  }
+
+  /*
+   * iOS-style Liquid Glass chip for labels that sit on photos: a nearly clear lens (light blur,
+   * boosted colour), a bright specular rim that fades round the edge, an inner glow, and a soft
+   * shadow tint so white text stays readable on light and dark images alike.
+   */
+  .liquid-glass {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(5, 15, 30, 0.55);
+    background:
+      linear-gradient(160deg, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.06) 45%, rgba(255, 255, 255, 0.14) 100%),
+      rgba(12, 24, 42, 0.26);
+    -webkit-backdrop-filter: blur(5px) saturate(190%) brightness(1.05);
+    backdrop-filter: blur(5px) saturate(190%) brightness(1.05);
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.7),
+      inset 0 -1px 1px rgba(255, 255, 255, 0.18),
+      inset 0 0 10px rgba(255, 255, 255, 0.16),
+      0 6px 18px -4px rgba(5, 15, 30, 0.45);
+  }
+
+  /* Specular rim: brightest at the top left, fading out along the sides. */
+  .liquid-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.15) 40%, rgba(255, 255, 255, 0.05) 60%, rgba(255, 255, 255, 0.6));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Soft highlight across the upper half, like light caught in the curve of the glass. */
+  .liquid-glass::after {
+    content: "";
+    position: absolute;
+    inset: 1px 8% 52% 8%;
+    z-index: -1;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0));
+    pointer-events: none;
+  }
+
+  .liquid-glass-honey {
+    background:
+      linear-gradient(160deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.04) 45%, rgba(255, 255, 255, 0.12) 100%),
+      rgba(181, 134, 29, 0.5);
+  }
+
+  /*
+   * Colour flow for the public site: the page drifts from sky blue through honey to sage and back
+   * as you scroll, so sections never sit on flat white. Painted once behind the whole page.
+   */
+  .bg-site-flow {
+    background-color: #f2f5fa;
+    background-image:
+      radial-gradient(60rem 36rem at 8% 2%, rgba(160, 194, 232, 0.7), transparent 70%),
+      radial-gradient(52rem 32rem at 95% 6%, rgba(245, 220, 142, 0.65), transparent 70%),
+      radial-gradient(56rem 34rem at 12% 34%, rgba(181, 214, 191, 0.7), transparent 70%),
+      radial-gradient(54rem 34rem at 92% 50%, rgba(160, 194, 232, 0.62), transparent 70%),
+      radial-gradient(56rem 34rem at 8% 74%, rgba(245, 220, 142, 0.58), transparent 70%),
+      radial-gradient(60rem 36rem at 88% 96%, rgba(181, 214, 191, 0.7), transparent 70%),
+      linear-gradient(180deg, #dfeaf7 0%, #f5ebcf 24%, #e0eee4 48%, #dfeaf7 70%, #f4eacb 86%, #e2efe6 100%);
+  }
+
+  /* The same three hues in a single screen, for the hero fallback and the sign-in pages. */
+  .bg-palette-wash {
+    background-color: #edf3fa;
+    background-image:
+      radial-gradient(48rem 30rem at 10% -10%, rgba(160, 194, 232, 0.7), transparent 70%),
+      radial-gradient(42rem 26rem at 95% 5%, rgba(245, 220, 142, 0.65), transparent 70%),
+      radial-gradient(40rem 26rem at 65% 110%, rgba(181, 214, 191, 0.7), transparent 70%),
+      linear-gradient(160deg, #e8f0fa 0%, #f6f0e1 50%, #e7f1e9 100%);
+  }
+
+  /* Calmer version for the member portal, where content density matters more than mood. */
+  .bg-portal-flow {
+    background-color: #f2f5fa;
+    background-image:
+      radial-gradient(48rem 28rem at 0% 0%, rgba(160, 194, 232, 0.35), transparent 70%),
+      radial-gradient(40rem 26rem at 100% 100%, rgba(181, 214, 191, 0.35), transparent 70%),
+      linear-gradient(160deg, #eef3fa 0%, #f9f5ea 55%, #eef5f0 100%);
+    background-attachment: fixed;
+  }
+
+  .portal-glass {
+    background: rgba(255, 255, 255, 0.85);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid #e2e8f0;
+  }
+
+  /* 3D tilt cards (see components/public/Tilt.tsx): a soft light spot follows the cursor. */
+  .tilt-card {
+    position: relative;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .tilt-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    background: radial-gradient(22rem circle at var(--tilt-x, 50%) var(--tilt-y, 50%), rgba(255, 255, 255, 0.45), transparent 55%);
+  }
+
+  .tilt-card[data-tilting]::after {
+    opacity: 1;
+  }
+
+  /*
+   * Sections rise out of the page in 3D as they scroll into view. Pure CSS scroll-driven animation:
+   * browsers without view timelines simply show the content, and reduced-motion visitors are skipped.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .reveal-3d {
+        transform-origin: 50% 100%;
+        animation: reveal-3d linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 30%;
+      }
+    }
+  }
+
+  /* The hero badge does a full 3D turn when hovered. */
+  .logo-spin {
+    transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .logo-spin:hover {
+    transform: perspective(600px) rotateY(360deg);
+  }
+
+  /* With the space-x/space-y rules at the top: v3 never gave the first child a trailing margin. */
+  :where([class*="space-y-"] > :first-child) {
+    margin-block-end: 0;
+  }
+
+  :where([class*="space-x-"] > :first-child) {
+    margin-inline-end: 0;
+  }
+
+  /* Fallback for users with prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
-/* Specular rim: brightest at the top left, fading out along the sides. */
-.liquid-glass::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.15) 40%, rgba(255, 255, 255, 0.05) 60%, rgba(255, 255, 255, 0.6));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-/* Soft highlight across the upper half, like light caught in the curve of the glass. */
-.liquid-glass::after {
-  content: "";
-  position: absolute;
-  inset: 1px 8% 52% 8%;
-  z-index: -1;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0));
-  pointer-events: none;
-}
-
-.liquid-glass-honey {
-  background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.04) 45%, rgba(255, 255, 255, 0.12) 100%),
-    rgba(181, 134, 29, 0.5);
-}
-
-/*
- * Colour flow for the public site: the page drifts from sky blue through honey to sage and back
- * as you scroll, so sections never sit on flat white. Painted once behind the whole page.
- */
-.bg-site-flow {
-  background-color: #f2f5fa;
-  background-image:
-    radial-gradient(60rem 36rem at 8% 2%, rgba(160, 194, 232, 0.7), transparent 70%),
-    radial-gradient(52rem 32rem at 95% 6%, rgba(245, 220, 142, 0.65), transparent 70%),
-    radial-gradient(56rem 34rem at 12% 34%, rgba(181, 214, 191, 0.7), transparent 70%),
-    radial-gradient(54rem 34rem at 92% 50%, rgba(160, 194, 232, 0.62), transparent 70%),
-    radial-gradient(56rem 34rem at 8% 74%, rgba(245, 220, 142, 0.58), transparent 70%),
-    radial-gradient(60rem 36rem at 88% 96%, rgba(181, 214, 191, 0.7), transparent 70%),
-    linear-gradient(180deg, #dfeaf7 0%, #f5ebcf 24%, #e0eee4 48%, #dfeaf7 70%, #f4eacb 86%, #e2efe6 100%);
-}
-
-/* The same three hues in a single screen, for the hero fallback and the sign-in pages. */
-.bg-palette-wash {
-  background-color: #edf3fa;
-  background-image:
-    radial-gradient(48rem 30rem at 10% -10%, rgba(160, 194, 232, 0.7), transparent 70%),
-    radial-gradient(42rem 26rem at 95% 5%, rgba(245, 220, 142, 0.65), transparent 70%),
-    radial-gradient(40rem 26rem at 65% 110%, rgba(181, 214, 191, 0.7), transparent 70%),
-    linear-gradient(160deg, #e8f0fa 0%, #f6f0e1 50%, #e7f1e9 100%);
-}
-
-/* Calmer version for the member portal, where content density matters more than mood. */
-.bg-portal-flow {
-  background-color: #f2f5fa;
-  background-image:
-    radial-gradient(48rem 28rem at 0% 0%, rgba(160, 194, 232, 0.35), transparent 70%),
-    radial-gradient(40rem 26rem at 100% 100%, rgba(181, 214, 191, 0.35), transparent 70%),
-    linear-gradient(160deg, #eef3fa 0%, #f9f5ea 55%, #eef5f0 100%);
-  background-attachment: fixed;
-}
-
-.portal-glass {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid #e2e8f0;
-}
-
-/* 3D tilt cards (see components/public/Tilt.tsx): a soft light spot follows the cursor. */
-.tilt-card {
-  position: relative;
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-
-.tilt-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  background: radial-gradient(22rem circle at var(--tilt-x, 50%) var(--tilt-y, 50%), rgba(255, 255, 255, 0.45), transparent 55%);
-}
-
-.tilt-card[data-tilting]::after {
-  opacity: 1;
-}
-
-/*
- * Sections rise out of the page in 3D as they scroll into view. Pure CSS scroll-driven animation:
- * browsers without view timelines simply show the content, and reduced-motion visitors are skipped.
- */
 @keyframes reveal-3d {
   from {
     opacity: 0;
@@ -249,37 +578,5 @@
   to {
     opacity: 1;
     transform: perspective(1100px) translateY(0) rotateX(0) scale(1);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .reveal-3d {
-      transform-origin: 50% 100%;
-      animation: reveal-3d linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 30%;
-    }
-  }
-}
-
-/* The hero badge does a full 3D turn when hovered. */
-.logo-spin {
-  transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.logo-spin:hover {
-  transform: perspective(600px) rotateY(360deg);
-}
-
-/* Fallback for users with prefers-reduced-motion */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  ::before,
-  ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }

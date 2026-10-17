@@ -83,7 +83,7 @@ function NavLink({
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60 ${
+      className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400/60 ${
         active
           ? "bg-brand-50 text-brand-700"
           : emphasis
@@ -110,7 +110,7 @@ function SidebarContent({ user, showAdmin, pathname }: { user: PortalShellUser; 
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center gap-3 border-b border-slate-200 px-5">
-        <Link href="/portal" className="flex items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60">
+        <Link href="/portal" className="flex items-center gap-3 rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400/60">
           <ClubLogo size={36} alt="" />
           <div className="leading-tight">
             <div className="font-display text-sm font-semibold text-slate-900">IUS Engineering Club</div>
@@ -162,14 +162,14 @@ function SidebarContent({ user, showAdmin, pathname }: { user: PortalShellUser; 
       <div className="border-t border-slate-200 p-3">
         <Link
           href="/"
-          className="flex items-center justify-between rounded-lg px-3 py-2 text-xs text-slate-500 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60"
+          className="flex items-center justify-between rounded-lg px-3 py-2 text-xs text-slate-500 transition-colors hover:text-slate-900 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400/60"
         >
           <span>{t.backToSite}</span>
           <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
         </Link>
         <Link
           href="/portal/profil"
-          className="mt-1 flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60"
+          className="mt-1 flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-slate-100 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400/60"
         >
           <PortalAvatar name={user.fullName} avatarUrl={user.avatarUrl} />
           <div className="min-w-0 flex-1">
@@ -218,7 +218,7 @@ export default function PortalShell({ user, showAdmin, headerActions, children }
     <div className="theme-portal bg-portal-flow min-h-screen text-slate-900 antialiased">
       <a
         href="#portal-main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-brand-700 focus:shadow-lg"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-60 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-brand-700 focus:shadow-lg"
       >
         {t.skipToContent}
       </a>
@@ -234,7 +234,7 @@ export default function PortalShell({ user, showAdmin, headerActions, children }
         <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label={t.mainNav}>
           <button
             type="button"
-            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-xs"
             aria-label={t.closeMenu}
             onClick={() => setDrawerOpen(false)}
           />
@@ -243,7 +243,7 @@ export default function PortalShell({ user, showAdmin, headerActions, children }
               type="button"
               onClick={() => setDrawerOpen(false)}
               aria-label={t.closeMenu}
-              className="absolute right-3 top-4 z-10 rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60"
+              className="absolute right-3 top-4 z-10 rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400/60"
             >
               <X className="w-5 h-5" aria-hidden="true" />
             </button>
@@ -253,14 +253,14 @@ export default function PortalShell({ user, showAdmin, headerActions, children }
       )}
 
       <div className="flex min-h-screen flex-col md:pl-64">
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-brand-100 bg-white/60 px-4 backdrop-blur-xl supports-[backdrop-filter]:bg-white/45 sm:px-6">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-brand-100 bg-white/60 px-4 backdrop-blur-xl supports-backdrop-filter:bg-white/45 sm:px-6">
           <div className="flex items-center gap-2 md:hidden">
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
               aria-label={t.openMenu}
               aria-expanded={drawerOpen}
-              className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+              className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/40"
             >
               <Menu className="w-5 h-5" aria-hidden="true" />
             </button>

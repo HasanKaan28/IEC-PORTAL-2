@@ -89,12 +89,12 @@ export default function CertificateVerificationClient() {
               value={code}
               onChange={(event) => setCode(event.target.value)}
               placeholder={t.codePlaceholder}
-              className="w-full flex-1 rounded-2xl border border-slate-300 bg-canvas px-4 py-3.5 font-mono text-sm uppercase tracking-wider text-slate-900 placeholder-slate-400 transition-colors focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30"
+              className="w-full flex-1 rounded-2xl border border-slate-300 bg-canvas px-4 py-3.5 font-mono text-sm uppercase tracking-wider text-slate-900 placeholder-slate-400 transition-colors focus:border-accent-500 focus:outline-hidden focus:ring-2 focus:ring-accent-500/30"
             />
             <button
               type="submit"
               disabled={verifying}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-600 px-6 py-3.5 text-sm font-semibold text-white shadow-glow transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-600 px-6 py-3.5 text-sm font-semibold text-white shadow-glow transition-colors hover:bg-brand-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400 disabled:opacity-60"
             >
               {verifying ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Search className="h-4 w-4" aria-hidden="true" />}
               <span>{verifying ? t.verifying : t.submit}</span>
@@ -104,7 +104,7 @@ export default function CertificateVerificationClient() {
 
         <div aria-live="polite">
           {state.kind === "verified" && (
-            <div className="mt-8 space-y-6 rounded-2xl border border-emerald-500/40 bg-gradient-to-b from-emerald-50 to-canvas p-6">
+            <div className="mt-8 space-y-6 rounded-2xl border border-emerald-500/40 bg-linear-to-b/srgb from-emerald-50 to-canvas p-6">
               <div className="flex items-center gap-3 border-b border-emerald-500/20 pb-4">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-500/40 bg-emerald-500/20 text-emerald-600">
                   <CheckCircle2 className="h-6 w-6" aria-hidden="true" />

@@ -24,15 +24,15 @@ export default function HeroSection() {
       <div className="relative z-10 max-w-5xl mx-auto text-center flex flex-col items-center">
         <ClubLogo size={104} priority className="logo-spin mb-8" />
 
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight font-display text-slate-900 max-w-4xl leading-[1.1]">
+        <h1 className="text-4xl sm:text-6xl/none md:text-7xl/none font-extrabold tracking-tight font-display text-slate-900 max-w-4xl leading-[1.1]">
           {t.hero.titleStart}{" "}
-          <span className="bg-gradient-to-r from-brand-700 via-brand-500 to-accent-600 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r/srgb from-brand-700 via-brand-500 to-accent-600 bg-clip-text text-transparent">
             {t.hero.titleHighlight}
           </span>
           {t.hero.titleEnd && <> {t.hero.titleEnd}</>}
         </h1>
 
-        <p className="mt-6 text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl leading-relaxed">
+        <p className="mt-6 text-base sm:text-lg/7 md:text-xl/7 text-slate-600 max-w-2xl leading-relaxed">
           {t.hero.description}
         </p>
 

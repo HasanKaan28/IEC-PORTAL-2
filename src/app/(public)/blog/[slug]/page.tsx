@@ -24,7 +24,7 @@ interface PageProps {
 }
 
 const FOCUS_RING =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas";
+  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const [{ slug }, locale] = await Promise.all([params, getServerLocale()]);
@@ -114,11 +114,11 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
               </div>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-display tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-5xl/none font-extrabold text-slate-900 font-display tracking-tight leading-tight">
               {post.title}
             </h1>
 
-            <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-light">
+            <p className="text-base sm:text-lg/7 text-slate-600 leading-relaxed font-light">
               {post.excerpt}
             </p>
 
@@ -143,7 +143,7 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
           {post.coverImage && (
             <div className="relative rounded-2xl overflow-hidden border border-slate-200 aspect-video shadow-2xl">
               <img src={post.coverImage} alt="" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-brand-950/15 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-t/srgb from-brand-950/15 via-transparent to-transparent pointer-events-none" />
             </div>
           )}
 

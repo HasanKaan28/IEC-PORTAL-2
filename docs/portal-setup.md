@@ -106,4 +106,3 @@ Supabase tarafında **Authentication > Rate Limits** altındaki saatlik e-posta 
 ## Bilinen sınırlar
 
 - Engelleme özelliği uygulama içinde çalışır ve servis anahtarı gerektirir.
-- `npm audit` derleme araçlarında (PostCSS, Tailwind 3'ün alt paketleri) bilinen açıklar gösteriyor. Bunlar yalnızca derleme sırasında projenin kendi CSS dosyalarını işler, kullanıcı girdisine dokunmaz. Tamamen kapanmaları için Tailwind 4'e geçmek gerekiyor.

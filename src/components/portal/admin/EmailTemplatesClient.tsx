@@ -7,7 +7,7 @@ import { useLocale } from "@/lib/i18n/locale-context";
 import { adminText } from "@/lib/i18n/portal/admin";
 
 const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2";
+  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2";
 
 const TEMPLATE_KEYS: EmailTemplateKey[] = ["welcome", "application_approved", "event_reminder", "certificate_issued"];
 
@@ -68,7 +68,7 @@ export default function EmailTemplatesClient() {
               aria-label={t.desktop}
               title={t.desktop}
               className={`rounded-lg p-2 transition-colors ${focusRing} ${
-                viewMode === "desktop" ? "bg-white text-brand-600 shadow-sm" : "text-slate-500 hover:text-slate-900"
+                viewMode === "desktop" ? "bg-white text-brand-600 shadow-xs" : "text-slate-500 hover:text-slate-900"
               }`}
             >
               <Monitor className="h-4 w-4" aria-hidden="true" />
@@ -80,7 +80,7 @@ export default function EmailTemplatesClient() {
               aria-label={t.mobile}
               title={t.mobile}
               className={`rounded-lg p-2 transition-colors ${focusRing} ${
-                viewMode === "mobile" ? "bg-white text-brand-600 shadow-sm" : "text-slate-500 hover:text-slate-900"
+                viewMode === "mobile" ? "bg-white text-brand-600 shadow-xs" : "text-slate-500 hover:text-slate-900"
               }`}
             >
               <Smartphone className="h-4 w-4" aria-hidden="true" />
@@ -130,7 +130,7 @@ export default function EmailTemplatesClient() {
 
       <div className="flex flex-col gap-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm sm:flex-row sm:items-center sm:gap-2">
         <span className="shrink-0 font-semibold text-brand-700">{t.subject}:</span>
-        <span className="break-words text-slate-800">{rendered.subject}</span>
+        <span className="wrap-break-word text-slate-800">{rendered.subject}</span>
       </div>
 
       <div className="flex min-h-[640px] items-start justify-center overflow-x-auto rounded-2xl border border-slate-200 bg-slate-100 p-3 sm:p-6">

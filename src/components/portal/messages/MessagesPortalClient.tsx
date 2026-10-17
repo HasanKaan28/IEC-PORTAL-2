@@ -442,7 +442,7 @@ export default function MessagesPortalClient({
 
   return (
     <>
-      <div className="relative flex h-[calc(100dvh-7rem)] min-h-[28rem] overflow-hidden rounded-2xl border border-slate-200 bg-white md:h-[calc(100dvh-8rem)]">
+      <div className="relative flex h-[calc(100dvh-7rem)] min-h-112 overflow-hidden rounded-2xl border border-slate-200 bg-white md:h-[calc(100dvh-8rem)]">
         <ConversationList
           locale={locale}
           now={now}
@@ -485,7 +485,7 @@ export default function MessagesPortalClient({
               <button
                 type="button"
                 onClick={() => openNewMessage()}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
               >
                 <SquarePen className="h-4 w-4" aria-hidden="true" />
                 <span>{text.messages.newMessage}</span>
@@ -532,7 +532,7 @@ export default function MessagesPortalClient({
             type="button"
             onClick={() => setNotice(null)}
             aria-label={text.common.close}
-            className="rounded-lg p-0.5 opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="rounded-lg p-0.5 opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <X className="h-4 w-4" aria-hidden="true" />
           </button>

@@ -64,7 +64,7 @@ export default function PortalDialog({
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-4 backdrop-blur-sm sm:items-center">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-4 backdrop-blur-xs sm:items-center">
       <div
         ref={panelRef}
         role="dialog"
@@ -72,7 +72,7 @@ export default function PortalDialog({
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
-        className={`my-8 w-full ${SIZE_CLASS[size]} overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-150 focus:outline-none`}
+        className={`my-8 w-full ${SIZE_CLASS[size]} overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-150 focus:outline-hidden`}
       >
         <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-slate-50 px-5 py-4">
           <div className="flex min-w-0 items-start gap-3">
@@ -101,7 +101,7 @@ export default function PortalDialog({
               type="button"
               onClick={onClose}
               aria-label={closeLabel}
-              className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-200/70 hover:text-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-200/70 hover:text-slate-800 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               <X className="h-5 w-5" aria-hidden="true" />
             </button>

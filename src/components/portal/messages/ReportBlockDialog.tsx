@@ -50,7 +50,7 @@ function ReportBlockPanel({ locale, memberName, onClose, onSubmit }: ReportBlock
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-xs animate-in fade-in duration-150"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget && !working) onClose();
       }}
@@ -73,7 +73,7 @@ function ReportBlockPanel({ locale, memberName, onClose, onSubmit }: ReportBlock
             onClick={onClose}
             disabled={Boolean(working)}
             aria-label={common.close}
-            className="rounded-xl p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50"
+            className="rounded-xl p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50"
           >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -97,7 +97,7 @@ function ReportBlockPanel({ locale, memberName, onClose, onSubmit }: ReportBlock
             placeholder={t.reasonPlaceholder}
             aria-describedby="safety-reason-hint"
             aria-invalid={error ? true : undefined}
-            className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+            className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-brand-500 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-brand-500/20"
           />
           <p id="safety-reason-hint" className="mt-1 text-xs text-slate-500">
             {t.reasonHint}
@@ -118,7 +118,7 @@ function ReportBlockPanel({ locale, memberName, onClose, onSubmit }: ReportBlock
             type="button"
             onClick={() => void submit("block")}
             disabled={Boolean(working)}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-60"
           >
             {working === "block" ? (
               <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -131,7 +131,7 @@ function ReportBlockPanel({ locale, memberName, onClose, onSubmit }: ReportBlock
             type="button"
             onClick={() => void submit("report")}
             disabled={Boolean(working)}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-rose-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 disabled:opacity-60"
           >
             {working === "report" ? (
               <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />

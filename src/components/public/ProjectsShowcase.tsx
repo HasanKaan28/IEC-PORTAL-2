@@ -80,13 +80,13 @@ export default function ProjectsShowcase() {
                 <li key={project.id} className={`reveal-3d ${isLead ? "md:col-span-2" : ""}`}>
                   <Tilt
                     max={isLead ? 4 : 7}
-                    className="group flex h-full flex-col rounded-2xl overflow-hidden border border-white/70 bg-white/70 backdrop-blur-sm shadow-soft hover:border-brand-200 transition-colors"
+                    className="group flex h-full flex-col rounded-2xl overflow-hidden border border-white/70 bg-white/70 backdrop-blur-xs shadow-soft hover:border-brand-200 transition-colors"
                   >
                   <ProjectGallery
                     images={project.gallery}
                     alt={project.title[locale]}
                     sizes={isLead ? "(max-width: 768px) 100vw, 66vw" : "(max-width: 768px) 100vw, 33vw"}
-                    className={isLead ? "aspect-[16/9] lg:aspect-[21/9]" : "aspect-[16/9]"}
+                    className={isLead ? "aspect-video lg:aspect-21/9" : "aspect-video"}
                   />
 
                   <div className="flex flex-1 flex-col p-5 sm:p-6">

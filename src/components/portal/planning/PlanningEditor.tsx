@@ -24,7 +24,7 @@ const STATUS_STYLES: Record<PlanStatus, string> = {
 };
 
 const inputClass =
-  "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20";
+  "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-brand-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20";
 
 type Feedback = { kind: "success" | "error"; text: string } | null;
 
@@ -89,7 +89,7 @@ export default function PlanningEditor({ initialPlan, today }: { initialPlan: Mo
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 pb-24">
-      <header className="flex flex-col gap-4 rounded-3xl border border-white/70 bg-gradient-to-br from-brand-100 via-accent-50 to-emerald-50 p-6 shadow-soft sm:flex-row sm:items-end sm:justify-between sm:p-8">
+      <header className="flex flex-col gap-4 rounded-3xl border border-white/70 bg-linear-to-br/srgb from-brand-100 via-accent-50 to-emerald-50 p-6 shadow-soft sm:flex-row sm:items-end sm:justify-between sm:p-8">
         <div>
           <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-700">
             <CalendarRange className="h-4 w-4" aria-hidden="true" />
@@ -102,7 +102,7 @@ export default function PlanningEditor({ initialPlan, today }: { initialPlan: Mo
         <Link
           href="/hakkimizda#plan-title"
           target="_blank"
-          className="inline-flex items-center gap-2 self-start rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-brand-300 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 sm:self-auto"
+          className="inline-flex items-center gap-2 self-start rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-brand-300 hover:text-brand-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/40 sm:self-auto"
         >
           {t.page.viewOnSite}
           <ExternalLink className="h-4 w-4" aria-hidden="true" />
@@ -213,7 +213,7 @@ export default function PlanningEditor({ initialPlan, today }: { initialPlan: Mo
               </details>
 
               <div className="mt-auto flex flex-wrap items-end gap-3">
-                <div className="min-w-[12rem] flex-1">
+                <div className="min-w-48 flex-1">
                   <label htmlFor={`${id}-status`} className="mb-1.5 block text-sm font-medium text-slate-700">
                     {t.page.statusLabel}
                   </label>
@@ -241,8 +241,8 @@ export default function PlanningEditor({ initialPlan, today }: { initialPlan: Mo
         })}
       </ol>
 
-      <div className="sticky bottom-4 z-10 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-soft backdrop-blur sm:flex-row sm:items-center sm:justify-between">
-        <div aria-live="polite" className="min-h-[1.25rem] text-sm">
+      <div className="sticky bottom-4 z-10 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-soft backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
+        <div aria-live="polite" className="min-h-5 text-sm">
           {feedback?.kind === "success" && (
             <span className="flex items-center gap-2 text-emerald-700">
               <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
@@ -261,7 +261,7 @@ export default function PlanningEditor({ initialPlan, today }: { initialPlan: Mo
             type="button"
             onClick={reset}
             disabled={!dirty || pending}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/40 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <RotateCcw className="h-4 w-4" aria-hidden="true" />
             {t.page.reset}
@@ -270,7 +270,7 @@ export default function PlanningEditor({ initialPlan, today }: { initialPlan: Mo
             type="button"
             onClick={save}
             disabled={!dirty || pending || !validStart || weeks.some((w) => !w.titleTr.trim())}
-            className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-glow transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-glow transition-colors hover:bg-brand-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {pending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Save className="h-4 w-4" aria-hidden="true" />}
             {pending ? t.page.saving : t.page.save}

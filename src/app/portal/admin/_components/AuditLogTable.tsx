@@ -95,7 +95,7 @@ export default function AuditLogTable({ logs, loadError }: { logs: AuditLogItem[
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t.searchPlaceholder}
-            className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+            className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-brand-600 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20"
           />
         </div>
       </div>
@@ -135,7 +135,7 @@ export default function AuditLogTable({ logs, loadError }: { logs: AuditLogItem[
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-600">{target}</td>
                     <td className="max-w-xs px-4 py-3 text-slate-700">
-                      <span className="line-clamp-2 break-words" title={detail}>
+                      <span className="line-clamp-2 wrap-break-word" title={detail}>
                         {detail}
                       </span>
                     </td>

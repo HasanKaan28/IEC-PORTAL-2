@@ -8,7 +8,7 @@ import { useLocale } from "@/lib/i18n/locale-context";
 import { adminText } from "@/lib/i18n/portal/admin";
 
 const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2";
+  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2";
 
 export default function AdminBlogDeleteButton({ slug, title }: { slug: string; title?: string }) {
   const router = useRouter();

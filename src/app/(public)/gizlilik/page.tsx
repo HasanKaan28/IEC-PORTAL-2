@@ -151,7 +151,7 @@ function LegalDocumentView({ doc }: { doc: LegalDocument }) {
         <p className="text-xs text-slate-500 font-mono mt-2">{doc.versionLine}</p>
       </div>
 
-      <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-200 space-y-6 text-slate-600 text-xs sm:text-sm leading-relaxed">
+      <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-200 space-y-6 text-slate-600 text-xs sm:text-sm/5 leading-relaxed">
         {doc.sections.map((section) => (
           <SectionView key={section.id} section={section} />
         ))}

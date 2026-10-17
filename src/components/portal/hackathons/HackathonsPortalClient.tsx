@@ -157,7 +157,7 @@ export default function HackathonsPortalClient({
             <button
               type="button"
               onClick={() => memberCard?.openMemberCard(member.id)}
-              className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+              className="rounded-full focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/50"
             >
               <Avatar name={name} src={member.avatar} />
               <span className="sr-only">{member.isLeader ? `${name}, ${t.hackathons.captain}` : name}</span>
@@ -268,7 +268,7 @@ export default function HackathonsPortalClient({
                         setSelectedHackathon(hackathon.id);
                         setActiveTab("teams");
                       }}
-                      className="inline-flex items-center gap-1 rounded-lg text-sm font-semibold text-brand-700 hover:text-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                      className="inline-flex items-center gap-1 rounded-lg text-sm font-semibold text-brand-700 hover:text-brand-800 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500"
                     >
                       <Users className="h-4 w-4" aria-hidden="true" />
                       {t.hackathons.teamsCount(hackathon.teamsCount)}

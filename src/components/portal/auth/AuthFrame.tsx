@@ -26,7 +26,7 @@ export default function AuthFrame({ title, subtitle, wide = false, children, foo
       <div className="relative mx-auto flex max-w-5xl items-center justify-between">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-slate-600 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60"
+          className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-slate-600 transition-colors hover:text-slate-900 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400/60"
         >
           <ArrowLeft className="w-4 h-4" aria-hidden="true" />
           <span>{t.backHome}</span>
@@ -36,7 +36,7 @@ export default function AuthFrame({ title, subtitle, wide = false, children, foo
 
       <main className={`relative mx-auto mt-8 w-full ${wide ? "max-w-xl" : "max-w-md"}`}>
         <div className="mb-6 text-center">
-          <Link href="/" className="inline-block rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60">
+          <Link href="/" className="inline-block rounded-full focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400/60">
             <ClubLogo size={72} priority className="mx-auto" />
           </Link>
           <h1 className="mt-5 font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{title}</h1>
@@ -66,7 +66,7 @@ export function PortalNotConfiguredNotice() {
       </div>
       <Link
         href="/basvuru"
-        className="inline-flex items-center justify-center rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2"
+        className="inline-flex items-center justify-center rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-brand-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2"
       >
         {t.applyCta}
       </Link>
@@ -75,4 +75,4 @@ export function PortalNotConfiguredNotice() {
 }
 
 export const inputClass =
-  "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 aria-[invalid=true]:border-rose-400";
+  "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-brand-500 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 aria-invalid:border-rose-400";

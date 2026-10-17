@@ -65,7 +65,7 @@ export default function ProjectJoinRequestsDrawer({
 
   const tabClass = (active: boolean) =>
     `rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${focusRing} ${
-      active ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
+      active ? "bg-white text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900"
     }`;
 
   return (
@@ -123,7 +123,7 @@ export default function ProjectJoinRequestsDrawer({
               const noteId = `${ids}-note-${request.id}`;
               const applicant = request.userName || "-";
               return (
-                <li key={request.id} className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <li key={request.id} className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-start gap-3">
                       <UserAvatar name={request.userName} src={request.userAvatar} size="md" />
@@ -199,7 +199,7 @@ export default function ProjectJoinRequestsDrawer({
                           onClick={() => handleReview(request, "approved")}
                           disabled={busy}
                           aria-label={t.requestsDrawer.approveAria(applicant)}
-                          className={`inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-1.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:opacity-60 ${focusRing}`}
+                          className={`inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-1.5 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-emerald-700 disabled:opacity-60 ${focusRing}`}
                         >
                           {busy ? (
                             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />

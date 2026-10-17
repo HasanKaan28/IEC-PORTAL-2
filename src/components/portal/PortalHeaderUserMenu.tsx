@@ -59,15 +59,15 @@ export default function PortalHeaderUserMenu({ user }: { user: PortalMenuUser })
       <button
         type="button"
         onClick={() => setMenuOpen((open) => !open)}
-        className="flex items-center gap-2 rounded-xl p-1 pr-2 text-left transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+        className="flex items-center gap-2 rounded-xl p-1 pr-2 text-left transition-colors hover:bg-slate-100 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/40"
         aria-expanded={menuOpen}
         aria-haspopup="menu"
         aria-label={t.userMenu}
       >
         <PortalAvatar name={user.fullName} avatarUrl={user.avatarUrl} />
         <div className="hidden leading-tight sm:block">
-          <div className="max-w-[10rem] truncate text-sm font-semibold text-slate-800">{user.fullName}</div>
-          <div className="max-w-[10rem] truncate text-xs text-slate-500">{user.roleLabel}</div>
+          <div className="max-w-40 truncate text-sm font-semibold text-slate-800">{user.fullName}</div>
+          <div className="max-w-40 truncate text-xs text-slate-500">{user.roleLabel}</div>
         </div>
         <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${menuOpen ? "rotate-180" : ""}`} aria-hidden="true" />
       </button>
@@ -87,7 +87,7 @@ export default function PortalHeaderUserMenu({ user }: { user: PortalMenuUser })
               href="/portal/profil"
               role="menuitem"
               onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2 text-slate-700 transition-colors hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-none"
+              className="flex items-center gap-2.5 px-4 py-2 text-slate-700 transition-colors hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-hidden"
             >
               <User className="w-4 h-4 text-slate-400" aria-hidden="true" />
               <span>{t.profileSettings}</span>
@@ -99,7 +99,7 @@ export default function PortalHeaderUserMenu({ user }: { user: PortalMenuUser })
                 setMenuOpen(false);
                 setCardOpen(true);
               }}
-              className="flex w-full items-center gap-2.5 px-4 py-2 text-left text-slate-700 transition-colors hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-none"
+              className="flex w-full items-center gap-2.5 px-4 py-2 text-left text-slate-700 transition-colors hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-hidden"
             >
               <IdCard className="w-4 h-4 text-brand-500" aria-hidden="true" />
               <span>{t.profileCard}</span>
@@ -111,7 +111,7 @@ export default function PortalHeaderUserMenu({ user }: { user: PortalMenuUser })
               <button
                 type="submit"
                 role="menuitem"
-                className="flex w-full items-center gap-2.5 px-4 py-2 text-left font-medium text-rose-600 transition-colors hover:bg-rose-50 focus-visible:bg-rose-50 focus-visible:outline-none"
+                className="flex w-full items-center gap-2.5 px-4 py-2 text-left font-medium text-rose-600 transition-colors hover:bg-rose-50 focus-visible:bg-rose-50 focus-visible:outline-hidden"
               >
                 <LogOut className="w-4 h-4" aria-hidden="true" />
                 <span>{t.signOut}</span>

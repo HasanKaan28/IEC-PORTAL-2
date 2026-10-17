@@ -50,11 +50,11 @@ export default async function AboutPage() {
         <div className="mx-auto max-w-6xl space-y-20">
           <header className="mx-auto max-w-3xl text-center">
             <h1 className="font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">{t.title}</h1>
-            <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">{t.intro}</p>
+            <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base/6">{t.intro}</p>
           </header>
 
-          <section className="reveal-3d glass-panel flex flex-col items-center gap-8 rounded-3xl bg-gradient-to-r from-brand-100/80 via-accent-50/70 to-emerald-100/70 p-8 md:flex-row">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-glow">
+          <section className="reveal-3d glass-panel flex flex-col items-center gap-8 rounded-3xl bg-linear-to-r/srgb from-brand-100/80 via-accent-50/70 to-emerald-100/70 p-8 md:flex-row">
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br/srgb from-brand-500 to-brand-700 text-white shadow-glow">
               <GraduationCap className="h-10 w-10" aria-hidden="true" />
             </div>
             <div className="flex-1 text-center md:text-left">
@@ -75,7 +75,7 @@ export default async function AboutPage() {
                 return (
                   <li key={member.name} className="reveal-3d">
                     <Tilt className="glass-panel group flex h-full flex-col overflow-hidden rounded-2xl transition-shadow duration-300 hover:shadow-glow">
-                    <div className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-br from-brand-200 via-accent-100 to-emerald-200">
+                    <div className="relative aspect-4/5 w-full overflow-hidden bg-linear-to-br/srgb from-brand-200 via-accent-100 to-emerald-200">
                       {photo ? (
                         <Image
                           src={photo}
@@ -144,7 +144,7 @@ export default async function AboutPage() {
             <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">{t.ctaBody}</p>
             <Link
               href="/basvuru"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-glow transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-glow transition-colors hover:bg-brand-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400"
             >
               <span>{t.ctaButton}</span>
               <ArrowRight className="h-4 w-4" aria-hidden="true" />

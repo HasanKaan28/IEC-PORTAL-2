@@ -8,7 +8,7 @@ interface ProjectGalleryProps {
   images: string[];
   alt: string;
   sizes: string;
-  /** Aspect and sizing classes for the frame, e.g. "aspect-[16/9]". */
+  /** Aspect and sizing classes for the frame, e.g. "aspect-video". */
   className?: string;
   priority?: boolean;
 }

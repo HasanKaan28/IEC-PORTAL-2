@@ -25,7 +25,7 @@ type LikeResult = Awaited<ReturnType<typeof likeBlogPostAction>>;
 type LikeNotice = { kind: "error"; text: string } | { kind: "signIn" };
 
 const FOCUS_RING =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas";
+  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas";
 
 export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalogViewProps) {
   const { locale } = useLocale();
@@ -176,7 +176,7 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t.catalog.searchPlaceholder}
-                className="w-full bg-white border border-slate-200 rounded-2xl pl-11 pr-24 py-3.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-brand-500/80 focus:ring-2 focus:ring-brand-500/30 transition-colors shadow-xl"
+                className="w-full bg-white border border-slate-200 rounded-2xl pl-11 pr-24 py-3.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-hidden focus:border-brand-500/80 focus:ring-2 focus:ring-brand-500/30 transition-colors shadow-xl"
               />
               {searchQuery && (
                 <button
@@ -303,7 +303,7 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
                 return (
                   <li
                     key={post.slug}
-                    className="relative glass-panel rounded-2xl border border-slate-200 hover:border-brand-500/50 transition-[border-color,transform,box-shadow] flex flex-col justify-between overflow-hidden group hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-900/10 motion-reduce:hover:translate-y-0 focus-within:border-brand-500/50"
+                    className="relative glass-panel rounded-2xl border border-slate-200 hover:border-brand-500/50 transition-[border-color,transform,translate,box-shadow] flex flex-col justify-between overflow-hidden group hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-900/10 motion-reduce:hover:translate-y-0 focus-within:border-brand-500/50"
                   >
                     {post.coverImage && (
                       <div className="relative aspect-video overflow-hidden border-b border-slate-200">
@@ -337,7 +337,7 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
                           {/* The stretched link makes the whole card clickable without nesting the like button inside it. */}
                           <Link
                             href={`/blog/${post.slug}`}
-                            className="rounded focus-visible:outline-none after:absolute after:inset-0 after:rounded-2xl focus-visible:after:ring-2 focus-visible:after:ring-brand-400/70"
+                            className="rounded focus-visible:outline-hidden after:absolute after:inset-0 after:rounded-2xl focus-visible:after:ring-2 focus-visible:after:ring-brand-400/70"
                           >
                             {post.title}
                           </Link>

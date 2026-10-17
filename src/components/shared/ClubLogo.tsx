@@ -33,7 +33,7 @@ export default function ClubLogo({
         role={alt ? "img" : undefined}
         aria-label={alt || undefined}
         aria-hidden={alt ? undefined : true}
-        className={`inline-flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 shadow-glow ${className}`}
+        className={`inline-flex shrink-0 items-center justify-center rounded-full bg-linear-to-br/srgb from-brand-500 to-brand-700 shadow-glow ${className}`}
         style={{ width: size, height: size }}
       >
         <Image

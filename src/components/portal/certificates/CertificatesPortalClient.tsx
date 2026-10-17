@@ -148,7 +148,7 @@ export default function CertificatesPortalClient({ certificates }: CertificatesP
               {filteredCertificates.map((cert) => (
                 <li key={cert.id}>
                   <article className={`${cardClass} relative flex h-full flex-col overflow-hidden p-5 transition-shadow hover:shadow-md`}>
-                    <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent-400 via-brand-600 to-accent-400" aria-hidden="true" />
+                    <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r/srgb from-accent-400 via-brand-600 to-accent-400" aria-hidden="true" />
 
                     <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                       <span className={`${chipClass} border-accent-200 bg-accent-50 font-mono font-bold text-accent-800`}>

@@ -14,7 +14,7 @@ export default function AboutSection() {
     <section className="py-20 sm:py-24 px-4 sm:px-6 relative z-10 border-t border-brand-100/80">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
         <div className="reveal-3d lg:col-span-5 space-y-5">
-          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 font-display tracking-tight leading-tight">
+          <h2 className="text-3xl sm:text-4xl/10 font-bold text-slate-900 font-display tracking-tight leading-tight">
             {t.about.titleStart} <span className="text-brand-600">{t.about.titleHighlight}</span>
           </h2>
           <p className="text-slate-600 text-base leading-relaxed max-w-[60ch]">{t.about.paragraph1}</p>

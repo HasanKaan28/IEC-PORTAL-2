@@ -47,7 +47,7 @@ export default function ShaderGradientBackground() {
         <ShaderGradient control="query" urlString={SHADER_URL} />
       </ShaderGradientCanvas>
       {/* A thin veil keeps the headline at full contrast over the moving colours. */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/25 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-linear-to-b/srgb from-white/10 via-white/25 to-transparent pointer-events-none" />
     </div>
   );
 }

@@ -52,7 +52,7 @@ export default function ConversationList({
           <button
             type="button"
             onClick={() => onNewMessage()}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
           >
             <SquarePen className="h-4 w-4" aria-hidden="true" />
             <span>{t.newMessage}</span>
@@ -75,7 +75,7 @@ export default function ConversationList({
               onChange={(event) => onQueryChange(event.target.value)}
               placeholder={t.searchPlaceholder}
               autoComplete="off"
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-brand-500 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-brand-500/20"
             />
           </div>
         )}
@@ -91,7 +91,7 @@ export default function ConversationList({
             <button
               type="button"
               onClick={() => onNewMessage()}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
             >
               <SquarePen className="h-4 w-4" aria-hidden="true" />
               <span>{t.emptyCta}</span>
@@ -102,11 +102,11 @@ export default function ConversationList({
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500">
               <Search className="h-6 w-6" aria-hidden="true" />
             </span>
-            <p className="break-words text-sm text-slate-600">{t.noMatch(trimmedQuery)}</p>
+            <p className="wrap-break-word text-sm text-slate-600">{t.noMatch(trimmedQuery)}</p>
             <button
               type="button"
               onClick={() => onNewMessage(trimmedQuery)}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
             >
               <UserPlus className="h-4 w-4" aria-hidden="true" />
               <span>{t.searchAllMembers}</span>
@@ -126,7 +126,7 @@ export default function ConversationList({
                     type="button"
                     onClick={() => onSelect(contact.id)}
                     aria-current={isActive ? "true" : undefined}
-                    className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500 ${
+                    className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500 ${
                       isActive ? "bg-brand-50" : "hover:bg-slate-50"
                     }`}
                   >
@@ -156,7 +156,7 @@ export default function ConversationList({
                           {preview}
                         </span>
                         {contact.unreadCount > 0 && (
-                          <span className="inline-flex h-5 min-w-[1.25rem] shrink-0 items-center justify-center rounded-full bg-brand-600 px-1.5 text-xs font-bold text-white">
+                          <span className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-brand-600 px-1.5 text-xs font-bold text-white">
                             <span aria-hidden="true">{contact.unreadCount > 99 ? "99+" : contact.unreadCount}</span>
                             <span className="sr-only">{t.unreadCount(contact.unreadCount)}</span>
                           </span>

@@ -9,7 +9,7 @@ export default function JoinCtaSection() {
 
   return (
     <section className="px-4 sm:px-6 pb-20 sm:pb-24 relative z-10">
-      <div className="reveal-3d max-w-7xl mx-auto rounded-3xl border border-white/70 bg-gradient-to-br from-brand-100/80 via-accent-50/80 to-emerald-100/70 p-8 shadow-soft backdrop-blur-sm sm:p-12">
+      <div className="reveal-3d max-w-7xl mx-auto rounded-3xl border border-white/70 bg-linear-to-br/srgb from-brand-100/80 via-accent-50/80 to-emerald-100/70 p-8 shadow-soft backdrop-blur-xs sm:p-12">
         <div className="max-w-2xl">
           <p className="text-sm font-medium text-brand-700">{t.joinCta.badge}</p>
           <h2 className="mt-3 text-2xl sm:text-3xl font-bold text-slate-900 font-display tracking-tight">{t.joinCta.title}</h2>

@@ -50,7 +50,7 @@ function Switch({
     >
       <span
         aria-hidden="true"
-        className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${checked ? "translate-x-[22px]" : "translate-x-0.5"}`}
+        className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${checked ? "translate-x-[22px]" : "translate-x-0.5"}`}
       />
     </button>
   );
@@ -230,7 +230,7 @@ export default function CustomRolesPanel({
             <button
               type="button"
               onClick={startCreate}
-              className={`inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 ${focusRing}`}
+              className={`inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-brand-700 ${focusRing}`}
             >
               <Plus className="h-4 w-4" aria-hidden="true" />
               {t.builder.newRole}
@@ -249,7 +249,7 @@ export default function CustomRolesPanel({
       )}
 
       {draft && (
-        <form onSubmit={handleSave} className="space-y-6 rounded-2xl border border-brand-200 bg-white p-5 shadow-sm sm:p-6">
+        <form onSubmit={handleSave} className="space-y-6 rounded-2xl border border-brand-200 bg-white p-5 shadow-xs sm:p-6">
           <div className="flex items-start justify-between gap-3">
             <h3 className="font-display text-base font-bold text-slate-900">
               {draft.id ? t.builder.editTitle(draft.name || "") : t.builder.createTitle}
@@ -277,7 +277,7 @@ export default function CustomRolesPanel({
                 value={draft.name}
                 onChange={(e) => setDraft({ ...draft, name: e.target.value })}
                 placeholder={t.builder.namePlaceholder}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20"
               />
             </div>
             <div>
@@ -290,7 +290,7 @@ export default function CustomRolesPanel({
                 value={draft.description}
                 onChange={(e) => setDraft({ ...draft, description: e.target.value })}
                 placeholder={t.builder.descriptionPlaceholder}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20"
               />
             </div>
           </div>
@@ -385,7 +385,7 @@ export default function CustomRolesPanel({
               <button
                 type="submit"
                 disabled={saving || (selectedCount === 0 && !draft.isDefault) || draft.name.trim().length < 2}
-                className={`inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`}
+                className={`inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`}
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <ShieldCheck className="h-4 w-4" aria-hidden="true" />}
                 {saving ? t.builder.saving : draft.id ? t.builder.save : t.builder.create}
@@ -545,7 +545,7 @@ export default function CustomRolesPanel({
                           value={memberQuery}
                           onChange={(e) => setMemberQuery(e.target.value)}
                           placeholder={t.list.memberSearchPlaceholder}
-                          className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                          className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20"
                         />
                       </div>
                       {matchingMembers(role).length === 0 ? (

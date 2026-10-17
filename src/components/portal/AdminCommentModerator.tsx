@@ -71,7 +71,7 @@ export default function AdminCommentModerator({ initialComments }: AdminCommentM
               aria-pressed={filter === "all"}
               onClick={() => setFilter("all")}
               className={`rounded-lg px-3 py-1.5 transition-colors ${focusRing} ${
-                filter === "all" ? "bg-white font-semibold text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
+                filter === "all" ? "bg-white font-semibold text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900"
               }`}
             >
               {t.all(comments.length)}
@@ -81,7 +81,7 @@ export default function AdminCommentModerator({ initialComments }: AdminCommentM
               aria-pressed={filter === "flagged"}
               onClick={() => setFilter("flagged")}
               className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-colors ${focusRing} ${
-                filter === "flagged" ? "bg-rose-600 font-semibold text-white shadow-sm" : "text-rose-700 hover:bg-rose-50"
+                filter === "flagged" ? "bg-rose-600 font-semibold text-white shadow-xs" : "text-rose-700 hover:bg-rose-50"
               }`}
             >
               <ShieldAlert className="h-4 w-4" aria-hidden="true" />
@@ -147,7 +147,7 @@ export default function AdminCommentModerator({ initialComments }: AdminCommentM
                         </div>
                       )}
 
-                      <p className="whitespace-pre-line break-words pt-1 text-sm leading-relaxed text-slate-700">
+                      <p className="whitespace-pre-line wrap-break-word pt-1 text-sm leading-relaxed text-slate-700">
                         {comment.content}
                       </p>
                     </div>

@@ -34,7 +34,7 @@ export default async function ApplicationPage() {
               <ol className="mt-8 space-y-5">
                 {t.steps.map((step, index) => (
                   <li key={step.title} className="flex gap-4">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-800 text-sm font-bold text-white">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br/srgb from-brand-500 to-brand-800 text-sm font-bold text-white">
                       {index + 1}
                     </span>
                     <div>

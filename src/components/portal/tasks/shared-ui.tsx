@@ -16,12 +16,12 @@ import type { TaskPriority, TaskStatus } from "@/lib/tasks/task-types";
 /** Shared, dependency-free UI pieces for the portal task board and projects pages. */
 
 export const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:ring-offset-1";
+  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:ring-offset-1";
 
 export const inputClass =
-  "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500";
+  "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-brand-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500/30 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500";
 
-export const primaryButtonClass = `inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`;
+export const primaryButtonClass = `inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`;
 
 export const secondaryButtonClass = `inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`;
 
@@ -73,7 +73,7 @@ export function ToastRegion({
   dismissLabel: string;
 }) {
   return (
-    <div aria-live="polite" role="status" className="pointer-events-none fixed bottom-6 right-6 z-[60] max-w-sm">
+    <div aria-live="polite" role="status" className="pointer-events-none fixed bottom-6 right-6 z-60 max-w-sm">
       {toast && (
         <div
           key={toast.id}
@@ -165,7 +165,7 @@ export function DialogFrame({
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex bg-slate-900/40 backdrop-blur-sm animate-in fade-in ${
+      className={`fixed inset-0 z-50 flex bg-slate-900/40 backdrop-blur-xs animate-in fade-in ${
         isDrawer ? "justify-end" : "items-center justify-center overflow-y-auto p-4"
       }`}
       onMouseDown={(event) => {
@@ -180,8 +180,8 @@ export function DialogFrame({
         tabIndex={-1}
         className={
           isDrawer
-            ? "flex h-full w-full max-w-xl flex-col border-l border-slate-200 bg-white shadow-2xl outline-none animate-in slide-in-from-right duration-200"
-            : "my-auto w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl outline-none animate-in fade-in zoom-in-95 duration-150"
+            ? "flex h-full w-full max-w-xl flex-col border-l border-slate-200 bg-white shadow-2xl outline-hidden animate-in slide-in-from-right duration-200"
+            : "my-auto w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl outline-hidden animate-in fade-in zoom-in-95 duration-150"
         }
       >
         {children}

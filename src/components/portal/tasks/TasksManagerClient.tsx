@@ -151,7 +151,7 @@ export default function TasksManagerClient({ initialTasks, members, projects, vi
       <ToastRegion toast={toast} onDismiss={dismiss} dismissLabel={t.common.dismissToast} />
 
       {/* Header */}
-      <div className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs sm:flex-row sm:items-center">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="font-display text-xl font-bold text-slate-900">{t.tasks.heading}</h1>
@@ -180,7 +180,7 @@ export default function TasksManagerClient({ initialTasks, members, projects, vi
                 aria-pressed={viewMode === mode}
                 onClick={() => changeView(mode)}
                 className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium transition-colors ${focusRing} ${
-                  viewMode === mode ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                  viewMode === mode ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-800"
                 }`}
               >
                 <Icon className="h-4 w-4" aria-hidden="true" />
@@ -200,7 +200,7 @@ export default function TasksManagerClient({ initialTasks, members, projects, vi
       {tasks.length > 0 && (
         <section
           aria-label={t.tasks.filtersLabel}
-          className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between"
+          className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs lg:flex-row lg:items-center lg:justify-between"
         >
           <div className="relative w-full lg:max-w-sm">
             <label htmlFor="task-search" className="sr-only">

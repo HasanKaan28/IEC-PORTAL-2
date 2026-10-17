@@ -112,13 +112,13 @@ export default function PortalNotificationBell({ initialNotifications = [] }: Po
         aria-expanded={isOpen}
         aria-controls={panelId}
         aria-label={unreadCount > 0 ? t.bellLabelUnread(unreadCount) : t.bellLabel}
-        className="relative rounded-xl p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        className="relative rounded-xl p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500"
       >
         <Bell className="h-5 w-5" aria-hidden="true" />
         {unreadCount > 0 && (
           <span
             aria-hidden="true"
-            className="absolute -right-1 -top-1 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-rose-600 px-1 text-xs font-bold leading-none text-white ring-2 ring-white"
+            className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1 text-xs font-bold leading-none text-white ring-2 ring-white"
           >
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
@@ -148,7 +148,7 @@ export default function PortalNotificationBell({ initialNotifications = [] }: Po
                 aria-pressed={soundOn}
                 aria-label={soundOn ? t.soundTurnOff : t.soundTurnOn}
                 title={soundOn ? t.soundTurnOff : t.soundTurnOn}
-                className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500"
               >
                 {soundOn ? (
                   <Volume2 className="h-4 w-4 text-brand-600" aria-hidden="true" />
@@ -160,7 +160,7 @@ export default function PortalNotificationBell({ initialNotifications = [] }: Po
                 <button
                   type="button"
                   onClick={() => void markRead()}
-                  className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-brand-700 transition-colors hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-brand-700 transition-colors hover:bg-brand-50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
                   <CheckCheck className="h-4 w-4" aria-hidden="true" />
                   <span>{t.markAllRead}</span>
@@ -194,7 +194,7 @@ export default function PortalNotificationBell({ initialNotifications = [] }: Po
                         setIsOpen(false);
                         if (!item.isRead) void markRead([item.id]);
                       }}
-                      className={`flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500 ${
+                      className={`flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500 ${
                         item.isRead ? "" : "bg-brand-50/40"
                       }`}
                     >

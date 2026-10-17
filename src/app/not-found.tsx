@@ -21,7 +21,7 @@ export default async function NotFound() {
           {t.badge}
         </p>
         <div className="space-y-2">
-          <p className="bg-gradient-to-b from-brand-700 via-brand-500 to-accent-600 bg-clip-text font-mono text-7xl font-black tracking-tighter text-transparent md:text-8xl">
+          <p className="bg-linear-to-b/srgb from-brand-700 via-brand-500 to-accent-600 bg-clip-text font-mono text-7xl font-black tracking-tighter text-transparent md:text-8xl">
             404
           </p>
           <h1 className="font-display text-xl font-bold text-slate-800 md:text-2xl">{t.title}</h1>

@@ -94,7 +94,7 @@ export default async function PortalDashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <section className="relative overflow-hidden rounded-3xl border border-white/70 bg-gradient-to-br from-brand-100 via-accent-50 to-emerald-50 p-6 text-slate-900 shadow-soft sm:p-8">
+      <section className="relative overflow-hidden rounded-3xl border border-white/70 bg-linear-to-br/srgb from-brand-100 via-accent-50 to-emerald-50 p-6 text-slate-900 shadow-soft sm:p-8">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(36rem_14rem_at_0%_0%,rgba(160,194,232,0.5),transparent_70%),radial-gradient(28rem_12rem_at_100%_100%,rgba(181,214,191,0.5),transparent_70%)]"
@@ -110,7 +110,7 @@ export default async function PortalDashboardPage() {
           {can("tasks") && (
             <Link
               href="/portal/gorevler"
-              className="inline-flex items-center gap-2 self-start rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 sm:self-auto"
+              className="inline-flex items-center gap-2 self-start rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition-colors hover:bg-brand-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-300 sm:self-auto"
             >
               <span>{t.openBoard}</span>
               <ArrowRight className="w-4 h-4" aria-hidden="true" />

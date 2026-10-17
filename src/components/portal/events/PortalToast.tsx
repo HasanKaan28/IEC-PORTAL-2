@@ -41,7 +41,7 @@ export default function PortalToast({
   dismissLabel: string;
 }) {
   return (
-    <div aria-live="polite" role="status" className="pointer-events-none fixed bottom-6 right-6 z-[60] max-w-sm">
+    <div aria-live="polite" role="status" className="pointer-events-none fixed bottom-6 right-6 z-60 max-w-sm">
       {toast && (
         <div
           className={`pointer-events-auto flex items-start gap-2.5 rounded-xl border px-4 py-3 text-sm shadow-lg animate-in fade-in slide-in-from-bottom-3 ${
@@ -60,7 +60,7 @@ export default function PortalToast({
             type="button"
             onClick={onDismiss}
             aria-label={dismissLabel}
-            className="rounded-md p-0.5 opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="rounded-md p-0.5 opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <X className="h-4 w-4" aria-hidden="true" />
           </button>

@@ -57,7 +57,6 @@ const tr = {
     member: "Kulüp Üyesi",
   },
   hero: {
-    eyebrow: "FENS // ULUSLARARASI SARAYBOSNA ÜNİVERSİTESİ",
     titleStart: "Derste Öğrendiğimizi",
     titleHighlight: "Gerçek Projelere",
     titleEnd: "Dönüştürüyoruz.",
@@ -237,7 +236,6 @@ const en: Dictionary = {
     member: "Club Member",
   },
   hero: {
-    eyebrow: "FENS // INTERNATIONAL UNIVERSITY OF SARAJEVO",
     titleStart: "We Turn What We Learn in Class",
     titleHighlight: "Into Real Projects.",
     titleEnd: "",

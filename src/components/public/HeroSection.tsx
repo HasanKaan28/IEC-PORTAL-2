@@ -22,14 +22,7 @@ export default function HeroSection() {
       <HeroBackground />
 
       <div className="relative z-10 max-w-5xl mx-auto text-center flex flex-col items-center">
-        <ClubLogo size={104} priority className="logo-spin mb-6" />
-
-        <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-brand-200 bg-white/70 text-xs font-mono text-brand-700 mb-6 backdrop-blur-md shadow-soft">
-          <Sparkles className="w-3.5 h-3.5 text-accent-700" aria-hidden="true" />
-          <span>{t.hero.eyebrow}</span>
-          <span className="w-1 h-1 rounded-full bg-accent-500" aria-hidden="true" />
-          <span className="text-slate-500">2026-2027</span>
-        </div>
+        <ClubLogo size={104} priority className="logo-spin mb-8" />
 
         <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight font-display text-slate-900 max-w-4xl leading-[1.1]">
           {t.hero.titleStart}{" "}

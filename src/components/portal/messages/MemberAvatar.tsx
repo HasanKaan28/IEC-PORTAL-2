@@ -27,7 +27,7 @@ interface MemberAvatarProps {
   name: string;
   src?: string | null;
   size?: keyof typeof SIZES;
-  locale?: "tr" | "en";
+  locale?: "tr" | "en" | "bs";
   className?: string;
 }
 

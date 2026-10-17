@@ -173,5 +173,104 @@ const en: typeof tr = {
   },
 };
 
-export const customRolesText = { tr, en };
+/** Bosnian plural form for a count: 1 (and 21, 31...), 2-4 (and 22-24...), 5+ and 11-14. */
+function bsPlural(n: number, one: string, few: string, many: string): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
+  return many;
+}
+
+const bs: typeof tr = {
+  tabs: {
+    customRoles: "Prilagođene uloge",
+    members: "Članovi",
+    label: "Dijelovi upravljanja ulogama",
+  },
+  builder: {
+    newRole: "Nova uloga",
+    createTitle: "Napravi novu ulogu",
+    editTitle: (name: string) => `Uredi ulogu ${name}`,
+    nameLabel: "Naziv uloge",
+    namePlaceholder: "npr. Tim za događaje",
+    descriptionLabel: "Opis",
+    descriptionPlaceholder: "Čemu služi ova uloga? (neobavezno)",
+    colorLabel: "Boja",
+    colors: { brand: "Plava logotipa", accent: "Boja meda", emerald: "Zelena lista", rose: "Pepeljasta ruža", slate: "Siva" },
+    permissionsLabel: "Dozvole",
+    permissionsHint:
+      "Uključene dozvole dobija svako ko ima ovu ulogu. Dozvole otključavaju odgovarajuće stranice i dugmad.",
+    enableAll: "Uključi sve",
+    disableAll: "Isključi sve",
+    opensPage: "Stranica",
+    selectedCount: (n: number) =>
+      `${n} ${bsPlural(n, "dozvola odabrana", "dozvole odabrane", "dozvola odabrano")}`,
+    create: "Napravi ulogu",
+    save: "Spremi promjene",
+    cancel: "Odustani",
+    saving: "Spremanje...",
+  },
+  list: {
+    title: "Prilagođene uloge",
+    subtitle: "Napravi ulogu birajući dozvole jednu po jednu, a zatim je dodijeli članovima.",
+    emptyTitle: "Još nema prilagođenih uloga.",
+    emptyHint: "Klikni Nova uloga, odaberi dozvole i napravi prvu ulogu.",
+    permissionCount: (n: number) => `${n} ${bsPlural(n, "dozvola", "dozvole", "dozvola")}`,
+    memberCount: (n: number) => `${n} ${bsPlural(n, "član", "člana", "članova")}`,
+    edit: "Uredi",
+    remove: "Obriši",
+    confirmDelete: (name: string) => `Obrisati ulogu ${name}? Članovi s ovom ulogom gube njene dozvole.`,
+    confirmYes: "Da, obriši",
+    confirmNo: "Odustani",
+    assignMembers: "Dodijeli članovima",
+    closeAssign: "Zatvori",
+    memberSearchLabel: "Pretraži članove",
+    memberSearchPlaceholder: "Ime člana ili e-mail",
+    assign: "Dodijeli",
+    unassign: "Ukloni",
+    holders: "Članovi s ovom ulogom",
+    noHolders: "Ova uloga još nije nikome dodijeljena.",
+    noMembersFound: "Nijedan član ne odgovara ovoj pretrazi.",
+    you: "Ti",
+    superAdminOnly:
+      "Samo super administrator može praviti i uređivati uloge. Postojeće uloge možeš dodjeljivati, ali samo u okviru dozvola koje imaš.",
+    setupRequired:
+      "Ažuriranje baze podataka za prilagođene uloge još nije pokrenuto. Pokreni datoteku supabase/migrations/20261018000000_custom_roles.sql u alatu Supabase SQL Editor.",
+    defaultSetupRequired:
+      "Za zadanu ulogu Član i dozvole za stranice potrebno je još jedno ažuriranje baze podataka: pokreni datoteku supabase/migrations/20261019000000_default_member_role.sql u alatu Supabase SQL Editor.",
+    defaultBadge: "Važi za sve",
+    defaultHolders: "Svi članovi automatski imaju ovu ulogu. Ne može se obrisati, mogu se mijenjati samo njene dozvole.",
+  },
+  members: {
+    customRolesHeading: "Uloge za dodjelu",
+    noCustomRoles: "Još nema uloga za dodjelu. Možeš ih napraviti u kartici Prilagođene uloge.",
+    defaultRoleNote: (name: string) =>
+      `Svi automatski imaju ulogu ${name}; njene dozvole podešavaš u kartici Prilagođene uloge.`,
+    noExtraRoles: "Nema dodatnih uloga",
+  },
+  messages: {
+    invalidInput: "Uneseni podaci nisu važeći.",
+    nameTaken: "Uloga s ovim nazivom već postoji.",
+    noPermissions: "Uključi barem jednu dozvolu.",
+    roleNotFound: "Uloga nije pronađena.",
+    userNotFound: "Član nije pronađen.",
+    created: (name: string) => `Uloga ${name} je napravljena.`,
+    saved: (name: string) => `Uloga ${name} je ažurirana.`,
+    deleted: (name: string) => `Uloga ${name} je obrisana.`,
+    assigned: (role: string, member: string) => `Uloga ${role} je dodijeljena članu ${member}.`,
+    removed: (role: string, member: string) => `Članu ${member} je uklonjena uloga ${role}.`,
+    selfEdit: "Ne možeš mijenjati svoje uloge.",
+    targetOutranks: "Nemaš dozvolu da mijenjaš uloge ovog člana.",
+    escalation: "Ova uloga sadrži dozvole koje nemaš, pa je ne možeš dodijeliti.",
+    rolesManageReserved: "Uloge koje sadrže dozvolu za upravljanje ulogama može dodijeliti samo super administrator.",
+    setupRequired: "Prvo je potrebno ažuriranje baze podataka za prilagođene uloge.",
+    defaultSetupRequired: "Prvo pokreni ažuriranje 20261019000000_default_member_role.sql da bi dozvole za stranice radile.",
+    defaultLocked: "Zadana uloga Član ne može se obrisati.",
+    defaultAutomatic: "Ova uloga se automatski primjenjuje na sve članove i ne dodjeljuje se pojedinačno.",
+    failed: "Radnja nije završena. Pokušaj ponovo.",
+  },
+};
+
+export const customRolesText = { tr, en, bs };
 export type CustomRolesText = typeof tr;

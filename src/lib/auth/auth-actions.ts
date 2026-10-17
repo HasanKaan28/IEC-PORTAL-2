@@ -68,6 +68,34 @@ const TEXT = {
     tooManyAttempts: "Too many attempts. Wait a few minutes and try again.",
     tooFast: "The form was sent too quickly. Wait a few seconds and try again.",
   },
+  bs: {
+    notConfigured: "Portal još nije povezan s bazom podataka; prijava i registracija su zasad zatvorene.",
+    nameMin: "Ime i prezime moraju imati najmanje 2 znaka.",
+    emailInvalid: "Unesite ispravnu adresu e-pošte.",
+    emailDomain: `Registracija je moguća samo sa studentskom adresom e-pošte @${ALLOWED_EMAIL_DOMAIN}.`,
+    passwordMin: "Lozinka mora imati najmanje 8 znakova.",
+    passwordRequired: "Unesite lozinku.",
+    departmentRequired: "Odaberite svoj odsjek.",
+    departmentEnglish:
+      "Naziv drugog odsjeka napišite na engleskom, samo običnim latiničnim slovima (npr. Data Science and Artificial Intelligence).",
+    classYearRequired: "Odaberite godinu studija.",
+    kvkkRequired: "Morate prihvatiti KVKK obavještenje o privatnosti.",
+    signUpDone: "Registracija je primljena. Kliknite na link za potvrdu poslan na vašu e-poštu da aktivirate račun.",
+    invalidCredentials: "Pogrešna e-pošta ili lozinka.",
+    emailNotConfirmed: "Vaša adresa e-pošte još nije potvrđena. Kliknite na link u pristigloj pošti.",
+    alreadyRegistered: "Račun s ovom adresom e-pošte već postoji.",
+    urlInvalid: "Unesite ispravan link (https://...).",
+    profileSaved: "Vaš profil je ažuriran.",
+    studentEmailOnly: `Prihvataju se samo studentske adrese e-pošte @${ALLOWED_EMAIL_DOMAIN}.`,
+    passwordMismatch: "Lozinke se ne podudaraju.",
+    samePassword: "Nova lozinka mora biti drugačija od stare.",
+    weakPassword: "Ova lozinka je preslaba. Odaberite dužu lozinku koju je teško pogoditi.",
+    resetLinkInvalid:
+      "Ovaj link za promjenu lozinke nije važeći ili je istekao. Zatraži novi link; ako je stiglo više e-poruka, koristi posljednju.",
+    genericError: "Radnju nije bilo moguće završiti. Pokušajte ponovo.",
+    tooManyAttempts: "Previše pokušaja. Sačekajte nekoliko minuta i pokušajte ponovo.",
+    tooFast: "Obrazac je poslan prebrzo. Sačekajte nekoliko sekundi i pokušajte ponovo.",
+  },
 } satisfies Record<SupportedLocale, Record<string, string>>;
 
 type AuthText = (typeof TEXT)["en"];

@@ -6,12 +6,22 @@ import type { SupportedLocale } from "@/lib/i18n/translations";
  * department's English name, which is stored as typed.
  */
 export const DEPARTMENTS = [
-  { value: "Computer Sciences and Engineering", tr: "Bilgisayar Bilimleri ve Mühendisliği", en: "Computer Sciences and Engineering" },
-  { value: "Software Engineering", tr: "Yazılım Mühendisliği", en: "Software Engineering" },
-  { value: "Electrical and Electronics Engineering", tr: "Elektrik ve Elektronik Mühendisliği", en: "Electrical and Electronics Engineering" },
-  { value: "Mechanical Engineering", tr: "Makine Mühendisliği", en: "Mechanical Engineering" },
-  { value: "Industrial Engineering", tr: "Endüstri Mühendisliği", en: "Industrial Engineering" },
-  { value: "Architecture", tr: "Mimarlık", en: "Architecture" },
+  {
+    value: "Computer Sciences and Engineering",
+    tr: "Bilgisayar Bilimleri ve Mühendisliği",
+    en: "Computer Sciences and Engineering",
+    bs: "Računarske nauke i inženjerstvo",
+  },
+  { value: "Software Engineering", tr: "Yazılım Mühendisliği", en: "Software Engineering", bs: "Softversko inženjerstvo" },
+  {
+    value: "Electrical and Electronics Engineering",
+    tr: "Elektrik ve Elektronik Mühendisliği",
+    en: "Electrical and Electronics Engineering",
+    bs: "Elektrotehnika i elektronika",
+  },
+  { value: "Mechanical Engineering", tr: "Makine Mühendisliği", en: "Mechanical Engineering", bs: "Mašinstvo" },
+  { value: "Industrial Engineering", tr: "Endüstri Mühendisliği", en: "Industrial Engineering", bs: "Industrijski inženjering" },
+  { value: "Architecture", tr: "Mimarlık", en: "Architecture", bs: "Arhitektura" },
 ] as const;
 
 /** Select value for "Other". It is never stored: the typed English name is stored instead. */
@@ -31,6 +41,13 @@ export const OTHER_DEPARTMENT_TEXT = {
     placeholder: "e.g. Data Science and Artificial Intelligence",
     hint: "Write your department's English name, without Turkish or Bosnian letters.",
     error: "Write the department name in English, using plain Latin letters only.",
+  },
+  bs: {
+    option: "Drugo",
+    label: "Naziv odsjeka (na engleskom)",
+    placeholder: "npr. Data Science and Artificial Intelligence",
+    hint: "Napiši engleski naziv svog odsjeka, bez bosanskih ili turskih slova (č, ć, đ, š, ž).",
+    error: "Naziv odsjeka napiši na engleskom, samo običnim latiničnim slovima.",
   },
 } satisfies Record<SupportedLocale, Record<string, string>>;
 

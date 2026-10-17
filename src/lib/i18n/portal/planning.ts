@@ -93,5 +93,52 @@ const en: typeof tr = {
   },
 };
 
-export const planningText = { tr, en };
+const bs: typeof tr = {
+  page: {
+    metaTitle: "Planiranje",
+    title: "Mjesečni plan",
+    intro: "Uredi mjesečni plan sa stranice O nama, sedmicu po sedmicu. Promjene se na stranici pojavljuju čim ih spremiš.",
+    viewOnSite: "Pogledaj na stranici",
+    notSetUp:
+      "Tabela plana još ne postoji u bazi podataka, pa se prikazuje zadani plan. Pokreni migraciju za planiranje na platformi Supabase da bi se promjene mogle spremati.",
+    startLabel: "Datum početka plana",
+    startHint: "Svaka sedmica traje sedam dana. 1. sedmica počinje ovog dana, a 4. sedmica završava 28. dana.",
+    weekLabel: (n: number) => `${n}. sedmica`,
+    titleTr: "Naslov (turski)",
+    titleEn: "Naslov (engleski, neobavezno)",
+    bodyTr: "Opis (turski)",
+    bodyEn: "Opis (engleski, neobavezno)",
+    englishSection: "Tekst na engleskom",
+    englishHint: "Ako engleski tekst ostane prazan, na engleskoj stranici se prikazuje turski tekst.",
+    statusLabel: "Status",
+    statusOptions: {
+      auto: "Automatski (prema datumu)",
+      planned: "Planirano",
+      active: "U toku",
+      done: "Završeno",
+    },
+    autoNow: (label: string) => `Trenutno: ${label}`,
+    save: "Spremi plan",
+    saving: "Spremanje...",
+    saved: "Plan je spremljen. Stranica O nama je ažurirana.",
+    lastUpdated: (when: string) => `Posljednje ažuriranje: ${when}`,
+    reset: "Poništi promjene",
+  },
+  errors: {
+    invalid: "Provjeri podatke: svaka sedmica mora imati naslov na turskom, a tekstovi ne smiju biti predugi.",
+    invalidDate: "Odaberi važeći datum početka.",
+    notSetUp: "Tabela plana nije pronađena. Prvo pokreni migraciju za planiranje na platformi Supabase.",
+    failed: "Plan nije spremljen. Pokušaj ponovo.",
+  },
+  about: {
+    title: "Plan za ovaj mjesec",
+    subtitle: (month: string) => `Naš četverosedmični plan rada za ${month}.`,
+    week: (n: number) => `${n}. sedmica`,
+    statusDone: "Završeno",
+    statusActive: "U toku",
+    statusPlanned: "Planirano",
+  },
+};
+
+export const planningText = { tr, en, bs };
 export type PlanningText = typeof tr;

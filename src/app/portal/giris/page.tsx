@@ -5,7 +5,7 @@ import { getServerLocale } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getServerLocale();
-  return { title: locale === "en" ? "Sign in" : "Giriş" };
+  return { title: { tr: "Giriş", en: "Sign in", bs: "Prijava" }[locale] };
 }
 
 /** Only same-site portal paths are allowed after sign-in, so the link cannot bounce users to another site. */

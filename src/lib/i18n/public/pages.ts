@@ -266,4 +266,149 @@ const en: typeof tr = {
   },
 };
 
-export const publicPagesText = { tr, en };
+/** Bosnian plural form for a count: 1 (and 21, 31...), 2-4 (and 22-24...), 5+ and 11-14. */
+function bsPlural(value: number | string, one: string, few: string, many: string): string {
+  const n = typeof value === "number" ? value : Number(String(value).replace(",", "."));
+  if (!Number.isFinite(n)) return many;
+  if (!Number.isInteger(n)) return few;
+  const n10 = Math.abs(n) % 10;
+  const n100 = Math.abs(n) % 100;
+  if (n10 === 1 && n100 !== 11) return one;
+  if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return few;
+  return many;
+}
+
+const bs: typeof tr = {
+  about: {
+    metaTitle: "O nama",
+    metaDescription: "Uprava, akademski savjetnik i plan semestra IUS Engineering Cluba.",
+    title: "O IUS Engineering Clubu",
+    intro:
+      "Inženjerski klub koji su osnovali studenti Fakulteta inženjerstva i prirodnih nauka (FENS) Internacionalnog univerziteta u Sarajevu.",
+    advisorEyebrow: "Akademska savjetnica",
+    advisorNote: "Pristup laboratorijama i službena prepiska s univerzitetom vode se pod nadzorom Prof. Dr. Leile Miller.",
+    boardTitle: "Uprava",
+    ctaTitle: "Želiš se pridružiti klubu?",
+    ctaBody: "Klub je otvoren za sve studente IUS-a. Popuni formular i pozvat ćemo te na prvi sastanak.",
+    ctaButton: "Otvori formular za prijavu",
+    board: [
+      {
+        name: "Kaan Mete Şenyıldız",
+        role: "Predsjednik",
+        dept: "Inženjerstvo i prirodne nauke (FENS)",
+        focus: "Predstavlja klub i koordinira rad uprave",
+      },
+      {
+        name: "Hasan Kaan Karabulut",
+        role: "Suosnivač, potpredsjednik",
+        dept: "Računarske nauke (FENS)",
+        focus: "Tehnička infrastruktura, hardverski projekat PowerHub i koordinacija zajednice",
+      },
+      {
+        name: "Mahmut İhsan Avcı",
+        role: "Suosnivač, asistent",
+        dept: "Softversko inženjerstvo (FENS)",
+        focus: "Operativni poslovi, praćenje zadataka u Linearu i službena prepiska",
+      },
+      {
+        name: "Bekir Enes Çokbekler",
+        role: "Blagajnik",
+        dept: "Inženjerstvo i prirodne nauke (FENS)",
+        focus: "Sponzorstva kompanija i finansijsko izvještavanje",
+      },
+      {
+        name: "Muhammed Efe Ural",
+        role: "Koordinator za PR i sponzorstva",
+        dept: "Fakultet inženjerstva (FENS)",
+        focus: "Instagram, vizuelni dizajn i partnerstva s kompanijama",
+      },
+    ],
+  },
+  projects: {
+    metaTitle: "Projekti",
+    metaDescription: "Hardverski, softverski i AI projekti članova IUS Engineering Cluba, uz događaje koje planiramo.",
+    title: "Naši projekti",
+    intro: "Hardverski i softverski projekti na kojima rade naši članovi i događaji koje planiramo.",
+    searchLabel: "Pretraži projekte",
+    searchPlaceholder: "Naziv projekta, tehnologija ili ključna riječ",
+    filtersLabel: "Filtriraj po kategoriji",
+    filters: {
+      all: "Sve",
+      hardware: "Hardver i IoT",
+      software: "Softver",
+      events: "Hackathoni i samiti",
+      ai: "AI",
+    },
+    featured: "Izdvojeno",
+    problem: "Problem",
+    solution: "Rješenje",
+    stack: "Tehnologije",
+    join: "Pridruži se projektu",
+    empty: "Nijedan projekat ne odgovara tvojoj pretrazi.",
+    clear: "Očisti filtere",
+  },
+  apply: {
+    metaTitle: "Prijava",
+    metaDescription: "Formular za prijavu za članstvo u IUS Engineering Clubu.",
+    eyebrow: "Prijave za jesenji semestar 2026/2027",
+    title: "Pridruži se klubu",
+    intro:
+      "Popuni formular da učestvuješ u projektima, hackathonima i radionicama. Uprava pregleda prijave i javit će ti se.",
+    formTitle: "Formular za prijavu za članstvo u IUS Engineering Clubu",
+    loading: "Učitavanje formulara...",
+    openNewTab: "Formular se ne prikazuje? Otvori ga u novoj kartici",
+    privacy: "Odgovori se prikupljaju putem Google Forms. Kako se tvoji podaci obrađuju, pročitaj u KVKK obavještenju o zaštiti ličnih podataka.",
+    privacyLink: "KVKK obavještenje o zaštiti ličnih podataka",
+    steps: [
+      { title: "Popuni formular", body: "Traje nekoliko minuta. Pitamo za ime, kontakt podatke i interesovanja." },
+      { title: "Pregled", body: "Uprava pregleda prijave svake sedmice." },
+      { title: "Prvi sastanak", body: "Pozivamo te na upoznavanje putem WhatsAppa ili e-maila." },
+    ],
+  },
+  verify: {
+    metaTitle: "Provjera certifikata",
+    metaDescription: "Provjerite certifikate s događaja, radionica i hackathona koje izdaje IUS Engineering Club.",
+    loading: "Učitavanje...",
+    title: "Provjera certifikata",
+    intro: "Provjeri certifikat s događaja, radionice ili hackathona koji je izdao IUS Engineering Club pomoću koda odštampanog na njemu.",
+    codeLabel: "Kod certifikata",
+    codePlaceholder: "npr. IEC-2026-E49A",
+    submit: "Provjeri",
+    verifying: "Provjera...",
+    verified: "Certifikat je potvrđen",
+    codePrefix: "Kod",
+    holder: "Vlasnik certifikata",
+    event: "Događaj / obuka",
+    instructor: "Predavač",
+    issued: "Datum izdavanja",
+    hours: (hours: number | string) => `Trajanje: ${hours} ${bsPlural(hours, "sat", "sata", "sati")}`,
+    issuer: "Izdavač",
+    skills: "Vještine",
+    downloadPdf: "Preuzmi PDF",
+    addLinkedIn: "Dodaj na LinkedIn profil",
+    notFoundTitle: "Certifikat nije pronađen",
+    notFoundBody: (code: string) =>
+      `Nijedan certifikat ne odgovara kodu ${code}. Provjeri kod ili se obrati upravi kluba.`,
+    error: "Provjera trenutno nije dostupna. Pokušaj ponovo malo kasnije.",
+  },
+  notFound: {
+    badge: "Greška 404",
+    title: "Stranica nije pronađena",
+    body: "Stranica koju tražiš možda je premještena ili uklonjena.",
+    home: "Nazad na početnu",
+    portal: "Portal za članove",
+    projects: "Projekti",
+    blog: "Blog",
+    verify: "Provjeri certifikat",
+  },
+  error: {
+    badge: "Neočekivana greška",
+    title: "Nešto nije u redu",
+    body: "Došlo je do greške pri učitavanju stranice. Ponovni pokušaj obično pomaže.",
+    code: "Kod greške",
+    retry: "Pokušaj ponovo",
+    home: "Početna",
+  },
+};
+
+export const publicPagesText = { tr, en, bs };

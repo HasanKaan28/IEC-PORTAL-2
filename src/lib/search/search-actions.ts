@@ -28,10 +28,11 @@ import {
 
 type Client = Awaited<ReturnType<typeof createClient>>;
 
-const localeSchema = z.enum(["tr", "en"]);
+const localeSchema = z.enum(["tr", "en", "bs"]);
 
 function localized(tr: string | null | undefined, en: string | null | undefined, locale: SupportedLocale): string {
-  return (locale === "en" ? en || tr : tr || en) || "";
+  // Titles exist in Turkish and English only; Bosnian readers get English.
+  return (locale === "tr" ? tr || en : en || tr) || "";
 }
 
 /**

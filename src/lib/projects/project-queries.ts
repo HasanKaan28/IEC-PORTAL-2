@@ -19,7 +19,8 @@ import {
  */
 
 function localized(tr: string | null | undefined, en: string | null | undefined, locale: SupportedLocale): string {
-  return (locale === "en" ? en || tr : tr || en) || "";
+  // Titles exist in Turkish and English only; Bosnian readers get English.
+  return (locale === "tr" ? tr || en : en || tr) || "";
 }
 
 interface ProjectRow {

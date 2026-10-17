@@ -57,6 +57,12 @@ const GUARD_TEXT = {
     forbidden: "You do not have permission to do this.",
     unexpected: "Something went wrong. Please try again.",
   },
+  bs: {
+    notConfigured: "Portal još nije povezan s bazom podataka. Pokušajte ponovo kasnije.",
+    signInRequired: "Za ovu radnju morate se prijaviti.",
+    forbidden: "Nemate dozvolu za ovu radnju.",
+    unexpected: "Došlo je do neočekivane greške. Pokušajte ponovo.",
+  },
 };
 
 type GuardKey = keyof (typeof GUARD_TEXT)["en"];

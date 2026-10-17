@@ -59,7 +59,7 @@ interface SearchSection {
 }
 
 const DEBOUNCE_MS = 250;
-const INTL_LOCALE: Record<SupportedLocale, string> = { tr: "tr-TR", en: "en-GB" };
+const INTL_LOCALE: Record<SupportedLocale, string> = { tr: "tr-TR", en: "en-GB", bs: "bs-BA" };
 
 const GROUP_STYLE: Record<Exclude<SectionKey, "members">, { icon?: LucideIcon; tone: string }> = {
   pages: { tone: "bg-slate-100 text-slate-600" },

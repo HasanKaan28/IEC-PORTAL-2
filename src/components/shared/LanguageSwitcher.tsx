@@ -29,6 +29,7 @@ const TONES = {
 const OPTIONS: Array<{ locale: SupportedLocale; label: string; name: string }> = [
   { locale: "tr", label: "TR", name: "Türkçe" },
   { locale: "en", label: "EN", name: "English" },
+  { locale: "bs", label: "BS", name: "Bosanski" },
 ];
 
 export default function LanguageSwitcher({ className = "", tone = "light" }: LanguageSwitcherProps) {

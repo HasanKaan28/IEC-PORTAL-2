@@ -72,9 +72,12 @@ export function resolvePlanWeeks(plan: Pick<MonthlyPlan, "monthStart" | "weeks">
     });
 }
 
-/** The week's text in the visitor's language, falling back to Turkish when no English was written. */
-export function weekText(week: PlanWeek, locale: "tr" | "en"): { title: string; body: string | null } {
-  if (locale === "en") {
+/**
+ * The week's text in the visitor's language, falling back to Turkish when no English was written.
+ * Plans are written in Turkish and English only, so Bosnian readers get the English text.
+ */
+export function weekText(week: PlanWeek, locale: "tr" | "en" | "bs"): { title: string; body: string | null } {
+  if (locale !== "tr") {
     return { title: week.titleEn?.trim() || week.titleTr, body: week.bodyEn?.trim() || week.bodyTr };
   }
   return { title: week.titleTr, body: week.bodyTr };

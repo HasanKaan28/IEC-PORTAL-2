@@ -6,6 +6,7 @@ import BlogCatalogView from "@/components/public/BlogCatalogView";
 import { getBlogPosts } from "@/lib/blog/blog-queries";
 import { getSessionUser } from "@/lib/auth/session";
 import { getServerLocale } from "@/lib/i18n/server";
+import { OG_LOCALE } from "@/lib/i18n/format";
 import { blogText } from "@/lib/i18n/public/blog";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -23,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
       url: `${SITE_URL}/blog`,
       siteName: "IUS Engineering Club",
       type: "website",
-      locale: locale === "en" ? "en_US" : "tr_TR",
+      locale: OG_LOCALE[locale],
       images: [{ url: "/brand/og-card.jpg", width: 1200, height: 630, alt: "IUS Engineering Club" }],
     },
   };

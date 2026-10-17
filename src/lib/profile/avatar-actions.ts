@@ -33,6 +33,13 @@ const TEXT = {
     saved: "Your profile photo has been updated.",
     removed: "Your profile photo has been removed.",
   },
+  bs: {
+    notConfigured: "Postavljanje fotografija trenutno nije dostupno.",
+    invalid: "Odaberi fotografiju u formatu JPG, PNG ili WebP.",
+    tooLarge: "Fotografija može imati najviše 2 MB.",
+    saved: "Tvoja profilna fotografija je ažurirana.",
+    removed: "Tvoja profilna fotografija je uklonjena.",
+  },
 } satisfies Record<SupportedLocale, Record<string, string>>;
 
 type AdminClient = ReturnType<typeof createAdminClient>;

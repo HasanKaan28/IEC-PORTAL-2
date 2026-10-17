@@ -52,7 +52,7 @@ interface TaskRow {
 
 function pickTitle(project: { title_tr: string; title_en: string } | null, locale: SupportedLocale): string | null {
   if (!project) return null;
-  return (locale === "en" ? project.title_en : project.title_tr) || project.title_tr || project.title_en || null;
+  return (locale === "tr" ? project.title_tr : project.title_en) || project.title_tr || project.title_en || null;
 }
 
 function mapTaskRow(row: TaskRow, locale: SupportedLocale): TaskItem {

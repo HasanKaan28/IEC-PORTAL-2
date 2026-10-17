@@ -1,6 +1,17 @@
 import type { SupportedLocale } from "./translations";
 
-const INTL_LOCALE: Record<SupportedLocale, string> = { tr: "tr-TR", en: "en-GB" };
+export const INTL_LOCALE: Record<SupportedLocale, string> = { tr: "tr-TR", en: "en-GB", bs: "bs-BA" };
+
+/** Open Graph locale tags for page metadata. */
+export const OG_LOCALE: Record<SupportedLocale, string> = { tr: "tr_TR", en: "en_US", bs: "bs_BA" };
+
+/**
+ * Members write database content (project titles, plan weeks) in Turkish and English only.
+ * Bosnian readers get the English version, which they are far more likely to read than Turkish.
+ */
+export function contentLocale(locale: SupportedLocale): "tr" | "en" {
+  return locale === "tr" ? "tr" : "en";
+}
 
 function toDate(value: string | number | Date): Date {
   return value instanceof Date ? value : new Date(value);

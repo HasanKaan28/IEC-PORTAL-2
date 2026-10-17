@@ -5,7 +5,7 @@ import { getServerLocale } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getServerLocale();
-  return { title: locale === "en" ? "Reset password" : "Şifre sıfırlama" };
+  return { title: { tr: "Şifre sıfırlama", en: "Reset password", bs: "Resetovanje lozinke" }[locale] };
 }
 
 export default async function ForgotPasswordPage({

@@ -14,7 +14,7 @@ import {
 } from "@/lib/blog/blog-queries";
 import { getSessionUser, userCan } from "@/lib/auth/session";
 import { getServerLocale } from "@/lib/i18n/server";
-import { formatDate } from "@/lib/i18n/format";
+import { OG_LOCALE, formatDate } from "@/lib/i18n/format";
 import { blogCategoryLabel, blogText } from "@/lib/i18n/public/blog";
 import { SITE_URL } from "@/lib/site-url";
 import { Clock, Calendar, ArrowLeft, Tag, BookOpen } from "lucide-react";
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: postUrl,
       siteName: "IUS Engineering Club",
       type: "article",
-      locale: locale === "en" ? "en_US" : "tr_TR",
+      locale: OG_LOCALE[locale],
       publishedTime: post.publishedAt,
       images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
     },

@@ -1,4 +1,4 @@
-export type SupportedLocale = "tr" | "en";
+export type SupportedLocale = "tr" | "en" | "bs";
 
 const tr = {
   common: {
@@ -166,7 +166,7 @@ const tr = {
     analyticsTitle: "Analitik Çerezler",
     analyticsDesc: "Ziyaretçi sayıları ve proje popülerliği anonim ölçülür.",
     preferencesTitle: "Tercih Çerezleri",
-    preferencesDesc: "Seçilen arayüz dili (TR/EN) ve tema ayarları saklanır.",
+    preferencesDesc: "Seçilen arayüz dili (TR/EN/BS) ve tema ayarları saklanır.",
     cookiePolicy: "Çerez Politikası",
     readKvkk: "KVKK Aydınlatma Metni",
     managePreferences: "Özelleştir",
@@ -344,7 +344,7 @@ const en: Dictionary = {
     analyticsTitle: "Analytics Cookies",
     analyticsDesc: "Visitor counts and project popularity are measured anonymously.",
     preferencesTitle: "Preference Cookies",
-    preferencesDesc: "Stores your interface language (TR/EN) and theme settings.",
+    preferencesDesc: "Stores your interface language (TR/EN/BS) and theme settings.",
     cookiePolicy: "Cookie Policy",
     readKvkk: "KVKK Privacy Notice",
     managePreferences: "Customize",
@@ -355,7 +355,184 @@ const en: Dictionary = {
   },
 };
 
-export const translations: Record<SupportedLocale, Dictionary> = { tr, en };
+const bs: Dictionary = {
+  common: {
+    appName: "IUS Engineering Club",
+    shortName: "IEC",
+    portalName: "IEC portal za članove",
+    tagline: "Gradimo inženjerstvo budućnosti na Internacionalnom univerzitetu u Sarajevu",
+    login: "Prijava",
+    register: "Registracija",
+    logout: "Odjava",
+    apply: "Prijavi se u klub",
+    portalButton: "Uđi u portal",
+    searchPlaceholder: "Pretraži...",
+    loading: "Učitavanje...",
+    save: "Sačuvaj",
+    cancel: "Otkaži",
+    status: "Status",
+    viewAll: "Prikaži sve",
+    readMore: "Pročitaj više",
+    close: "Zatvori",
+    skipToContent: "Preskoči na sadržaj",
+    languageSwitcher: "Jezik",
+  },
+  nav: {
+    home: "Početna",
+    projects: "Naši projekti",
+    blog: "Blog",
+    about: "O nama",
+    apply: "Prijavi se",
+    portal: "Portal za članove",
+    verify: "Provjeri certifikat",
+    openMenu: "Otvori meni",
+    closeMenu: "Zatvori meni",
+    mainNavigation: "Glavna navigacija",
+  },
+  portalNav: {
+    dashboard: "Pregled",
+    myTasks: "Moji zadaci",
+    assignTask: "Dodijeli zadatak",
+    projects: "Projekti",
+    hackathons: "Hackathoni i timovi",
+    events: "Događaji",
+    myCertificates: "Moji certifikati",
+    messages: "Poruke",
+    notifications: "Obavještenja",
+    profile: "Moj profil",
+    admin: "Administracija",
+  },
+  roles: {
+    super_admin: "Super administrator",
+    admin: "Administrator",
+    leader: "Vođa kluba",
+    project_lead: "Vođa projekta",
+    task_manager: "Menadžer zadataka",
+    blog_author: "Autor bloga",
+    member: "Član kluba",
+  },
+  hero: {
+    titleStart: "Ono što naučimo na predavanjima",
+    titleHighlight: "pretvaramo u stvarne projekte.",
+    titleEnd: "",
+    description:
+      "Studentski klub na IUS-u koji radi na hardverskim prototipovima, projektima vještačke inteligencije i hackathonima.",
+    primaryCta: "Pogledaj naše projekte",
+    portalLink: "Prijava na portal za članove",
+  },
+  metrics: {
+    label: "Klub ukratko",
+    projectsLabel: "Projekti",
+    projectsValue: "5+",
+    projectsNote: "Projekti i događaji u toku",
+    membersLabel: "Tim",
+    membersValue: "30+ članova",
+    membersNote: "Sa više inženjerskih odsjeka",
+    advisorLabel: "Akademski savjetnik",
+    advisorValue: "Prof. Dr. Leila Miller",
+    advisorNote: "Članica nastavnog osoblja FENS-a",
+  },
+  projects: {
+    title: "Naši projekti",
+    description:
+      "Hardverski, softverski i AI projekti na kojima rade naši članovi, uz događaje koje planiramo.",
+    filterLabel: "Filtriraj projekte po kategoriji",
+    categoryAll: "Sve",
+    categoryHardware: "Hardver i IoT",
+    categorySoftware: "Softver i web",
+    categoryHackathon: "Hackathoni i događaji",
+    categoryAi: "Vještačka inteligencija",
+    flagship: "Izdvojeno",
+    viewDetails: "Pogledaj detalje",
+    viewAll: "Pogledaj sve projekte",
+    empty: "U ovoj kategoriji još nema projekata.",
+    problem: "Problem",
+    solution: "Naše rješenje",
+    owner: "Vođa projekta",
+    difficulty: "Težina",
+    joinProject: "Pridruži se ovom projektu",
+    photos: "Fotografije projekta",
+    photo: "Fotografija",
+  },
+  about: {
+    titleStart: "Inženjerstvo učimo",
+    titleHighlight: "kroz praksu.",
+    paragraph1:
+      "IUS Engineering Club (IEC) je klub koji su osnovali studenti Fakulteta inženjerstva i prirodnih nauka (FENS) Internacionalnog univerziteta u Sarajevu. Želimo ono što naučimo na predavanjima primijeniti na stvarnim projektima i upoznati inženjere koji rade u industriji.",
+    paragraph2:
+      "Zadatke pratimo u Linearu, kod dijelimo u otvorenim repozitorijima i radimo u univerzitetskim laboratorijama. Članovi preuzimaju direktnu odgovornost za projekte kojima se pridruže.",
+    link: "Uprava i plan semestra",
+    pillars: [
+      {
+        title: "Projekti među odsjecima",
+        description:
+          "Studenti računarskog, softverskog, elektrotehničkog i industrijskog inženjerstva zajedno rade na istim hardverskim i softverskim projektima.",
+      },
+      {
+        title: "Komitet za softver i AI",
+        description:
+          "Organizujemo sedmične radionice o cloud sistemima, velikim jezičkim modelima, RAG-u i web razvoju.",
+      },
+      {
+        title: "Hackathon i samit",
+        description:
+          "Planiramo DevHack, 24-satni hackathon koji će na IUS-u okupiti studente univerziteta iz cijelog Sarajeva, i godišnji tehnološki samit.",
+      },
+      {
+        title: "Veze s akademijom i industrijom",
+        description:
+          "Zajedno s našom savjetnicom Prof. Dr. Leilom Miller gradimo veze za prakse i mentorstvo s dekanatom FENS-a i tehnološkim kompanijama u Sarajevu (članice Bit Alliance).",
+      },
+    ],
+  },
+  joinCta: {
+    badge: "Prijave za jesenji semestar 2026/2027 su otvorene",
+    title: "Pridruži se timu",
+    description:
+      "Softver, ugrađeni sistemi ili organizacija događaja: izaberi komitet koji te zanima i uključi se u projekat.",
+  },
+  footer: {
+    description:
+      "Studentski inženjerski klub Fakulteta inženjerstva i prirodnih nauka (FENS) Internacionalnog univerziteta u Sarajevu (IUS).",
+    country: "Bosna i Hercegovina",
+    linkedin: "Naša LinkedIn stranica",
+    whatsapp: "WhatsApp zajednica",
+    explore: "Istraži",
+    membership: "Prijava za članstvo",
+    certification: "Certifikacija",
+    verifyCertificate: "Provjeri certifikat",
+    faculty: "Fakultet FENS",
+    advisor: "Savjetnica: Prof. Dr. Leila Miller",
+    legal: "Pravne informacije i privatnost",
+    kvkk: "KVKK obavještenje o zaštiti ličnih podataka",
+    privacy: "Politika privatnosti",
+    cookies: "Politika kolačića",
+    legalNote: "* Svi pravni tekstovi su nacrti koji čekaju pravnu provjeru.",
+    copyright: "© 2026-2027 IUS Engineering Club (IEC). Sva prava zadržana.",
+    builtWith: "Napravljeno uz Next.js 15, Supabase i Tailwind",
+  },
+  cookieBanner: {
+    regionLabel: "Obavještenje o kolačićima i privatnosti",
+    title: "Postavke kolačića i privatnosti",
+    desc: "Koristimo kolačiće da poboljšamo vaše iskustvo, zaštitimo sesije i anonimno mjerimo aktivnosti kluba.",
+    necessaryTitle: "Neophodni kolačići",
+    necessaryDesc: "Potrebni za sesije, sigurnost i bilježenje KVKK saglasnosti.",
+    necessaryStatus: "Uvijek uključeni",
+    analyticsTitle: "Analitički kolačići",
+    analyticsDesc: "Broj posjetilaca i popularnost projekata mjere se anonimno.",
+    preferencesTitle: "Kolačići za postavke",
+    preferencesDesc: "Čuvaju odabrani jezik interfejsa (TR/EN/BS) i postavke teme.",
+    cookiePolicy: "Politika kolačića",
+    readKvkk: "KVKK obavještenje o zaštiti ličnih podataka",
+    managePreferences: "Prilagodi",
+    hidePreferences: "Sakrij",
+    saveSelection: "Sačuvaj izbor",
+    rejectOptional: "Samo neophodni",
+    acceptAll: "Prihvati sve",
+  },
+};
+
+export const translations: Record<SupportedLocale, Dictionary> = { tr, en, bs };
 
 export function getDictionary(locale: SupportedLocale = "tr"): Dictionary {
   return translations[locale] ?? translations.tr;

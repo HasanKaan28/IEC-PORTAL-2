@@ -1,5 +1,8 @@
 /** Small pure helpers shared by the messages, notifications and profile code (server and client). */
 
+import { INTL_LOCALE } from "@/lib/i18n/format";
+import type { SupportedLocale } from "@/lib/i18n/translations";
+
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const MESSAGE_MAX_LENGTH = 2000;
@@ -33,10 +36,10 @@ export function safeHexColor(value: string | null | undefined, fallback = "#1f5a
 }
 
 /** Up to two initials from the first and last word of a name. */
-export function getInitials(name: string, locale: "tr" | "en" = "tr"): string {
+export function getInitials(name: string, locale: SupportedLocale = "tr"): string {
   const words = name.trim().split(/\s+/).filter(Boolean);
   if (words.length === 0) return "?";
   const first = words[0].charAt(0);
   const last = words.length > 1 ? words[words.length - 1].charAt(0) : "";
-  return (first + last).toLocaleUpperCase(locale === "tr" ? "tr-TR" : "en-GB");
+  return (first + last).toLocaleUpperCase(INTL_LOCALE[locale]);
 }

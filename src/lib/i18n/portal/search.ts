@@ -57,5 +57,43 @@ const en: typeof tr = {
   },
 };
 
-export const portalSearchText = { tr, en };
+/** Bosnian plural form for a count: 1 (and 21, 31...), 2-4 (and 22-24...), 5+ and 11-14. */
+function bsPlural(n: number, one: string, few: string, many: string): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
+  return many;
+}
+
+const bs: typeof tr = {
+  label: "Pretraži portal",
+  placeholder: "Traži projekte, zadatke, događaje ili članove",
+  openSearch: "Otvori pretragu",
+  closeSearch: "Zatvori",
+  clear: "Očisti pretragu",
+  shortcutHint: "Prečica",
+  resultsLabel: "Rezultati pretrage",
+  groups: {
+    pages: "Stranice",
+    projects: "Projekti",
+    tasks: "Zadaci",
+    events: "Događaji",
+    hackathons: "Hackathoni",
+    members: "Članovi",
+  },
+  typeToSearch: "Upiši najmanje 2 slova da pretražiš projekte, zadatke, događaje, hackathone i članove.",
+  searching: "Pretraga...",
+  noResults: (query: string) => `Nema rezultata za "${query}".`,
+  resultCount: (count: number) => `${count} ${bsPlural(count, "rezultat", "rezultata", "rezultata")}`,
+  keyboardHint: "Enter za otvaranje, Esc za zatvaranje",
+  noProject: "Bez projekta",
+  openCard: "Otvori profilnu karticu",
+  errors: {
+    invalidQuery: "Pretraga mora imati između 2 i 80 znakova.",
+    rateLimited: "Prečesto pretražuješ. Pokušaj ponovo za nekoliko minuta.",
+  },
+};
+
+export const portalSearchText = { tr, en, bs };
 export type PortalSearchText = typeof tr;

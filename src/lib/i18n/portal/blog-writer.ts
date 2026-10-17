@@ -290,4 +290,160 @@ const en: typeof tr = {
   },
 };
 
-export const blogWriterText = { tr, en };
+/** Bosnian plural form for a count: 1 (and 21, 31...), 2-4 (and 22-24...), 5+ and 11-14. */
+function bsPlural(n: number, one: string, few: string, many: string): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
+  return many;
+}
+
+const bs: typeof tr = {
+  list: {
+    title: "Moje objave",
+    subtitle: "Ovdje upravljaj svojim skicama i objavljenim tekstovima.",
+    newPost: "Nova objava",
+    drafts: (count: number) => `Skice (${count})`,
+    published: (count: number) => `Objavljeno (${count})`,
+    emptyDrafts: "Nemaš skica.",
+    emptyPublished: "Još nemaš objavljenih tekstova.",
+    emptyHint: "Započni novu objavu, sve se automatski sprema dok pišeš.",
+    untitled: "Skica bez naslova",
+    edited: (date: string) => `Posljednja izmjena ${date}`,
+    publishedOn: (date: string) => `Objavljeno ${date}`,
+    readingTime: (minutes: number) => `${minutes} min čitanja`,
+    edit: (title: string) => `Uredi objavu ${title}`,
+    view: (title: string) => `Otvori objavu ${title} na stranici`,
+    reviewNote:
+      "Svoje tekstove možeš pripremiti kao skice. Urednik s dozvolom za objavljivanje pročitat će tvoju skicu i objaviti je na stranici.",
+    adminLink: "Sve objave i komentari",
+    notConfigured: "Blog trenutno nije povezan s bazom podataka.",
+  },
+
+  editor: {
+    back: "Moje objave",
+    statusDraft: "Skica",
+    statusPublished: "Objavljeno",
+    saving: "Spremanje",
+    saved: "Spremljeno",
+    savedAt: (time: string) => `Spremljeno u ${time}`,
+    unsaved: "Ima nespremljenih promjena",
+    saveFailed: "Spremanje nije uspjelo",
+    retry: "Pokušaj ponovo",
+    titlePlaceholder: "Naslov",
+    titleLabel: "Naslov objave",
+    subtitlePlaceholder: "Podnaslov (neobavezno)",
+    subtitleLabel: "Podnaslov",
+    bodyPlaceholder: "Počni pisati",
+    bodyLabel: "Tekst objave",
+    words: (count: number) => `${count} ${bsPlural(count, "riječ", "riječi", "riječi")}`,
+    reading: (minutes: number) => `${minutes} min čitanja`,
+    addPhoto: "Dodaj fotografiju",
+    preview: "Pregled",
+    backToEdit: "Nazad na uređivanje",
+    previewNote: "Ovako će tvoja objava izgledati na stranici.",
+    publish: "Objavi",
+    publishChanges: "Objavi promjene",
+    saveDraft: "Spremi skicu",
+    unpublish: "Povuci objavu",
+    unpublishConfirm: "Objava će se vratiti u skice i neće se prikazivati na stranici.",
+    viewLive: "Pogledaj na stranici",
+    publishedToast: "Tvoj tekst je objavljen.",
+    draftSavedToast: "Skica je spremljena.",
+    unpublishedToast: "Objava je vraćena u skice.",
+    editingOthers: (name: string) => `Uređuješ objavu člana ${name}.`,
+    publishedEditNote:
+      "Ova objava je javno vidljiva. Promjene se neće pojaviti na stranici dok ih ne objaviš i ne spremaju se automatski.",
+    publishedEditNoteNoRights:
+      "Ova objava je javno vidljiva. Ako spremiš promjene, vratit će se u skice i neće se prikazivati na stranici dok je urednik ponovo ne objavi.",
+  },
+
+  toolbar: {
+    label: "Format teksta",
+    bold: "Podebljano",
+    italic: "Kurziv",
+    link: "Link",
+    h2: "Naslov",
+    h3: "Podnaslov",
+    quote: "Citat",
+    code: "Kod u liniji",
+    linkLabel: "Adresa linka",
+    linkPlaceholder: "Zalijepi adresu koja počinje s https://",
+    linkApply: "Primijeni",
+    linkRemove: "Ukloni link",
+    linkCancel: "Odustani",
+    linkInvalid: "Adresa mora počinjati s https://, http://, mailto: ili /.",
+  },
+
+  insert: {
+    open: "Umetni",
+    close: "Zatvori",
+    menuLabel: "Umetni blok",
+    image: "Fotografija",
+    divider: "Razdjelnik",
+    codeBlock: "Blok koda",
+    bulletList: "Lista",
+    dropHint: "Ispusti fotografiju ovdje",
+  },
+
+  image: {
+    toolbarLabel: "Postavke fotografije",
+    layoutLabel: "Širina fotografije",
+    layouts: {
+      inline: "Širina teksta",
+      wide: "Široko",
+      full: "Puna širina",
+    },
+    drag: "Povuci za pomjeranje",
+    moveUp: "Pomjeri gore",
+    moveDown: "Pomjeri dolje",
+    remove: "Ukloni fotografiju",
+    altLabel: "Alternativni tekst",
+    altPlaceholder: "Šta je na fotografiji? Čitači ekrana čitaju ovaj tekst.",
+    altMissing: "Nema alternativnog teksta",
+    captionPlaceholder: "Opis fotografije (neobavezno)",
+    uploading: "Učitavanje",
+  },
+
+  upload: {
+    notConfigured: "Učitavanje fotografija trenutno nije dostupno.",
+    invalidType: "Odaberi fotografiju u formatu JPG, PNG, WebP ili GIF.",
+    tooLarge: "Fotografija može imati najviše 4 MB.",
+    rateLimited: "Za kratko vrijeme je učitano previše fotografija. Pokušaj ponovo za nekoliko minuta.",
+    failed: "Fotografija nije učitana.",
+    chooseFile: "Odaberi fotografiju",
+  },
+
+  publish: {
+    title: "Postavke objave",
+    titleDraft: "Postavke skice",
+    close: "Zatvori",
+    coverHint: "Prikazuje se na listi bloga i na karticama za dijeljenje.",
+    coverUpload: "Učitaj naslovnu",
+    coverChange: "Promijeni",
+    coverRemove: "Ukloni naslovnu",
+    coverFromBody: "Koristi prvu fotografiju iz teksta",
+    coverAlt: "Pregled naslovne fotografije",
+    category: "Kategorija",
+    tags: "Oznake",
+    tagsHint: "Odvoji zarezima, najviše 8 oznaka.",
+    tagsPlaceholder: "ESP32, C++, IoT",
+    slug: "Adresa linka",
+    slugHint: "Mala slova, brojevi i crtice.",
+    slugLockedHint: "Ako promijeniš adresu objavljenog teksta, stari linkovi neće raditi.",
+    previewHeading: "Ovako izgleda na listi",
+    confirmPublish: "Objavi sada",
+    confirmUpdate: "Objavi izmjene",
+    confirmDraft: "Spremi skicu",
+    cancel: "Odustani",
+    noPublishRights: "Nemaš dozvolu za objavljivanje. Tvoja skica se sprema, a urednik će je objaviti.",
+    errTitle: "Naslov mora imati od 5 do 160 znakova.",
+    errContent: "Napiši još malo prije objavljivanja. Tekst mora imati najmanje 20 znakova.",
+    errSlug: "Adresa mora imati od 3 do 120 znakova i sadržavati samo mala slova, brojeve i crtice.",
+    errTags: "Dodaj najviše 8 oznaka, svaka do 30 znakova.",
+    errUploading: "Sačekaj da se fotografije učitaju.",
+  },
+};
+
+export const blogWriterText = { tr, en, bs };

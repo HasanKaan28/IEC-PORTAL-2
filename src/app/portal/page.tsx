@@ -21,7 +21,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { canSeePage, type PortalPage } from "@/lib/rbac/page-access";
 import { getDashboardData, type DashboardTaskStatus } from "@/lib/portal/dashboard-queries";
 import { getServerLocale } from "@/lib/i18n/server";
-import { formatDate, formatDateTime } from "@/lib/i18n/format";
+import { contentLocale, formatDate, formatDateTime } from "@/lib/i18n/format";
 import { portalShellText } from "@/lib/i18n/portal/shell";
 
 export async function generateMetadata() {
@@ -210,7 +210,7 @@ export default async function PortalDashboardPage() {
                           </span>
                         </div>
                         <div className="flex flex-wrap items-center gap-x-2 text-xs text-slate-500">
-                          <span>{task.projectTitle ? task.projectTitle[locale] : t.noProject}</span>
+                          <span>{task.projectTitle ? task.projectTitle[contentLocale(locale)] : t.noProject}</span>
                           {task.dueDate && (
                             <>
                               <span aria-hidden="true">·</span>

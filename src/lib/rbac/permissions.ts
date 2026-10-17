@@ -177,12 +177,12 @@ export function canManageRole(actorRoles: UserRole[], targetRole: UserRole): boo
   return highestActorScore > targetScore;
 }
 
-export const ROLE_LABELS: Record<UserRole, { tr: string; en: string }> = {
-  super_admin: { tr: "Süper Yönetici", en: "Super Admin" },
-  admin: { tr: "Yönetici", en: "Admin" },
-  leader: { tr: "Kulüp Lideri", en: "Club Leader" },
-  project_lead: { tr: "Proje Lideri", en: "Project Lead" },
-  task_manager: { tr: "Görev Yöneticisi", en: "Task Manager" },
-  blog_author: { tr: "Blog Yazarı", en: "Blog Author" },
-  member: { tr: "Kulüp Üyesi", en: "Club Member" },
+export const ROLE_LABELS: Record<UserRole, { tr: string; en: string; bs: string }> = {
+  super_admin: { tr: "Süper Yönetici", en: "Super Admin", bs: "Super administrator" },
+  admin: { tr: "Yönetici", en: "Admin", bs: "Administrator" },
+  leader: { tr: "Kulüp Lideri", en: "Club Leader", bs: "Lider kluba" },
+  project_lead: { tr: "Proje Lideri", en: "Project Lead", bs: "Voditelj projekta" },
+  task_manager: { tr: "Görev Yöneticisi", en: "Task Manager", bs: "Menadžer zadataka" },
+  blog_author: { tr: "Blog Yazarı", en: "Blog Author", bs: "Autor bloga" },
+  member: { tr: "Kulüp Üyesi", en: "Club Member", bs: "Član kluba" },
 };

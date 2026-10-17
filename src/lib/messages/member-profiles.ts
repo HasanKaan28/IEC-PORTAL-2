@@ -146,7 +146,7 @@ export async function getMemberProjects(memberId: string, locale: SupportedLocal
       if (!project) continue;
       const role = row.role?.trim();
       projects.push({
-        name: locale === "en" ? project.title_en : project.title_tr,
+        name: locale === "tr" ? project.title_tr : project.title_en,
         role: !role || role.toLowerCase() === "member" ? memberLabel : role,
         accentColor: safeHexColor(project.accent_color),
       });

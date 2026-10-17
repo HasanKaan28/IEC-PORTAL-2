@@ -208,7 +208,126 @@ const en: typeof tr = {
   },
 };
 
-export const blogText = { tr, en };
+/** Bosnian plural form for a count: 1 (and 21, 31...), 2-4 (and 22-24...), 5+ and 11-14. */
+function bsPlural(n: number, one: string, few: string, many: string): string {
+  const n10 = Math.abs(n) % 10;
+  const n100 = Math.abs(n) % 100;
+  if (n10 === 1 && n100 !== 11) return one;
+  if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return few;
+  return many;
+}
+
+const bs: typeof tr = {
+  meta: {
+    listTitle: "Blog",
+    listDescription:
+      "Hardverski projekti, open-source softver, AI eksperimenti i bilješke s hackathona od studenata FENS-a.",
+    notFoundTitle: "Objava nije pronađena",
+  },
+  catalog: {
+    title: "Blog",
+    intro: "Članovi kluba pišu o svojim projektima i događajima.",
+    rss: "RSS feed",
+    rssLabel: "RSS feed (otvara se u novoj kartici)",
+    write: "Napiši objavu",
+    loading: "Učitavanje objava...",
+    emptyTitle: "Još nema objava",
+    emptyHint: "Prve objave naših članova uskoro će se pojaviti ovdje.",
+    searchLabel: "Pretraži objave",
+    searchPlaceholder: "Pretražite po naslovu, temi, autoru ili oznaci (npr. ESP32, RAG)",
+    clearSearch: "Očisti",
+    clearSearchLabel: "Očisti pretragu",
+    categoriesLabel: "Filtriraj po kategoriji",
+    tagsLabel: "Oznake",
+    removeTag: "Ukloni oznaku",
+    noResultsTitle: "Nijedna objava ne odgovara vašoj pretrazi",
+    noResultsHint: "Pokušajte s drugim pojmom ili očistite filtere.",
+    resetFilters: "Poništi filtere",
+    resultCount: (count: number) => {
+      const form = bsPlural(count, "one", "few", "many");
+      if (form === "one") return `Prikazana je ${count} objava`;
+      if (form === "few") return `Prikazane su ${count} objave`;
+      return `Prikazano je ${count} objava`;
+    },
+    likePost: (title: string, count: number) =>
+      `Sviđa mi se "${title}" (${count} ${bsPlural(count, "sviđanje", "sviđanja", "sviđanja")})`,
+    likeFailed: "Sviđanje nije sačuvano. Molimo pokušajte ponovo.",
+  },
+  auth: {
+    signInToLike: "Prijavite se da biste označili da vam se objava sviđa.",
+    signIn: "Prijava",
+  },
+  categories: {
+    all: "Sve objave",
+    embedded: "Ugrađeni sistemi",
+    culture: "Inženjerska kultura",
+    ai: "Vještačka inteligencija",
+    events: "Događaji i hackathoni",
+    general: "Općenito",
+  },
+  post: {
+    backToAll: "Nazad na sve objave",
+    readingTime: (minutes: number) =>
+      `${minutes} ${bsPlural(minutes, "minuta", "minute", "minuta")} čitanja`,
+    readingTimeShort: (minutes: number) => `${minutes} min`,
+    publishedOn: "Objavljeno",
+    tags: "Oznake",
+    related: "Slične objave",
+  },
+  bar: {
+    actionsLabel: "Radnje s objavom",
+    like: "Sviđa mi se",
+    liked: "Sviđa vam se",
+    likeCount: (count: number) => `${count} ${bsPlural(count, "sviđanje", "sviđanja", "sviđanja")}`,
+    likeFailed: "Sviđanje nije sačuvano. Molimo pokušajte ponovo.",
+    share: "Podijeli:",
+    shareWhatsApp: "Podijeli na WhatsAppu",
+    shareX: "Podijeli na X-u",
+    shareLinkedIn: "Podijeli na LinkedInu",
+    newTab: "(otvara se u novoj kartici)",
+    copyLink: "Kopiraj link",
+    copy: "Kopiraj",
+    copied: "Kopirano",
+    copyFailed: "Kopiranje nije uspjelo",
+    linkCopied: "Link je kopiran u međuspremnik.",
+  },
+  comments: {
+    heading: "Komentari",
+    count: (count: number) => `${count} ${bsPlural(count, "komentar", "komentara", "komentara")}`,
+    signedInAs: "Prijavljeni ste kao",
+    commentLabel: "Vaš komentar",
+    commentPlaceholder: "Napišite pitanje, povratnu informaciju ili svoje mišljenje",
+    plainTextNote: "Komentari se prikazuju kao običan tekst.",
+    submit: "Objavi komentar",
+    submitting: "Objavljivanje...",
+    minLength: "Komentar mora imati najmanje 3 znaka.",
+    saveFailed: "Komentar nije sačuvan. Molimo pokušajte ponovo.",
+    published: "Vaš komentar je objavljen.",
+    signInTitle: "Uključite se u razgovor",
+    signInBody: "Prijavite se na portal za članove da biste komentarisali ili postavili pitanje.",
+    signInCta: "Prijava ili registracija",
+    empty: "Još nema komentara. Budite prvi koji će podijeliti mišljenje.",
+    listLabel: "Komentari",
+    repliesLabel: (name: string) => `Odgovori na komentar korisnika ${name}`,
+    reply: "Odgovori",
+    replyLabel: "Vaš odgovor",
+    replyPlaceholder: "Napišite odgovor",
+    sendReply: "Pošalji odgovor",
+    cancel: "Otkaži",
+    report: (name: string) => `Prijavi komentar korisnika ${name} moderatorima`,
+    reported: "Ovaj komentar je prijavljen",
+    reportDone: "Komentar je prijavljen moderatorima.",
+    reportFailed: "Komentar nije moguće prijaviti. Molimo pokušajte ponovo.",
+  },
+  code: {
+    fallbackLanguage: "kod",
+    copy: "Kopiraj kod",
+    copied: "Kopirano",
+    copyFailed: "Kopiranje nije uspjelo",
+  },
+};
+
+export const blogText = { tr, en, bs };
 
 export type BlogText = typeof tr;
 

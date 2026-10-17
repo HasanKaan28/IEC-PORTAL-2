@@ -45,7 +45,17 @@ const SITE_META = {
     ogDescription: "The club where IUS students build real engineering projects.",
     ogAlt: "IUS Engineering Club logo",
   },
+  bs: {
+    title: "IUS Engineering Club (IEC) | Sarajevo",
+    description:
+      "Zvanična web stranica i portal za članove Inženjerskog kluba Internacionalnog univerziteta u Sarajevu (IUS). Hardverski i softverski projekti, radionice, hackathoni i događaji s certifikatima.",
+    ogDescription: "Klub u kojem studenti IUS-a grade stvarne inženjerske projekte.",
+    ogAlt: "Logo kluba IUS Engineering Club",
+  },
 };
+
+/** Open Graph locale for each UI language; the other two are listed as alternates. */
+const OG_LOCALES = { tr: "tr_TR", en: "en_US", bs: "bs_BA" } as const;
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getServerLocale();
@@ -56,8 +66,10 @@ export async function generateMetadata(): Promise<Metadata> {
     description: meta.description,
     openGraph: {
       ...baseMetadata.openGraph,
-      locale: locale === "en" ? "en_US" : "tr_TR",
-      alternateLocale: locale === "en" ? "tr_TR" : "en_US",
+      locale: OG_LOCALES[locale],
+      alternateLocale: Object.entries(OG_LOCALES)
+        .filter(([key]) => key !== locale)
+        .map(([, value]) => value),
       title: meta.title,
       description: meta.ogDescription,
       images: [{ url: "/brand/og-card.jpg", width: 1200, height: 630, alt: meta.ogAlt }],

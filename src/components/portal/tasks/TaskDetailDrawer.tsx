@@ -3,7 +3,8 @@
 import React, { useEffect, useId, useState } from "react";
 import { Loader2, MessageSquare, Paperclip, RefreshCw, Send, Trash2, X } from "lucide-react";
 import { useLocale } from "@/lib/i18n/locale-context";
-import { formatDate, formatDateTime, formatRelative } from "@/lib/i18n/format";
+import { INTL_LOCALE, formatDate, formatDateTime, formatRelative } from "@/lib/i18n/format";
+import type { SupportedLocale } from "@/lib/i18n/translations";
 import { tasksProjectsText } from "@/lib/i18n/portal/tasks-projects";
 import { MemberName } from "@/components/portal/MemberCard";
 import {
@@ -54,8 +55,8 @@ interface TaskDetailDrawerProps {
 
 const COMMENT_MAX = 2000;
 
-function formatFileSize(bytes: number, locale: "tr" | "en"): string {
-  const formatter = new Intl.NumberFormat(locale === "tr" ? "tr-TR" : "en-GB", { maximumFractionDigits: 1 });
+function formatFileSize(bytes: number, locale: SupportedLocale): string {
+  const formatter = new Intl.NumberFormat(INTL_LOCALE[locale], { maximumFractionDigits: 1 });
   if (bytes >= 1024 * 1024) return `${formatter.format(bytes / (1024 * 1024))} MB`;
   return `${formatter.format(Math.max(1, Math.round(bytes / 1024)))} KB`;
 }

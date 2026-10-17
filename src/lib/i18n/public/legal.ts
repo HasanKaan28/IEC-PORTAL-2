@@ -199,7 +199,7 @@ const tr: LegalDictionary = {
               "NEXT_LOCALE",
               "Tercih",
               "1 Yıl",
-              "Kullanıcının seçtiği arayüz dilini (TR veya EN) hatırlar.",
+              "Kullanıcının seçtiği arayüz dilini (TR, EN veya BS) hatırlar.",
             ],
             [
               "_iec_analytics",
@@ -379,7 +379,7 @@ const en: LegalDictionary = {
               "NEXT_LOCALE",
               "Preference",
               "1 year",
-              "Remembers the interface language the user selected (TR or EN).",
+              "Remembers the interface language the user selected (TR, EN or BS).",
             ],
             [
               "_iec_analytics",
@@ -403,4 +403,184 @@ const en: LegalDictionary = {
   },
 };
 
-export const legalText = { tr, en };
+const bs: LegalDictionary = {
+  kvkk: {
+    metaTitle: "KVKK obavještenje o zaštiti ličnih podataka",
+    metaDescription:
+      "Obavještenje o ličnim podacima koji se obrađuju u okviru aktivnosti IUS Engineering Cluba, pravnim osnovama i pravima lica na koja se podaci odnose.",
+    noticeTitle: "Potrebna je pravna provjera (nacrt obavještenja)",
+    notice: [
+      "Ovo KVKK obavještenje o zaštiti ličnih podataka je nacrt. Zapisi o izričitoj saglasnosti i odobrenju korisnika čuvaju se u tabeli ",
+      { code: "consent_logs" },
+      " naše baze podataka, zajedno s vremenskom oznakom i podatkom o verziji. Prije službenog stupanja na snagu potrebno je pribaviti odobrenje pravne službe.",
+    ],
+    title: "KVKK i GDPR obavještenje o zaštiti ličnih podataka",
+    versionLine: "Verzija dokumenta: v1.0 • Posljednja izmjena: oktobar 2026.",
+    sections: [
+      {
+        id: "purpose",
+        icon: "scale",
+        heading: "1. Svrha ovog obavještenja",
+        paragraphs: [
+          [
+            "U skladu sa Zakonom br. 6698 o zaštiti ličnih podataka (\"KVKK\") i propisima Bosne i Hercegovine o zaštiti podataka, ovim obavještenjem informišemo vas o uslovima pod kojima se obrađuju vaši lični podaci prikupljeni u okviru aktivnosti koje provodi IUS Engineering Club.",
+          ],
+        ],
+      },
+      {
+        id: "data",
+        icon: "database",
+        heading: "2. Lični podaci koji se obrađuju i pravni osnovi",
+        paragraphs: [
+          [
+            "Podaci o identitetu, kontakt podaci, broj indeksa i podaci o akademskom odsjeku, dostavljeni prilikom registracije na platformi, obrađuju se radi uspostavljanja članstva u klubu, organizacije događaja i usklađenosti s propisima univerziteta, na osnovu člana 5. stav 2. tačke c) i f) KVKK-a.",
+          ],
+        ],
+      },
+      {
+        id: "consent",
+        icon: "check",
+        heading: "3. Evidencija saglasnosti i digitalni dokaz (Consent Logs)",
+        paragraphs: [
+          [
+            "Kada se na formularu za članstvo ili prijavu označi polje za KVKK saglasnost, to se kriptografski bilježi u sistemskim zapisima (",
+            { code: "consent_logs" },
+            ") zajedno s korisničkim identifikatorom (user_id), odobrenom verzijom dokumenta (document_version: \"v1.0\"), IP adresom i vremenskom oznakom (consented_at).",
+          ],
+        ],
+      },
+      {
+        id: "rights",
+        heading: "4. Prava lica na koje se podaci odnose",
+        paragraphs: [
+          [
+            "Svaki član i posjetilac ima pravo da se u bilo kojem trenutku obrati upravi kluba sa zahtjevom za brisanje ili ažuriranje svojih ličnih podataka, ili za informaciju o statusu njihove obrade. Zahtjevi se mogu poslati direktno na adresu ",
+            { strong: CONTACT_EMAIL },
+            ".",
+          ],
+        ],
+      },
+    ],
+  },
+  privacy: {
+    metaTitle: "Politika privatnosti",
+    metaDescription:
+      "Kako se lični podaci prikupljaju, obrađuju i štite na web stranici i portalu za članove IUS Engineering Cluba.",
+    noticeTitle: "Potrebna je pravna provjera (nacrt dokumenta)",
+    notice: [
+      "Ova Politika privatnosti je privremeni nacrt pripremljen da opiše tehničku infrastrukturu platforme IUS Engineering Cluba (IEC). Prije službenog stupanja na snagu mora je pregledati pravna služba univerziteta.",
+    ],
+    title: "Politika privatnosti",
+    versionLine: "Posljednje ažuriranje: 15. oktobar 2026. • Verzija: v1.0-draft",
+    sections: [
+      {
+        id: "controller",
+        icon: "lock",
+        heading: "1. Kontrolor podataka i obim",
+        paragraphs: [
+          [
+            "IUS Engineering Club (\"IEC\" ili \"Klub\"), koji djeluje u okviru Internacionalnog univerziteta u Sarajevu (IUS), poštuje privatnost korisnika svoje web stranice i portala za članove. Ova politika objašnjava kako se prikupljaju, obrađuju i štite lični podaci studenata koji posjećuju našu platformu ili postanu članovi.",
+          ],
+        ],
+      },
+      {
+        id: "collected",
+        icon: "eye",
+        heading: "2. Lični podaci koje prikupljamo",
+        items: [
+          [{ strong: "Identitet i kontakt:" }, " Ime, prezime, studentska e-mail adresa (@student.ius.edu.ba), broj telefona."],
+          [{ strong: "Akademski podaci:" }, " Fakultet, odsjek, godina studija i tehnička interesovanja."],
+          [{ strong: "Događaji i prisustvo:" }, " Evidencija prisustva putem QR koda i izdati certifikati o učešću."],
+          [{ strong: "Tehnički podaci:" }, " IP adresa, vrsta preglednika, postavke kolačića te interni zapisi platforme o reviziji (audit) i sigurnosti."],
+        ],
+      },
+      {
+        id: "purposes",
+        icon: "file",
+        heading: "3. Svrhe obrade i dijeljenje podataka",
+        paragraphs: [
+          [
+            "Prikupljeni podaci obrađuju se isključivo radi provođenja internih aktivnosti kluba, formiranja projektnih timova, ocjenjivanja prijava za hackathone i provjere certifikata. Vaši lični podaci nikada se ne prodaju niti prenose bilo kojoj trećoj strani koja se bavi oglašavanjem ili marketingom.",
+          ],
+        ],
+      },
+      {
+        id: "security",
+        heading: "4. Sigurnost podataka i RLS zaštita",
+        paragraphs: [
+          [
+            "Svi podaci zaštićeni su na nivou baze podataka pravilima PostgreSQL Row Level Security (RLS), a uloge članova i uprave ograničene su strogim RBAC modelom (kontrola pristupa zasnovana na ulogama).",
+          ],
+        ],
+      },
+    ],
+  },
+  cookies: {
+    metaTitle: "Politika kolačića",
+    metaDescription:
+      "Kolačići koji se koriste na web platformi IUS Engineering Cluba, njihova svrha, trajanje i način na koji možete promijeniti svoje postavke.",
+    noticeTitle: "Potrebna je pravna provjera (nacrt politike kolačića)",
+    notice: [
+      "Kolačići koji se koriste na našoj platformi transparentno su razvrstani po kategorijama u nastavku. Korisnici u bilo kojem trenutku mogu isključiti analitičke kolačiće putem banera za kolačiće.",
+    ],
+    title: "Politika kolačića",
+    versionLine: "Verzija: v1.0 • Web platforma IUS Engineering Cluba",
+    sections: [
+      {
+        id: "what",
+        icon: "cookie",
+        heading: "1. Šta je kolačić (cookie)?",
+        paragraphs: [
+          [
+            "Kolačići su male tekstualne datoteke koje se putem vašeg preglednika pohranjuju na vaš uređaj kada posjetite web stranicu. Na našoj platformi kolačići se koriste za održavanje sesije, zaštitu od sigurnosnih propusta i pamćenje korisničkih postavki.",
+          ],
+        ],
+      },
+      {
+        id: "list",
+        heading: "2. Kolačići koji se koriste na našoj platformi",
+        table: {
+          caption: "Kolačići koji se koriste na našoj platformi",
+          columns: ["Naziv kolačića", "Kategorija", "Trajanje", "Svrha"],
+          rows: [
+            [
+              "sb-auth-token",
+              "Neophodan",
+              "Sesija / 7 dana",
+              "Čuva stanje sigurne prijave korisnika i Supabase token za autorizaciju.",
+            ],
+            [
+              "iec_cookie_consent",
+              "Neophodan",
+              "1 godina",
+              "Čuva korisnikove postavke kolačića i izbore saglasnosti u localStorage.",
+            ],
+            [
+              "NEXT_LOCALE",
+              "Postavke",
+              "1 godina",
+              "Pamti jezik interfejsa koji je korisnik odabrao (TR, EN ili BS).",
+            ],
+            [
+              "_iec_analytics",
+              "Analitički (neobavezan)",
+              "30 dana",
+              "Anonimno mjeri broj pregleda stranica projekata i blog objava.",
+            ],
+          ],
+        },
+      },
+      {
+        id: "manage",
+        heading: "3. Promjena postavki kolačića",
+        paragraphs: [
+          [
+            "Kolačiće možete u bilo kojem trenutku izbrisati ili blokirati neobavezne analitičke kolačiće putem banera za kolačiće na dnu platforme ili u postavkama svog preglednika (Chrome, Firefox, Safari itd.).",
+          ],
+        ],
+      },
+    ],
+  },
+};
+
+export const legalText = { tr, en, bs };

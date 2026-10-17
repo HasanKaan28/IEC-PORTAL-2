@@ -118,6 +118,61 @@
 }
 
 /*
+ * iOS-style Liquid Glass chip for labels that sit on photos: a nearly clear lens (light blur,
+ * boosted colour), a bright specular rim that fades round the edge, an inner glow, and a soft
+ * shadow tint so white text stays readable on light and dark images alike.
+ */
+.liquid-glass {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(5, 15, 30, 0.55);
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.06) 45%, rgba(255, 255, 255, 0.14) 100%),
+    rgba(12, 24, 42, 0.26);
+  backdrop-filter: blur(5px) saturate(190%) brightness(1.05);
+  -webkit-backdrop-filter: blur(5px) saturate(190%) brightness(1.05);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.18),
+    inset 0 0 10px rgba(255, 255, 255, 0.16),
+    0 6px 18px -4px rgba(5, 15, 30, 0.45);
+}
+
+/* Specular rim: brightest at the top left, fading out along the sides. */
+.liquid-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.15) 40%, rgba(255, 255, 255, 0.05) 60%, rgba(255, 255, 255, 0.6));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Soft highlight across the upper half, like light caught in the curve of the glass. */
+.liquid-glass::after {
+  content: "";
+  position: absolute;
+  inset: 1px 8% 52% 8%;
+  z-index: -1;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+.liquid-glass-honey {
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.04) 45%, rgba(255, 255, 255, 0.12) 100%),
+    rgba(181, 134, 29, 0.5);
+}
+
+/*
  * Colour flow for the public site: the page drifts from sky blue through honey to sage and back
  * as you scroll, so sections never sit on flat white. Painted once behind the whole page.
  */

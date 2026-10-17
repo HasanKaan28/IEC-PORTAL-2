@@ -11,13 +11,7 @@ Site yayında, ama üye portalı bir Supabase veritabanına bağlanana kadar bak
    - **Redirect URLs:**
      - `https://iusengclub.vercel.app/portal/giris`
      - `https://iusengclub.vercel.app/portal/sifre-yenile`
-4. İsteğe bağlı ama önerilir (özel SMTP açıldıktan sonra): **Authentication > Emails > Templates > Reset password** şablonunda bağlantıyı şununla değiştir:
-
-   ```html
-   <a href="{{ .SiteURL }}/portal/sifre-yenile?token_hash={{ .TokenHash }}&type=recovery">Şifreni yenile</a>
-   ```
-
-   Varsayılan şablonla sıfırlama bağlantısı yalnızca isteğin yapıldığı tarayıcıda çalışır. Bu şablonla telefondan istenip bilgisayarda açılan bağlantı da çalışır.
+4. Özel SMTP açıldıktan sonra **Reset password** şablonunu 5. bölümdeki gibi `supabase/templates/reset-password.html` ile değiştir. Varsayılan şablonla sıfırlama bağlantısı yalnızca isteğin yapıldığı tarayıcıda çalışır. Bu şablonun `token_hash` bağlantısı, telefondan istenip bilgisayarda açıldığında da çalışır.
 
 ## 2. Veritabanını kur
 
@@ -70,7 +64,7 @@ Değişkenleri ekledikten sonra Vercel'de **Deployments > Redeploy** ile siteyi 
 
 ## 5. E-posta gönderimi ve kulüp şablonu
 
-Supabase'in kendi e-posta servisi yalnızca proje ekibindeki adreslere e-posta gönderir. Öğrencilere doğrulama ve şifre sıfırlama e-postası gitmesi için kendi SMTP servisini bağla. Şablonlar da ancak bundan sonra düzenlenebilir.
+Özel SMTP kurulmadan Supabase kendi servisini kullanır. Bu servis saatte en fazla 2 e-posta gönderir, gönderen adı "Supabase Auth" görünür ve İngilizce varsayılan şablon gider. Bizim şablonlarımız ancak özel SMTP bağlandıktan sonra düzenlenebilir.
 
 1. Kulübün bir Gmail hesabında iki adımlı doğrulamayı aç. Sonra **Google Hesabı > Güvenlik > Uygulama şifreleri** altından bir uygulama şifresi oluştur. Gmail günde yaklaşık 500 alıcıya izin verir.
 2. Supabase'de **Authentication > Emails > SMTP Settings** altında **Enable custom SMTP** seçeneğini aç:
@@ -78,10 +72,13 @@ Supabase'in kendi e-posta servisi yalnızca proje ekibindeki adreslere e-posta g
    - **Sender name:** `IUS Engineering Club`
    - **Host:** `smtp.gmail.com`, **Port:** `465`
    - **Username:** kulübün Gmail adresi, **Password:** uygulama şifresi
-3. **Authentication > Rate Limits** altında saatlik e-posta sınırını kontrol et. Kayıt dönemlerinde yükseltmen gerekebilir.
+3. **Authentication > Rate Limits > Rate limit for sending emails** değerini 100 yap. SMTP bağlanınca varsayılan 30 olur; kayıt döneminde bu dolabilir.
 4. **Authentication > Emails > Templates > Confirm sign up** şablonunda:
    - **Subject:** `IEC Portal hesabını doğrula / Verify your IEC Portal account`
    - **Body:** `supabase/templates/confirm-signup.html` dosyasının tüm içeriği
+5. **Authentication > Emails > Templates > Reset password** şablonunda:
+   - **Subject:** `IEC Portal şifreni yenile / Reset your IEC Portal password`
+   - **Body:** `supabase/templates/reset-password.html` dosyasının tüm içeriği
 
 ## 6. Deneme sınırları ve spam koruması
 

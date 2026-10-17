@@ -15,6 +15,8 @@ import ProjectJoinModal from "./ProjectJoinModal";
 import ProjectJoinRequestsDrawer from "./ProjectJoinRequestsDrawer";
 import CreateProjectModal from "./CreateProjectModal";
 import { MemberName } from "@/components/portal/MemberCard";
+import { useSearchFocus } from "@/components/portal/search/use-search-focus";
+import { SEARCH_FOCUS_PARAM } from "@/lib/search/search-types";
 import {
   EmptyState,
   ToastRegion,
@@ -58,6 +60,7 @@ export default function ProjectsPortalClient({ initialProjects, initialRequests,
   }, [initialRequests]);
 
   const [selectedCategory, setSelectedCategory] = useState("all");
+  useSearchFocus(SEARCH_FOCUS_PARAM.projects, () => setSelectedCategory("all"));
   const [joinProjectId, setJoinProjectId] = useState<string | null>(null);
   const [isRequestsOpen, setIsRequestsOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -202,7 +205,10 @@ export default function ProjectsPortalClient({ initialProjects, initialRequests,
 
                 return (
                   <li key={project.id}>
-                    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+                    <article
+                      data-search-target={project.id}
+                      className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+                    >
                       <div
                         className="h-1.5 w-full bg-brand-500"
                         style={accent ? { backgroundColor: accent } : undefined}

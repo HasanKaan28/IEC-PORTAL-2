@@ -33,6 +33,8 @@ export const RATE_LIMITS = {
   blogComment: { bucket: "blog-comment", limit: 8, windowSeconds: 5 * 60 },
   certificateVerify: { bucket: "certificate-verify:ip", limit: 60, windowSeconds: 10 * 60 },
   certificatePdf: { bucket: "certificate-pdf:ip", limit: 20, windowSeconds: 10 * 60 },
+  /** Header search fires as the member types, so this is per account and generous. */
+  portalSearch: { bucket: "portal-search:user", limit: 120, windowSeconds: 5 * 60 },
 } as const satisfies Record<string, RateLimitRule>;
 
 const MEMORY_ENTRY_CAP = 10_000;

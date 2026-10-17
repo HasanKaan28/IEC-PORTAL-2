@@ -52,11 +52,15 @@ const tr = {
       "Rol oluşturmak ve düzenlemek yalnızca süper yöneticiye açık. Var olan rolleri, sahip olduğun yetkilerle sınırlı olarak atayabilirsin.",
     setupRequired:
       "Özel roller için veritabanı güncellemesi henüz yapılmadı. supabase/migrations/20261018000000_custom_roles.sql dosyasını Supabase SQL Editor'de çalıştır.",
+    defaultSetupRequired:
+      "Varsayılan Üye rolü ve sayfa yetkileri için bir veritabanı güncellemesi daha gerekiyor: supabase/migrations/20261019000000_default_member_role.sql dosyasını Supabase SQL Editor'de çalıştır.",
+    defaultBadge: "Herkese uygulanır",
+    defaultHolders: "Tüm üyeler bu role otomatik olarak sahip. Silinemez, yalnızca yetkileri değiştirilebilir.",
   },
   members: {
-    customRolesHeading: "Özel roller",
-    noCustomRoles: "Henüz özel rol yok. Özel roller sekmesinden oluşturabilirsin.",
-    builtInHeading: "Hazır roller",
+    customRolesHeading: "Atanabilir roller",
+    noCustomRoles: "Henüz atanabilir rol yok. Özel roller sekmesinden oluşturabilirsin.",
+    defaultRoleNote: (name: string) => `Herkes ${name} rolüne otomatik olarak sahip; yetkilerini Özel roller sekmesinden ayarlayabilirsin.`,
   },
   messages: {
     invalidInput: "Girilen bilgiler geçersiz.",
@@ -74,6 +78,9 @@ const tr = {
     escalation: "Bu rol senin sahip olmadığın yetkiler içeriyor, atayamazsın.",
     rolesManageReserved: "Rol yönetimi yetkisi içeren rolleri yalnızca süper yönetici atayabilir.",
     setupRequired: "Özel roller için veritabanı güncellemesi gerekiyor.",
+    defaultSetupRequired: "Sayfa yetkileri için önce 20261019000000_default_member_role.sql güncellemesini çalıştır.",
+    defaultLocked: "Varsayılan Üye rolü silinemez.",
+    defaultAutomatic: "Bu rol tüm üyelere otomatik uygulanır, ayrıca atanmaz.",
     failed: "İşlem tamamlanamadı. Lütfen tekrar dene.",
   },
 };
@@ -131,11 +138,15 @@ const en: typeof tr = {
       "Only the super admin can create and edit roles. You can assign existing roles, limited to the permissions you hold.",
     setupRequired:
       "The database update for custom roles has not been run yet. Run supabase/migrations/20261018000000_custom_roles.sql in the Supabase SQL Editor.",
+    defaultSetupRequired:
+      "One more database update is needed for the default Member role and page permissions: run supabase/migrations/20261019000000_default_member_role.sql in the Supabase SQL Editor.",
+    defaultBadge: "Applies to everyone",
+    defaultHolders: "Every member holds this role automatically. It cannot be deleted; only its permissions can change.",
   },
   members: {
-    customRolesHeading: "Custom roles",
-    noCustomRoles: "No custom roles yet. Create one in the Custom roles tab.",
-    builtInHeading: "Built-in roles",
+    customRolesHeading: "Assignable roles",
+    noCustomRoles: "No assignable roles yet. Create one in the Custom roles tab.",
+    defaultRoleNote: (name: string) => `Everyone holds the ${name} role automatically; set its permissions in the Custom roles tab.`,
   },
   messages: {
     invalidInput: "The details you entered are not valid.",
@@ -153,6 +164,9 @@ const en: typeof tr = {
     escalation: "This role includes permissions you do not have, so you cannot assign it.",
     rolesManageReserved: "Only the super admin can assign roles that include role management.",
     setupRequired: "The custom roles database update is needed first.",
+    defaultSetupRequired: "Run the 20261019000000_default_member_role.sql update first to use page permissions.",
+    defaultLocked: "The default Member role cannot be deleted.",
+    defaultAutomatic: "This role applies to every member automatically and is not assigned one by one.",
     failed: "Could not complete the request. Please try again.",
   },
 };

@@ -27,6 +27,8 @@ export interface CustomRoleItem {
   permissions: Permission[];
   memberIds: string[];
   createdAt: string;
+  /** The default role: every member holds it automatically; it can be edited but not deleted or assigned. */
+  isDefault: boolean;
 }
 
 const PERMISSION_ENUM = z.enum(ALL_PERMISSIONS as [Permission, ...Permission[]]);
@@ -58,6 +60,7 @@ type RoleRow = {
   created_at: string;
   custom_role_permissions: Array<{ permission: string }> | null;
   user_custom_roles: Array<{ user_id: string }> | null;
+  is_default?: boolean | null;
 };
 
 function toItem(row: RoleRow): CustomRoleItem {
@@ -69,22 +72,49 @@ function toItem(row: RoleRow): CustomRoleItem {
     description: row.description,
     color,
     permissions: ALL_PERMISSIONS.filter((permission) => granted.has(permission)),
-    memberIds: (row.user_custom_roles ?? []).map((r) => r.user_id),
+    memberIds: row.is_default ? [] : (row.user_custom_roles ?? []).map((r) => r.user_id),
     createdAt: row.created_at,
+    isDefault: Boolean(row.is_default),
   };
 }
 
-const ROLE_SELECT = "id, name, description, color, created_at, custom_role_permissions(permission), user_custom_roles(user_id)";
+type AdminClient = Awaited<ReturnType<typeof privilegedClient>>;
 
-/** All custom roles with their permissions and holders. Requires roles.manage. */
-export async function getCustomRolesAction(): Promise<ActionResult<{ roles: CustomRoleItem[]; setupRequired: boolean }>> {
-  return guardedAction<{ roles: CustomRoleItem[]; setupRequired: boolean }>(async () => {
+const ROLE_SELECT_BASE =
+  "id, name, description, color, created_at, custom_role_permissions(permission), user_custom_roles(user_id)";
+
+/**
+ * Selects custom roles including is_default; before the 2026-10-19 migration that column does not
+ * exist (Postgres 42703), so the query is repeated without it and every role counts as non-default.
+ */
+async function selectRoles(
+  admin: AdminClient,
+  refine: (query: any) => any
+): Promise<{ data: any; error: any; hasDefaultColumn: boolean }> {
+  const first = await refine((admin.from("custom_roles") as any).select(`${ROLE_SELECT_BASE}, is_default`));
+  if (first.error?.code !== "42703") return { data: first.data, error: first.error, hasDefaultColumn: true };
+  const second = await refine((admin.from("custom_roles") as any).select(ROLE_SELECT_BASE));
+  return { data: second.data, error: second.error, hasDefaultColumn: false };
+}
+
+export interface CustomRolesPayload {
+  roles: CustomRoleItem[];
+  /** The custom roles tables do not exist yet. */
+  setupRequired: boolean;
+  /** The default member role migration has not been run yet. */
+  defaultSetupRequired: boolean;
+}
+
+/** All custom roles (default role first) with their permissions and holders. Requires roles.manage. */
+export async function getCustomRolesAction(): Promise<ActionResult<CustomRolesPayload>> {
+  return guardedAction<CustomRolesPayload>(async () => {
     await requirePermission("roles.manage");
     const admin = await privilegedClient();
-    const { data, error } = await (admin.from("custom_roles") as any).select(ROLE_SELECT).order("name", { ascending: true });
-    if (isMissingTable(error)) return { success: true, data: { roles: [], setupRequired: true } };
+    const { data, error, hasDefaultColumn } = await selectRoles(admin, (q) => q.order("name", { ascending: true }));
+    if (isMissingTable(error)) return { success: true, data: { roles: [], setupRequired: true, defaultSetupRequired: true } };
     if (error) throw error;
-    return { success: true, data: { roles: ((data ?? []) as RoleRow[]).map(toItem), setupRequired: false } };
+    const roles = ((data ?? []) as RoleRow[]).map(toItem).sort((a, b) => Number(b.isDefault) - Number(a.isDefault));
+    return { success: true, data: { roles, setupRequired: false, defaultSetupRequired: !hasDefaultColumn } };
   });
 }
 
@@ -111,9 +141,20 @@ export async function saveCustomRoleAction(input: {
     const parsed = saveSchema.safeParse(input);
     if (!parsed.success) return { success: false, error: t.invalidInput };
     const permissions = [...new Set(parsed.data.permissions)];
-    if (permissions.length === 0) return { success: false, error: t.noPermissions };
 
     const admin = await privilegedClient();
+
+    // The default role may end up with no permissions (members then see only the overview and profile).
+    let editingDefault = false;
+    if (parsed.data.id) {
+      const existing = await selectRoles(admin, (q) => q.eq("id", parsed.data.id).maybeSingle());
+      if (isMissingTable(existing.error)) return { success: false, error: t.setupRequired };
+      if (existing.error) throw existing.error;
+      if (!existing.data) return { success: false, error: t.roleNotFound };
+      editingDefault = Boolean((existing.data as RoleRow).is_default);
+    }
+    if (permissions.length === 0 && !editingDefault) return { success: false, error: t.noPermissions };
+
     const now = new Date().toISOString();
     const fields = {
       name: parsed.data.name,
@@ -144,16 +185,19 @@ export async function saveCustomRoleAction(input: {
     }
 
     // Replace the permission set: remove the ones switched off, add the ones switched on.
-    const { error: clearError } = await (admin.from("custom_role_permissions") as any)
-      .delete()
-      .eq("role_id", roleId)
-      .not("permission", "in", `(${permissions.map((p) => `"${p}"`).join(",")})`);
+    let clear = (admin.from("custom_role_permissions") as any).delete().eq("role_id", roleId);
+    if (permissions.length > 0) clear = clear.not("permission", "in", `(${permissions.map((p) => `"${p}"`).join(",")})`);
+    const { error: clearError } = await clear;
     if (clearError) throw clearError;
-    const { error: addError } = await (admin.from("custom_role_permissions") as any).upsert(
-      permissions.map((permission) => ({ role_id: roleId, permission })),
-      { onConflict: "role_id,permission", ignoreDuplicates: true }
-    );
-    if (addError) throw addError;
+    if (permissions.length > 0) {
+      const { error: addError } = await (admin.from("custom_role_permissions") as any).upsert(
+        permissions.map((permission) => ({ role_id: roleId, permission })),
+        { onConflict: "role_id,permission", ignoreDuplicates: true }
+      );
+      // Page permissions are rejected by the database until the 2026-10-19 migration has run.
+      if (addError?.code === "23514") return { success: false, error: t.defaultSetupRequired };
+      if (addError) throw addError;
+    }
 
     await writeAuditLog(admin, {
       actorId: actor.id,
@@ -163,10 +207,7 @@ export async function saveCustomRoleAction(input: {
       details: { name: parsed.data.name, permissions },
     });
 
-    const { data: row, error: loadError } = await (admin.from("custom_roles") as any)
-      .select(ROLE_SELECT)
-      .eq("id", roleId)
-      .single();
+    const { data: row, error: loadError } = await selectRoles(admin, (q) => q.eq("id", roleId).single());
     if (loadError) throw loadError;
 
     revalidateRoleViews();
@@ -187,14 +228,12 @@ export async function deleteCustomRoleAction(roleId: string): Promise<ActionResu
     if (!parsed.success) return { success: false, error: t.invalidInput };
 
     const admin = await privilegedClient();
-    const { data: role, error: loadError } = await (admin.from("custom_roles") as any)
-      .select(ROLE_SELECT)
-      .eq("id", parsed.data)
-      .maybeSingle();
+    const { data: role, error: loadError } = await selectRoles(admin, (q) => q.eq("id", parsed.data).maybeSingle());
     if (isMissingTable(loadError)) return { success: false, error: t.setupRequired };
     if (loadError) throw loadError;
     if (!role) return { success: false, error: t.roleNotFound };
     const item = toItem(role as RoleRow);
+    if (item.isDefault) return { success: false, error: t.defaultLocked };
 
     const { error } = await (admin.from("custom_roles") as any).delete().eq("id", item.id);
     if (error) throw error;
@@ -235,7 +274,7 @@ export async function setUserCustomRoleAction(
 
     const admin = await privilegedClient();
     const [roleResult, targetResult, targetRolesResult] = await Promise.all([
-      (admin.from("custom_roles") as any).select(ROLE_SELECT).eq("id", input.roleId).maybeSingle(),
+      selectRoles(admin, (q) => q.eq("id", input.roleId).maybeSingle()),
       (admin.from("profiles") as any).select("id, full_name, email").eq("id", input.userId).maybeSingle(),
       (admin.from("user_roles") as any).select("role").eq("user_id", input.userId),
     ]);
@@ -247,6 +286,7 @@ export async function setUserCustomRoleAction(
     if (!targetResult.data) return { success: false, error: t.userNotFound };
 
     const role = toItem(roleResult.data as RoleRow);
+    if (role.isDefault) return { success: false, error: t.defaultAutomatic };
     const target = targetResult.data as { id: string; full_name: string | null; email: string };
     const targetRoles = ((targetRolesResult.data ?? []) as Array<{ role: UserRole }>).map((r) => r.role);
 

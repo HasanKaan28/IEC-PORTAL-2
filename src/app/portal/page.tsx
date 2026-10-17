@@ -18,6 +18,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { getSessionUser } from "@/lib/auth/session";
+import { canSeePage, type PortalPage } from "@/lib/rbac/page-access";
 import { getDashboardData, type DashboardTaskStatus } from "@/lib/portal/dashboard-queries";
 import { getServerLocale } from "@/lib/i18n/server";
 import { formatDate, formatDateTime } from "@/lib/i18n/format";
@@ -80,12 +81,16 @@ export default async function PortalDashboardPage() {
   const firstName = user.fullName.split(/\s+/)[0] || user.fullName;
   const now = Date.now();
 
-  const quickLinks: Array<{ href: string; label: string; icon: LucideIcon }> = [
-    { href: "/portal/hackathon", label: t.links.hackathons, icon: Trophy },
-    { href: "/portal/mesajlar", label: t.links.messages, icon: MessageSquare },
-    { href: "/portal/sertifikalarim", label: t.links.certificates, icon: Award },
-    { href: "/portal/profil", label: t.links.profile, icon: UserCog },
-  ];
+  // Sections and links for pages the member's roles hide are left out.
+  const can = (page: PortalPage) => canSeePage(user, page);
+  const quickLinks = (
+    [
+      { href: "/portal/hackathon", label: t.links.hackathons, icon: Trophy, page: "hackathons" },
+      { href: "/portal/mesajlar", label: t.links.messages, icon: MessageSquare, page: "messages" },
+      { href: "/portal/sertifikalarim", label: t.links.certificates, icon: Award, page: "certificates" },
+      { href: "/portal/profil", label: t.links.profile, icon: UserCog },
+    ] as Array<{ href: string; label: string; icon: LucideIcon; page?: PortalPage }>
+  ).filter((link) => !link.page || can(link.page));
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -102,48 +107,61 @@ export default async function PortalDashboardPage() {
             </h1>
             <p className="mt-2 max-w-xl text-sm text-slate-600">{t.intro}</p>
           </div>
-          <Link
-            href="/portal/gorevler"
-            className="inline-flex items-center gap-2 self-start rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 sm:self-auto"
-          >
-            <span>{t.openBoard}</span>
-            <ArrowRight className="w-4 h-4" aria-hidden="true" />
-          </Link>
+          {can("tasks") && (
+            <Link
+              href="/portal/gorevler"
+              className="inline-flex items-center gap-2 self-start rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 sm:self-auto"
+            >
+              <span>{t.openBoard}</span>
+              <ArrowRight className="w-4 h-4" aria-hidden="true" />
+            </Link>
+          )}
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label={t.quickLinks}>
-        <StatCard
-          label={t.stats.openTasks}
-          value={data.openTasks}
-          hint={`${data.inProgressTasks} ${t.stats.inProgress}`}
-          icon={Clock}
-          tone="bg-accent-100 text-accent-700"
-        />
-        <StatCard
-          label={t.stats.done}
-          value={data.doneTasks}
-          hint={t.stats.doneHint}
-          icon={CheckCircle2}
-          tone="bg-emerald-100 text-emerald-700"
-        />
-        <StatCard
-          label={t.stats.projects}
-          value={data.projects}
-          hint={t.stats.projectsHint}
-          icon={FolderGit2}
-          tone="bg-brand-100 text-brand-700"
-        />
-        <StatCard
-          label={t.stats.certificates}
-          value={data.certificates}
-          hint={t.stats.certificatesHint}
-          icon={Award}
-          tone="bg-accent-200/60 text-accent-800"
-        />
-      </section>
+      {(can("tasks") || can("projects") || can("certificates")) && (
+        <section className="grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label={t.quickLinks}>
+          {can("tasks") && (
+            <>
+              <StatCard
+                label={t.stats.openTasks}
+                value={data.openTasks}
+                hint={`${data.inProgressTasks} ${t.stats.inProgress}`}
+                icon={Clock}
+                tone="bg-accent-100 text-accent-700"
+              />
+              <StatCard
+                label={t.stats.done}
+                value={data.doneTasks}
+                hint={t.stats.doneHint}
+                icon={CheckCircle2}
+                tone="bg-emerald-100 text-emerald-700"
+              />
+            </>
+          )}
+          {can("projects") && (
+            <StatCard
+              label={t.stats.projects}
+              value={data.projects}
+              hint={t.stats.projectsHint}
+              icon={FolderGit2}
+              tone="bg-brand-100 text-brand-700"
+            />
+          )}
+          {can("certificates") && (
+            <StatCard
+              label={t.stats.certificates}
+              value={data.certificates}
+              hint={t.stats.certificatesHint}
+              icon={Award}
+              tone="bg-accent-200/60 text-accent-800"
+            />
+          )}
+        </section>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {can("tasks") && (
         <section className="rounded-2xl border border-slate-200 bg-white p-5 lg:col-span-2">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h2 className="flex items-center gap-2 font-display text-base font-semibold text-slate-900">
@@ -163,12 +181,14 @@ export default async function PortalDashboardPage() {
               </span>
               <p className="mt-3 text-sm font-medium text-slate-800">{t.noTasksTitle}</p>
               <p className="mt-1 text-sm text-slate-500">{t.noTasksHint}</p>
-              <Link
-                href="/portal/projeler"
-                className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
-              >
-                {t.browseProjects}
-              </Link>
+              {can("projects") && (
+                <Link
+                  href="/portal/projeler"
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
+                >
+                  {t.browseProjects}
+                </Link>
+              )}
             </div>
           ) : (
             <ul className="mt-3 space-y-2">
@@ -214,8 +234,10 @@ export default async function PortalDashboardPage() {
             </ul>
           )}
         </section>
+        )}
 
-        <div className="space-y-6">
+        <div className={can("tasks") ? "space-y-6" : "grid grid-cols-1 gap-6 lg:col-span-3 lg:grid-cols-2"}>
+          {can("events") && (
           <section className="rounded-2xl border border-slate-200 bg-white p-5">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h2 className="flex items-center gap-2 font-display text-base font-semibold text-slate-900">
@@ -243,6 +265,7 @@ export default async function PortalDashboardPage() {
               </ul>
             )}
           </section>
+          )}
 
           <section className="rounded-2xl border border-slate-200 bg-white p-5">
             <h2 className="border-b border-slate-100 pb-3 font-display text-base font-semibold text-slate-900">{t.quickLinks}</h2>

@@ -1,7 +1,15 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { ALL_PERMISSIONS, isPermission, permissionsForRoles, type Permission, type UserRole } from "@/lib/rbac/permissions";
+import {
+  ALL_PERMISSIONS,
+  MEMBER_PAGE_PERMISSIONS,
+  isPermission,
+  permissionsForRoles,
+  type Permission,
+  type UserRole,
+} from "@/lib/rbac/permissions";
+import { canSeePage, type PortalPage } from "@/lib/rbac/page-access";
 import { getServerLocale } from "@/lib/i18n/server";
 
 /**
@@ -20,6 +28,8 @@ export interface SessionUser {
   roles: UserRole[];
   /** Custom roles built by a super admin and assigned to this member. */
   customRoles: SessionCustomRole[];
+  /** The default role every member holds automatically (null before its migration runs). */
+  defaultRole: SessionCustomRole | null;
   /** Everything this member may do: built-in role permissions plus custom role permissions. */
   permissions: Permission[];
 }
@@ -68,7 +78,7 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
     } = await supabase.auth.getUser();
     if (!user?.email) return null;
 
-    const [profileResult, rolesResult, customResult] = await Promise.all([
+    const [profileResult, rolesResult, customResult, defaultResult] = await Promise.all([
       (supabase.from("profiles") as any)
         .select("full_name, department, class_year, avatar_url")
         .eq("id", user.id)
@@ -77,6 +87,10 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
       (supabase.from("user_custom_roles") as any)
         .select("role:custom_roles(id, name, color, custom_role_permissions(permission))")
         .eq("user_id", user.id),
+      (supabase.from("custom_roles") as any)
+        .select("id, name, color, custom_role_permissions(permission)")
+        .eq("is_default", true)
+        .maybeSingle(),
     ]);
 
     const profile = profileResult.data as
@@ -100,6 +114,17 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
       }
     }
 
+    // Default role: everyone holds it. Until its migration runs, members keep every member page.
+    type DefaultRow = { id: string; name: string; color: string; custom_role_permissions: Array<{ permission: string }> };
+    const defaultRow = defaultResult.error ? null : (defaultResult.data as DefaultRow | null);
+    if (defaultRow) {
+      for (const { permission } of defaultRow.custom_role_permissions ?? []) {
+        if (isPermission(permission)) granted.add(permission);
+      }
+    } else {
+      for (const permission of MEMBER_PAGE_PERMISSIONS) granted.add(permission);
+    }
+
     return {
       id: user.id,
       email: user.email,
@@ -109,6 +134,7 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
       avatarUrl: profile?.avatar_url ?? null,
       roles,
       customRoles,
+      defaultRole: defaultRow ? { id: defaultRow.id, name: defaultRow.name, color: defaultRow.color } : null,
       permissions: ALL_PERMISSIONS.filter((permission) => granted.has(permission)),
     };
   } catch {
@@ -126,6 +152,13 @@ export async function requireUser(): Promise<SessionUser> {
 export async function requirePermission(permission: Permission): Promise<SessionUser> {
   const user = await requireUser();
   if (!user.permissions.includes(permission)) throw new GuardError(await guardMessage("forbidden"));
+  return user;
+}
+
+/** For actions that live on a member page: the page must be visible to the caller's roles. */
+export async function requirePageAccess(page: PortalPage): Promise<SessionUser> {
+  const user = await requireUser();
+  if (!canSeePage(user, page)) throw new GuardError(await guardMessage("forbidden"));
   return user;
 }
 

@@ -18,6 +18,36 @@ export interface PermissionGroup {
 
 /** Human-readable catalogue of every permission, shown in the role builder. */
 export const PERMISSION_INFO: Record<Permission, PermissionInfo> = {
+  "pages.tasks": {
+    label: { tr: "Görevler sayfası", en: "Tasks page" },
+    description: { tr: "Görev panosunu görür, kendi görevlerini açar ve günceller.", en: "Sees the task board, creates and updates their own tasks." },
+    page: { tr: "Görevlerim", en: "My tasks" },
+  },
+  "pages.projects": {
+    label: { tr: "Projeler sayfası", en: "Projects page" },
+    description: { tr: "Kulüp projelerini görür ve projelere katılım isteği gönderir.", en: "Sees club projects and sends join requests." },
+    page: { tr: "Projeler", en: "Projects" },
+  },
+  "pages.hackathons": {
+    label: { tr: "Hackathonlar sayfası", en: "Hackathons page" },
+    description: { tr: "Hackathon ilanlarını görür, takım kurar ve takımlara katılır.", en: "Sees hackathon listings, builds and joins teams." },
+    page: { tr: "Hackathonlar", en: "Hackathons" },
+  },
+  "pages.events": {
+    label: { tr: "Etkinlikler sayfası", en: "Events page" },
+    description: { tr: "Etkinlik takvimini görür ve QR kodla yoklama verir.", en: "Sees the events calendar and checks in with the QR code." },
+    page: { tr: "Etkinlikler", en: "Events" },
+  },
+  "pages.certificates": {
+    label: { tr: "Sertifikalar sayfası", en: "Certificates page" },
+    description: { tr: "Kendi sertifikalarını görür ve indirir.", en: "Sees and downloads their own certificates." },
+    page: { tr: "Sertifikalarım", en: "My certificates" },
+  },
+  "pages.messages": {
+    label: { tr: "Mesajlar sayfası", en: "Messages page" },
+    description: { tr: "Diğer üyelerle birebir mesajlaşır.", en: "Messages other members one to one." },
+    page: { tr: "Mesajlar", en: "Messages" },
+  },
   "roles.manage": {
     label: { tr: "Rolleri yönet", en: "Manage roles" },
     description: {
@@ -114,6 +144,11 @@ export const PERMISSION_INFO: Record<Permission, PermissionInfo> = {
 };
 
 export const PERMISSION_GROUPS: PermissionGroup[] = [
+  {
+    key: "pages",
+    label: { tr: "Sayfalar (Genel bakış ve Profilim her zaman açık)", en: "Pages (Overview and My profile are always open)" },
+    permissions: ["pages.tasks", "pages.projects", "pages.hackathons", "pages.events", "pages.certificates", "pages.messages"],
+  },
   {
     key: "management",
     label: { tr: "Yönetim", en: "Management" },

@@ -2,39 +2,27 @@
 
 import React, { useMemo, useState } from "react";
 import { CheckCircle2, Loader2, Lock, Plus, Search, Users } from "lucide-react";
-import { canManageRole, ROLE_HIERARCHY, ROLE_LABELS, type Permission, type UserRole } from "@/lib/rbac/permissions";
-import { toggleUserRoleAction, type AdminUserItem } from "@/lib/admin/admin-actions";
+import { ROLE_HIERARCHY, ROLE_LABELS, type Permission, type UserRole } from "@/lib/rbac/permissions";
+import type { AdminUserItem } from "@/lib/admin/admin-actions";
 import type { CustomRoleItem } from "@/lib/admin/custom-role-actions";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { adminText } from "@/lib/i18n/portal/admin";
 import { customRolesText } from "@/lib/i18n/portal/custom-roles";
+import { departmentLabel } from "@/lib/profile/departments";
 import { EmptyState, Notice, PageHeader, focusRing } from "./AdminUi";
 import { customRoleChipClass } from "./CustomRolesPanel";
-
-const EDITABLE_ROLES: UserRole[] = ["super_admin", "admin", "leader", "project_lead", "task_manager", "blog_author"];
 
 function highestRank(roles: UserRole[]): number {
   return roles.reduce((max, role) => Math.max(max, ROLE_HIERARCHY[role] ?? 0), 0);
 }
 
-function badgeClass(role: UserRole): string {
-  switch (role) {
-    case "super_admin":
-      return "bg-brand-100 text-brand-800 border-brand-200";
-    case "admin":
-      return "bg-brand-50 text-brand-700 border-brand-200";
-    case "leader":
-      return "bg-accent-100 text-accent-800 border-accent-200";
-    case "member":
-      return "bg-slate-50 text-slate-600 border-slate-200";
-    default:
-      return "bg-emerald-50 text-emerald-800 border-emerald-200";
-  }
+/** Built-in roles still shown as chips: super admin, plus any legacy assignment other than the base member role. */
+function visibleBuiltInRoles(roles: UserRole[]): UserRole[] {
+  return roles.filter((role) => role !== "member");
 }
 
 interface RoleManagerProps {
   users: AdminUserItem[];
-  onUsersChange: (updater: (prev: AdminUserItem[]) => AdminUserItem[]) => void;
   customRoles: CustomRoleItem[];
   onCustomAssign: (userId: string, roleId: string, assign: boolean) => Promise<{ ok: boolean; message: string }>;
   loadError: string | null;
@@ -43,9 +31,9 @@ interface RoleManagerProps {
   actorPermissions: Permission[];
 }
 
+/** Members tab: every member with their roles; custom roles are assigned from the edit panel. */
 export default function RoleManager({
   users,
-  onUsersChange: setUsers,
   customRoles,
   onCustomAssign,
   loadError,
@@ -67,24 +55,9 @@ export default function RoleManager({
 
   const actorIsSuperAdmin = actorRoles.includes("super_admin");
   const actorRank = highestRank(actorRoles);
+  const defaultRole = customRoles.find((role) => role.isDefault) ?? null;
+  const assignableRoles = customRoles.filter((role) => !role.isDefault);
   const customRolesById = useMemo(() => new Map(customRoles.map((role) => [role.id, role])), [customRoles]);
-
-  /** Why a custom role cannot be assigned by this actor, if that is the case. */
-  const customRoleLock = (role: CustomRoleItem): string | null => {
-    if (actorIsSuperAdmin) return null;
-    if (role.permissions.includes("roles.manage")) return ct.messages.rolesManageReserved;
-    if (role.permissions.some((p) => !actorPermissions.includes(p))) return ct.messages.escalation;
-    return null;
-  };
-
-  const handleCustomToggle = async (user: AdminUserItem, role: CustomRoleItem) => {
-    const has = user.customRoleIds.includes(role.id);
-    setPendingKey(`${user.id}:custom:${role.id}`);
-    setNotice(null);
-    const outcome = await onCustomAssign(user.id, role.id, !has);
-    setPendingKey(null);
-    setNotice({ tone: outcome.ok ? "success" : "error", text: outcome.message });
-  };
 
   const filteredUsers = useMemo(() => {
     const q = search.trim().toLocaleLowerCase(locale);
@@ -105,40 +78,21 @@ export default function RoleManager({
     return null;
   };
 
-  /** Why one role cannot be toggled, if that is the case. */
-  const roleLock = (role: UserRole): string | null => {
-    if (role === "super_admin") return t.lockedSuperAdmin;
-    if (!canManageRole(actorRoles, role)) return t.lockedRole;
+  /** Why a custom role cannot be assigned by this actor, if that is the case. */
+  const customRoleLock = (role: CustomRoleItem): string | null => {
+    if (actorIsSuperAdmin) return null;
+    if (role.permissions.includes("roles.manage")) return ct.messages.rolesManageReserved;
+    if (role.permissions.some((p) => !actorPermissions.includes(p))) return ct.messages.escalation;
     return null;
   };
 
-  const handleToggle = async (user: AdminUserItem, role: UserRole) => {
-    const hasRole = user.roles.includes(role);
-    const key = `${user.id}:${role}`;
-    setPendingKey(key);
+  const handleCustomToggle = async (user: AdminUserItem, role: CustomRoleItem) => {
+    const has = user.customRoleIds.includes(role.id);
+    setPendingKey(`${user.id}:${role.id}`);
     setNotice(null);
-
-    const result = await toggleUserRoleAction(user.id, role, !hasRole);
+    const outcome = await onCustomAssign(user.id, role.id, !has);
     setPendingKey(null);
-
-    if (!result.success) {
-      setNotice({ tone: "error", text: result.error });
-      return;
-    }
-
-    const nextRoles = result.data?.roles;
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.id === user.id
-          ? {
-              ...u,
-              roles: nextRoles ?? (hasRole ? u.roles.filter((r) => r !== role) : [...u.roles, role]),
-            }
-          : u
-      )
-    );
-    const roleLabel = ROLE_LABELS[role][locale];
-    setNotice({ tone: "success", text: hasRole ? t.removed(roleLabel, user.fullName) : t.assigned(roleLabel, user.fullName) });
+    setNotice({ tone: outcome.ok ? "success" : "error", text: outcome.message });
   };
 
   return (
@@ -170,7 +124,7 @@ export default function RoleManager({
         </Notice>
       )}
 
-      <p className="text-xs text-slate-500">{t.baseRoleNote}</p>
+      {defaultRole && <p className="text-xs text-slate-500">{ct.members.defaultRoleNote(defaultRole.name)}</p>}
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
         {users.length === 0 ? (
@@ -200,27 +154,30 @@ export default function RoleManager({
                           <div className="flex items-center gap-2 font-semibold text-slate-900">
                             <span>{user.fullName}</span>
                             {user.id === currentUserId && (
-                              <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-600">
-                                {t.you}
-                              </span>
+                              <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-600">{t.you}</span>
                             )}
                           </div>
                           <div className="text-xs text-slate-500">{user.email}</div>
                         </td>
                         <td className="px-4 py-3.5 text-slate-600">
-                          <div>{user.department ?? text.common.notSet}</div>
+                          <div>{departmentLabel(user.department, locale) ?? text.common.notSet}</div>
                           <div className="text-xs text-slate-500">{user.classYear ?? text.common.notSet}</div>
                         </td>
                         <td className="px-4 py-3.5">
                           <ul className="flex flex-wrap gap-1">
-                            {user.roles.map((role) => (
-                              <li key={role} className={`rounded-md border px-2 py-0.5 text-xs font-medium ${badgeClass(role)}`}>
+                            {visibleBuiltInRoles(user.roles).map((role) => (
+                              <li key={role} className="rounded-md border border-brand-200 bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-800">
                                 {ROLE_LABELS[role]?.[locale] ?? role}
                               </li>
                             ))}
+                            {defaultRole && (
+                              <li className={`rounded-md border px-2 py-0.5 text-xs font-medium ${customRoleChipClass(defaultRole.color)}`}>
+                                {defaultRole.name}
+                              </li>
+                            )}
                             {user.customRoleIds.map((roleId) => {
                               const role = customRolesById.get(roleId);
-                              if (!role) return null;
+                              if (!role || role.isDefault) return null;
                               return (
                                 <li key={roleId} className={`rounded-md border px-2 py-0.5 text-xs font-medium ${customRoleChipClass(role.color)}`}>
                                   {role.name}
@@ -249,61 +206,17 @@ export default function RoleManager({
                                 <h3 className="text-sm font-bold text-slate-900">{t.panelTitle(user.fullName)}</h3>
                                 <p className="text-xs text-slate-500">{lock ?? t.panelHint}</p>
                               </div>
-                              <h4 className="pt-1 text-xs font-semibold uppercase tracking-wider text-slate-500">{ct.members.builtInHeading}</h4>
-                              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                                {EDITABLE_ROLES.map((role) => {
-                                  const hasRole = user.roles.includes(role);
-                                  const reason = lock ?? roleLock(role);
-                                  const isPending = pendingKey === `${user.id}:${role}`;
-                                  return (
-                                    <button
-                                      key={role}
-                                      type="button"
-                                      aria-pressed={hasRole}
-                                      disabled={Boolean(reason) || pendingKey !== null}
-                                      onClick={() => handleToggle(user, role)}
-                                      title={reason ?? undefined}
-                                      className={`flex flex-col items-start gap-1 rounded-xl border p-3 text-left text-sm transition-colors disabled:cursor-not-allowed ${focusRing} ${
-                                        hasRole
-                                          ? "border-brand-300 bg-white text-slate-900"
-                                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                                      } ${reason ? "opacity-60" : ""}`}
-                                    >
-                                      <span className="flex w-full items-center justify-between gap-2 font-semibold">
-                                        <span>{ROLE_LABELS[role][locale]}</span>
-                                        {isPending ? (
-                                          <Loader2 className="h-4 w-4 animate-spin text-brand-600" aria-hidden="true" />
-                                        ) : reason ? (
-                                          <Lock className="h-4 w-4 text-slate-400" aria-hidden="true" />
-                                        ) : hasRole ? (
-                                          <CheckCircle2 className="h-4 w-4 text-emerald-600" aria-hidden="true" />
-                                        ) : (
-                                          <Plus className="h-4 w-4 text-slate-400" aria-hidden="true" />
-                                        )}
-                                      </span>
-                                      <span className="text-xs text-slate-500">
-                                        {isPending
-                                          ? t.updating
-                                          : reason && !lock
-                                            ? reason
-                                            : hasRole
-                                              ? t.assignedState
-                                              : t.unassignedState}
-                                      </span>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-
-                              <h4 className="pt-2 text-xs font-semibold uppercase tracking-wider text-slate-500">{ct.members.customRolesHeading}</h4>
-                              {customRoles.length === 0 ? (
+                              <h4 className="pt-1 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                {ct.members.customRolesHeading}
+                              </h4>
+                              {assignableRoles.length === 0 ? (
                                 <p className="text-sm text-slate-500">{ct.members.noCustomRoles}</p>
                               ) : (
                                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                                  {customRoles.map((role) => {
+                                  {assignableRoles.map((role) => {
                                     const has = user.customRoleIds.includes(role.id);
                                     const reason = lock ?? customRoleLock(role);
-                                    const isPending = pendingKey === `${user.id}:custom:${role.id}`;
+                                    const isPending = pendingKey === `${user.id}:${role.id}`;
                                     return (
                                       <button
                                         key={role.id}

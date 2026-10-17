@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import TasksManagerClient from "@/components/portal/tasks/TasksManagerClient";
 import { getSessionUser, userCan } from "@/lib/auth/session";
+import { guardPortalPage } from "@/lib/rbac/page-guard";
 import { getServerLocale } from "@/lib/i18n/server";
 import { tasksProjectsText } from "@/lib/i18n/portal/tasks-projects";
 import { getAssignableMembers, getAvailableProjects, getTasks } from "@/lib/tasks/task-queries";
@@ -14,6 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PortalTasksPage() {
+  await guardPortalPage("tasks");
   const user = await getSessionUser();
   if (!user) redirect("/portal/giris?redirect=/portal/gorevler");
 

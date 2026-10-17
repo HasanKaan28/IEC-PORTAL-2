@@ -18,6 +18,7 @@ interface RolesWorkspaceProps {
   usersError: string | null;
   initialCustomRoles: CustomRoleItem[];
   customRolesSetupRequired: boolean;
+  defaultRoleSetupRequired: boolean;
   currentUserId: string;
   actorRoles: UserRole[];
   actorPermissions: Permission[];
@@ -29,6 +30,7 @@ export default function RolesWorkspace({
   usersError,
   initialCustomRoles,
   customRolesSetupRequired,
+  defaultRoleSetupRequired,
   currentUserId,
   actorRoles,
   actorPermissions,
@@ -101,12 +103,12 @@ export default function RolesWorkspace({
             actorIsSuperAdmin={actorIsSuperAdmin}
             actorPermissions={actorPermissions}
             setupRequired={customRolesSetupRequired}
+            defaultSetupRequired={defaultRoleSetupRequired}
             onAssign={assignCustomRole}
           />
         ) : (
           <RoleManager
             users={users}
-            onUsersChange={setUsers}
             customRoles={customRoles}
             onCustomAssign={assignCustomRole}
             loadError={usersError}

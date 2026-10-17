@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
-import { guardedAction, requirePermission, requireUser, type ActionResult } from "@/lib/auth/session";
+import { requirePageAccess, guardedAction, requirePermission, type ActionResult } from "@/lib/auth/session";
 import { getServerLocale } from "@/lib/i18n/server";
 import { eventsHackathonsText } from "@/lib/i18n/portal/events-hackathons";
 import { buildCheckInUrl, generateEventTOTP, QrSigningError, verifyEventTOTP } from "./totp";
@@ -102,7 +102,7 @@ export async function checkInWithTOTPAction(
   inputCode: string
 ): Promise<ActionResult<CheckInResult>> {
   return guardedAction(async () => {
-    const user = await requireUser();
+    const user = await requirePageAccess("events");
     const t = await text();
 
     const parsed = z.object({ eventId: z.string().uuid(), code: z.string().max(512) }).safeParse({ eventId, code: inputCode });

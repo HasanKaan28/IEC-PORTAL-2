@@ -18,6 +18,7 @@ export default async function RoleManagementPage() {
       usersError={usersResult.success ? null : usersResult.error}
       initialCustomRoles={customResult.success ? customResult.data?.roles ?? [] : []}
       customRolesSetupRequired={customResult.success ? Boolean(customResult.data?.setupRequired) : false}
+      defaultRoleSetupRequired={customResult.success ? Boolean(customResult.data?.defaultSetupRequired) : false}
       currentUserId={user.id}
       actorRoles={user.roles}
       actorPermissions={user.permissions}

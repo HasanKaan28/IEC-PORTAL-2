@@ -69,9 +69,10 @@ interface Draft {
   description: string;
   color: CustomRoleColor;
   permissions: Set<Permission>;
+  isDefault: boolean;
 }
 
-const EMPTY_DRAFT: Draft = { name: "", description: "", color: "brand", permissions: new Set() };
+const EMPTY_DRAFT: Draft = { name: "", description: "", color: "brand", permissions: new Set(), isDefault: false };
 
 interface CustomRolesPanelProps {
   roles: CustomRoleItem[];
@@ -81,6 +82,7 @@ interface CustomRolesPanelProps {
   actorIsSuperAdmin: boolean;
   actorPermissions: Permission[];
   setupRequired: boolean;
+  defaultSetupRequired: boolean;
   onAssign: (userId: string, roleId: string, assign: boolean) => Promise<{ ok: boolean; message: string }>;
 }
 
@@ -92,6 +94,7 @@ export default function CustomRolesPanel({
   actorIsSuperAdmin,
   actorPermissions,
   setupRequired,
+  defaultSetupRequired,
   onAssign,
 }: CustomRolesPanelProps) {
   const { locale } = useLocale();
@@ -124,6 +127,7 @@ export default function CustomRolesPanel({
       description: role.description ?? "",
       color: role.color,
       permissions: new Set(role.permissions),
+      isDefault: role.isDefault,
     });
     setAssigningRoleId(null);
   };
@@ -172,7 +176,7 @@ export default function CustomRolesPanel({
       onRolesChange((prev) => {
         const exists = prev.some((role) => role.id === saved.id);
         const next = exists ? prev.map((role) => (role.id === saved.id ? saved : role)) : [...prev, saved];
-        return next.sort((a, b) => a.name.localeCompare(b.name, locale));
+        return next.sort((a, b) => Number(b.isDefault) - Number(a.isDefault) || a.name.localeCompare(b.name, locale));
       });
     }
     setDraft(null);
@@ -243,6 +247,7 @@ export default function CustomRolesPanel({
       />
 
       {!actorIsSuperAdmin && <Notice tone="info">{t.list.superAdminOnly}</Notice>}
+      {defaultSetupRequired && <Notice tone="info">{t.list.defaultSetupRequired}</Notice>}
 
       {notice && (
         <Notice tone={notice.tone} onDismiss={() => setNotice(null)} dismissLabel={common.dismiss}>
@@ -386,7 +391,7 @@ export default function CustomRolesPanel({
               </button>
               <button
                 type="submit"
-                disabled={saving || selectedCount === 0 || draft.name.trim().length < 2}
+                disabled={saving || (selectedCount === 0 && !draft.isDefault) || draft.name.trim().length < 2}
                 className={`inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`}
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <ShieldCheck className="h-4 w-4" aria-hidden="true" />}
@@ -413,13 +418,19 @@ export default function CustomRolesPanel({
               <li key={role.id} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <h3 className="flex items-center gap-2 font-display text-base font-bold text-slate-900">
+                    <h3 className="flex flex-wrap items-center gap-2 font-display text-base font-bold text-slate-900">
                       <span aria-hidden="true" className={`h-3 w-3 shrink-0 rounded-full ${COLOR_STYLES[role.color].dot}`} />
                       <span className="truncate">{role.name}</span>
+                      {role.isDefault && (
+                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-sans text-xs font-semibold text-emerald-800">
+                          {t.list.defaultBadge}
+                        </span>
+                      )}
                     </h3>
                     {role.description && <p className="mt-1 text-sm text-slate-500">{role.description}</p>}
                     <p className="mt-1 text-xs text-slate-500">
-                      {t.list.permissionCount(role.permissions.length)} · {t.list.memberCount(role.memberIds.length)}
+                      {t.list.permissionCount(role.permissions.length)}
+                      {!role.isDefault && ` · ${t.list.memberCount(role.memberIds.length)}`}
                     </p>
                   </div>
                   {actorIsSuperAdmin && (
@@ -432,14 +443,16 @@ export default function CustomRolesPanel({
                       >
                         <Pencil className="h-4 w-4" aria-hidden="true" />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => setConfirmDeleteId(role.id)}
-                        aria-label={`${t.list.remove}: ${role.name}`}
-                        className={`rounded-lg p-2 text-slate-500 hover:bg-rose-50 hover:text-rose-700 ${focusRing}`}
-                      >
-                        <Trash2 className="h-4 w-4" aria-hidden="true" />
-                      </button>
+                      {!role.isDefault && (
+                        <button
+                          type="button"
+                          onClick={() => setConfirmDeleteId(role.id)}
+                          aria-label={`${t.list.remove}: ${role.name}`}
+                          className={`rounded-lg p-2 text-slate-500 hover:bg-rose-50 hover:text-rose-700 ${focusRing}`}
+                        >
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -476,6 +489,9 @@ export default function CustomRolesPanel({
                   </div>
                 )}
 
+                {role.isDefault ? (
+                  <p className="mt-4 border-t border-slate-100 pt-4 text-sm text-slate-500">{t.list.defaultHolders}</p>
+                ) : (
                 <div className="mt-4 border-t border-slate-100 pt-4">
                   <div className="flex items-center justify-between gap-2">
                     <h4 className="text-sm font-semibold text-slate-700">{t.list.holders}</h4>
@@ -572,6 +588,7 @@ export default function CustomRolesPanel({
                     </div>
                   )}
                 </div>
+                )}
               </li>
             );
           })}

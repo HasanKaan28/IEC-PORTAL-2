@@ -4,6 +4,7 @@ import EventsPortalClient from "@/components/portal/events/EventsPortalClient";
 import { getEvents } from "@/lib/events/event-queries";
 import { normalizeCheckInCode } from "@/lib/events/event-types";
 import { getSessionUser, userCan } from "@/lib/auth/session";
+import { guardPortalPage } from "@/lib/rbac/page-guard";
 import { getServerLocale } from "@/lib/i18n/server";
 import { eventsHackathonsText } from "@/lib/i18n/portal/events-hackathons";
 
@@ -15,6 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default async function PortalEventsPage({ searchParams }: { searchParams: SearchParams }) {
+  await guardPortalPage("events");
   const [user, events, params] = await Promise.all([getSessionUser(), getEvents(), searchParams]);
 
   // A scanned QR code links here with ?checkin=<event id>&code=<digits>; only prefill for an event

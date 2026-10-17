@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import HackathonsPortalClient from "@/components/portal/hackathons/HackathonsPortalClient";
 import { getHackathonJoinRequests, getHackathons, getHackathonTeams } from "@/lib/hackathons/hackathon-queries";
 import { getSessionUser, userCan } from "@/lib/auth/session";
+import { guardPortalPage } from "@/lib/rbac/page-guard";
 import { getServerLocale } from "@/lib/i18n/server";
 import { eventsHackathonsText } from "@/lib/i18n/portal/events-hackathons";
 
@@ -12,6 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PortalHackathonPage() {
+  await guardPortalPage("hackathons");
   const [user, hackathons, teams, joinRequests] = await Promise.all([
     getSessionUser(),
     getHackathons(),

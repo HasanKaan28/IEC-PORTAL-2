@@ -7,8 +7,8 @@ import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
 import {
   GuardError,
   guardedAction,
+  requirePageAccess,
   requirePermission,
-  requireUser,
   userCan,
   type ActionResult,
   type SessionUser,
@@ -114,7 +114,7 @@ function revalidateTaskViews() {
 
 export async function getTaskCommentsAction(taskId: string): Promise<ActionResult<TaskCommentItem[]>> {
   return guardedAction(async () => {
-    await requireUser();
+    await requirePageAccess("tasks");
     const t = await errorText();
     const parsed = z.string().uuid().safeParse(taskId);
     if (!parsed.success) return { success: false, error: t.invalidInput };
@@ -129,7 +129,7 @@ export async function getTaskCommentsAction(taskId: string): Promise<ActionResul
 
 export async function getTaskAttachmentsAction(taskId: string): Promise<ActionResult<TaskAttachmentItem[]>> {
   return guardedAction(async () => {
-    await requireUser();
+    await requirePageAccess("tasks");
     const t = await errorText();
     const parsed = z.string().uuid().safeParse(taskId);
     if (!parsed.success) return { success: false, error: t.invalidInput };
@@ -177,7 +177,7 @@ export async function createTaskAction(input: {
   dueDate?: string | null;
 }): Promise<ActionResult<{ id: string }>> {
   return guardedAction(async () => {
-    const user = await requireUser();
+    const user = await requirePageAccess("tasks");
     const viewer = viewerFor(user);
     const t = await errorText();
 
@@ -231,7 +231,7 @@ async function updateOwnedTask(
   patch: Record<string, unknown>,
   patchSchema: z.ZodTypeAny
 ): Promise<ActionResult> {
-  const user = await requireUser();
+  const user = await requirePageAccess("tasks");
   const t = await errorText();
 
   const idResult = z.string().uuid().safeParse(taskId);
@@ -315,7 +315,7 @@ export async function assignTaskAction(taskId: string, assigneeId: string | null
 
 export async function addTaskCommentAction(taskId: string, content: string): Promise<ActionResult<TaskCommentItem>> {
   return guardedAction(async () => {
-    const user = await requireUser();
+    const user = await requirePageAccess("tasks");
     const t = await errorText();
 
     const parsed = z
@@ -368,7 +368,7 @@ export async function addTaskCommentAction(taskId: string, content: string): Pro
 
 export async function deleteTaskAction(taskId: string): Promise<ActionResult> {
   return guardedAction(async () => {
-    const user = await requireUser();
+    const user = await requirePageAccess("tasks");
     const t = await errorText();
 
     const parsed = z.string().uuid().safeParse(taskId);

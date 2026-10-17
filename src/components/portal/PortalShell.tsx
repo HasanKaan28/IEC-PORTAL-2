@@ -22,12 +22,15 @@ import ClubLogo from "@/components/shared/ClubLogo";
 import PortalAvatar from "@/components/portal/PortalAvatar";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { portalShellText } from "@/lib/i18n/portal/shell";
+import type { PortalPage } from "@/lib/rbac/page-access";
 
 export interface PortalShellUser {
   fullName: string;
   email: string;
   avatarUrl: string | null;
   roleLabel: string;
+  /** Role-controlled pages this member may open (overview and profile are always shown). */
+  pages: PortalPage[];
 }
 
 interface PortalShellProps {
@@ -40,14 +43,14 @@ interface PortalShellProps {
 
 type NavKey = keyof (typeof portalShellText)["tr"]["shell"]["nav"];
 
-const NAV_ITEMS: Array<{ href: string; key: NavKey; icon: LucideIcon }> = [
+const NAV_ITEMS: Array<{ href: string; key: NavKey; icon: LucideIcon; page?: PortalPage }> = [
   { href: "/portal", key: "dashboard", icon: LayoutDashboard },
-  { href: "/portal/gorevler", key: "tasks", icon: CheckSquare },
-  { href: "/portal/projeler", key: "projects", icon: FolderGit2 },
-  { href: "/portal/hackathon", key: "hackathons", icon: Trophy },
-  { href: "/portal/etkinlikler", key: "events", icon: Calendar },
-  { href: "/portal/sertifikalarim", key: "certificates", icon: Award },
-  { href: "/portal/mesajlar", key: "messages", icon: MessageSquare },
+  { href: "/portal/gorevler", key: "tasks", icon: CheckSquare, page: "tasks" },
+  { href: "/portal/projeler", key: "projects", icon: FolderGit2, page: "projects" },
+  { href: "/portal/hackathon", key: "hackathons", icon: Trophy, page: "hackathons" },
+  { href: "/portal/etkinlikler", key: "events", icon: Calendar, page: "events" },
+  { href: "/portal/sertifikalarim", key: "certificates", icon: Award, page: "certificates" },
+  { href: "/portal/mesajlar", key: "messages", icon: MessageSquare, page: "messages" },
   { href: "/portal/profil", key: "profile", icon: User },
 ];
 
@@ -112,7 +115,7 @@ function SidebarContent({ user, showAdmin, pathname }: { user: PortalShellUser; 
       <nav aria-label={t.mainNav} className="flex-1 overflow-y-auto px-3 py-4">
         <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">{t.workspace}</p>
         <ul className="space-y-1">
-          {NAV_ITEMS.map((item) => (
+          {NAV_ITEMS.filter((item) => !item.page || user.pages.includes(item.page)).map((item) => (
             <li key={item.href}>
               <NavLink href={item.href} label={t.nav[item.key]} icon={item.icon} active={isActive(pathname, item.href)} />
             </li>

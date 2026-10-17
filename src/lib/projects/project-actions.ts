@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
-import { guardedAction, requirePermission, requireUser, userCan, type ActionResult } from "@/lib/auth/session";
+import { requirePageAccess, guardedAction, requirePermission, userCan, type ActionResult } from "@/lib/auth/session";
 import { getServerLocale } from "@/lib/i18n/server";
 import { tasksProjectsText, type TasksProjectsText } from "@/lib/i18n/portal/tasks-projects";
 import { recordAudit } from "@/lib/tasks/audit";
@@ -47,7 +47,7 @@ function revalidateProjectViews() {
 /** The caller asks to join a project. The request is always created for the caller. */
 export async function requestJoinProjectAction(projectId: string, message: string): Promise<ActionResult> {
   return guardedAction(async () => {
-    const user = await requireUser();
+    const user = await requirePageAccess("projects");
     const t = await errorText();
 
     const parsed = z
@@ -110,7 +110,7 @@ export async function reviewProjectJoinRequestAction(
   reviewerNote?: string
 ): Promise<ActionResult> {
   return guardedAction(async () => {
-    const user = await requireUser();
+    const user = await requirePageAccess("projects");
     const t = await errorText();
 
     const parsed = z
@@ -193,7 +193,7 @@ export async function reviewProjectJoinRequestAction(
 /** Requests the caller may review (see getProjectJoinRequests for the scope rules). */
 export async function getProjectJoinRequestsAction(): Promise<ActionResult<ProjectJoinRequestItem[]>> {
   return guardedAction(async () => {
-    const user = await requireUser();
+    const user = await requirePageAccess("projects");
     return { success: true, data: await getProjectJoinRequests(user) };
   });
 }

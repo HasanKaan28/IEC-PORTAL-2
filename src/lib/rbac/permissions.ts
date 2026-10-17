@@ -8,6 +8,13 @@ export type UserRole =
   | "member";
 
 export type Permission =
+  // Page access: which member pages show in the sidebar and open at all.
+  | "pages.tasks"
+  | "pages.projects"
+  | "pages.hackathons"
+  | "pages.events"
+  | "pages.certificates"
+  | "pages.messages"
   | "roles.manage"
   | "applications.review"
   | "audit.view"
@@ -26,6 +33,12 @@ export type Permission =
 
 /** Every permission, in the order the role builder lists them. Keep in sync with the SQL check list. */
 export const ALL_PERMISSIONS: Permission[] = [
+  "pages.tasks",
+  "pages.projects",
+  "pages.hackathons",
+  "pages.events",
+  "pages.certificates",
+  "pages.messages",
   "roles.manage",
   "audit.view",
   "applications.review",
@@ -41,6 +54,16 @@ export const ALL_PERMISSIONS: Permission[] = [
   "blog.write",
   "blog.publish",
   "blog.moderate",
+];
+
+/** Page permissions every member had before page access became configurable. */
+export const MEMBER_PAGE_PERMISSIONS: Permission[] = [
+  "pages.tasks",
+  "pages.projects",
+  "pages.hackathons",
+  "pages.events",
+  "pages.certificates",
+  "pages.messages",
 ];
 
 export function isPermission(value: unknown): value is Permission {

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { guardedAction, requireUser, type ActionResult } from "@/lib/auth/session";
+import { requirePageAccess, guardedAction, requireUser, type ActionResult } from "@/lib/auth/session";
 import { getServerLocale } from "@/lib/i18n/server";
 import { messagesProfileText, type MessagesProfileText } from "@/lib/i18n/portal/messages-profile";
 import type {
@@ -54,7 +54,7 @@ export async function sendMessageAction(
   content: string
 ): Promise<ActionResult<DirectMessageItem>> {
   return guardedAction<DirectMessageItem>(async () => {
-    const user = await requireUser();
+    const user = await requirePageAccess("messages");
     const t = await actionText();
 
     const parsed = z
@@ -106,7 +106,7 @@ export async function sendMessageAction(
 /** Marks messages from senderId to the signed-in user as read. Never touches anyone else's inbox. */
 export async function markMessagesAsReadAction(senderId: string): Promise<ActionResult> {
   return guardedAction(async () => {
-    const user = await requireUser();
+    const user = await requirePageAccess("messages");
     const t = await actionText();
     const parsed = memberIdSchema(t).safeParse(senderId);
     if (!parsed.success) return { success: false, error: firstIssue(parsed.error, t.invalidMember) };
@@ -160,7 +160,7 @@ export async function reportOrBlockUserAction(
   actionType: "report" | "block"
 ): Promise<ActionResult> {
   return guardedAction(async () => {
-    const user = await requireUser();
+    const user = await requirePageAccess("messages");
     const t = await actionText();
 
     const parsed = z
@@ -199,7 +199,7 @@ export async function reportOrBlockUserAction(
 
 export async function unblockUserAction(targetUserId: string): Promise<ActionResult> {
   return guardedAction(async () => {
-    const user = await requireUser();
+    const user = await requirePageAccess("messages");
     const t = await actionText();
     const parsed = memberIdSchema(t).safeParse(targetUserId);
     if (!parsed.success) return { success: false, error: firstIssue(parsed.error, t.invalidMember) };
@@ -226,7 +226,7 @@ export async function unblockUserAction(targetUserId: string): Promise<ActionRes
 /** Member name search for starting a new conversation. */
 export async function searchMembersAction(query: string): Promise<ActionResult<MemberSearchResult[]>> {
   return guardedAction<MemberSearchResult[]>(async () => {
-    const user = await requireUser();
+    const user = await requirePageAccess("messages");
     const t = await actionText();
     const parsed = z
       .string({ invalid_type_error: t.searchTooShort })
@@ -242,7 +242,7 @@ export async function searchMembersAction(query: string): Promise<ActionResult<M
 /** Loads one conversation (latest messages plus the other member's public details). */
 export async function loadConversationAction(otherUserId: string): Promise<ActionResult<ConversationPayload>> {
   return guardedAction<ConversationPayload>(async () => {
-    const user = await requireUser();
+    const user = await requirePageAccess("messages");
     const t = await actionText();
     const parsed = memberIdSchema(t).safeParse(otherUserId);
     if (!parsed.success) return { success: false, error: firstIssue(parsed.error, t.invalidMember) };

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
-import { guardedAction, requirePermission, requireUser, type ActionResult } from "@/lib/auth/session";
+import { requirePageAccess, guardedAction, requirePermission, type ActionResult } from "@/lib/auth/session";
 import { getServerLocale } from "@/lib/i18n/server";
 import { eventsHackathonsText, type EventsHackathonsText } from "@/lib/i18n/portal/events-hackathons";
 import { MAX_TEAM_MEMBERS } from "./hackathon-types";
@@ -133,7 +133,7 @@ export async function createHackathonTeamAction(input: {
   lookingFor: string[];
 }): Promise<ActionResult<{ id: string }>> {
   return guardedAction(async () => {
-    const user = await requireUser();
+    const user = await requirePageAccess("hackathons");
     const t = await text();
 
     const schema = z.object({
@@ -196,7 +196,7 @@ export async function createHackathonTeamAction(input: {
 /** Sends a join request from the signed-in user to a team. */
 export async function requestJoinHackathonTeamAction(teamId: string, message: string): Promise<ActionResult> {
   return guardedAction(async () => {
-    const user = await requireUser();
+    const user = await requirePageAccess("hackathons");
     const t = await text();
 
     const parsed = z
@@ -262,7 +262,7 @@ export async function reviewHackathonJoinRequestAction(
   status: "approved" | "rejected"
 ): Promise<ActionResult> {
   return guardedAction(async () => {
-    const user = await requireUser();
+    const user = await requirePageAccess("hackathons");
     const t = await text();
 
     const parsed = z

@@ -6,6 +6,7 @@ import PortalNotificationBell from "@/components/portal/PortalNotificationBell";
 import LanguageSwitcher from "@/components/shared/LanguageSwitcher";
 import { getSessionUser } from "@/lib/auth/session";
 import { canAccessAdminConsole } from "@/lib/admin/admin-access";
+import { visiblePages } from "@/lib/rbac/page-access";
 import { getNotifications } from "@/lib/messages/message-queries";
 import { getServerLocale } from "@/lib/i18n/server";
 import { ROLE_HIERARCHY, ROLE_LABELS, type UserRole } from "@/lib/rbac/permissions";
@@ -32,12 +33,14 @@ export default async function PortalLayout({ children }: { children: React.React
   // A member whose only extra rights come from a custom role is labelled with that role's name.
   const topRole = highestRole(user.roles);
   const roleLabel =
-    topRole === "member" && user.customRoles.length > 0 ? user.customRoles[0].name : ROLE_LABELS[topRole][locale];
+    topRole !== "member"
+      ? ROLE_LABELS[topRole][locale]
+      : user.customRoles[0]?.name ?? user.defaultRole?.name ?? ROLE_LABELS.member[locale];
   const showAdmin = canAccessAdminConsole(user);
 
   return (
     <PortalShell
-      user={{ fullName: user.fullName, email: user.email, avatarUrl: user.avatarUrl, roleLabel }}
+      user={{ fullName: user.fullName, email: user.email, avatarUrl: user.avatarUrl, roleLabel, pages: visiblePages(user) }}
       showAdmin={showAdmin}
       headerActions={
         <>

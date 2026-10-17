@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import MessagesPortalClient from "@/components/portal/messages/MessagesPortalClient";
 import { getSessionUser } from "@/lib/auth/session";
+import { guardPortalPage } from "@/lib/rbac/page-guard";
 import { getServerLocale } from "@/lib/i18n/server";
 import { messagesProfileText } from "@/lib/i18n/portal/messages-profile";
 import { getConversations } from "@/lib/messages/message-queries";
@@ -18,6 +19,7 @@ export default async function PortalMessagesPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await guardPortalPage("messages");
   const user = await getSessionUser();
   if (!user) redirect("/portal/giris?redirect=/portal/mesajlar");
 

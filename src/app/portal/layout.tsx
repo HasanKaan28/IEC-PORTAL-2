@@ -23,7 +23,7 @@ function highestRole(roles: UserRole[]): UserRole {
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const user = await getSessionUser();
 
-  // The middleware lets signed-out visitors reach only the sign-in and sign-up pages,
+  // The middleware lets signed-out visitors reach only the sign-in, sign-up and password pages,
   // which bring their own full-screen layout.
   if (!user) {
     return <div className="theme-portal min-h-screen bg-canvas antialiased">{children}</div>;

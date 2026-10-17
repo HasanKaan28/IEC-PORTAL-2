@@ -112,6 +112,14 @@ export default function SignInForm({ configured, redirectTo, justVerified }: Sig
                 {showPassword ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
               </button>
             </div>
+            <div className="mt-2 text-right">
+              <Link
+                href="/portal/sifre-sifirla"
+                className="rounded text-sm font-medium text-brand-700 hover:text-brand-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+              >
+                {t.signIn.forgotPassword}
+              </Link>
+            </div>
           </div>
 
           <button

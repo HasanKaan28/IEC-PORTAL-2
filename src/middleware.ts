@@ -1,12 +1,43 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const AUTH_ROUTES = new Set(["/portal/giris", "/portal/kayit"]);
+/** Only for signed-out visitors; a signed-in visitor is sent to the dashboard. */
+const AUTH_ROUTES = new Set(["/portal/giris", "/portal/kayit", "/portal/sifre-sifirla"]);
+const PASSWORD_RESET_ROUTE = "/portal/sifre-sifirla";
+/** Target of the reset email; needs the recovery session that the link's one-time code opens. */
+const PASSWORD_UPDATE_ROUTE = "/portal/sifre-yenile";
+
+type SupabaseClient = ReturnType<typeof createServerClient>;
 
 function isSupabaseConfigured(): boolean {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   return Boolean(url && key && !url.includes("placeholder") && url.startsWith("https://"));
+}
+
+/**
+ * Turns the reset email's link into a session. The default template returns a PKCE `code`, which
+ * only works in the browser that asked for the email; a template sending `token_hash` works anywhere.
+ */
+async function openRecoveryLink(supabase: SupabaseClient, params: URLSearchParams): Promise<"opened" | "invalid" | "none"> {
+  const code = params.get("code");
+  const tokenHash = params.get("token_hash");
+  if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    return error ? "invalid" : "opened";
+  }
+  if (tokenHash) {
+    const { error } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: tokenHash });
+    return error ? "invalid" : "opened";
+  }
+  // Supabase sends expired or already used links back with an error instead of a code.
+  return params.has("error") || params.has("error_code") ? "invalid" : "none";
+}
+
+function invalidLinkRedirect(request: NextRequest): URL {
+  const url = new URL(PASSWORD_RESET_ROUTE, request.url);
+  url.searchParams.set("link", "invalid");
+  return url;
 }
 
 /**
@@ -16,9 +47,10 @@ function isSupabaseConfigured(): boolean {
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
   const path = request.nextUrl.pathname;
+  const configured = isSupabaseConfigured();
   let isAuthenticated = false;
 
-  if (isSupabaseConfigured()) {
+  if (configured) {
     try {
       const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -36,6 +68,18 @@ export async function middleware(request: NextRequest) {
           },
         }
       );
+
+      if (path === PASSWORD_UPDATE_ROUTE) {
+        const link = await openRecoveryLink(supabase, request.nextUrl.searchParams);
+        if (link !== "none") {
+          // Reload without the one-time code in the address bar, carrying the new session cookies along.
+          const target = link === "opened" ? new URL(PASSWORD_UPDATE_ROUTE, request.url) : invalidLinkRedirect(request);
+          const redirect = NextResponse.redirect(target);
+          response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+          return redirect;
+        }
+      }
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -43,6 +87,12 @@ export async function middleware(request: NextRequest) {
     } catch {
       isAuthenticated = false;
     }
+  }
+
+  if (path === PASSWORD_UPDATE_ROUTE) {
+    // Without Supabase the page only shows the maintenance notice.
+    if (!configured || isAuthenticated) return response;
+    return NextResponse.redirect(invalidLinkRedirect(request));
   }
 
   const isAuthRoute = AUTH_ROUTES.has(path);

@@ -27,6 +27,8 @@ export const RATE_LIMITS = {
   signInPerEmail: { bucket: "sign-in:email", limit: 10, windowSeconds: 15 * 60 },
   signUpPerIp: { bucket: "sign-up:ip", limit: 40, windowSeconds: 60 * 60 },
   signUpPerEmail: { bucket: "sign-up:email", limit: 3, windowSeconds: 60 * 60 },
+  passwordResetPerIp: { bucket: "password-reset:ip", limit: 40, windowSeconds: 60 * 60 },
+  passwordResetPerEmail: { bucket: "password-reset:email", limit: 3, windowSeconds: 60 * 60 },
   checkIn: { bucket: "check-in", limit: 10, windowSeconds: 10 * 60 },
   blogComment: { bucket: "blog-comment", limit: 8, windowSeconds: 5 * 60 },
   certificateVerify: { bucket: "certificate-verify:ip", limit: 60, windowSeconds: 10 * 60 },

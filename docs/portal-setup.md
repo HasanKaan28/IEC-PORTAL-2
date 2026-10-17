@@ -1,6 +1,6 @@
 # Üye portalını açma rehberi
 
-Site yayında, ama üye portalı bir Supabase veritabanına bağlanana kadar bakım modunda kalır. Giriş ve kayıt sayfaları bu sırada bir bilgi kartı ve başvuru formu bağlantısı gösterir. Aşağıdaki adımlar portalı açar.
+Site yayında, ama üye portalı bir Supabase veritabanına bağlanana kadar bakım modunda kalır. Giriş, kayıt ve şifre sıfırlama sayfaları bu sırada bir bilgi kartı ve başvuru formu bağlantısı gösterir. Aşağıdaki adımlar portalı açar.
 
 ## 1. Supabase projesi oluştur
 
@@ -8,7 +8,16 @@ Site yayında, ama üye portalı bir Supabase veritabanına bağlanana kadar bak
 2. **Authentication > Providers > Email** altında e-posta ile girişi açık bırak ve **Confirm email** seçeneğini aç.
 3. **Authentication > URL Configuration** altında:
    - **Site URL:** `https://iusengclub.vercel.app`
-   - **Redirect URLs:** `https://iusengclub.vercel.app/portal/giris`
+   - **Redirect URLs:**
+     - `https://iusengclub.vercel.app/portal/giris`
+     - `https://iusengclub.vercel.app/portal/sifre-yenile`
+4. İsteğe bağlı ama önerilir (özel SMTP açıldıktan sonra): **Authentication > Emails > Templates > Reset password** şablonunda bağlantıyı şununla değiştir:
+
+   ```html
+   <a href="{{ .SiteURL }}/portal/sifre-yenile?token_hash={{ .TokenHash }}&type=recovery">Şifreni yenile</a>
+   ```
+
+   Varsayılan şablonla sıfırlama bağlantısı yalnızca isteğin yapıldığı tarayıcıda çalışır. Bu şablonla telefondan istenip bilgisayarda açılan bağlantı da çalışır.
 
 ## 2. Veritabanını kur
 
@@ -81,6 +90,7 @@ Giriş ve kayıt sunucu üzerinden yapılır. Bu yüzden Supabase her ziyaretçi
 | --- | --- |
 | Giriş | Hesap başına 15 dakikada 10, IP başına 10 dakikada 60 deneme |
 | Kayıt | E-posta başına saatte 3, IP başına saatte 40 deneme |
+| Şifre sıfırlama e-postası | E-posta başına saatte 3, IP başına saatte 40 istek |
 | QR yoklama | Üye ve etkinlik başına 10 dakikada 10 deneme |
 | Blog yorumu | Üye başına 5 dakikada 8 yorum |
 | Sertifika doğrulama | IP başına 10 dakikada 60 istek |
@@ -95,6 +105,5 @@ Supabase tarafında **Authentication > Rate Limits** altındaki saatlik e-posta 
 
 ## Bilinen sınırlar
 
-- Şifre sıfırlama akışı henüz yok. Gerekirse Supabase panelinden kullanıcıya sıfırlama e-postası gönderilebilir.
 - Engelleme özelliği uygulama içinde çalışır ve servis anahtarı gerektirir.
 - `npm audit` derleme araçlarında (PostCSS, Tailwind 3'ün alt paketleri) bilinen açıklar gösteriyor. Bunlar yalnızca derleme sırasında projenin kendi CSS dosyalarını işler, kullanıcı girdisine dokunmaz. Tamamen kapanmaları için Tailwind 4'e geçmek gerekiyor.

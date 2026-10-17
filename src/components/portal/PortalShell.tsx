@@ -58,6 +58,9 @@ const NAV_ITEMS: Array<{ href: string; key: NavKey; icon: LucideIcon; page?: Por
   { href: "/portal/profil", key: "profile", icon: User },
 ];
 
+/** Pages that keep their own full-screen frame even for a signed-in user (the reset link signs you in). */
+const FULL_SCREEN_PATHS = new Set(["/portal/sifre-yenile"]);
+
 function isActive(pathname: string, href: string): boolean {
   if (href === "/portal") return pathname === "/portal";
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -206,6 +209,10 @@ export default function PortalShell({ user, showAdmin, headerActions, children }
       window.removeEventListener("keydown", onKey);
     };
   }, [drawerOpen]);
+
+  if (FULL_SCREEN_PATHS.has(pathname)) {
+    return <div className="theme-portal min-h-screen bg-canvas antialiased">{children}</div>;
+  }
 
   return (
     <div className="theme-portal bg-portal-flow min-h-screen text-slate-900 antialiased">

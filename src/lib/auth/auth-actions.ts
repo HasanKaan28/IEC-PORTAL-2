@@ -31,6 +31,10 @@ const TEXT = {
     alreadyRegistered: "Bu e-posta adresiyle zaten bir hesap var.",
     urlInvalid: "Geçerli bir bağlantı girin (https://...).",
     profileSaved: "Profiliniz güncellendi.",
+    studentEmailOnly: `Yalnızca @${ALLOWED_EMAIL_DOMAIN} uzantılı öğrenci e-postaları kabul edilir.`,
+    passwordMismatch: "Şifreler eşleşmiyor.",
+    samePassword: "Yeni şifre eskisinden farklı olmalı.",
+    weakPassword: "Bu şifre çok zayıf. Daha uzun ve tahmin edilmesi zor bir şifre seçin.",
     genericError: "İşlem tamamlanamadı. Lütfen tekrar deneyin.",
     tooManyAttempts: "Çok fazla deneme yapıldı. Birkaç dakika bekleyip tekrar deneyin.",
     tooFast: "Form çok hızlı gönderildi. Birkaç saniye bekleyip tekrar deneyin.",
@@ -52,6 +56,10 @@ const TEXT = {
     alreadyRegistered: "An account with this email address already exists.",
     urlInvalid: "Enter a valid link (https://...).",
     profileSaved: "Your profile has been updated.",
+    studentEmailOnly: `Only @${ALLOWED_EMAIL_DOMAIN} student email addresses are accepted.`,
+    passwordMismatch: "Passwords do not match.",
+    samePassword: "The new password must be different from the old one.",
+    weakPassword: "This password is too weak. Choose a longer password that is hard to guess.",
     genericError: "Could not complete the request. Please try again.",
     tooManyAttempts: "Too many attempts. Wait a few minutes and try again.",
     tooFast: "The form was sent too quickly. Wait a few seconds and try again.",
@@ -87,6 +95,29 @@ function signInSchema(t: AuthText) {
     email: z.string().trim().toLowerCase().email(t.emailInvalid),
     password: z.string().min(1, t.passwordRequired).max(128),
   });
+}
+
+function passwordResetRequestSchema(t: AuthText) {
+  return z.object({
+    email: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .email(t.emailInvalid)
+      .refine(isAllowedStudentEmail, t.studentEmailOnly),
+  });
+}
+
+function newPasswordSchema(t: AuthText) {
+  return z
+    .object({
+      password: z.string().min(8, t.passwordMin).max(128),
+      confirmPassword: z.string().max(128),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t.passwordMismatch,
+      path: ["confirmPassword"],
+    });
 }
 
 function profileSchema(t: AuthText) {
@@ -128,6 +159,14 @@ function authErrorMessage(message: string, t: AuthText): string {
   if (lower.includes("already registered") || lower.includes("already exists")) return t.alreadyRegistered;
   if (lower.includes("invalid login") || lower.includes("invalid credentials")) return t.invalidCredentials;
   if (lower.includes("student.ius.edu.ba")) return t.emailDomain;
+  return t.genericError;
+}
+
+/** Supabase refuses a reused password, and a short or breached one, when it is set. */
+function passwordUpdateErrorMessage(message: string, t: AuthText): string {
+  const lower = message.toLowerCase();
+  if (lower.includes("different from the old")) return t.samePassword;
+  if (lower.includes("weak") || lower.includes("password should")) return t.weakPassword;
   return t.genericError;
 }
 
@@ -255,6 +294,60 @@ export async function signOutAction() {
     }
   }
   redirect("/portal/giris");
+}
+
+/**
+ * Emails a reset link. The answer is the same whether or not the address has an account, so the
+ * form cannot be used to find out who is a member.
+ */
+export async function requestPasswordResetAction(formData: FormData): Promise<ActionResult> {
+  return guardedAction(async () => {
+    const t = TEXT[await getServerLocale()];
+    if (!isSupabaseConfigured()) return { success: false, error: t.notConfigured };
+
+    const parsed = passwordResetRequestSchema(t).safeParse({ email: formData.get("email") });
+    if (!parsed.success) return { success: false, error: firstError(parsed.error) };
+
+    // Each request sends an email. The counters run whether or not the account exists, so hitting
+    // the limit says nothing about membership.
+    const ip = await clientIp();
+    const [ipAllowed, emailAllowed] = await Promise.all([
+      consumeRateLimit(RATE_LIMITS.passwordResetPerIp, ip),
+      consumeRateLimit(RATE_LIMITS.passwordResetPerEmail, parsed.data.email),
+    ]);
+    if (!ipAllowed || !emailAllowed) return { success: false, error: t.tooManyAttempts };
+
+    const supabase = await createClient();
+    // The link comes back with a one-time code; the middleware turns it into a session on /portal/sifre-yenile.
+    const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+      redirectTo: `${SITE_URL}/portal/sifre-yenile`,
+    });
+    // Logged only: unknown addresses, rate limits and mail failures all get the neutral answer.
+    if (error) console.error("[auth] password reset request failed", error.message);
+    return { success: true };
+  });
+}
+
+/** Sets a new password for the session opened by the reset link, then signs out every other device. */
+export async function updatePasswordAction(formData: FormData): Promise<ActionResult> {
+  return guardedAction(async () => {
+    await requireUser();
+    const t = TEXT[await getServerLocale()];
+    const parsed = newPasswordSchema(t).safeParse({
+      password: formData.get("password"),
+      confirmPassword: formData.get("confirmPassword"),
+    });
+    if (!parsed.success) return { success: false, error: firstError(parsed.error) };
+
+    const supabase = await createClient();
+    const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
+    if (error) return { success: false, error: passwordUpdateErrorMessage(error.message, t) };
+
+    // Anyone who knew the old password loses their sessions elsewhere; this browser stays signed in.
+    const { error: signOutError } = await supabase.auth.signOut({ scope: "others" });
+    if (signOutError) console.error("[auth] revoking other sessions failed", signOutError.message);
+    return { success: true };
+  });
 }
 
 export async function updateProfileAction(input: {

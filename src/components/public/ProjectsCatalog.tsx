@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { Search, SearchX, Sparkles } from "lucide-react";
+import DimensionLine from "@/components/public/blueprint/DimensionLine";
 import ProjectGallery from "@/components/public/ProjectGallery";
 import { PROJECTS_DATA, type ProjectItem } from "@/lib/data/projects";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -59,7 +60,8 @@ export default function ProjectsCatalog() {
     <div className="mx-auto max-w-7xl">
       <header className="mx-auto mb-12 max-w-3xl text-center">
         <h1 className="font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">{t.title}</h1>
-        <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base/6">{t.intro}</p>
+        <DimensionLine className="mx-auto mt-5 w-40" />
+        <p className="mt-5 text-sm leading-relaxed text-slate-600 sm:text-base/6">{t.intro}</p>
       </header>
 
       <div className="glass-panel mb-10 flex flex-col items-center justify-between gap-4 rounded-2xl border border-slate-200 p-4 lg:flex-row">
@@ -117,7 +119,7 @@ export default function ProjectsCatalog() {
           {filtered.map((project) => (
             <article
               key={project.id}
-              className="reveal-3d glass-panel grid grid-cols-1 items-center gap-8 rounded-3xl border border-slate-200 p-6 transition-colors hover:border-slate-300 sm:p-8 lg:grid-cols-12"
+              className="reveal-3d glass-panel drafting-frame grid grid-cols-1 items-center gap-8 rounded-3xl border border-slate-200 p-6 transition-colors hover:border-slate-300 sm:p-8 lg:grid-cols-12"
             >
               <div className="relative overflow-hidden rounded-2xl border border-slate-200 lg:col-span-5">
                 <ProjectGallery

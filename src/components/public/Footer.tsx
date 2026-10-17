@@ -107,9 +107,13 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-        <p>{t.footer.copyright}</p>
-        <p>{t.footer.builtWith}</p>
+      {/* Laid out like the title block in the corner of an engineering drawing. */}
+      <div className="max-w-7xl mx-auto mt-12 grid grid-cols-1 border border-brand-300/70 bg-white/40 font-mono text-xs sm:grid-cols-[auto_1fr_1fr]">
+        <div className="flex items-center justify-center border-b border-brand-300/70 p-3 sm:border-b-0 sm:border-r">
+          <ClubLogo size={28} alt="" />
+        </div>
+        <p className="border-b border-brand-300/70 px-4 py-3 sm:border-b-0 sm:border-r">{t.footer.copyright}</p>
+        <p className="px-4 py-3">{t.footer.builtWith}</p>
       </div>
     </footer>
   );

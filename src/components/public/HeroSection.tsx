@@ -7,6 +7,8 @@ import HeroBackground from "./HeroBackground";
 import { useLocale } from "@/lib/i18n/locale-context";
 import ClubLogo from "@/components/shared/ClubLogo";
 import Tilt from "./Tilt";
+import DimensionLine from "./blueprint/DimensionLine";
+import HeroBlueprint from "./blueprint/HeroBlueprint";
 
 export default function HeroSection() {
   const { t } = useLocale();
@@ -22,12 +24,16 @@ export default function HeroSection() {
       <HeroBackground />
 
       <div className="relative z-10 max-w-5xl mx-auto text-center flex flex-col items-center">
-        <ClubLogo size={104} priority className="logo-spin mb-8" />
+        <div className="relative mb-8">
+          <HeroBlueprint className="absolute left-1/2 top-1/2 -z-10 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 sm:h-[38rem] sm:w-[38rem]" />
+          <ClubLogo size={104} priority className="logo-spin" />
+        </div>
 
         <h1 className="text-4xl sm:text-6xl/none md:text-7xl/none font-extrabold tracking-tight font-display text-slate-900 max-w-4xl leading-[1.1]">
           {t.hero.titleStart}{" "}
-          <span className="bg-linear-to-r/srgb from-brand-700 via-brand-500 to-accent-600 bg-clip-text text-transparent">
+          <span className="relative inline-block bg-linear-to-r/srgb from-brand-700 via-brand-500 to-accent-600 bg-clip-text text-transparent">
             {t.hero.titleHighlight}
+            <DimensionLine honey className="absolute -bottom-2 left-0 right-0 sm:-bottom-3" />
           </span>
           {t.hero.titleEnd && <> {t.hero.titleEnd}</>}
         </h1>
@@ -65,7 +71,7 @@ export default function HeroSection() {
 
         <dl aria-label={t.metrics.label} className="mt-16 w-full max-w-3xl grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-left">
           {metrics.map(({ label, value, note, Icon, iconClass }) => (
-            <Tilt key={label} className="glass-panel p-4 rounded-xl">
+            <Tilt key={label} className="glass-panel drafting-frame p-4 rounded-xl">
               <dt className="flex items-center justify-between mb-1">
                 <span className="text-xs font-mono uppercase tracking-wider text-slate-500">{label}</span>
                 <Icon className={`w-4 h-4 ${iconClass}`} aria-hidden="true" />

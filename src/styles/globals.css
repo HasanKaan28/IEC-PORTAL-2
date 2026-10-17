@@ -544,6 +544,125 @@
     }
   }
 
+  /*
+   * Engineering drawing layer: a drafting grid behind the public pages, registration marks on card
+   * corners and dimension lines under headings. Everything is decoration (aria-hidden in markup).
+   */
+  .bg-blueprint {
+    background-image:
+      linear-gradient(rgba(21, 74, 127, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(21, 74, 127, 0.07) 1px, transparent 1px),
+      linear-gradient(rgba(21, 74, 127, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(21, 74, 127, 0.035) 1px, transparent 1px);
+    background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+    background-position: -1px -1px;
+  }
+
+  .drafting-frame {
+    position: relative;
+  }
+
+  .drafting-frame::before {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      linear-gradient(var(--mark-color), var(--mark-color)) top left / var(--mark-len) 1.5px no-repeat,
+      linear-gradient(var(--mark-color), var(--mark-color)) top left / 1.5px var(--mark-len) no-repeat,
+      linear-gradient(var(--mark-color), var(--mark-color)) top right / var(--mark-len) 1.5px no-repeat,
+      linear-gradient(var(--mark-color), var(--mark-color)) top right / 1.5px var(--mark-len) no-repeat,
+      linear-gradient(var(--mark-color), var(--mark-color)) bottom left / var(--mark-len) 1.5px no-repeat,
+      linear-gradient(var(--mark-color), var(--mark-color)) bottom left / 1.5px var(--mark-len) no-repeat,
+      linear-gradient(var(--mark-color), var(--mark-color)) bottom right / var(--mark-len) 1.5px no-repeat,
+      linear-gradient(var(--mark-color), var(--mark-color)) bottom right / 1.5px var(--mark-len) no-repeat;
+    transition: --mark-len 0.35s ease, --mark-color 0.35s ease;
+  }
+
+  .drafting-frame:hover::before,
+  .drafting-frame:focus-within::before {
+    --mark-len: 24px;
+    --mark-color: rgba(181, 134, 29, 0.85);
+  }
+
+  /* Marks drawn on a photo need to read against it. */
+  .drafting-frame-light::before {
+    --mark-color: rgba(255, 255, 255, 0.85);
+  }
+
+  /* Dimension line: end ticks, arrowheads and the measured line, as under a part on a drawing. */
+  .dimension-line {
+    position: relative;
+    display: block;
+    height: 11px;
+    color: rgba(31, 90, 148, 0.55);
+  }
+
+  .dimension-line::before,
+  .dimension-line::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1.5px;
+    background: currentColor;
+  }
+
+  .dimension-line::before {
+    left: 0;
+  }
+
+  .dimension-line::after {
+    right: 0;
+  }
+
+  .dimension-line > span {
+    position: absolute;
+    left: 1.5px;
+    right: 1.5px;
+    top: 50%;
+    height: 1.5px;
+    transform: translateY(-50%);
+    background: currentColor;
+  }
+
+  .dimension-line > span::before,
+  .dimension-line > span::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border-top: 3.5px solid transparent;
+    border-bottom: 3.5px solid transparent;
+  }
+
+  .dimension-line > span::before {
+    left: 0;
+    border-right: 8px solid currentColor;
+  }
+
+  .dimension-line > span::after {
+    right: 0;
+    border-left: 8px solid currentColor;
+  }
+
+  .dimension-line-honey {
+    color: rgba(181, 134, 29, 0.75);
+  }
+
+  /* The hero drawing turns its gear slowly; the global reduced-motion rule stops it. */
+  .blueprint-spin {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: blueprint-spin 90s linear infinite;
+  }
+
+  .blueprint-spin-reverse {
+    animation-direction: reverse;
+    animation-duration: 140s;
+  }
+
   /* The hero badge does a full 3D turn when hovered. */
   .logo-spin {
     transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -582,6 +701,24 @@
   }
   100% {
     box-shadow: 0 0 0 3px rgba(31, 90, 148, 0);
+  }
+}
+
+@property --mark-len {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 14px;
+}
+
+@property --mark-color {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: rgba(31, 90, 148, 0.5);
+}
+
+@keyframes blueprint-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 

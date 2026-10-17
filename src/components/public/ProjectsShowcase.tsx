@@ -9,6 +9,7 @@ import type { Dictionary } from "@/lib/i18n/translations";
 import ProjectDetailDialog from "./ProjectDetailDialog";
 import ProjectGallery from "./ProjectGallery";
 import Tilt from "./Tilt";
+import DimensionLine from "./blueprint/DimensionLine";
 
 type CategoryId = "all" | "hardware" | "software" | "hackathon" | "ai";
 
@@ -44,7 +45,8 @@ export default function ProjectsShowcase() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-10">
           <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 font-display tracking-tight">{t.projects.title}</h2>
-          <p className="text-slate-600 text-base mt-3 max-w-[60ch]">{t.projects.description}</p>
+          <DimensionLine className="mt-4 w-32" />
+          <p className="text-slate-600 text-base mt-4 max-w-[60ch]">{t.projects.description}</p>
         </div>
 
         <div role="group" aria-label={t.projects.filterLabel} className="flex flex-wrap items-center gap-2 mb-8">
@@ -89,7 +91,7 @@ export default function ProjectsShowcase() {
                     className={isLead ? "aspect-video lg:aspect-21/9" : "aspect-video"}
                   />
 
-                  <div className="flex flex-1 flex-col p-5 sm:p-6">
+                  <div className="drafting-frame flex flex-1 flex-col p-5 sm:p-6">
                     <p className="text-xs text-slate-500">
                       {project.category[locale]}
                       {project.isFlagship && <span className="text-brand-700"> · {t.projects.flagship}</span>}

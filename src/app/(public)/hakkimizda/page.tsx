@@ -9,6 +9,7 @@ import { getServerLocale } from "@/lib/i18n/server";
 import { publicPagesText } from "@/lib/i18n/public/pages";
 import { BOARD_PHOTOS } from "@/lib/data/board-photos";
 import Tilt from "@/components/public/Tilt";
+import DimensionLine from "@/components/public/blueprint/DimensionLine";
 import { formatDate } from "@/lib/i18n/format";
 import { planningText } from "@/lib/i18n/portal/planning";
 import { getMonthlyPlan } from "@/lib/planning/plan-queries";
@@ -50,10 +51,11 @@ export default async function AboutPage() {
         <div className="mx-auto max-w-6xl space-y-20">
           <header className="mx-auto max-w-3xl text-center">
             <h1 className="font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">{t.title}</h1>
-            <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base/6">{t.intro}</p>
+            <DimensionLine className="mx-auto mt-5 w-40" />
+            <p className="mt-5 text-sm leading-relaxed text-slate-600 sm:text-base/6">{t.intro}</p>
           </header>
 
-          <section className="reveal-3d glass-panel flex flex-col items-center gap-8 rounded-3xl bg-linear-to-r/srgb from-brand-100/80 via-accent-50/70 to-emerald-100/70 p-8 md:flex-row">
+          <section className="reveal-3d glass-panel drafting-frame flex flex-col items-center gap-8 rounded-3xl bg-linear-to-r/srgb from-brand-100/80 via-accent-50/70 to-emerald-100/70 p-8 md:flex-row">
             <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br/srgb from-brand-500 to-brand-700 text-white shadow-glow">
               <GraduationCap className="h-10 w-10" aria-hidden="true" />
             </div>
@@ -66,9 +68,10 @@ export default async function AboutPage() {
           </section>
 
           <section aria-labelledby="board-title">
-            <h2 id="board-title" className="mb-10 text-center font-display text-2xl font-bold text-slate-900 sm:text-3xl">
+            <h2 id="board-title" className="text-center font-display text-2xl font-bold text-slate-900 sm:text-3xl">
               {t.boardTitle}
             </h2>
+            <DimensionLine className="mx-auto mb-10 mt-4 w-32" />
             <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               {t.board.map((member) => {
                 const photo = BOARD_PHOTOS[member.name] ?? null;

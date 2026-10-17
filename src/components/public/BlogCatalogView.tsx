@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { BookOpen, Clock, Search, Tag, ThumbsUp, Rss, PenSquare } from "lucide-react";
+import DimensionLine from "@/components/public/blueprint/DimensionLine";
 import { BlogPostItem } from "@/lib/blog/blog-data";
 import { likeBlogPostAction } from "@/lib/blog/blog-actions";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -126,6 +127,7 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
         <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-display tracking-tight">
           {t.catalog.title}
         </h1>
+        <DimensionLine className="mx-auto w-40" />
         <p className="text-slate-600 text-sm leading-relaxed">{t.catalog.intro}</p>
 
         <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
@@ -303,7 +305,7 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
                 return (
                   <li
                     key={post.slug}
-                    className="relative glass-panel rounded-2xl border border-slate-200 hover:border-brand-500/50 transition-[border-color,transform,translate,box-shadow] flex flex-col justify-between overflow-hidden group hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-900/10 motion-reduce:hover:translate-y-0 focus-within:border-brand-500/50"
+                    className="relative glass-panel drafting-frame rounded-2xl border border-slate-200 hover:border-brand-500/50 transition-[border-color,transform,translate,box-shadow] flex flex-col justify-between overflow-hidden group hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-900/10 motion-reduce:hover:translate-y-0 focus-within:border-brand-500/50"
                   >
                     {post.coverImage && (
                       <div className="relative aspect-video overflow-hidden border-b border-slate-200">

@@ -5,6 +5,7 @@ import { Sparkles } from "lucide-react";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import GoogleFormEmbed from "@/components/public/GoogleFormEmbed";
+import DimensionLine from "@/components/public/blueprint/DimensionLine";
 import { getServerLocale } from "@/lib/i18n/server";
 import { publicPagesText } from "@/lib/i18n/public/pages";
 
@@ -29,13 +30,14 @@ export default async function ApplicationPage() {
                 {t.eyebrow}
               </p>
               <h1 className="font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">{t.title}</h1>
-              <p className="mt-3 text-sm leading-relaxed text-slate-600">{t.intro}</p>
+              <DimensionLine className="mt-4 w-32" />
+              <p className="mt-4 text-sm leading-relaxed text-slate-600">{t.intro}</p>
 
               <ol className="mt-8 space-y-5">
                 {t.steps.map((step, index) => (
                   <li key={step.title} className="flex gap-4">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br/srgb from-brand-500 to-brand-800 text-sm font-bold text-white">
-                      {index + 1}
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-brand-300 bg-white/80 font-mono text-sm font-bold text-brand-700">
+                      {String(index + 1).padStart(2, "0")}
                     </span>
                     <div>
                       <h2 className="text-sm font-semibold text-slate-900">{step.title}</h2>

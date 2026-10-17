@@ -3,14 +3,16 @@
 import React from "react";
 import Link from "next/link";
 import { useLocale } from "@/lib/i18n/locale-context";
+import HeroBlueprint from "./blueprint/HeroBlueprint";
 
 export default function JoinCtaSection() {
   const { t } = useLocale();
 
   return (
     <section className="px-4 sm:px-6 pb-20 sm:pb-24 relative z-10">
-      <div className="reveal-3d max-w-7xl mx-auto rounded-3xl border border-white/70 bg-linear-to-br/srgb from-brand-100/80 via-accent-50/80 to-emerald-100/70 p-8 shadow-soft backdrop-blur-xs sm:p-12">
-        <div className="max-w-2xl">
+      <div className="reveal-3d drafting-frame relative max-w-7xl mx-auto overflow-hidden rounded-3xl border border-white/70 bg-linear-to-br/srgb from-brand-100/80 via-accent-50/80 to-emerald-100/70 p-8 shadow-soft backdrop-blur-xs sm:p-12">
+        <HeroBlueprint className="absolute -right-40 top-1/2 hidden h-[34rem] w-[34rem] -translate-y-1/2 opacity-70 md:block" />
+        <div className="relative max-w-2xl">
           <p className="text-sm font-medium text-brand-700">{t.joinCta.badge}</p>
           <h2 className="mt-3 text-2xl sm:text-3xl font-bold text-slate-900 font-display tracking-tight">{t.joinCta.title}</h2>
           <p className="text-base text-slate-600 mt-3 leading-relaxed">{t.joinCta.description}</p>

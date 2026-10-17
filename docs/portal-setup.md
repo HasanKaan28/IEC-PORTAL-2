@@ -30,6 +30,7 @@ Site yayında, ama üye portalı bir Supabase veritabanına bağlanana kadar bak
 5. `supabase/migrations/20261020000000_monthly_plan.sql` (Hakkımızda sayfasındaki aylık plan ve portaldaki Planlama sayfası)
 6. `supabase/migrations/20261021000000_email_templates_permission.sql` (e-posta şablonları için ayrı yetki)
 7. `supabase/migrations/20261022000000_rate_limits.sql` (giriş, kayıt, QR yoklama, yorum ve sertifika istekleri için ortak deneme sınırları)
+8. `supabase/migrations/20261023000000_privilege_hardening.sql` (Security Advisor uyarılarını kapatır, ziyaretçilerin yazma izinlerini kaldırır)
 
 İkinci dosya şunları yapar:
 
@@ -101,7 +102,15 @@ IP sınırları geniş tutuldu, çünkü kampüs ağında birçok öğrenci ayn�
 
 Kayıt formunda iki bot tuzağı var: insanların görmediği gizli bir alan ve formun en az 2,5 saniyede doldurulması şartı. Gizli alanı dolduran bota başarılı mesajı gösterilir ama hesap açılmaz ve e-posta gitmez.
 
-Supabase tarafında **Authentication > Rate Limits** altındaki saatlik e-posta sınırını kayıt dönemlerinde yükselt. Bot saldırısı görülürse **Authentication > Attack Protection** altından Cloudflare Turnstile ile CAPTCHA açılabilir. Bunun için Cloudflare hesabı ve forma bir doğrulama kutusu eklenmesi gerekir.
+Önerilen Supabase ayarları:
+
+- **Authentication > Rate Limits > Rate limit for sign-ups and sign-ins:** 100 (5 dakikada). Supabase bu sınırı IP başına uygular. Ama giriş ve kayıt Vercel sunucusundan geldiği için bütün ziyaretçiler aynı IP'den geliyor görünür, varsayılan 30 bir etkinlikte dolabilir. Hesap başına sınırları uygulama koyar.
+- **Authentication > Rate Limits > Rate limit for sending emails:** Özel SMTP kurulana kadar saatte 2 e-postadır (5. bölüm). Kayıt dönemlerinde yükselt.
+- **Authentication > Sign In / Providers > Email > Minimum password length:** 8. Uygulama 8 karakter ister, Supabase'e doğrudan gelen istekler de aynı kurala uysun.
+- **Authentication > Sign In / Providers > Email > Prevent use of leaked passwords:** açık (Supabase'in ücretli planlarında var).
+- Bot saldırısı görülürse **Authentication > Attack Protection** altından Cloudflare Turnstile ile CAPTCHA açılabilir. Bunun için bir Cloudflare hesabı ve formlara bir doğrulama kutusu eklenmesi gerekir.
+
+8. dosya, Supabase Security Advisor uyarılarının kapatılabilenlerini kapatır. Kalan uyarılar bilerek bırakıldı: `has_role`, `is_admin`, `has_permission` ve `member_contact` fonksiyonlarını giriş yapmış üyeler çalıştırabilmeli, çünkü üyelerin satır güvenliği kuralları bu fonksiyonları onların adına çağırır.
 
 ## Bilinen sınırlar
 

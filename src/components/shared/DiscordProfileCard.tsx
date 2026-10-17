@@ -11,6 +11,7 @@ import {
 } from "@/lib/i18n/portal/messages-profile";
 import type { ProfileCardData } from "@/lib/messages/message-types";
 import { safeHexColor, safeHttpUrl } from "@/lib/messages/utils";
+import { customRoleChipClass } from "@/lib/rbac/role-colors";
 import MemberAvatar from "@/components/portal/messages/MemberAvatar";
 import { useDialog } from "@/components/portal/messages/hooks";
 
@@ -40,7 +41,11 @@ function ProfileCardDialog({ user, onClose, footer }: DiscordProfileCardProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   useDialog(true, onClose, dialogRef);
 
-  const roles: UserRole[] = user.roles && user.roles.length > 0 ? user.roles : ["member"];
+  // Built-in roles other than the base member role (in practice: super admin), then custom roles.
+  // The plain "member" label only appears when the member has no custom role at all.
+  const customRoles = user.customRoles ?? [];
+  const builtIn: UserRole[] = (user.roles ?? []).filter((role) => role !== "member");
+  const roles: UserRole[] = builtIn.length === 0 && customRoles.length === 0 ? ["member"] : builtIn;
   const phoneDigits = user.phone ? user.phone.replace(/[^0-9]/g, "") : "";
   const canWhatsApp = !user.hidePhone && phoneDigits.length >= 6;
   const canEmail = !user.hideEmail && Boolean(user.email);
@@ -95,6 +100,15 @@ function ProfileCardDialog({ user, onClose, footer }: DiscordProfileCardProps) {
                 >
                   <Shield className="h-3 w-3" aria-hidden="true" />
                   <span>{ROLE_LABELS[role]?.[locale] ?? role}</span>
+                </li>
+              ))}
+              {customRoles.map((role) => (
+                <li
+                  key={role.name}
+                  className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium ${customRoleChipClass(role.color)}`}
+                >
+                  <Shield className="h-3 w-3" aria-hidden="true" />
+                  <span>{role.name}</span>
                 </li>
               ))}
             </ul>

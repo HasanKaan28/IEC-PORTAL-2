@@ -14,6 +14,7 @@ import {
   type TaskViewer,
 } from "@/lib/tasks/task-types";
 import { PriorityBadge, TASK_STATUS_STYLES, UserAvatar, focusRing } from "./shared-ui";
+import { MemberName } from "@/components/portal/MemberCard";
 
 interface TaskKanbanBoardProps {
   tasks: TaskItem[];
@@ -93,9 +94,14 @@ export default function TaskKanbanBoard({ tasks, viewer, onSelectTask, onUpdateS
                           <div className="flex min-w-0 items-center gap-1.5">
                             <UserAvatar name={task.assigneeName} src={task.assigneeAvatar} />
                             <span className="truncate font-medium text-slate-700">
-                              {task.assigneeId === viewer.id
-                                ? t.common.you
-                                : task.assigneeName || t.common.unassigned}
+                              {task.assigneeId === viewer.id ? (
+                                t.common.you
+                              ) : task.assigneeId ? (
+                                // Sits above the card-wide title link so the name opens the member card.
+                                <MemberName userId={task.assigneeId} name={task.assigneeName || "-"} className="relative z-10" />
+                              ) : (
+                                t.common.unassigned
+                              )}
                             </span>
                           </div>
 

@@ -10,6 +10,7 @@ import { useLocale } from "@/lib/i18n/locale-context";
 import { formatDateTime } from "@/lib/i18n/format";
 import { adminText } from "@/lib/i18n/portal/admin";
 import { EmptyState, Notice, PageHeader, focusRing } from "@/app/portal/admin/_components/AdminUi";
+import { MemberName } from "@/components/portal/MemberCard";
 
 interface AdminCommentModeratorProps {
   initialComments: Array<BlogCommentItem | AdminCommentItem>;
@@ -112,7 +113,7 @@ export default function AdminCommentModerator({ initialComments }: AdminCommentM
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0 space-y-1.5">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-semibold text-slate-900">{comment.authorName}</span>
+                        <MemberName userId={comment.userId} name={comment.authorName} className="text-sm font-semibold text-slate-900" />
                         {comment.authorEmail && <span className="text-xs text-slate-500">{comment.authorEmail}</span>}
                         {comment.parentId && (
                           <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-600">

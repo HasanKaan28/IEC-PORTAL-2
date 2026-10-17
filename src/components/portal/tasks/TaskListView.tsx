@@ -14,6 +14,7 @@ import {
   type TaskViewer,
 } from "@/lib/tasks/task-types";
 import { PriorityBadge, StatusBadge, TASK_STATUS_STYLES, UserAvatar, focusRing } from "./shared-ui";
+import { MemberName } from "@/components/portal/MemberCard";
 
 interface TaskListViewProps {
   tasks: TaskItem[];
@@ -117,7 +118,13 @@ export default function TaskListView({ tasks, viewer, onSelectTask, onUpdateStat
                     <div className="flex items-center gap-2">
                       <UserAvatar name={task.assigneeName} src={task.assigneeAvatar} />
                       <span className={task.assigneeId ? "font-medium text-slate-800" : "text-slate-500"}>
-                        {task.assigneeId === viewer.id ? t.common.you : task.assigneeName || t.common.unassigned}
+                        {task.assigneeId === viewer.id ? (
+                          t.common.you
+                        ) : task.assigneeId ? (
+                          <MemberName userId={task.assigneeId} name={task.assigneeName || "-"} />
+                        ) : (
+                          t.common.unassigned
+                        )}
                       </span>
                     </div>
                   </td>

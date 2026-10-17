@@ -66,6 +66,8 @@ export interface ProfileCardData {
   hidePhone?: boolean;
   hideEmail?: boolean;
   roles?: UserRole[];
+  /** Custom roles (default role first); shown instead of the built-in member label. */
+  customRoles?: Array<{ name: string; color: string }>;
   projects?: Array<{
     name: string;
     role?: string;

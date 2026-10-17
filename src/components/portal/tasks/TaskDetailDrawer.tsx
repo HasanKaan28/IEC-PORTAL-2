@@ -5,6 +5,7 @@ import { Loader2, MessageSquare, Paperclip, RefreshCw, Send, Trash2, X } from "l
 import { useLocale } from "@/lib/i18n/locale-context";
 import { formatDate, formatDateTime, formatRelative } from "@/lib/i18n/format";
 import { tasksProjectsText } from "@/lib/i18n/portal/tasks-projects";
+import { MemberName } from "@/components/portal/MemberCard";
 import {
   TASK_PRIORITIES,
   TASK_STATUSES,
@@ -306,7 +307,11 @@ export default function TaskDetailDrawer({
             <div className="rounded-xl border border-slate-200 p-3">
               <dt className="text-xs text-slate-500">{t.taskDrawer.createdBy}</dt>
               <dd className="mt-0.5 truncate font-medium text-slate-800">
-                {task.creatorId === viewer.id ? t.common.you : task.creatorName || "-"}
+                {task.creatorId === viewer.id ? (
+                  t.common.you
+                ) : (
+                  <MemberName userId={task.creatorId} name={task.creatorName || "-"} />
+                )}
               </dd>
             </div>
             <div className="rounded-xl border border-slate-200 p-3">
@@ -416,7 +421,11 @@ export default function TaskDetailDrawer({
                       <div className="flex min-w-0 items-center gap-2">
                         <UserAvatar name={comment.userName} src={comment.userAvatar} />
                         <span className="truncate text-sm font-semibold text-slate-900">
-                          {comment.userId === viewer.id ? t.common.you : comment.userName || "-"}
+                          {comment.userId === viewer.id ? (
+                            t.common.you
+                          ) : (
+                            <MemberName userId={comment.userId} name={comment.userName || "-"} />
+                          )}
                         </span>
                       </div>
                       <time

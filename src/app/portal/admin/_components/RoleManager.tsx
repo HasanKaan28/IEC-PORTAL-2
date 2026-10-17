@@ -11,6 +11,7 @@ import { customRolesText } from "@/lib/i18n/portal/custom-roles";
 import { departmentLabel } from "@/lib/profile/departments";
 import { EmptyState, Notice, PageHeader, focusRing } from "./AdminUi";
 import { customRoleChipClass } from "./CustomRolesPanel";
+import { MemberName } from "@/components/portal/MemberCard";
 
 function highestRank(roles: UserRole[]): number {
   return roles.reduce((max, role) => Math.max(max, ROLE_HIERARCHY[role] ?? 0), 0);
@@ -152,7 +153,7 @@ export default function RoleManager({
                       <tr className="align-top">
                         <td className="px-4 py-3.5">
                           <div className="flex items-center gap-2 font-semibold text-slate-900">
-                            <span>{user.fullName}</span>
+                            <MemberName userId={user.id} name={user.fullName} />
                             {user.id === currentUserId && (
                               <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-600">{t.you}</span>
                             )}

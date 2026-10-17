@@ -15,22 +15,15 @@ import {
   type CustomRoleItem,
 } from "@/lib/admin/custom-role-actions";
 import type { AdminUserItem } from "@/lib/admin/admin-actions";
+import { ROLE_COLOR_STYLES, customRoleChipClass } from "@/lib/rbac/role-colors";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { customRolesText } from "@/lib/i18n/portal/custom-roles";
 import { adminText } from "@/lib/i18n/portal/admin";
 import { EmptyState, Notice, PageHeader, focusRing } from "./AdminUi";
+import { MemberName } from "@/components/portal/MemberCard";
 
-const COLOR_STYLES: Record<CustomRoleColor, { chip: string; dot: string; ring: string }> = {
-  brand: { chip: "border-brand-200 bg-brand-50 text-brand-700", dot: "bg-brand-500", ring: "ring-brand-500" },
-  accent: { chip: "border-accent-200 bg-accent-50 text-accent-800", dot: "bg-accent-400", ring: "ring-accent-500" },
-  emerald: { chip: "border-emerald-200 bg-emerald-50 text-emerald-800", dot: "bg-emerald-500", ring: "ring-emerald-500" },
-  rose: { chip: "border-rose-200 bg-rose-50 text-rose-700", dot: "bg-rose-400", ring: "ring-rose-400" },
-  slate: { chip: "border-slate-200 bg-slate-100 text-slate-700", dot: "bg-slate-400", ring: "ring-slate-400" },
-};
-
-export function customRoleChipClass(color: CustomRoleColor): string {
-  return COLOR_STYLES[color]?.chip ?? COLOR_STYLES.brand.chip;
-}
+const COLOR_STYLES = ROLE_COLOR_STYLES;
+export { customRoleChipClass };
 
 function Switch({
   checked,
@@ -517,7 +510,7 @@ export default function CustomRolesPanel({
                     <ul className="mt-2 flex flex-wrap gap-1.5">
                       {holders.map((member) => (
                         <li key={member.id} className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 py-0.5 pl-3 pr-1 text-sm text-slate-700">
-                          {member.fullName}
+                          <MemberName userId={member.id} name={member.fullName} />
                           {assignable && member.id !== currentUserId && (
                             <button
                               type="button"
@@ -566,7 +559,7 @@ export default function CustomRolesPanel({
                               <li key={member.id} className="flex items-center justify-between gap-3 px-3 py-2">
                                 <div className="min-w-0">
                                   <p className="truncate text-sm font-medium text-slate-900">
-                                    {member.fullName}
+                                    <MemberName userId={member.id} name={member.fullName} />
                                     {isSelf && <span className="ml-1.5 text-xs font-normal text-slate-500">({t.list.you})</span>}
                                   </p>
                                   <p className="truncate text-xs text-slate-500">{member.email}</p>

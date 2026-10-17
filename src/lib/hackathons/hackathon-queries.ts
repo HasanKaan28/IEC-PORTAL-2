@@ -131,6 +131,7 @@ export async function getHackathonTeams(): Promise<HackathonTeamItem[]> {
         description: team.description ?? "",
         isOpen: team.is_open,
         lookingFor: team.looking_for ?? [],
+        leaderId: team.leader_id,
         leaderName: team.leader?.full_name ?? "",
         leaderAvatar: team.leader?.avatar_url ?? null,
         members: memberRows.map((member) => ({
@@ -163,7 +164,7 @@ export async function getHackathonJoinRequests(): Promise<HackathonJoinRequestIt
     const teamNames = new Map(teams.map((team) => [team.id, team.name]));
 
     const { data, error } = await (supabase.from("hackathon_join_requests") as any)
-      .select("id, team_id, message, status, created_at, profile:user_id(full_name, department)")
+      .select("id, team_id, user_id, message, status, created_at, profile:user_id(full_name, department)")
       .in("team_id", teams.map((team) => team.id))
       .order("created_at", { ascending: false })
       .limit(200);
@@ -175,6 +176,7 @@ export async function getHackathonJoinRequests(): Promise<HackathonJoinRequestIt
       (data ?? []) as Array<{
         id: string;
         team_id: string;
+        user_id: string;
         message: string | null;
         status: HackathonJoinRequestItem["status"];
         created_at: string;
@@ -184,6 +186,7 @@ export async function getHackathonJoinRequests(): Promise<HackathonJoinRequestIt
       id: row.id,
       teamId: row.team_id,
       teamName: teamNames.get(row.team_id) ?? "",
+      userId: row.user_id,
       userName: row.profile?.full_name ?? "",
       userDepartment: row.profile?.department ?? null,
       message: row.message ?? "",

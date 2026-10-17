@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/i18n/format";
 import { tasksProjectsText } from "@/lib/i18n/portal/tasks-projects";
 import type { JoinRequestStatus, ProjectJoinRequestItem, ProjectViewer } from "@/lib/projects/project-types";
 import { reviewProjectJoinRequestAction } from "@/lib/projects/project-actions";
+import { MemberName } from "@/components/portal/MemberCard";
 import {
   DialogFrame,
   EmptyState,
@@ -127,7 +128,9 @@ export default function ProjectJoinRequestsDrawer({
                     <div className="flex min-w-0 items-start gap-3">
                       <UserAvatar name={request.userName} src={request.userAvatar} size="md" />
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-slate-900">{applicant}</p>
+                        <p className="truncate text-sm font-semibold text-slate-900">
+                          <MemberName userId={request.userId} name={applicant} />
+                        </p>
                         <p className="truncate text-xs text-slate-500">
                           {[request.userDepartment || t.requestsDrawer.noDepartment, request.classYear]
                             .filter(Boolean)

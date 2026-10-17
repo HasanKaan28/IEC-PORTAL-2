@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import ClubLogo from "@/components/shared/ClubLogo";
 import PortalAvatar from "@/components/portal/PortalAvatar";
+import { MemberCardProvider } from "@/components/portal/MemberCard";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { portalShellText } from "@/lib/i18n/portal/shell";
 import type { PortalPage } from "@/lib/rbac/page-access";
@@ -247,7 +248,7 @@ export default function PortalShell({ user, showAdmin, headerActions, children }
         </header>
 
         <main id="portal-main" className="flex-1 px-4 py-6 sm:px-6 md:px-8 md:py-8">
-          {children}
+          <MemberCardProvider>{children}</MemberCardProvider>
         </main>
       </div>
     </div>

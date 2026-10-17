@@ -28,6 +28,7 @@ import {
 import CreateHackathonModal from "./CreateHackathonModal";
 import CreateHackathonTeamModal from "./CreateHackathonTeamModal";
 import JoinHackathonTeamModal from "./JoinHackathonTeamModal";
+import { MemberName, useMemberCard } from "@/components/portal/MemberCard";
 
 interface HackathonsPortalClientProps {
   hackathons: HackathonItem[];
@@ -146,14 +147,21 @@ export default function HackathonsPortalClient({
     );
   };
 
+  const memberCard = useMemberCard();
   const renderMembers = (members: HackathonTeamMember[]) => (
     <ul className="flex -space-x-2" aria-label={t.hackathons.membersLabel}>
       {members.map((member) => {
         const name = member.name || t.hackathons.unknownMember;
         return (
           <li key={member.id} title={member.department ? `${name} (${member.department})` : name}>
-            <Avatar name={name} src={member.avatar} />
-            <span className="sr-only">{member.isLeader ? `${name}, ${t.hackathons.captain}` : name}</span>
+            <button
+              type="button"
+              onClick={() => memberCard?.openMemberCard(member.id)}
+              className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+            >
+              <Avatar name={name} src={member.avatar} />
+              <span className="sr-only">{member.isLeader ? `${name}, ${t.hackathons.captain}` : name}</span>
+            </button>
           </li>
         );
       })}
@@ -375,7 +383,7 @@ export default function HackathonsPortalClient({
                         <Avatar name={team.leaderName || t.hackathons.unknownMember} src={team.leaderAvatar} />
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold text-slate-800">
-                            {team.leaderName || t.hackathons.unknownMember}
+                            <MemberName userId={team.leaderId} name={team.leaderName || t.hackathons.unknownMember} />
                           </p>
                           <p className="text-xs text-slate-500">{t.hackathons.captain}</p>
                         </div>
@@ -413,7 +421,9 @@ export default function HackathonsPortalClient({
                       <div className="flex items-center gap-3">
                         <Avatar name={name} size="h-10 w-10" />
                         <div>
-                          <p className="text-sm font-bold text-slate-900">{name}</p>
+                          <p className="text-sm font-bold text-slate-900">
+                            <MemberName userId={request.userId} name={name} />
+                          </p>
                           <p className="text-xs text-slate-500">
                             {[request.userDepartment, request.teamName].filter(Boolean).join(" · ")}
                           </p>

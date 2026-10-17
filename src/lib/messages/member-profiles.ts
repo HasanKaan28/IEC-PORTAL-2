@@ -103,6 +103,25 @@ export async function getMemberRoles(memberId: string): Promise<UserRole[]> {
   return roles.length > 0 ? roles : ["member"];
 }
 
+/** The member's custom roles, with the default role (held by everyone) first. */
+export async function getMemberCustomRoles(memberId: string): Promise<Array<{ name: string; color: string }>> {
+  if (!isUuid(memberId) || !isSupabaseConfigured()) return [];
+  const supabase = await createClient();
+  const [assigned, fallback] = await Promise.all([
+    (supabase.from("user_custom_roles") as any).select("role:custom_roles(name, color)").eq("user_id", memberId),
+    (supabase.from("custom_roles") as any).select("name, color").eq("is_default", true).maybeSingle(),
+  ]);
+  const roles: Array<{ name: string; color: string }> = [];
+  // Either query fails harmlessly before the custom roles migrations have run.
+  if (!fallback.error && fallback.data) roles.push(fallback.data as { name: string; color: string });
+  if (!assigned.error) {
+    for (const row of (assigned.data ?? []) as Array<{ role: { name: string; color: string } | null }>) {
+      if (row.role) roles.push(row.role);
+    }
+  }
+  return roles;
+}
+
 /** Projects the member belongs to (real project_members rows), titled in the viewer's language. */
 export async function getMemberProjects(memberId: string, locale: SupportedLocale): Promise<ProjectList> {
   if (!isUuid(memberId) || !isSupabaseConfigured()) return [];
@@ -148,10 +167,11 @@ export async function getMemberProfileCard(
   memberId: string,
   locale: SupportedLocale
 ): Promise<ProfileCardData | null> {
-  const [row, roles, projects] = await Promise.all([
+  const [row, roles, projects, customRoles] = await Promise.all([
     fetchProfileRow(memberId),
     getMemberRoles(memberId),
     getMemberProjects(memberId, locale),
+    getMemberCustomRoles(memberId),
   ]);
   if (!row) return null;
 
@@ -173,6 +193,7 @@ export async function getMemberProfileCard(
     linkedinUrl: safeHttpUrl(row.linkedin_url),
     githubUrl: safeHttpUrl(row.github_url),
     roles,
+    customRoles,
     projects,
   };
 }

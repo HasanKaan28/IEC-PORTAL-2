@@ -10,6 +10,7 @@ import { formatDate } from "@/lib/i18n/format";
 import { adminText } from "@/lib/i18n/portal/admin";
 import AdminBlogDeleteButton from "@/components/portal/AdminBlogDeleteButton";
 import { EmptyState, PageHeader, focusRing } from "../_components/AdminUi";
+import { MemberName } from "@/components/portal/MemberCard";
 
 export default async function AdminBlogListPage() {
   const user = await getSessionUser();
@@ -106,7 +107,9 @@ export default async function AdminBlogListPage() {
                           <span className="font-mono text-xs text-slate-500">/{post.slug}</span>
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3.5 font-medium text-slate-800">{post.authorName}</td>
+                      <td className="whitespace-nowrap px-4 py-3.5 font-medium text-slate-800">
+                        <MemberName userId={post.authorId} name={post.authorName} />
+                      </td>
                       <td className="whitespace-nowrap px-4 py-3.5">
                         {post.status === "published" ? (
                           <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700">

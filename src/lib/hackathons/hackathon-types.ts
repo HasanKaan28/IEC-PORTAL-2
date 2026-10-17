@@ -33,6 +33,7 @@ export interface HackathonTeamItem {
   description: string;
   isOpen: boolean;
   lookingFor: string[];
+  leaderId: string;
   leaderName: string;
   leaderAvatar?: string | null;
   members: HackathonTeamMember[];
@@ -45,6 +46,7 @@ export interface HackathonJoinRequestItem {
   id: string;
   teamId: string;
   teamName: string;
+  userId: string;
   userName: string;
   userDepartment: string | null;
   message: string;

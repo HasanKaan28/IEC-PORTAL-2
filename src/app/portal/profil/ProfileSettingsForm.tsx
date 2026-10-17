@@ -11,7 +11,7 @@ import type { OwnProfile } from "@/lib/messages/member-profiles";
 import type { ProfileCardData } from "@/lib/messages/message-types";
 import { safeHttpUrl } from "@/lib/messages/utils";
 import DiscordProfileCard from "@/components/shared/DiscordProfileCard";
-import MemberAvatar from "@/components/portal/messages/MemberAvatar";
+import AvatarEditor from "./AvatarEditor";
 import {
   DEPARTMENTS,
   OTHER_DEPARTMENT_OPTION,
@@ -103,6 +103,8 @@ export default function ProfileSettingsForm({ profile, roles, projects, memberSi
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [cardOpen, setCardOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(profile.avatarUrl);
+  const [photoFeedback, setPhotoFeedback] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   /** What gets saved: the listed value, or the typed English name for "Other". */
   const resolvedDepartment =
@@ -173,7 +175,7 @@ export default function ProfileSettingsForm({ profile, roles, projects, memberSi
     id: profile.id,
     fullName: displayName,
     email: profile.email,
-    avatarUrl: profile.avatarUrl,
+    avatarUrl,
     department: resolvedDepartment || null,
     classYear: form.classYear || null,
     bio: form.bio.trim() || null,
@@ -212,8 +214,8 @@ export default function ProfileSettingsForm({ profile, roles, projects, memberSi
       </header>
 
       <section className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center sm:p-6">
-        <MemberAvatar name={displayName} src={profile.avatarUrl} size="lg" locale={locale} />
-        <div className="min-w-0">
+        <AvatarEditor name={displayName} avatarUrl={avatarUrl} onChange={setAvatarUrl} onMessage={setPhotoFeedback} />
+        <div className="min-w-0 sm:border-l sm:border-slate-100 sm:pl-5">
           <p className="truncate text-base font-bold text-slate-900">{displayName}</p>
           <p className="truncate text-sm text-slate-500">{profile.email}</p>
           {memberSince && <p className="mt-0.5 text-xs text-slate-400">{t.memberSince(memberSince)}</p>}
@@ -230,6 +232,24 @@ export default function ProfileSettingsForm({ profile, roles, projects, memberSi
           </ul>
         </div>
       </section>
+
+      {photoFeedback && (
+        <p
+          role={photoFeedback.kind === "error" ? "alert" : "status"}
+          className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm ${
+            photoFeedback.kind === "error"
+              ? "border-rose-200 bg-rose-50 text-rose-700"
+              : "border-emerald-200 bg-emerald-50 text-emerald-700"
+          }`}
+        >
+          {photoFeedback.kind === "error" ? (
+            <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+          ) : (
+            <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+          )}
+          <span>{photoFeedback.text}</span>
+        </p>
+      )}
 
       <form ref={formRef} noValidate onSubmit={handleSubmit} className="space-y-6">
         <section aria-labelledby="profile-basics" className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">

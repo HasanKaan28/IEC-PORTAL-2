@@ -8,6 +8,7 @@ import { useLocale } from "@/lib/i18n/locale-context";
 import { formatDateTime } from "@/lib/i18n/format";
 import { adminText } from "@/lib/i18n/portal/admin";
 import { EmptyState, Notice, PageHeader, focusRing } from "./AdminUi";
+import { MemberName } from "@/components/portal/MemberCard";
 
 type FilterKey = "all" | "roles" | "blog" | "other";
 
@@ -124,7 +125,9 @@ export default function AuditLogTable({ logs, loadError }: { logs: AuditLogItem[
                         {formatDateTime(log.createdAt, locale)}
                       </time>
                     </td>
-                    <td className="px-4 py-3 font-medium text-slate-900">{actor}</td>
+                    <td className="px-4 py-3 font-medium text-slate-900">
+                      <MemberName userId={log.actorId} name={actor} />
+                    </td>
                     <td className="px-4 py-3">
                       <span className={`inline-block whitespace-nowrap rounded-md border px-2 py-0.5 text-xs font-medium ${actionTone(log.action)}`}>
                         {actionLabel}

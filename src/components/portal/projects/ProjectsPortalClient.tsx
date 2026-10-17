@@ -14,6 +14,7 @@ import type {
 import ProjectJoinModal from "./ProjectJoinModal";
 import ProjectJoinRequestsDrawer from "./ProjectJoinRequestsDrawer";
 import CreateProjectModal from "./CreateProjectModal";
+import { MemberName } from "@/components/portal/MemberCard";
 import {
   EmptyState,
   ToastRegion,
@@ -234,9 +235,13 @@ export default function ProjectsPortalClient({ initialProjects, initialRequests,
                               <UserAvatar name={project.leadName} src={project.leadAvatar} size="md" />
                               <div className="min-w-0">
                                 <div className="truncate font-semibold text-slate-800">
-                                  {project.leadId === viewer.id
-                                    ? t.common.you
-                                    : project.leadName || t.projects.noLead}
+                                  {project.leadId === viewer.id ? (
+                                    t.common.you
+                                  ) : project.leadId ? (
+                                    <MemberName userId={project.leadId} name={project.leadName || t.projects.noLead} />
+                                  ) : (
+                                    t.projects.noLead
+                                  )}
                                 </div>
                                 <div className="text-xs text-slate-500">{t.projects.leadLabel}</div>
                               </div>

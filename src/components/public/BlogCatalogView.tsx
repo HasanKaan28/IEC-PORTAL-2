@@ -141,7 +141,7 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
           </a>
 
           <Link
-            href="/portal/admin/blog/yeni"
+            href="/portal/blog/yaz"
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-700 hover:bg-brand-500/20 text-xs font-mono transition-colors ${FOCUS_RING}`}
           >
             <PenSquare className="w-3.5 h-3.5" aria-hidden="true" />

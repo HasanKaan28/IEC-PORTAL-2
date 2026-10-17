@@ -15,6 +15,7 @@ import {
   Shield,
   CalendarRange,
   ArrowUpRight,
+  PenLine,
   Menu,
   X,
   type LucideIcon,
@@ -56,11 +57,17 @@ const NAV_ITEMS: Array<{ href: string; key: NavKey; icon: LucideIcon; page?: Por
   { href: "/portal/etkinlikler", key: "events", icon: Calendar, page: "events" },
   { href: "/portal/sertifikalarim", key: "certificates", icon: Award, page: "certificates" },
   { href: "/portal/mesajlar", key: "messages", icon: MessageSquare, page: "messages" },
+  { href: "/portal/blog", key: "blog", icon: PenLine, page: "blog" },
   { href: "/portal/profil", key: "profile", icon: User },
 ];
 
 /** Pages that keep their own full-screen frame even for a signed-in user (the reset link signs you in). */
 const FULL_SCREEN_PATHS = new Set(["/portal/sifre-yenile"]);
+
+/** The blog editor (/portal/blog/yeni, /portal/blog/<id>) is a distraction-free page of its own. */
+function isFullScreen(pathname: string): boolean {
+  return FULL_SCREEN_PATHS.has(pathname) || /^\/portal\/blog\/[^/]+$/.test(pathname);
+}
 
 function isActive(pathname: string, href: string): boolean {
   if (href === "/portal") return pathname === "/portal";
@@ -240,7 +247,7 @@ export default function PortalShell({ user, showAdmin, headerActions, children }
     };
   }, [drawerOpen]);
 
-  if (FULL_SCREEN_PATHS.has(pathname)) {
+  if (isFullScreen(pathname)) {
     return <div className="theme-portal min-h-screen bg-canvas antialiased">{children}</div>;
   }
 

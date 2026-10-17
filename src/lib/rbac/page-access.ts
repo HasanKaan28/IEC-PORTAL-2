@@ -5,7 +5,7 @@ import type { Permission } from "./permissions";
  * always available. A page also opens for anyone holding an action permission that lives on it
  * (for example, someone who may assign tasks can always see the task board).
  */
-export type PortalPage = "tasks" | "projects" | "hackathons" | "events" | "certificates" | "messages";
+export type PortalPage = "tasks" | "projects" | "hackathons" | "events" | "certificates" | "messages" | "blog";
 
 export const PAGE_ACCESS: Record<PortalPage, Permission[]> = {
   tasks: ["pages.tasks", "tasks.assign", "tasks.manage"],
@@ -14,6 +14,8 @@ export const PAGE_ACCESS: Record<PortalPage, Permission[]> = {
   events: ["pages.events", "events.manage", "events.qr_host", "certificates.issue"],
   certificates: ["pages.certificates", "certificates.issue"],
   messages: ["pages.messages"],
+  // Writing space for members who may write posts; publishing and moderation stay in the admin console.
+  blog: ["blog.write"],
 };
 
 export function canSeePage(user: { permissions: Permission[] } | null | undefined, page: PortalPage): boolean {

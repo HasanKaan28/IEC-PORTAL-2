@@ -38,8 +38,9 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   experimental: {
-    // Profile photos are resized in the browser first; this leaves room for the 2 MB server limit.
-    serverActions: { bodySizeLimit: "3mb" },
+    // Profile and blog photos are resized in the browser first; this leaves room for the 4 MB blog
+    // image limit. Vercel itself stops request bodies at 4.5 MB.
+    serverActions: { bodySizeLimit: "4.5mb" },
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

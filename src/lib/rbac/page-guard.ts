@@ -9,6 +9,7 @@ const PAGE_PATHS: Record<PortalPage, string> = {
   events: "/portal/etkinlikler",
   certificates: "/portal/sertifikalarim",
   messages: "/portal/mesajlar",
+  blog: "/portal/blog",
 };
 
 /**

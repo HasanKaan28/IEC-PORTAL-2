@@ -8,6 +8,7 @@ import { getBlogPosts } from "@/lib/blog/blog-queries";
 import { getServerLocale } from "@/lib/i18n/server";
 import { formatDate } from "@/lib/i18n/format";
 import { adminText } from "@/lib/i18n/portal/admin";
+import { blogWriterText } from "@/lib/i18n/portal/blog-writer";
 import AdminBlogDeleteButton from "@/components/portal/AdminBlogDeleteButton";
 import { EmptyState, PageHeader, focusRing } from "../_components/AdminUi";
 import { MemberName } from "@/components/portal/MemberCard";
@@ -54,7 +55,7 @@ export default async function AdminBlogListPage() {
             )}
             {canWrite && (
               <Link
-                href="/portal/admin/blog/yeni"
+                href="/portal/blog/yaz"
                 className={`inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 ${focusRing}`}
               >
                 <Plus className="h-4 w-4" aria-hidden="true" />
@@ -99,7 +100,9 @@ export default async function AdminBlogListPage() {
                   return (
                     <tr key={post.id} className="align-top">
                       <td className="max-w-xs px-4 py-3.5">
-                        <div className="line-clamp-2 font-semibold text-slate-900">{post.title}</div>
+                        <div className="line-clamp-2 font-semibold text-slate-900">
+                          {post.title || blogWriterText[locale].list.untitled}
+                        </div>
                         <div className="mt-1 flex flex-wrap items-center gap-2">
                           <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700">
                             {text.categories[post.category] ?? post.category}
@@ -154,7 +157,7 @@ export default async function AdminBlogListPage() {
                           )}
                           {canEdit && (
                             <Link
-                              href={`/portal/admin/blog/duzenle/${post.slug}`}
+                              href={`/portal/blog/yaz?id=${post.id}`}
                               aria-label={t.edit(post.title)}
                               title={t.edit(post.title)}
                               className={`rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-brand-600 ${focusRing}`}

@@ -31,6 +31,7 @@ export const RATE_LIMITS = {
   passwordResetPerEmail: { bucket: "password-reset:email", limit: 3, windowSeconds: 60 * 60 },
   checkIn: { bucket: "check-in", limit: 10, windowSeconds: 10 * 60 },
   blogComment: { bucket: "blog-comment", limit: 8, windowSeconds: 5 * 60 },
+  blogImageUpload: { bucket: "blog-image:user", limit: 40, windowSeconds: 10 * 60 },
   certificateVerify: { bucket: "certificate-verify:ip", limit: 60, windowSeconds: 10 * 60 },
   certificatePdf: { bucket: "certificate-pdf:ip", limit: 20, windowSeconds: 10 * 60 },
   /** Header search fires as the member types, so this is per account and generous. */

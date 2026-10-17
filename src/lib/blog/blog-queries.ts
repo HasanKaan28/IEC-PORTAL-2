@@ -160,6 +160,41 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPostItem | nu
   }
 }
 
+/** The signed-in member's own posts, drafts included, most recently edited first. */
+export async function getMyBlogPosts(): Promise<BlogPostItem[]> {
+  if (!isSupabaseConfigured()) return [];
+  const user = await getSessionUser();
+  if (!user) return [];
+  try {
+    const supabase = await createClient();
+    const { data, error } = await (supabase.from("blog_posts") as any)
+      .select(POST_COLUMNS)
+      .eq("author_id", user.id)
+      .order("updated_at", { ascending: false });
+    if (error || !data) return [];
+    const rows = data as PostRow[];
+    const [likes, text] = await Promise.all([countLikes(supabase, rows.map((r) => r.id)), postText()]);
+    return rows.map((row) => mapPost(row, likes.get(row.id) ?? 0, text));
+  } catch (error) {
+    console.error("[blog] getMyBlogPosts failed", error);
+    return [];
+  }
+}
+
+/** One post by id for the editor. Row level security limits drafts to their author and editors. */
+export async function getBlogPostById(id: string): Promise<BlogPostItem | null> {
+  if (!isSupabaseConfigured() || !/^[0-9a-f-]{36}$/i.test(id)) return null;
+  try {
+    const supabase = await createClient();
+    const { data, error } = await (supabase.from("blog_posts") as any).select(POST_COLUMNS).eq("id", id).maybeSingle();
+    if (error || !data) return null;
+    return mapPost(data as PostRow, 0, await postText());
+  } catch (error) {
+    console.error("[blog] getBlogPostById failed", error);
+    return null;
+  }
+}
+
 export async function getBlogComments(postSlug: string): Promise<BlogCommentItem[]> {
   if (!isSupabaseConfigured() || !isSlugLike(postSlug)) return [];
   try {

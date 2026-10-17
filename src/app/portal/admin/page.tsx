@@ -104,7 +104,7 @@ export default async function AdminDashboardPage() {
   }
 
   const quickLinks: { href: string; label: string; icon: LucideIcon }[] = [];
-  if (canWrite) quickLinks.push({ href: "/portal/admin/blog/yeni", label: t.quickNewPost, icon: PenSquare });
+  if (canWrite) quickLinks.push({ href: "/portal/blog/yaz", label: t.quickNewPost, icon: PenSquare });
   if (canModerate) quickLinks.push({ href: "/portal/admin/blog/yorumlar", label: t.quickModeration, icon: MessageSquare });
   if (canRoles) quickLinks.push({ href: "/portal/admin/roller", label: t.quickRoles, icon: Users });
 

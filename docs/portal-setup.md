@@ -25,6 +25,7 @@ Site yayında, ama üye portalı bir Supabase veritabanına bağlanana kadar bak
 6. `supabase/migrations/20261021000000_email_templates_permission.sql` (e-posta şablonları için ayrı yetki)
 7. `supabase/migrations/20261022000000_rate_limits.sql` (giriş, kayıt, QR yoklama, yorum ve sertifika istekleri için ortak deneme sınırları)
 8. `supabase/migrations/20261023000000_privilege_hardening.sql` (Security Advisor uyarılarını kapatır, ziyaretçilerin yazma izinlerini kaldırır)
+9. `supabase/migrations/20261024000000_blog_images.sql` (blog yazılarındaki fotoğraflar için `blog-images` deposu; her yazar yalnızca kendi klasörüne yükleyebilir)
 
 İkinci dosya şunları yapar:
 
@@ -91,6 +92,7 @@ Giriş ve kayıt sunucu üzerinden yapılır. Bu yüzden Supabase her ziyaretçi
 | Şifre sıfırlama e-postası | E-posta başına saatte 3, IP başına saatte 40 istek |
 | QR yoklama | Üye ve etkinlik başına 10 dakikada 10 deneme |
 | Blog yorumu | Üye başına 5 dakikada 8 yorum |
+| Blog fotoğrafı yükleme | Üye başına 10 dakikada 40 fotoğraf |
 | Sertifika doğrulama | IP başına 10 dakikada 60 istek |
 | Sertifika PDF'i | IP başına 10 dakikada 20 istek |
 | Mesaj | Üye başına dakikada sınırlı (uygulama içinde) |
@@ -106,6 +108,8 @@ Kayıt formunda iki bot tuzağı var: insanların görmediği gizli bir alan ve 
 - **Authentication > Sign In / Providers > Email > Minimum password length:** 8. Uygulama 8 karakter ister, Supabase'e doğrudan gelen istekler de aynı kurala uysun.
 - **Authentication > Sign In / Providers > Email > Prevent use of leaked passwords:** açık (Supabase'in ücretli planlarında var).
 - Bot saldırısı görülürse **Authentication > Attack Protection** altından Cloudflare Turnstile ile CAPTCHA açılabilir. Bunun için bir Cloudflare hesabı ve formlara bir doğrulama kutusu eklenmesi gerekir.
+
+9. dosyadaki `blog-images` deposu herkese açık okunur, çünkü yayındaki yazılar fotoğrafları bu adresten gösterir. Dosya listesini herkese açan bir okuma kuralı bilerek yok. Fotoğraflar `blog.write` yetkisi gereken bir sunucu işlemiyle yüklenir: dosyanın gerçek türüne bakılır (JPG, PNG, WebP, GIF) ve boyutu en fazla 4 MB olabilir. Vercel 4,5 MB'tan büyük istekleri reddettiği için sınır 4 MB; editör büyük telefon fotoğraflarını yüklemeden önce küçültür. Dosya kurulmadan ilk yükleme yapılırsa sunucu depoyu kendisi açar, ama yazar klasörü kuralları yalnızca bu dosyayla gelir.
 
 8. dosya, Supabase Security Advisor uyarılarının kapatılabilenlerini kapatır. Kalan uyarılar bilerek bırakıldı: `has_role`, `is_admin`, `has_permission` ve `member_contact` fonksiyonlarını giriş yapmış üyeler çalıştırabilmeli, çünkü üyelerin satır güvenliği kuralları bu fonksiyonları onların adına çağırır.
 

@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -17,9 +18,17 @@ import {
   isSlugLike,
   isValidCoverImage,
   isValidSlug,
-  readingMinutes,
   slugify,
 } from "@/lib/admin/blog-meta";
+import {
+  BLOG_DOC_LIMITS,
+  blogDocPlainText,
+  countTextWords,
+  excerptFromText,
+  readingMinutesForWords,
+  sanitizeBlogDoc,
+  serializeBlogDoc,
+} from "./blog-doc";
 import { RATE_LIMITS, consumeRateLimit } from "@/lib/security/rate-limit";
 import type { BlogPostItem, BlogCommentItem } from "./blog-data";
 import {
@@ -72,52 +81,9 @@ export async function getAllBlogCommentsForAdminAction(
 const slugSchema = z.string().refine((value) => isSlugLike(value));
 const uuidSchema = z.string().uuid();
 
-/** Keeps a markdown link only when its target is http(s), mailto, a site path, an anchor or relative. */
-function sanitizeLinkTargets(segment: string): string {
-  return segment.replace(/\]\(([^)]*)\)/g, (match, rawUrl: string) => {
-    const url = rawUrl.replace(/[\u0000- \u007f]/g, "");
-    if (/^(https?:\/\/|mailto:|#)/i.test(url)) return match;
-    if (/^\/(?!\/)/.test(url)) return match;
-    if (url.startsWith("//") || /^[a-z][a-z0-9+.-]*:/i.test(url)) return "](#)";
-    return match;
-  });
-}
-
-/**
- * Markdown is rendered with React (text is escaped, raw HTML is shown as text), so the remaining
- * injection risk is link targets such as javascript: or data: URLs. Neutralize those outside of
- * code blocks and inline code before saving.
- */
-function sanitizeMarkdown(markdown: string): string {
-  let inFence = false;
-  return markdown
-    .replace(/\r\n?/g, "\n")
-    .split("\n")
-    .map((line) => {
-      if (line.trim().startsWith("```")) {
-        inFence = !inFence;
-        return line;
-      }
-      if (inFence) return line;
-      return line
-        .split(/(`[^`]+`)/g)
-        .map((part) => (part.length > 1 && part.startsWith("`") && part.endsWith("`") ? part : sanitizeLinkTargets(part)))
-        .join("");
-    })
-    .join("\n");
-}
-
-function deriveExcerpt(content: string): string {
-  const plain = content
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/[#*`>\[\]()_~-]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  return plain.length > 160 ? `${plain.slice(0, 157).trimEnd()}...` : plain;
-}
-
 function revalidateBlog(...slugs: Array<string | null | undefined>) {
   revalidatePath("/blog");
+  revalidatePath("/portal/blog");
   revalidatePath("/portal/admin/blog");
   revalidatePath("/portal/admin");
   for (const slug of new Set(slugs.filter(Boolean))) revalidatePath(`/blog/${slug}`);
@@ -319,13 +285,12 @@ export async function deleteBlogCommentAction(commentId: string): Promise<Action
 
 const postSchema = z.object({
   id: uuidSchema.optional(),
+  /** Only sent from the publish dialog. Drafts get a slug from their title. */
   slug: z.string().trim().max(BLOG_LIMITS.slugMax).optional(),
-  title: z.string().trim().min(BLOG_LIMITS.titleMin).max(BLOG_LIMITS.titleMax),
+  title: z.string().trim().max(BLOG_LIMITS.titleMax),
   excerpt: z.string().trim().max(BLOG_LIMITS.excerptMax).optional(),
-  content: z
-    .string()
-    .max(BLOG_LIMITS.contentMax)
-    .refine((value) => value.trim().length >= BLOG_LIMITS.contentMin),
+  /** The editor's document. sanitizeBlogDoc decides what survives. */
+  doc: z.unknown(),
   category: z.enum(BLOG_CATEGORIES),
   tags: z.array(z.string().trim().min(1).max(BLOG_LIMITS.tagMax)).max(BLOG_LIMITS.tagsMax).optional(),
   coverImage: z.string().trim().max(BLOG_LIMITS.coverMax).optional(),
@@ -333,18 +298,34 @@ const postSchema = z.object({
 });
 
 type PostField = keyof z.infer<typeof postSchema>;
+type AdminClient = Awaited<ReturnType<typeof privilegedClient>>;
 
+/** A free slug for a draft: the title's slug, then -2, -3... and finally a random ending. */
+async function freeDraftSlug(admin: AdminClient, title: string, ownId?: string): Promise<string> {
+  const fromTitle = slugify(title).slice(0, BLOG_LIMITS.slugMax - 8).replace(/-+$/g, "");
+  const base = isValidSlug(fromTitle) ? fromTitle : "taslak";
+  const candidates = [base, ...Array.from({ length: 8 }, (_, i) => `${base}-${i + 2}`)];
+  const { data } = await (admin.from("blog_posts") as any).select("id, slug").in("slug", candidates);
+  const taken = new Map(((data ?? []) as Array<{ id: string; slug: string }>).map((row) => [row.slug, row.id]));
+  const free = candidates.find((candidate) => !taken.has(candidate) || taken.get(candidate) === ownId);
+  return free ?? `${base}-${randomUUID().slice(0, 6)}`;
+}
+
+/**
+ * Creates or updates a post written in the editor. Drafts save with whatever is there (autosave
+ * calls this every few seconds); publishing checks the title, the length and the slug.
+ */
 export async function saveBlogPostAction(data: {
   id?: string;
   slug?: string;
   title: string;
-  excerpt: string;
-  content: string;
+  excerpt?: string;
+  doc: unknown;
   category: BlogPostItem["category"];
   tags: string[];
   coverImage?: string;
   status: "published" | "draft";
-}): Promise<ActionResult<{ id: string; slug: string }>> {
+}): Promise<ActionResult<{ id: string; slug: string; status: "published" | "draft"; savedAt: string }>> {
   return guardedAction(async () => {
     const actor = await requirePermission("blog.write");
     const t = await actionText();
@@ -356,7 +337,6 @@ export async function saveBlogPostAction(data: {
         slug: t.slugFormat,
         title: t.titleLength,
         excerpt: t.excerptLength,
-        content: t.contentLength,
         category: t.categoryInvalid,
         tags: t.tagsInvalid,
         coverImage: t.coverInvalid,
@@ -364,15 +344,24 @@ export async function saveBlogPostAction(data: {
       return { success: false, error: (field && messages[field]) || t.invalidInput };
     }
     const input = parsed.data;
+    const publishing = input.status === "published";
 
-    const slug = input.slug ? input.slug : slugify(input.title);
-    if (!isValidSlug(slug)) return { success: false, error: t.slugFormat };
+    const doc = sanitizeBlogDoc(input.doc);
+    if (!doc) return { success: false, error: t.invalidInput };
+    const content = serializeBlogDoc(doc);
+    if (content.length > BLOG_DOC_LIMITS.storedChars) return { success: false, error: t.contentLength };
+    const plainText = blogDocPlainText(doc);
+    const words = countTextWords(plainText);
+
+    if (publishing && input.title.length < BLOG_LIMITS.titleMin) return { success: false, error: t.titleLength };
+    if (publishing && plainText.trim().length < BLOG_LIMITS.contentMin) return { success: false, error: t.contentLength };
+    if (input.slug && !isValidSlug(input.slug)) return { success: false, error: t.slugFormat };
 
     const coverImage = input.coverImage ? input.coverImage : null;
     if (coverImage && !isValidCoverImage(coverImage)) return { success: false, error: t.coverInvalid };
 
     const canPublish = userCan(actor, "blog.publish");
-    if (input.status === "published" && !canPublish) return { success: false, error: t.publishForbidden };
+    if (publishing && !canPublish) return { success: false, error: t.publishForbidden };
 
     const admin = await privilegedClient();
 
@@ -389,25 +378,29 @@ export async function saveBlogPostAction(data: {
       existing = row;
     }
 
-    const { data: clash } = await (admin.from("blog_posts") as any)
-      .select("id")
-      .eq("slug", slug)
-      .maybeSingle();
-    if (clash && clash.id !== existing?.id) return { success: false, error: t.slugTaken };
+    // A published post keeps its address unless the publish dialog changes it on purpose.
+    let slug: string;
+    if (input.slug) slug = input.slug;
+    else if (existing && (publishing || existing.status === "published")) slug = existing.slug;
+    else slug = await freeDraftSlug(admin, input.title, existing?.id);
 
-    const content = sanitizeMarkdown(input.content);
+    if (input.slug) {
+      const { data: clash } = await (admin.from("blog_posts") as any).select("id").eq("slug", slug).maybeSingle();
+      if (clash && clash.id !== existing?.id) return { success: false, error: t.slugTaken };
+    }
+
     const tags = (input.tags ?? []).filter((tag) => tag !== input.category);
     const now = new Date().toISOString();
     const row = {
       slug,
       title: input.title,
-      excerpt: input.excerpt || deriveExcerpt(content),
+      excerpt: input.excerpt || excerptFromText(plainText),
       content,
       cover_image: coverImage,
       status: input.status,
-      reading_time_min: readingMinutes(content),
+      reading_time_min: readingMinutesForWords(words),
       tags: [input.category, ...tags],
-      published_at: input.status === "published" ? existing?.published_at ?? now : null,
+      published_at: publishing ? existing?.published_at ?? now : null,
       updated_at: now,
     };
 
@@ -445,8 +438,10 @@ export async function saveBlogPostAction(data: {
       }
     }
 
-    revalidateBlog(slug, existing?.slug);
-    return { success: true, data: { id: savedId, slug }, message: t.postSaved };
+    // Draft autosaves skip revalidation: the portal lists render per request anyway, and revalidating
+    // would re-render the editor page under the writer's cursor every few seconds.
+    if (publishing || existing?.status === "published") revalidateBlog(slug, existing?.slug);
+    return { success: true, data: { id: savedId, slug, status: input.status, savedAt: now }, message: t.postSaved };
   });
 }
 

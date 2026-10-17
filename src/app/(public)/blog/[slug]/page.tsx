@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
-import MarkdownRenderer from "@/components/public/MarkdownRenderer";
+import BlogContent from "@/components/public/BlogContent";
 import BlogCommentSection from "@/components/public/BlogCommentSection";
 import BlogDetailClientBar from "@/components/public/BlogDetailClientBar";
 import {
@@ -86,7 +86,8 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
     <div className="flex flex-col min-h-screen">
       <Navbar />
 
-      <main id="main-content" className="flex-1 py-12 px-4 sm:px-6">
+      {/* overflow-x-clip lets full-width photos reach the screen edges without a sideways scroll. */}
+      <main id="main-content" className="flex-1 overflow-x-clip py-12 px-4 sm:px-6">
         <article className="max-w-4xl mx-auto space-y-8">
           <div>
             <Link
@@ -155,7 +156,7 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
           />
 
           <div className="pt-4">
-            <MarkdownRenderer content={post.content} />
+            <BlogContent content={post.content} />
           </div>
 
           {post.tags && post.tags.length > 0 && (

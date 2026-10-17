@@ -440,7 +440,7 @@ export default function BlogEditorStudio({ initialPost, canPublish = false }: Bl
           )}
 
           {showPreview && (
-            <section aria-label={t.previewLabel} className="max-h-[640px] overflow-y-auto bg-ink-950 p-6">
+            <section aria-label={t.previewLabel} className="max-h-[640px] overflow-y-auto bg-canvas p-6">
               <p className="mb-4 border-b border-slate-800 pb-2 text-xs font-medium text-slate-400">{t.previewLabel}</p>
               {content.trim() ? (
                 <MarkdownRenderer content={content} />

@@ -23,7 +23,7 @@ export default function ProjectGallery({ images, alt, sizes, className = "", pri
   const hasMany = images.length > 1;
 
   return (
-    <div className={`group/gallery relative w-full overflow-hidden bg-slate-900 ${className}`}>
+    <div className={`group/gallery relative w-full overflow-hidden bg-slate-50 ${className}`}>
       {images.map((src, index) => (
         <Image
           key={src}
@@ -57,8 +57,8 @@ export default function ProjectGallery({ images, alt, sizes, className = "", pri
                 className="grid h-6 w-6 place-items-center rounded-full"
               >
                 <span
-                  className={`block h-2.5 w-2.5 rounded-full border border-white/80 shadow transition-colors ${
-                    isActive ? "bg-white" : "bg-black/40 hover:bg-white/70"
+                  className={`block h-2.5 w-2.5 rounded-full border border-slate-200 shadow transition-colors ${
+                    isActive ? "bg-white" : "bg-slate-900/30 hover:bg-white/70"
                   }`}
                 />
               </button>

@@ -25,7 +25,7 @@ type LikeResult = Awaited<ReturnType<typeof likeBlogPostAction>>;
 type LikeNotice = { kind: "error"; text: string } | { kind: "signIn" };
 
 const FOCUS_RING =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas";
 
 export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalogViewProps) {
   const { locale } = useLocale();
@@ -123,10 +123,10 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
     <div className="space-y-12">
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-4">
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-white font-display tracking-tight">
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-display tracking-tight">
           {t.catalog.title}
         </h1>
-        <p className="text-slate-300 text-sm leading-relaxed">{t.catalog.intro}</p>
+        <p className="text-slate-600 text-sm leading-relaxed">{t.catalog.intro}</p>
 
         <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
           <a
@@ -134,7 +134,7 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
             target="_blank"
             rel="noopener noreferrer"
             aria-label={t.catalog.rssLabel}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent-500/10 border border-accent-500/20 text-accent-300 hover:bg-accent-500/20 text-xs font-mono transition-colors ${FOCUS_RING}`}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent-500/10 border border-accent-500/20 text-accent-700 hover:bg-accent-500/20 text-xs font-mono transition-colors ${FOCUS_RING}`}
           >
             <Rss className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{t.catalog.rss}</span>
@@ -142,7 +142,7 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
 
           <Link
             href="/portal/admin/blog/yeni"
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-300 hover:bg-brand-500/20 text-xs font-mono transition-colors ${FOCUS_RING}`}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-700 hover:bg-brand-500/20 text-xs font-mono transition-colors ${FOCUS_RING}`}
           >
             <PenSquare className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{t.catalog.write}</span>
@@ -151,10 +151,10 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
       </div>
 
       {initialPosts.length === 0 ? (
-        <div className="text-center py-20 border border-dashed border-slate-800 rounded-2xl max-w-xl mx-auto space-y-2">
+        <div className="text-center py-20 border border-dashed border-slate-200 rounded-2xl max-w-xl mx-auto space-y-2">
           <BookOpen className="w-8 h-8 text-slate-500 mx-auto" aria-hidden="true" />
-          <h2 className="text-base font-semibold text-slate-200">{t.catalog.emptyTitle}</h2>
-          <p className="text-sm text-slate-400">{t.catalog.emptyHint}</p>
+          <h2 className="text-base font-semibold text-slate-700">{t.catalog.emptyTitle}</h2>
+          <p className="text-sm text-slate-500">{t.catalog.emptyHint}</p>
         </div>
       ) : (
         <>
@@ -165,7 +165,7 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
                 {t.catalog.searchLabel}
               </label>
               <Search
-                className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
                 aria-hidden="true"
               />
               <input
@@ -176,14 +176,14 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t.catalog.searchPlaceholder}
-                className="w-full bg-ink-900 border border-slate-800 rounded-2xl pl-11 pr-24 py-3.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500/80 focus:ring-2 focus:ring-brand-500/30 transition-colors shadow-xl"
+                className="w-full bg-white border border-slate-200 rounded-2xl pl-11 pr-24 py-3.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-brand-500/80 focus:ring-2 focus:ring-brand-500/30 transition-colors shadow-xl"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
                   aria-label={t.catalog.clearSearchLabel}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-xs font-mono text-slate-400 hover:text-white ${FOCUS_RING}`}
+                  className={`absolute right-3 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-xs font-mono text-slate-500 hover:text-slate-900 ${FOCUS_RING}`}
                 >
                   {t.catalog.clearSearch}
                 </button>
@@ -207,7 +207,7 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-colors ${FOCUS_RING} ${
                       active
                         ? "bg-brand-600 text-white shadow-lg shadow-brand-600/30"
-                        : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700"
+                        : "bg-slate-50 border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300"
                     }`}
                   >
                     {t.categories[cat.key]}
@@ -239,8 +239,8 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
                       aria-pressed={active}
                       className={`text-xs font-mono px-2 py-0.5 rounded-md transition-colors ${FOCUS_RING} ${
                         active
-                          ? "bg-brand-500/20 text-brand-200 border border-brand-500/50"
-                          : "bg-slate-900/60 text-slate-400 hover:text-slate-300 border border-slate-800/80"
+                          ? "bg-brand-500/20 text-brand-800 border border-brand-500/50"
+                          : "bg-slate-50 text-slate-500 hover:text-slate-600 border border-slate-200"
                       }`}
                     >
                       #{tag}
@@ -251,7 +251,7 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
                   <button
                     type="button"
                     onClick={() => setSelectedTag("")}
-                    className={`text-xs text-brand-300 hover:underline ml-2 rounded ${FOCUS_RING}`}
+                    className={`text-xs text-brand-700 hover:underline ml-2 rounded ${FOCUS_RING}`}
                   >
                     {t.catalog.removeTag}
                   </button>
@@ -265,16 +265,16 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
           </p>
 
           {likeNotice?.kind === "error" && (
-            <p role="alert" className="text-center text-xs text-rose-400">
+            <p role="alert" className="text-center text-xs text-rose-600">
               {likeNotice.text}
             </p>
           )}
           {likeNotice?.kind === "signIn" && (
-            <p role="alert" className="text-center text-xs text-slate-300">
+            <p role="alert" className="text-center text-xs text-slate-600">
               {t.auth.signInToLike}{" "}
               <Link
                 href={blogSignInHref("/blog")}
-                className={`font-semibold text-brand-300 underline underline-offset-4 hover:text-brand-200 rounded ${FOCUS_RING}`}
+                className={`font-semibold text-brand-700 underline underline-offset-4 hover:text-brand-800 rounded ${FOCUS_RING}`}
               >
                 {t.auth.signIn}
               </Link>
@@ -283,14 +283,14 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
 
           {/* Posts grid */}
           {filteredPosts.length === 0 ? (
-            <div className="text-center py-20 border border-dashed border-slate-800 rounded-2xl max-w-xl mx-auto space-y-3">
+            <div className="text-center py-20 border border-dashed border-slate-200 rounded-2xl max-w-xl mx-auto space-y-3">
               <BookOpen className="w-8 h-8 text-slate-600 mx-auto" aria-hidden="true" />
-              <h2 className="text-sm font-semibold text-slate-300">{t.catalog.noResultsTitle}</h2>
+              <h2 className="text-sm font-semibold text-slate-600">{t.catalog.noResultsTitle}</h2>
               <p className="text-xs text-slate-500">{t.catalog.noResultsHint}</p>
               <button
                 type="button"
                 onClick={resetFilters}
-                className={`px-3 py-1.5 rounded-lg bg-slate-800 text-xs text-brand-200 hover:bg-slate-700 ${FOCUS_RING}`}
+                className={`px-3 py-1.5 rounded-lg bg-slate-100 text-xs text-brand-800 hover:bg-slate-200 ${FOCUS_RING}`}
               >
                 {t.catalog.resetFilters}
               </button>
@@ -303,10 +303,10 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
                 return (
                   <li
                     key={post.slug}
-                    className="relative glass-panel rounded-2xl border border-slate-800/80 hover:border-brand-500/50 transition-[border-color,transform,box-shadow] flex flex-col justify-between overflow-hidden group hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-950/20 motion-reduce:hover:translate-y-0 focus-within:border-brand-500/50"
+                    className="relative glass-panel rounded-2xl border border-slate-200 hover:border-brand-500/50 transition-[border-color,transform,box-shadow] flex flex-col justify-between overflow-hidden group hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-900/10 motion-reduce:hover:translate-y-0 focus-within:border-brand-500/50"
                   >
                     {post.coverImage && (
-                      <div className="relative aspect-video overflow-hidden border-b border-slate-800/60">
+                      <div className="relative aspect-video overflow-hidden border-b border-slate-200">
                         <img
                           src={post.coverImage}
                           alt=""
@@ -314,7 +314,7 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 motion-reduce:group-hover:scale-100"
                         />
                         <div className="absolute top-3 left-3">
-                          <span className="text-xs font-mono text-brand-200 bg-ink-950/80 backdrop-blur-md px-2.5 py-1 rounded-md border border-brand-500/30">
+                          <span className="text-xs font-mono text-brand-800 bg-white/80 backdrop-blur-md px-2.5 py-1 rounded-md border border-brand-500/30">
                             {blogCategoryLabel(post.category, locale)}
                           </span>
                         </div>
@@ -323,9 +323,9 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
 
                     <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                       <div>
-                        <div className="flex items-center justify-between text-xs text-slate-400 mb-2 font-mono">
+                        <div className="flex items-center justify-between text-xs text-slate-500 mb-2 font-mono">
                           <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-brand-400" aria-hidden="true" />
+                            <Clock className="w-3 h-3 text-brand-600" aria-hidden="true" />
                             <span>{t.post.readingTime(post.readingTimeMin)}</span>
                           </div>
                           <time dateTime={post.publishedAt} className="text-slate-500">
@@ -333,7 +333,7 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
                           </time>
                         </div>
 
-                        <h2 className="text-base font-bold text-white group-hover:text-brand-200 transition-colors line-clamp-2 leading-snug">
+                        <h2 className="text-base font-bold text-slate-900 group-hover:text-brand-800 transition-colors line-clamp-2 leading-snug">
                           {/* The stretched link makes the whole card clickable without nesting the like button inside it. */}
                           <Link
                             href={`/blog/${post.slug}`}
@@ -343,20 +343,20 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
                           </Link>
                         </h2>
 
-                        <p className="text-xs text-slate-400 mt-2.5 leading-relaxed line-clamp-3">
+                        <p className="text-xs text-slate-500 mt-2.5 leading-relaxed line-clamp-3">
                           {post.excerpt}
                         </p>
                       </div>
 
-                      <div className="pt-4 border-t border-slate-800/60 flex items-center justify-between">
+                      <div className="pt-4 border-t border-slate-200 flex items-center justify-between">
                         <div className="flex items-center gap-2 min-w-0">
                           <div
-                            className="w-6 h-6 shrink-0 rounded-full bg-brand-500/20 border border-brand-500/30 flex items-center justify-center text-xs font-bold text-brand-200"
+                            className="w-6 h-6 shrink-0 rounded-full bg-brand-500/20 border border-brand-500/30 flex items-center justify-center text-xs font-bold text-brand-800"
                             aria-hidden="true"
                           >
                             {post.authorName.charAt(0)}
                           </div>
-                          <div className="text-xs font-medium text-slate-300 truncate">
+                          <div className="text-xs font-medium text-slate-600 truncate">
                             {post.authorName}
                           </div>
                         </div>
@@ -369,8 +369,8 @@ export default function BlogCatalogView({ initialPosts, isSignedIn }: BlogCatalo
                           aria-label={t.catalog.likePost(post.title, likeCount)}
                           className={`relative z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs transition-colors ${FOCUS_RING} ${
                             hasLiked
-                              ? "bg-brand-500/15 border-brand-500/40 text-brand-200"
-                              : "bg-slate-900 border-slate-800 text-slate-400 hover:text-brand-200 hover:border-brand-500/40"
+                              ? "bg-brand-500/15 border-brand-500/40 text-brand-800"
+                              : "bg-slate-50 border-slate-200 text-slate-500 hover:text-brand-800 hover:border-brand-500/40"
                           }`}
                         >
                           <ThumbsUp className="w-3 h-3" aria-hidden="true" />

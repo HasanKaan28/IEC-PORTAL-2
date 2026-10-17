@@ -39,11 +39,11 @@ export default function ProjectsShowcase() {
   const featuresLeadProject = activeCategory === "all" && filteredProjects.length >= 3;
 
   return (
-    <section id="projeler" className="scroll-mt-20 py-20 sm:py-24 px-4 sm:px-6 relative z-10 bg-ink-950">
+    <section id="projeler" className="scroll-mt-20 py-20 sm:py-24 px-4 sm:px-6 relative z-10">
       <div className="max-w-7xl mx-auto">
         <div className="mb-10">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white font-display tracking-tight">{t.projects.title}</h2>
-          <p className="text-slate-300 text-base mt-3 max-w-[60ch]">{t.projects.description}</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 font-display tracking-tight">{t.projects.title}</h2>
+          <p className="text-slate-600 text-base mt-3 max-w-[60ch]">{t.projects.description}</p>
         </div>
 
         <div role="group" aria-label={t.projects.filterLabel} className="flex flex-wrap items-center gap-2 mb-8">
@@ -58,7 +58,7 @@ export default function ProjectsShowcase() {
                 className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
                   isActive
                     ? "bg-brand-600 border-brand-600 text-white"
-                    : "bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:border-slate-600"
+                    : "bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
                 }`}
               >
                 {category.label}
@@ -68,7 +68,7 @@ export default function ProjectsShowcase() {
         </div>
 
         {filteredProjects.length === 0 ? (
-          <p className="py-16 text-center text-slate-400 border border-dashed border-slate-800 rounded-2xl">
+          <p className="py-16 text-center text-slate-500 border border-dashed border-slate-200 rounded-2xl">
             {t.projects.empty}
           </p>
         ) : (
@@ -78,7 +78,7 @@ export default function ProjectsShowcase() {
               return (
                 <li
                   key={project.id}
-                  className={`group flex flex-col rounded-2xl overflow-hidden border border-slate-800 bg-ink-900 hover:border-slate-600 transition-colors ${
+                  className={`group flex flex-col rounded-2xl overflow-hidden border border-white/70 bg-white/70 backdrop-blur-sm shadow-soft hover:border-brand-200 transition-colors ${
                     isLead ? "md:col-span-2" : ""
                   }`}
                 >
@@ -90,20 +90,20 @@ export default function ProjectsShowcase() {
                   />
 
                   <div className="flex flex-1 flex-col p-5 sm:p-6">
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-slate-500">
                       {project.category[locale]}
-                      {project.isFlagship && <span className="text-brand-300"> · {t.projects.flagship}</span>}
+                      {project.isFlagship && <span className="text-brand-700"> · {t.projects.flagship}</span>}
                     </p>
-                    <h3 className={`mt-1.5 font-bold text-white font-display ${isLead ? "text-xl sm:text-2xl" : "text-lg"}`}>
+                    <h3 className={`mt-1.5 font-bold text-slate-900 font-display ${isLead ? "text-xl sm:text-2xl" : "text-lg"}`}>
                       {project.title[locale]}
                     </h3>
-                    <p className="text-sm text-slate-300 mt-2 leading-relaxed line-clamp-2">{project.tagline[locale]}</p>
+                    <p className="text-sm text-slate-600 mt-2 leading-relaxed line-clamp-2">{project.tagline[locale]}</p>
 
                     <ul className="mt-4 flex flex-wrap gap-1.5">
                       {project.specs.map((spec) => (
                         <li
                           key={spec.label.tr}
-                          className="text-xs px-2 py-1 rounded-md bg-slate-900 border border-slate-800 text-slate-300"
+                          className="text-xs px-2 py-1 rounded-md bg-slate-50 border border-slate-200 text-slate-600"
                         >
                           {spec.value[locale]}
                         </li>
@@ -114,7 +114,7 @@ export default function ProjectsShowcase() {
                       <button
                         type="button"
                         onClick={() => setSelectedProject(project)}
-                        className="shrink-0 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-300 hover:text-white transition-colors"
+                        className="shrink-0 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:text-slate-900 transition-colors"
                         aria-haspopup="dialog"
                       >
                         <span>{t.projects.viewDetails}</span>
@@ -132,7 +132,7 @@ export default function ProjectsShowcase() {
         <div className="mt-12">
           <Link
             href="/projeler"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-slate-700 bg-slate-900/60 hover:bg-slate-800 text-slate-100 text-sm font-semibold transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-800 text-sm font-semibold transition-colors"
           >
             <span>{t.projects.viewAll}</span>
             <ArrowRight className="w-4 h-4" aria-hidden="true" />

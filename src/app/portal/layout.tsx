@@ -25,7 +25,7 @@ export default async function PortalLayout({ children }: { children: React.React
   // The middleware lets signed-out visitors reach only the sign-in and sign-up pages,
   // which bring their own full-screen layout.
   if (!user) {
-    return <div className="theme-portal min-h-screen bg-ink-950 antialiased">{children}</div>;
+    return <div className="theme-portal min-h-screen bg-canvas antialiased">{children}</div>;
   }
 
   const [locale, notifications] = await Promise.all([getServerLocale(), getNotifications()]);

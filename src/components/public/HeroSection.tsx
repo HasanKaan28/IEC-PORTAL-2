@@ -11,9 +11,9 @@ export default function HeroSection() {
   const { t } = useLocale();
 
   const metrics = [
-    { label: t.metrics.projectsLabel, value: t.metrics.projectsValue, note: t.metrics.projectsNote, Icon: Cpu, iconClass: "text-accent-400" },
-    { label: t.metrics.foundersLabel, value: t.metrics.foundersValue, note: t.metrics.foundersNote, Icon: Users, iconClass: "text-emerald-400" },
-    { label: t.metrics.advisorLabel, value: t.metrics.advisorValue, note: t.metrics.advisorNote, Icon: Sparkles, iconClass: "text-purple-400" },
+    { label: t.metrics.projectsLabel, value: t.metrics.projectsValue, note: t.metrics.projectsNote, Icon: Cpu, iconClass: "text-accent-700" },
+    { label: t.metrics.foundersLabel, value: t.metrics.foundersValue, note: t.metrics.foundersNote, Icon: Users, iconClass: "text-emerald-600" },
+    { label: t.metrics.advisorLabel, value: t.metrics.advisorValue, note: t.metrics.advisorNote, Icon: Sparkles, iconClass: "text-brand-600" },
   ];
 
   return (
@@ -21,31 +21,31 @@ export default function HeroSection() {
       <HeroBackground />
 
       <div className="relative z-10 max-w-5xl mx-auto text-center flex flex-col items-center">
-        <ClubLogo size={104} priority className="mb-6 drop-shadow-[0_0_28px_rgba(209,52,156,0.55)]" />
+        <ClubLogo size={104} priority className="mb-6" />
 
-        <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-brand-500/30 bg-brand-500/10 text-xs font-mono text-accent-300 mb-6 backdrop-blur-md shadow-glow-cyan animate-pulse-subtle">
-          <Sparkles className="w-3.5 h-3.5 text-accent-400" aria-hidden="true" />
+        <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-brand-200 bg-white/70 text-xs font-mono text-brand-700 mb-6 backdrop-blur-md shadow-soft">
+          <Sparkles className="w-3.5 h-3.5 text-accent-700" aria-hidden="true" />
           <span>{t.hero.eyebrow}</span>
-          <span className="w-1 h-1 rounded-full bg-accent-400" aria-hidden="true" />
-          <span className="text-slate-400">2026-2027</span>
+          <span className="w-1 h-1 rounded-full bg-accent-500" aria-hidden="true" />
+          <span className="text-slate-500">2026-2027</span>
         </div>
 
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight font-display text-white max-w-4xl leading-[1.1]">
+        <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight font-display text-slate-900 max-w-4xl leading-[1.1]">
           {t.hero.titleStart}{" "}
-          <span className="bg-gradient-to-r from-brand-400 via-accent-300 to-brand-300 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-brand-700 via-brand-500 to-accent-600 bg-clip-text text-transparent">
             {t.hero.titleHighlight}
           </span>
           {t.hero.titleEnd && <> {t.hero.titleEnd}</>}
         </h1>
 
-        <p className="mt-6 text-base sm:text-lg md:text-xl text-slate-300 max-w-2xl leading-relaxed">
+        <p className="mt-6 text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl leading-relaxed">
           {t.hero.description}
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4 w-full sm:w-auto">
           <Link
             href="#projeler"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-colors shadow-glow active:scale-[0.98]"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm transition-colors shadow-glow active:scale-[0.98]"
           >
             <span>{t.hero.primaryCta}</span>
             <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -53,17 +53,17 @@ export default function HeroSection() {
 
           <Link
             href="/basvuru"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl border border-slate-700 bg-slate-900/70 hover:bg-slate-800/80 hover:border-slate-600 text-slate-200 font-semibold text-sm transition-colors backdrop-blur-md"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl border border-slate-200 bg-white hover:border-brand-300 hover:text-brand-700 text-slate-800 font-semibold text-sm transition-colors shadow-soft active:scale-[0.98]"
           >
-            <Sparkles className="w-4 h-4 text-accent-400" aria-hidden="true" />
+            <Sparkles className="w-4 h-4 text-accent-700" aria-hidden="true" />
             <span>{t.common.apply}</span>
           </Link>
 
           <Link
             href="/portal"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-slate-300 hover:text-white font-medium text-sm transition-colors"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-slate-600 hover:text-slate-900 font-medium text-sm transition-colors"
           >
-            <Terminal className="w-4 h-4 text-slate-400" aria-hidden="true" />
+            <Terminal className="w-4 h-4 text-slate-500" aria-hidden="true" />
             <span>{t.hero.portalLink}</span>
             <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
           </Link>
@@ -71,14 +71,14 @@ export default function HeroSection() {
 
         <dl aria-label={t.metrics.label} className="mt-16 w-full max-w-3xl grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-left">
           {metrics.map(({ label, value, note, Icon, iconClass }) => (
-            <div key={label} className="glass-panel p-4 rounded-xl border border-slate-800/80">
+            <div key={label} className="glass-panel p-4 rounded-xl">
               <dt className="flex items-center justify-between mb-1">
-                <span className="text-xs font-mono uppercase tracking-wider text-slate-400">{label}</span>
+                <span className="text-xs font-mono uppercase tracking-wider text-slate-500">{label}</span>
                 <Icon className={`w-4 h-4 ${iconClass}`} aria-hidden="true" />
               </dt>
               <dd>
-                <span className="block text-2xl font-bold font-display text-white">{value}</span>
-                <span className="block text-xs text-slate-400 mt-0.5">{note}</span>
+                <span className="block text-2xl font-bold font-display text-slate-900">{value}</span>
+                <span className="block text-xs text-slate-500 mt-0.5">{note}</span>
               </dd>
             </div>
           ))}

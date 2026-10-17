@@ -47,21 +47,21 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // IEC brand palette: split-complementary scheme on red-violet (brand), with honey yellow
-        // (accent) and leaf green (emerald) as the two complements. Saturation is kept moderate so
-        // the light theme stays calm; brand-600 and the 700 shades pass 4.5:1 on white.
+        // IEC brand palette from the club's colour triangle: violet (brand), honey yellow (accent)
+        // and leaf green (emerald). The violet leans blue rather than pink on purpose; brand-600
+        // passes 7:1 on white, so it carries buttons, links and headings.
         brand: {
-          50: "#fbf4f8",
-          100: "#f7e8f1",
-          200: "#efd0e3",
-          300: "#e2aacb",
-          400: "#cf7aac",
-          500: "#b9548f",
-          600: "#9f3d77",
-          700: "#843262",
-          800: "#6c2b52",
-          900: "#5a2746",
-          950: "#361226",
+          50: "#f6f3fa",
+          100: "#ece5f5",
+          200: "#d9cbea",
+          300: "#bea5d9",
+          400: "#9d78c2",
+          500: "#8156aa",
+          600: "#6c4294",
+          700: "#5a367b",
+          800: "#4b2f65",
+          900: "#3f2954",
+          950: "#261634",
         },
         // Honey yellow plus the shadcn-style DEFAULT/foreground tokens driven by CSS variables.
         accent: {
@@ -93,8 +93,8 @@ const config: Config = {
           900: "#21402c",
           950: "#0f2318",
         },
-        // Page background: a barely-there violet white, so pure-white cards still lift off it.
-        canvas: "#fbf9fb",
+        // Page background: soft lavender grey rather than white; most pages also paint a colour flow.
+        canvas: "#f4f1f7",
         // Near-black violet, kept only for the optional projector mode of the live attendance screen.
         ink: {
           800: "#1c1424",
@@ -161,10 +161,10 @@ const config: Config = {
       },
       boxShadow: {
         // Shadows are tinted with the brand hue instead of black, so they read soft on the light theme.
-        glow: "0 8px 24px -8px rgba(159, 61, 119, 0.45)",
+        glow: "0 8px 24px -8px rgba(108, 66, 148, 0.45)",
         "glow-cyan": "0 8px 24px -10px rgba(217, 169, 42, 0.45)",
-        "glow-subtle": "0 1px 2px rgba(54, 18, 38, 0.04), 0 8px 24px -12px rgba(54, 18, 38, 0.12)",
-        soft: "0 1px 2px rgba(54, 18, 38, 0.04), 0 12px 32px -16px rgba(54, 18, 38, 0.16)",
+        "glow-subtle": "0 1px 2px rgba(38, 22, 52, 0.04), 0 8px 24px -12px rgba(38, 22, 52, 0.12)",
+        soft: "0 1px 2px rgba(38, 22, 52, 0.05), 0 12px 32px -16px rgba(38, 22, 52, 0.18)",
         portal: "0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03)",
         "portal-card": "0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02)",
       },

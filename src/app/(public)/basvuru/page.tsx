@@ -24,12 +24,12 @@ export default async function ApplicationPage() {
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 lg:grid-cols-12">
           <aside className="lg:col-span-4">
             <div className="lg:sticky lg:top-28">
-              <p className="mb-4 inline-flex items-center gap-2 rounded-md border border-brand-500/30 bg-brand-500/10 px-3 py-1 text-xs font-semibold text-accent-300">
+              <p className="mb-4 inline-flex items-center gap-2 rounded-md border border-brand-500/30 bg-brand-500/10 px-3 py-1 text-xs font-semibold text-accent-700">
                 <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                 {t.eyebrow}
               </p>
-              <h1 className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-4xl">{t.title}</h1>
-              <p className="mt-3 text-sm leading-relaxed text-slate-300">{t.intro}</p>
+              <h1 className="font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">{t.title}</h1>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">{t.intro}</p>
 
               <ol className="mt-8 space-y-5">
                 {t.steps.map((step, index) => (
@@ -38,8 +38,8 @@ export default async function ApplicationPage() {
                       {index + 1}
                     </span>
                     <div>
-                      <h2 className="text-sm font-semibold text-white">{step.title}</h2>
-                      <p className="mt-0.5 text-sm text-slate-400">{step.body}</p>
+                      <h2 className="text-sm font-semibold text-slate-900">{step.title}</h2>
+                      <p className="mt-0.5 text-sm text-slate-500">{step.body}</p>
                     </div>
                   </li>
                 ))}
@@ -47,7 +47,7 @@ export default async function ApplicationPage() {
 
               <p className="mt-8 text-xs leading-relaxed text-slate-500">
                 {t.privacy}{" "}
-                <Link href="/kvkk" className="font-medium text-brand-300 hover:text-brand-200">
+                <Link href="/kvkk" className="font-medium text-brand-700 hover:text-brand-800">
                   {t.privacyLink}
                 </Link>
               </p>

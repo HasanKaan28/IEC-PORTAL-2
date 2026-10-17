@@ -22,15 +22,11 @@ export default function AuthFrame({ title, subtitle, wide = false, children, foo
   const t = portalShellText[locale].auth;
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-ink-950 px-4 py-10 selection:bg-brand-500/30">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60rem_30rem_at_50%_-10%,rgba(209,52,156,0.28),transparent_70%),radial-gradient(40rem_20rem_at_100%_110%,rgba(234,179,8,0.10),transparent_70%)]"
-      />
+    <div className="bg-palette-wash relative min-h-screen overflow-hidden px-4 py-10 selection:bg-brand-200">
       <div className="relative mx-auto flex max-w-5xl items-center justify-between">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-slate-400 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60"
+          className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-slate-600 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60"
         >
           <ArrowLeft className="w-4 h-4" aria-hidden="true" />
           <span>{t.backHome}</span>
@@ -41,15 +37,15 @@ export default function AuthFrame({ title, subtitle, wide = false, children, foo
       <main className={`relative mx-auto mt-8 w-full ${wide ? "max-w-xl" : "max-w-md"}`}>
         <div className="mb-6 text-center">
           <Link href="/" className="inline-block rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60">
-            <ClubLogo size={72} priority className="mx-auto drop-shadow-[0_0_24px_rgba(209,52,156,0.5)]" />
+            <ClubLogo size={72} priority className="mx-auto" />
           </Link>
-          <h1 className="mt-5 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">{title}</h1>
-          <p className="mt-2 text-sm text-slate-400">{subtitle}</p>
+          <h1 className="mt-5 font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{title}</h1>
+          <p className="mt-2 text-sm text-slate-600">{subtitle}</p>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white p-6 shadow-2xl shadow-black/40 sm:p-8">{children}</div>
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft sm:p-8">{children}</div>
 
-        {footer && <div className="mt-6 text-center text-sm text-slate-400">{footer}</div>}
+        {footer && <div className="mt-6 text-center text-sm text-slate-600">{footer}</div>}
       </main>
     </div>
   );

@@ -34,7 +34,7 @@ export default function Navbar({ overlay = false }: NavbarProps) {
   const headerPosition = overlay ? "fixed inset-x-0 top-0" : "sticky top-0";
   const headerSurface = isTransparent
     ? "border-transparent bg-transparent"
-    : "border-slate-800/80 bg-ink-950/85 backdrop-blur-xl";
+    : "border-brand-100 bg-canvas/80 backdrop-blur-xl";
 
   const navLinks = [
     { href: "/", label: t.nav.home },
@@ -74,10 +74,10 @@ export default function Navbar({ overlay = false }: NavbarProps) {
           <Link href="/" className="flex items-center gap-3 group min-w-0">
             <ClubLogo size={40} priority alt="" className="transition-transform group-hover:scale-105" />
             <div className="flex flex-col min-w-0">
-              <span className="font-bold text-sm sm:text-base tracking-tight text-white font-display truncate">
+              <span className="font-bold text-sm sm:text-base tracking-tight text-slate-900 font-display truncate">
                 IUS Engineering Club
               </span>
-              <span className="text-xs text-slate-400 truncate">FENS · International Univ. of Sarajevo</span>
+              <span className="text-xs text-slate-500 truncate">FENS · International Univ. of Sarajevo</span>
             </div>
           </Link>
 
@@ -90,7 +90,7 @@ export default function Navbar({ overlay = false }: NavbarProps) {
                   href={link.href}
                   aria-current={isActive ? "page" : undefined}
                   className={`whitespace-nowrap px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive ? "text-white bg-slate-800/70" : "text-slate-300 hover:text-white hover:bg-slate-800/40"
+                    isActive ? "text-brand-700 bg-brand-50" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                   }`}
                 >
                   {link.label}
@@ -103,7 +103,7 @@ export default function Navbar({ overlay = false }: NavbarProps) {
             <LanguageSwitcher />
             <Link
               href="/portal"
-              className="hidden sm:inline-flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-500 text-white transition-colors active:scale-[0.98]"
+              className="hidden sm:inline-flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white transition-colors active:scale-[0.98]"
             >
               <UserCheck className="w-4 h-4" aria-hidden="true" />
               <span>{t.common.portalButton}</span>
@@ -111,7 +111,7 @@ export default function Navbar({ overlay = false }: NavbarProps) {
             <button
               type="button"
               onClick={() => setMobileMenuOpen((open) => !open)}
-              className="lg:hidden p-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/60"
+              className="lg:hidden p-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100"
               aria-label={mobileMenuOpen ? t.nav.closeMenu : t.nav.openMenu}
               aria-expanded={mobileMenuOpen}
               aria-controls={MOBILE_MENU_ID}
@@ -125,14 +125,14 @@ export default function Navbar({ overlay = false }: NavbarProps) {
           <nav
             id={MOBILE_MENU_ID}
             aria-label={t.nav.mainNavigation}
-            className="lg:hidden border-t border-slate-800 bg-ink-950 px-4 pt-2 pb-6 space-y-1"
+            className="lg:hidden border-t border-brand-100 bg-canvas/95 backdrop-blur-xl px-4 pt-2 pb-6 space-y-1 shadow-soft"
           >
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 aria-current={pathname === link.href ? "page" : undefined}
-                className="block px-3 py-3 rounded-lg text-base font-medium text-slate-200 hover:bg-slate-800/60"
+                className="block px-3 py-3 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100"
               >
                 {link.label}
               </Link>
@@ -140,7 +140,7 @@ export default function Navbar({ overlay = false }: NavbarProps) {
             <div className="pt-3 sm:hidden">
               <Link
                 href="/portal"
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-500 text-white transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white transition-colors"
               >
                 <span>{t.common.portalButton}</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />

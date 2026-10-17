@@ -7,7 +7,7 @@ import type { SupportedLocale } from "@/lib/i18n/translations";
 
 interface LanguageSwitcherProps {
   className?: string;
-  /** "dark" for the public site and dark panels, "light" for white headers such as the portal. */
+  /** "light" (default) for the light site and portal, "dark" for brand-coloured or dark panels. */
   tone?: "dark" | "light";
 }
 
@@ -19,9 +19,9 @@ const TONES = {
     idle: "text-slate-400 hover:text-white",
   },
   light: {
-    group: "bg-slate-100 border-slate-200",
+    group: "bg-white/70 border-slate-200 backdrop-blur",
     icon: "text-slate-500",
-    active: "bg-white text-brand-700 shadow-sm",
+    active: "bg-brand-50 text-brand-700 shadow-sm",
     idle: "text-slate-500 hover:text-slate-900",
   },
 };
@@ -31,7 +31,7 @@ const OPTIONS: Array<{ locale: SupportedLocale; label: string; name: string }> =
   { locale: "en", label: "EN", name: "English" },
 ];
 
-export default function LanguageSwitcher({ className = "", tone = "dark" }: LanguageSwitcherProps) {
+export default function LanguageSwitcher({ className = "", tone = "light" }: LanguageSwitcherProps) {
   const { locale: currentLocale, setLocale, t } = useLocale();
   const styles = TONES[tone];
 

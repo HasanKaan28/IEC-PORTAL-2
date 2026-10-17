@@ -89,22 +89,22 @@ export default async function PortalDashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <section className="relative overflow-hidden rounded-3xl bg-ink-950 p-6 text-white sm:p-8">
+      <section className="relative overflow-hidden rounded-3xl border border-white/70 bg-gradient-to-br from-brand-100 via-accent-50 to-emerald-50 p-6 text-slate-900 shadow-soft sm:p-8">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(40rem_16rem_at_0%_0%,rgba(209,52,156,0.35),transparent_70%),radial-gradient(30rem_14rem_at_100%_100%,rgba(234,179,8,0.14),transparent_70%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(36rem_14rem_at_0%_0%,rgba(190,165,217,0.5),transparent_70%),radial-gradient(28rem_12rem_at_100%_100%,rgba(181,214,191,0.5),transparent_70%)]"
         />
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-accent-300">{t.eyebrow}</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">{t.eyebrow}</p>
             <h1 className="mt-2 font-display text-2xl font-bold sm:text-3xl">
               {greetingFor(hour, t)}, {firstName}
             </h1>
-            <p className="mt-2 max-w-xl text-sm text-slate-300">{t.intro}</p>
+            <p className="mt-2 max-w-xl text-sm text-slate-600">{t.intro}</p>
           </div>
           <Link
             href="/portal/gorevler"
-            className="inline-flex items-center gap-2 self-start rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-ink-950 transition-colors hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 sm:self-auto"
+            className="inline-flex items-center gap-2 self-start rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 sm:self-auto"
           >
             <span>{t.openBoard}</span>
             <ArrowRight className="w-4 h-4" aria-hidden="true" />

@@ -21,9 +21,9 @@ type LikeNotice = { kind: "error"; text: string } | { kind: "signIn" };
 type CopyState = "idle" | "copied" | "failed";
 
 const FOCUS_RING =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-900";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white";
 
-const SHARE_LINK_CLASS = `p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 text-xs transition-colors ${FOCUS_RING}`;
+const SHARE_LINK_CLASS = `p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 text-xs transition-colors ${FOCUS_RING}`;
 
 export default function BlogDetailClientBar({
   slug,
@@ -109,7 +109,7 @@ export default function BlogDetailClientBar({
   return (
     <>
       {/* Reading progress bar (decorative) */}
-      <div className="fixed top-0 left-0 right-0 h-1 z-50 bg-slate-900/50" aria-hidden="true">
+      <div className="fixed top-0 left-0 right-0 h-1 z-50 bg-slate-50" aria-hidden="true">
         <div
           className="h-full bg-gradient-to-r from-brand-600 via-brand-500 to-accent-400 transition-[width] duration-150 ease-out motion-reduce:transition-none"
           style={{ width: `${scrollProgress}%` }}
@@ -119,7 +119,7 @@ export default function BlogDetailClientBar({
       <div
         role="group"
         aria-label={t.actionsLabel}
-        className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-ink-900/90 border border-slate-800/80 backdrop-blur-md"
+        className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white/70 border border-slate-200 backdrop-blur-md shadow-soft"
       >
         <div className="flex flex-col gap-1">
           <button
@@ -129,8 +129,8 @@ export default function BlogDetailClientBar({
             aria-pressed={hasLiked}
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-colors ${FOCUS_RING} ${
               hasLiked
-                ? "bg-rose-500/20 text-rose-300 border border-rose-500/40"
-                : "bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-brand-500/40"
+                ? "bg-rose-500/20 text-rose-700 border border-rose-500/40"
+                : "bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 hover:border-brand-500/40"
             }`}
           >
             <Heart
@@ -140,22 +140,22 @@ export default function BlogDetailClientBar({
               }`}
             />
             <span>{hasLiked ? t.liked : t.like}</span>
-            <span className="font-mono tabular-nums ml-1 px-1.5 rounded bg-black/40 text-xs">
+            <span className="font-mono tabular-nums ml-1 px-1.5 rounded bg-slate-900/30 text-xs">
               <span aria-hidden="true">{likes}</span>
               <span className="sr-only">{t.likeCount(likes)}</span>
             </span>
           </button>
           {likeNotice?.kind === "error" && (
-            <p role="alert" className="text-xs text-rose-400">
+            <p role="alert" className="text-xs text-rose-600">
               {likeNotice.text}
             </p>
           )}
           {likeNotice?.kind === "signIn" && (
-            <p role="alert" className="text-xs text-slate-300">
+            <p role="alert" className="text-xs text-slate-600">
               {authText.signInToLike}{" "}
               <Link
                 href={blogSignInHref(`/blog/${slug}`)}
-                className={`font-semibold text-brand-300 underline underline-offset-4 hover:text-brand-200 rounded ${FOCUS_RING}`}
+                className={`font-semibold text-brand-700 underline underline-offset-4 hover:text-brand-800 rounded ${FOCUS_RING}`}
               >
                 {authText.signIn}
               </Link>
@@ -174,7 +174,7 @@ export default function BlogDetailClientBar({
             rel="noopener noreferrer"
             aria-label={`${t.shareWhatsApp} ${t.newTab}`}
             title={t.shareWhatsApp}
-            className={`${SHARE_LINK_CLASS} hover:border-emerald-500/50 hover:text-emerald-400`}
+            className={`${SHARE_LINK_CLASS} hover:border-emerald-500/50 hover:text-emerald-600`}
           >
             <MessageCircle className="w-4 h-4" aria-hidden="true" />
           </a>
@@ -185,7 +185,7 @@ export default function BlogDetailClientBar({
             rel="noopener noreferrer"
             aria-label={`${t.shareX} ${t.newTab}`}
             title={t.shareX}
-            className={`${SHARE_LINK_CLASS} hover:border-brand-500/50 hover:text-brand-300`}
+            className={`${SHARE_LINK_CLASS} hover:border-brand-500/50 hover:text-brand-700`}
           >
             <Twitter className="w-4 h-4" aria-hidden="true" />
           </a>
@@ -196,7 +196,7 @@ export default function BlogDetailClientBar({
             rel="noopener noreferrer"
             aria-label={`${t.shareLinkedIn} ${t.newTab}`}
             title={t.shareLinkedIn}
-            className={`${SHARE_LINK_CLASS} hover:border-brand-500/50 hover:text-brand-300`}
+            className={`${SHARE_LINK_CLASS} hover:border-brand-500/50 hover:text-brand-700`}
           >
             <Linkedin className="w-4 h-4" aria-hidden="true" />
           </a>
@@ -206,18 +206,18 @@ export default function BlogDetailClientBar({
             onClick={handleCopyLink}
             title={t.copyLink}
             aria-label={t.copyLink}
-            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-brand-500/50 text-slate-300 hover:text-white text-xs transition-colors ${FOCUS_RING}`}
+            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 hover:border-brand-500/50 text-slate-600 hover:text-slate-900 text-xs transition-colors ${FOCUS_RING}`}
           >
             {copyState === "copied" ? (
               <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
-                <span className="text-emerald-400">{t.copied}</span>
+                <Check className="w-3.5 h-3.5 text-emerald-600" aria-hidden="true" />
+                <span className="text-emerald-600">{t.copied}</span>
               </>
             ) : copyState === "failed" ? (
-              <span className="text-rose-400">{t.copyFailed}</span>
+              <span className="text-rose-600">{t.copyFailed}</span>
             ) : (
               <>
-                <Copy className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
+                <Copy className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
                 <span>{t.copy}</span>
               </>
             )}

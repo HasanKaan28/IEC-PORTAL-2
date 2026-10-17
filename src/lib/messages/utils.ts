@@ -28,7 +28,7 @@ export function safeInternalLink(value: string | null | undefined, fallback = "/
 }
 
 /** Accepts #rgb / #rrggbb / #rrggbbaa only. */
-export function safeHexColor(value: string | null | undefined, fallback = "#b8237f"): string {
+export function safeHexColor(value: string | null | undefined, fallback = "#6c4294"): string {
   return value && /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(value) ? value : fallback;
 }
 

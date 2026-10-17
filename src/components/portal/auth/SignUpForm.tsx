@@ -75,7 +75,7 @@ export default function SignUpForm({ configured }: { configured: boolean }) {
         configured && (
           <p>
             {s.haveAccount}{" "}
-            <Link href="/portal/giris" className="font-semibold text-brand-300 hover:text-brand-200">
+            <Link href="/portal/giris" className="font-semibold text-brand-700 hover:text-brand-800">
               {s.signIn}
             </Link>
           </p>

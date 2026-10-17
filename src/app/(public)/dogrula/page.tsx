@@ -17,7 +17,7 @@ export default async function CertificateVerificationPage() {
     <div className="flex min-h-screen flex-col">
       <Navbar />
       <main id="main-content" className="flex-1 px-4 py-16 sm:px-6">
-        <Suspense fallback={<p className="py-20 text-center text-sm text-slate-400">{t.loading}</p>}>
+        <Suspense fallback={<p className="py-20 text-center text-sm text-slate-500">{t.loading}</p>}>
           <CertificateVerificationClient />
         </Suspense>
       </main>

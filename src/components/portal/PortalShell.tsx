@@ -75,17 +75,17 @@ function NavLink({
       aria-current={active ? "page" : undefined}
       className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60 ${
         active
-          ? "bg-white/10 text-white"
+          ? "bg-brand-50 text-brand-700"
           : emphasis
-          ? "text-accent-300 hover:bg-white/5 hover:text-accent-200"
-          : "text-slate-400 hover:bg-white/5 hover:text-white"
+          ? "text-accent-800 hover:bg-accent-50 hover:text-accent-900"
+          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
       }`}
     >
       {active && (
-        <span aria-hidden="true" className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-brand-500" />
+        <span aria-hidden="true" className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-brand-600" />
       )}
       <Icon
-        className={`w-4 h-4 shrink-0 ${active ? "text-brand-300" : emphasis ? "text-accent-400" : "text-slate-500 group-hover:text-slate-300"}`}
+        className={`w-4 h-4 shrink-0 ${active ? "text-brand-600" : emphasis ? "text-accent-600" : "text-slate-400 group-hover:text-slate-600"}`}
         aria-hidden="true"
       />
       <span className="truncate">{label}</span>
@@ -99,12 +99,12 @@ function SidebarContent({ user, showAdmin, pathname }: { user: PortalShellUser; 
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-16 items-center gap-3 border-b border-white/10 px-5">
+      <div className="flex h-16 items-center gap-3 border-b border-slate-200 px-5">
         <Link href="/portal" className="flex items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60">
           <ClubLogo size={36} alt="" />
           <div className="leading-tight">
-            <div className="font-display text-sm font-semibold text-white">IUS Engineering Club</div>
-            <div className="text-xs text-slate-400">{t.portalName}</div>
+            <div className="font-display text-sm font-semibold text-slate-900">IUS Engineering Club</div>
+            <div className="text-xs text-slate-500">{t.portalName}</div>
           </div>
         </Link>
       </div>
@@ -133,22 +133,22 @@ function SidebarContent({ user, showAdmin, pathname }: { user: PortalShellUser; 
         )}
       </nav>
 
-      <div className="border-t border-white/10 p-3">
+      <div className="border-t border-slate-200 p-3">
         <Link
           href="/"
-          className="flex items-center justify-between rounded-lg px-3 py-2 text-xs text-slate-400 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60"
+          className="flex items-center justify-between rounded-lg px-3 py-2 text-xs text-slate-500 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60"
         >
           <span>{t.backToSite}</span>
           <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
         </Link>
         <Link
           href="/portal/profil"
-          className="mt-1 flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60"
+          className="mt-1 flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60"
         >
           <PortalAvatar name={user.fullName} avatarUrl={user.avatarUrl} />
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-medium text-white">{user.fullName}</div>
-            <div className="truncate text-xs text-slate-400">{user.roleLabel}</div>
+            <div className="truncate text-sm font-medium text-slate-900">{user.fullName}</div>
+            <div className="truncate text-xs text-slate-500">{user.roleLabel}</div>
           </div>
         </Link>
       </div>
@@ -157,7 +157,7 @@ function SidebarContent({ user, showAdmin, pathname }: { user: PortalShellUser; 
 }
 
 /**
- * Portal frame: dark brand sidebar with the white club seal, a light working area, and a drawer
+ * Portal frame: light sidebar with the club badge, a light working area, and a drawer
  * menu on phones. Identity and permissions are resolved on the server and passed in.
  */
 export default function PortalShell({ user, showAdmin, headerActions, children }: PortalShellProps) {
@@ -185,7 +185,7 @@ export default function PortalShell({ user, showAdmin, headerActions, children }
   }, [drawerOpen]);
 
   return (
-    <div className="theme-portal min-h-screen bg-slate-50 text-slate-900 antialiased">
+    <div className="theme-portal bg-portal-flow min-h-screen text-slate-900 antialiased">
       <a
         href="#portal-main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-brand-700 focus:shadow-lg"
@@ -193,8 +193,8 @@ export default function PortalShell({ user, showAdmin, headerActions, children }
         {t.skipToContent}
       </a>
 
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 bg-ink-950 md:block">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(ellipse_at_top,rgba(209,52,156,0.22),transparent_70%)]" />
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-brand-100 bg-white/55 backdrop-blur-xl md:block">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(ellipse_at_top,rgba(190,165,217,0.4),transparent_70%)]" />
         <div className="relative h-full">
           <SidebarContent user={user} showAdmin={showAdmin} pathname={pathname} />
         </div>
@@ -204,16 +204,16 @@ export default function PortalShell({ user, showAdmin, headerActions, children }
         <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label={t.mainNav}>
           <button
             type="button"
-            className="absolute inset-0 bg-ink-990/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
             aria-label={t.closeMenu}
             onClick={() => setDrawerOpen(false)}
           />
-          <div className="relative h-full w-72 max-w-[85vw] bg-ink-950 shadow-2xl">
+          <div className="relative h-full w-72 max-w-[85vw] bg-canvas shadow-soft">
             <button
               type="button"
               onClick={() => setDrawerOpen(false)}
               aria-label={t.closeMenu}
-              className="absolute right-3 top-4 z-10 rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60"
+              className="absolute right-3 top-4 z-10 rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60"
             >
               <X className="w-5 h-5" aria-hidden="true" />
             </button>
@@ -223,7 +223,7 @@ export default function PortalShell({ user, showAdmin, headerActions, children }
       )}
 
       <div className="flex min-h-screen flex-col md:pl-64">
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-slate-200 bg-white/85 px-4 backdrop-blur supports-[backdrop-filter]:bg-white/70 sm:px-6">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-brand-100 bg-white/60 px-4 backdrop-blur-xl supports-[backdrop-filter]:bg-white/45 sm:px-6">
           <div className="flex items-center gap-2 md:hidden">
             <button
               type="button"
@@ -235,9 +235,7 @@ export default function PortalShell({ user, showAdmin, headerActions, children }
               <Menu className="w-5 h-5" aria-hidden="true" />
             </button>
             <Link href="/portal" className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink-950">
-                <ClubLogo size={28} alt="" />
-              </span>
+              <ClubLogo size={32} alt="" />
               <span className="font-display text-sm font-semibold text-slate-900">{t.portalName}</span>
             </Link>
           </div>

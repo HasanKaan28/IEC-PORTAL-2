@@ -24,7 +24,7 @@ interface PageProps {
 }
 
 const FOCUS_RING =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const [{ slug }, locale] = await Promise.all([params, getServerLocale()]);
@@ -91,7 +91,7 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
           <div>
             <Link
               href="/blog"
-              className={`inline-flex items-center gap-2 rounded text-xs font-mono text-brand-300 hover:text-brand-200 transition-colors ${FOCUS_RING}`}
+              className={`inline-flex items-center gap-2 rounded text-xs font-mono text-brand-700 hover:text-brand-800 transition-colors ${FOCUS_RING}`}
             >
               <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
               <span>{t.post.backToAll}</span>
@@ -100,31 +100,31 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
 
           <header className="space-y-4">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="px-3 py-1 rounded-md bg-brand-500/10 border border-brand-500/20 text-xs font-mono text-brand-300 font-semibold">
+              <span className="px-3 py-1 rounded-md bg-brand-500/10 border border-brand-500/20 text-xs font-mono text-brand-700 font-semibold">
                 {blogCategoryLabel(post.category, locale)}
               </span>
-              <div className="flex items-center gap-1.5 text-xs font-mono text-slate-400">
-                <Clock className="w-3.5 h-3.5 text-brand-400" aria-hidden="true" />
+              <div className="flex items-center gap-1.5 text-xs font-mono text-slate-500">
+                <Clock className="w-3.5 h-3.5 text-brand-600" aria-hidden="true" />
                 <span>{t.post.readingTime(post.readingTimeMin)}</span>
               </div>
-              <div className="flex items-center gap-1.5 text-xs font-mono text-slate-400">
+              <div className="flex items-center gap-1.5 text-xs font-mono text-slate-500">
                 <Calendar className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
                 <span className="sr-only">{t.post.publishedOn}</span>
                 <time dateTime={post.publishedAt}>{formatDate(post.publishedAt, locale)}</time>
               </div>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl font-extrabold text-white font-display tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-display tracking-tight leading-tight">
               {post.title}
             </h1>
 
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-light">
+            <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-light">
               {post.excerpt}
             </p>
 
-            <div className="flex items-center gap-3 pt-4 border-t border-slate-800/60">
+            <div className="flex items-center gap-3 pt-4 border-t border-slate-200">
               <div
-                className="w-11 h-11 rounded-full bg-brand-500/20 border border-brand-500/40 overflow-hidden flex items-center justify-center font-bold text-white text-sm"
+                className="w-11 h-11 rounded-full bg-brand-500/20 border border-brand-500/40 overflow-hidden flex items-center justify-center font-bold text-slate-900 text-sm"
                 aria-hidden="true"
               >
                 {post.authorAvatar ? (
@@ -134,16 +134,16 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
                 )}
               </div>
               <div>
-                <div className="text-sm font-semibold text-white">{post.authorName}</div>
-                <div className="text-xs text-brand-300 font-mono">{post.authorRole}</div>
+                <div className="text-sm font-semibold text-slate-900">{post.authorName}</div>
+                <div className="text-xs text-brand-700 font-mono">{post.authorRole}</div>
               </div>
             </div>
           </header>
 
           {post.coverImage && (
-            <div className="relative rounded-2xl overflow-hidden border border-slate-800/80 aspect-video shadow-2xl">
+            <div className="relative rounded-2xl overflow-hidden border border-slate-200 aspect-video shadow-2xl">
               <img src={post.coverImage} alt="" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink-950/60 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-brand-950/15 via-transparent to-transparent pointer-events-none" />
             </div>
           )}
 
@@ -159,14 +159,14 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
           </div>
 
           {post.tags && post.tags.length > 0 && (
-            <div className="pt-8 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
-              <Tag className="w-4 h-4 text-brand-400 mr-1" aria-hidden="true" />
+            <div className="pt-8 border-t border-slate-200 flex flex-wrap items-center gap-2">
+              <Tag className="w-4 h-4 text-brand-600 mr-1" aria-hidden="true" />
               <span className="sr-only">{t.post.tags}</span>
               {post.tags.map((tag) => (
                 <Link
                   key={tag}
                   href={`/blog?tag=${encodeURIComponent(tag)}`}
-                  className={`px-3 py-1 rounded-lg bg-slate-900 border border-slate-800 hover:border-brand-500/40 text-xs font-mono text-slate-300 hover:text-brand-200 transition-colors ${FOCUS_RING}`}
+                  className={`px-3 py-1 rounded-lg bg-slate-50 border border-slate-200 hover:border-brand-500/40 text-xs font-mono text-slate-600 hover:text-brand-800 transition-colors ${FOCUS_RING}`}
                 >
                   #{tag}
                 </Link>
@@ -184,11 +184,11 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
           {relatedPosts.length > 0 && (
             <section
               aria-labelledby="related-posts-heading"
-              className="mt-16 pt-12 border-t border-slate-800/80 space-y-6"
+              className="mt-16 pt-12 border-t border-slate-200 space-y-6"
             >
               <div className="flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-brand-400" aria-hidden="true" />
-                <h2 id="related-posts-heading" className="text-lg font-bold text-white font-display">
+                <BookOpen className="w-4 h-4 text-brand-600" aria-hidden="true" />
+                <h2 id="related-posts-heading" className="text-lg font-bold text-slate-900 font-display">
                   {t.post.related}
                 </h2>
               </div>
@@ -197,18 +197,18 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
                   <Link
                     key={rel.slug}
                     href={`/blog/${rel.slug}`}
-                    className={`glass-panel p-5 rounded-xl border border-slate-800/80 hover:border-brand-500/40 transition-colors flex flex-col justify-between group ${FOCUS_RING}`}
+                    className={`glass-panel p-5 rounded-xl border border-slate-200 hover:border-brand-500/40 transition-colors flex flex-col justify-between group ${FOCUS_RING}`}
                   >
                     <div>
-                      <span className="text-xs font-mono text-brand-300 bg-brand-500/10 px-2 py-0.5 rounded border border-brand-500/20">
+                      <span className="text-xs font-mono text-brand-700 bg-brand-500/10 px-2 py-0.5 rounded border border-brand-500/20">
                         {blogCategoryLabel(rel.category, locale)}
                       </span>
-                      <h3 className="text-sm font-bold text-white group-hover:text-brand-200 transition-colors mt-2">
+                      <h3 className="text-sm font-bold text-slate-900 group-hover:text-brand-800 transition-colors mt-2">
                         {rel.title}
                       </h3>
-                      <p className="text-xs text-slate-400 mt-1 line-clamp-2">{rel.excerpt}</p>
+                      <p className="text-xs text-slate-500 mt-1 line-clamp-2">{rel.excerpt}</p>
                     </div>
-                    <div className="mt-4 pt-3 border-t border-slate-800/40 flex items-center justify-between text-xs text-slate-500 font-mono">
+                    <div className="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 font-mono">
                       <span>{rel.authorName}</span>
                       <span>{t.post.readingTimeShort(rel.readingTimeMin)}</span>
                     </div>

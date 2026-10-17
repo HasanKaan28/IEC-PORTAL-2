@@ -28,9 +28,9 @@ const ROOT_TARGET = "root";
 const MIN_COMMENT_LENGTH = 3;
 
 const FOCUS_RING =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas";
 const TEXTAREA_CLASS =
-  "w-full bg-ink-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500/80 focus:ring-2 focus:ring-brand-500/30 transition-colors resize-none";
+  "w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-brand-500/80 focus:ring-2 focus:ring-brand-500/30 transition-colors resize-none";
 
 export default function BlogCommentSection({
   postSlug,
@@ -129,28 +129,28 @@ export default function BlogCommentSection({
 
   const renderError = (target: string) =>
     formError?.target === target ? (
-      <div role="alert" className="flex items-center gap-1.5 text-xs text-rose-400">
+      <div role="alert" className="flex items-center gap-1.5 text-xs text-rose-600">
         <ShieldAlert className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
         <span>{formError.text}</span>
       </div>
     ) : null;
 
   return (
-    <section aria-labelledby={`${formId}-heading`} className="mt-16 pt-12 border-t border-slate-800/80">
+    <section aria-labelledby={`${formId}-heading`} className="mt-16 pt-12 border-t border-slate-200">
       {/* Toast */}
       <div aria-live="polite" role="status" className="fixed bottom-6 right-6 z-50">
         {toast && (
           <div
-            className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-xs shadow-2xl backdrop-blur-md bg-ink-900/95 ${
+            className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-xs shadow-2xl backdrop-blur-md bg-white ${
               toast.tone === "success"
-                ? "border-emerald-500/40 text-slate-100"
-                : "border-rose-500/40 text-rose-200"
+                ? "border-emerald-500/40 text-slate-800"
+                : "border-rose-500/40 text-rose-700"
             }`}
           >
             {toast.tone === "success" ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" aria-hidden="true" />
             ) : (
-              <ShieldAlert className="w-4 h-4 text-rose-400" aria-hidden="true" />
+              <ShieldAlert className="w-4 h-4 text-rose-600" aria-hidden="true" />
             )}
             <span>{toast.text}</span>
           </div>
@@ -158,18 +158,18 @@ export default function BlogCommentSection({
       </div>
 
       <div className="flex items-center gap-2 mb-8">
-        <MessageSquare className="w-5 h-5 text-brand-400" aria-hidden="true" />
-        <h2 id={`${formId}-heading`} className="text-xl font-bold text-white font-display">
+        <MessageSquare className="w-5 h-5 text-brand-600" aria-hidden="true" />
+        <h2 id={`${formId}-heading`} className="text-xl font-bold text-slate-900 font-display">
           {t.heading}
         </h2>
-        <span className="ml-2 px-2 py-0.5 rounded-full bg-slate-800 text-brand-200 font-mono text-xs border border-slate-700 tabular-nums">
+        <span className="ml-2 px-2 py-0.5 rounded-full bg-slate-100 text-brand-800 font-mono text-xs border border-slate-300 tabular-nums">
           <span aria-hidden="true">{totalCount}</span>
           <span className="sr-only">{t.count(totalCount)}</span>
         </span>
       </div>
 
       {/* New comment */}
-      <div className="glass-panel p-5 rounded-2xl border border-slate-800/80 mb-10">
+      <div className="glass-panel p-5 rounded-2xl border border-slate-200 mb-10">
         {currentUser ? (
           <form
             className="space-y-3"
@@ -178,13 +178,13 @@ export default function BlogCommentSection({
               void handleAddComment(null);
             }}
           >
-            <div className="flex items-center gap-2 text-xs text-slate-300 font-mono">
+            <div className="flex items-center gap-2 text-xs text-slate-600 font-mono">
               <span className="w-2 h-2 rounded-full bg-emerald-400" aria-hidden="true" />
               <span>{t.signedInAs}</span>
-              <strong className="text-white">{currentUser.fullName}</strong>
+              <strong className="text-slate-900">{currentUser.fullName}</strong>
             </div>
 
-            <label htmlFor={`${formId}-comment`} className="block text-xs font-medium text-slate-300">
+            <label htmlFor={`${formId}-comment`} className="block text-xs font-medium text-slate-600">
               {t.commentLabel}
             </label>
             <textarea
@@ -208,7 +208,7 @@ export default function BlogCommentSection({
               <button
                 type="submit"
                 disabled={loading || !newContent.trim()}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-lg shadow-brand-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${FOCUS_RING}`}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-lg shadow-brand-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${FOCUS_RING}`}
               >
                 <Send className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>{loading && !replyingTo ? t.submitting : t.submit}</span>
@@ -218,18 +218,18 @@ export default function BlogCommentSection({
         ) : (
           <div className="py-6 px-4 text-center space-y-3">
             <div
-              className="w-10 h-10 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 flex items-center justify-center mx-auto"
+              className="w-10 h-10 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-700 flex items-center justify-center mx-auto"
               aria-hidden="true"
             >
               <LogIn className="w-5 h-5" />
             </div>
-            <h3 className="text-sm font-semibold text-white">{t.signInTitle}</h3>
-            <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">{t.signInBody}</p>
+            <h3 className="text-sm font-semibold text-slate-900">{t.signInTitle}</h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">{t.signInBody}</p>
             {renderError(ROOT_TARGET)}
             <div className="pt-2">
               <Link
                 href={signInHref}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium shadow-md shadow-brand-600/20 transition-colors ${FOCUS_RING}`}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium shadow-md shadow-brand-600/20 transition-colors ${FOCUS_RING}`}
               >
                 <LogIn className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>{t.signInCta}</span>
@@ -250,12 +250,12 @@ export default function BlogCommentSection({
             return (
               <li
                 key={comment.id}
-                className="glass-panel p-5 rounded-2xl border border-slate-800/60 space-y-4"
+                className="glass-panel p-5 rounded-2xl border border-slate-200 space-y-4"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <div
-                      className="w-8 h-8 shrink-0 rounded-full bg-brand-500/20 border border-brand-500/40 flex items-center justify-center text-brand-200 text-xs font-bold font-mono"
+                      className="w-8 h-8 shrink-0 rounded-full bg-brand-500/20 border border-brand-500/40 flex items-center justify-center text-brand-800 text-xs font-bold font-mono"
                       aria-hidden="true"
                     >
                       {comment.authorAvatar ? (
@@ -266,8 +266,8 @@ export default function BlogCommentSection({
                     </div>
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-xs font-semibold text-white">{comment.authorName}</span>
-                        <span className="px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 text-xs font-mono border border-brand-500/20">
+                        <span className="text-xs font-semibold text-slate-900">{comment.authorName}</span>
+                        <span className="px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-700 text-xs font-mono border border-brand-500/20">
                           {comment.authorRole}
                         </span>
                       </div>
@@ -286,8 +286,8 @@ export default function BlogCommentSection({
                       title={isFlagged ? t.reported : t.report(comment.authorName)}
                       className={`p-1.5 rounded-lg border transition-colors ${FOCUS_RING} ${
                         isFlagged
-                          ? "bg-rose-500/10 border-rose-500/30 text-rose-400"
-                          : "border-slate-800 text-slate-500 hover:text-rose-400 hover:border-rose-500/30"
+                          ? "bg-rose-500/10 border-rose-500/30 text-rose-600"
+                          : "border-slate-200 text-slate-500 hover:text-rose-600 hover:border-rose-500/30"
                       }`}
                     >
                       <Flag className="w-3.5 h-3.5" aria-hidden="true" />
@@ -295,7 +295,7 @@ export default function BlogCommentSection({
                   )}
                 </div>
 
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed pl-11 whitespace-pre-line break-words">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pl-11 whitespace-pre-line break-words">
                   {comment.content}
                 </p>
 
@@ -309,7 +309,7 @@ export default function BlogCommentSection({
                       }}
                       aria-expanded={replyingTo === comment.id}
                       aria-controls={replyingTo === comment.id ? replyFieldId : undefined}
-                      className={`inline-flex items-center gap-1.5 rounded text-xs text-brand-300 hover:text-brand-200 transition-colors ${FOCUS_RING}`}
+                      className={`inline-flex items-center gap-1.5 rounded text-xs text-brand-700 hover:text-brand-800 transition-colors ${FOCUS_RING}`}
                     >
                       <Reply className="w-3.5 h-3.5" aria-hidden="true" />
                       <span>{t.reply}</span>
@@ -320,7 +320,7 @@ export default function BlogCommentSection({
                 {canComment && replyingTo === comment.id && (
                   <form
                     id={replyFieldId}
-                    className="ml-11 mt-3 p-3 rounded-xl bg-ink-900 border border-slate-800 space-y-2"
+                    className="ml-11 mt-3 p-3 rounded-xl bg-white border border-slate-200 space-y-2"
                     onSubmit={(e) => {
                       e.preventDefault();
                       void handleAddComment(comment.id);
@@ -349,14 +349,14 @@ export default function BlogCommentSection({
                           setReplyContent("");
                           setFormError(null);
                         }}
-                        className={`px-2.5 py-1 rounded text-xs text-slate-400 hover:text-white ${FOCUS_RING}`}
+                        className={`px-2.5 py-1 rounded text-xs text-slate-500 hover:text-slate-900 ${FOCUS_RING}`}
                       >
                         {t.cancel}
                       </button>
                       <button
                         type="submit"
                         disabled={loading || !replyContent.trim()}
-                        className={`px-3 py-1 rounded bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${FOCUS_RING}`}
+                        className={`px-3 py-1 rounded bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${FOCUS_RING}`}
                       >
                         {loading ? t.submitting : t.sendReply}
                       </button>
@@ -372,12 +372,12 @@ export default function BlogCommentSection({
                     {comment.replies.map((reply) => (
                       <li
                         key={reply.id}
-                        className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/60 space-y-2"
+                        className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2"
                       >
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold text-slate-200">{reply.authorName}</span>
-                            <span className="px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 text-xs font-mono border border-brand-500/20">
+                            <span className="text-xs font-semibold text-slate-700">{reply.authorName}</span>
+                            <span className="px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-700 text-xs font-mono border border-brand-500/20">
                               {reply.authorRole}
                             </span>
                           </div>
@@ -385,7 +385,7 @@ export default function BlogCommentSection({
                             {formatDate(reply.createdAt, locale, { day: "numeric", month: "short", year: "numeric" })}
                           </time>
                         </div>
-                        <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-line break-words">
+                        <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line break-words">
                           {reply.content}
                         </p>
                       </li>

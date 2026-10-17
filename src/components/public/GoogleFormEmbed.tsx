@@ -17,7 +17,7 @@ export default function GoogleFormEmbed() {
 
   return (
     <div>
-      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white shadow-2xl shadow-black/40">
+      <div className="relative overflow-hidden rounded-3xl border border-white/70 bg-white shadow-soft">
         {!loaded && (
           <div className="absolute inset-x-0 top-0 flex h-80 flex-col items-center justify-center gap-3 bg-white text-sm text-slate-500" role="status">
             <Loader2 className="h-6 w-6 animate-spin text-brand-600" aria-hidden="true" />
@@ -40,7 +40,7 @@ export default function GoogleFormEmbed() {
         href={APPLICATION_FORM_SHORT_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-4 inline-flex items-center gap-1.5 text-sm text-slate-400 underline-offset-4 transition-colors hover:text-white hover:underline"
+        className="mt-4 inline-flex items-center gap-1.5 text-sm text-slate-500 underline-offset-4 transition-colors hover:text-slate-900 hover:underline"
       >
         {t.openNewTab}
         <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />

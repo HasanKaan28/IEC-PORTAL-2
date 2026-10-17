@@ -144,7 +144,7 @@ export default function EmailTemplatesClient() {
             srcDoc={rendered.html}
             sandbox=""
             title={`${t.previewTitle}: ${t.templates[activeTemplate].label}`}
-            className="h-[620px] w-full rounded-2xl border-none bg-ink-900"
+            className="h-[620px] w-full rounded-2xl border-none bg-canvas"
           />
         </div>
       </div>

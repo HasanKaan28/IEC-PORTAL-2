@@ -49,7 +49,7 @@ export default function SignInForm({ configured, redirectTo, justVerified }: Sig
         configured && (
           <p>
             {t.signIn.noAccount}{" "}
-            <Link href="/portal/kayit" className="font-semibold text-brand-300 hover:text-brand-200">
+            <Link href="/portal/kayit" className="font-semibold text-brand-700 hover:text-brand-800">
               {t.signIn.register}
             </Link>
           </p>

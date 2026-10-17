@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 @layer base {
-  /* Default: soft light theme for the public website (red-violet, honey yellow, leaf green) */
+  /* Default: soft light theme for the public website (violet, honey yellow, leaf green) */
   :root {
     color-scheme: light;
 
-    --background: 300 20% 98%;
+    --background: 270 24% 96%;
     --foreground: 268 23% 11%;
 
     --card: 0 0% 100%;
@@ -16,7 +16,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 268 23% 11%;
 
-    --primary: 325 45% 43%;
+    --primary: 271 38% 42%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 276 23% 95%;
@@ -33,12 +33,12 @@
 
     --border: 273 18% 90%;
     --input: 273 18% 90%;
-    --ring: 325 45% 43%;
+    --ring: 271 38% 42%;
 
     --radius: 0.75rem;
 
     /* Portal specific light tokens */
-    --portal-bg: #faf8fb;
+    --portal-bg: #f4f1f7;
     --portal-surface: #ffffff;
     --portal-sidebar: #ffffff;
     --portal-border: #e7e2eb;
@@ -48,7 +48,7 @@
 
   /* Member Portal Theme (Clean, Light, SIS/Linear Dashboard Language) */
   .theme-portal {
-    --background: 276 25% 98%;
+    --background: 270 24% 96%;
     --foreground: 268 22% 11%;
 
     --card: 0 0% 100%;
@@ -57,7 +57,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 268 22% 11%;
 
-    --primary: 325 45% 43%;
+    --primary: 271 38% 42%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 276 25% 95%;
@@ -66,15 +66,15 @@
     --muted: 276 25% 95%;
     --muted-foreground: 270 9% 47%;
 
-    --accent: 325 45% 96%;
-    --accent-foreground: 325 45% 33%;
+    --accent: 271 38% 96%;
+    --accent-foreground: 271 38% 32%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 274 18% 90%;
     --input: 274 18% 90%;
-    --ring: 325 45% 43%;
+    --ring: 271 38% 42%;
 
     --radius: 0.5rem;
   }
@@ -101,29 +101,56 @@
   }
 }
 
-/* Frosted white panels: lift off the canvas with a brand-tinted shadow instead of a hard border. */
+/* Frosted panels: translucent so the colour flow behind them still shows through. */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.62);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(132, 50, 98, 0.1);
-  box-shadow: 0 1px 2px rgba(54, 18, 38, 0.04), 0 12px 32px -18px rgba(54, 18, 38, 0.18);
+  border: 1px solid rgba(90, 54, 123, 0.12);
+  box-shadow: 0 1px 2px rgba(38, 22, 52, 0.05), 0 12px 32px -18px rgba(38, 22, 52, 0.2);
 }
 
 .glass-panel-subtle {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.45);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(132, 50, 98, 0.08);
+  border: 1px solid rgba(90, 54, 123, 0.1);
 }
 
-/* Gentle wash of the three palette hues, used behind the hero and auth pages. */
-.bg-palette-wash {
-  background-color: #fbf9fb;
+/*
+ * Colour flow for the public site: the page drifts from lavender through honey to sage and back
+ * as you scroll, so sections never sit on flat white. Painted once behind the whole page.
+ */
+.bg-site-flow {
+  background-color: #f4f1f7;
   background-image:
-    radial-gradient(48rem 28rem at 12% -8%, rgba(226, 170, 203, 0.45), transparent 70%),
-    radial-gradient(40rem 24rem at 92% 8%, rgba(249, 231, 160, 0.5), transparent 70%),
-    radial-gradient(36rem 22rem at 70% 105%, rgba(194, 225, 204, 0.45), transparent 70%);
+    radial-gradient(60rem 36rem at 8% 2%, rgba(190, 165, 217, 0.7), transparent 70%),
+    radial-gradient(52rem 32rem at 95% 6%, rgba(245, 220, 142, 0.65), transparent 70%),
+    radial-gradient(56rem 34rem at 12% 34%, rgba(181, 214, 191, 0.7), transparent 70%),
+    radial-gradient(54rem 34rem at 92% 50%, rgba(190, 165, 217, 0.62), transparent 70%),
+    radial-gradient(56rem 34rem at 8% 74%, rgba(245, 220, 142, 0.58), transparent 70%),
+    radial-gradient(60rem 36rem at 88% 96%, rgba(181, 214, 191, 0.7), transparent 70%),
+    linear-gradient(180deg, #e9e0f4 0%, #f5ebcf 24%, #e0eee4 48%, #e9e0f4 70%, #f4eacb 86%, #e2efe6 100%);
+}
+
+/* The same three hues in a single screen, for the hero fallback and the sign-in pages. */
+.bg-palette-wash {
+  background-color: #f1ecf7;
+  background-image:
+    radial-gradient(48rem 30rem at 10% -10%, rgba(190, 165, 217, 0.7), transparent 70%),
+    radial-gradient(42rem 26rem at 95% 5%, rgba(245, 220, 142, 0.65), transparent 70%),
+    radial-gradient(40rem 26rem at 65% 110%, rgba(181, 214, 191, 0.7), transparent 70%),
+    linear-gradient(160deg, #efe8f6 0%, #f6f0e1 50%, #e7f1e9 100%);
+}
+
+/* Calmer version for the member portal, where content density matters more than mood. */
+.bg-portal-flow {
+  background-color: #f4f1f7;
+  background-image:
+    radial-gradient(48rem 28rem at 0% 0%, rgba(190, 165, 217, 0.35), transparent 70%),
+    radial-gradient(40rem 26rem at 100% 100%, rgba(181, 214, 191, 0.35), transparent 70%),
+    linear-gradient(160deg, #f3eff8 0%, #f9f5ea 55%, #eef5f0 100%);
+  background-attachment: fixed;
 }
 
 .portal-glass {

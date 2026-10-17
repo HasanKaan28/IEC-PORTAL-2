@@ -7,7 +7,10 @@ import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
 import { getServerLocale } from "@/lib/i18n/server";
 import { blogWriterText } from "@/lib/i18n/portal/blog-writer";
 import { RATE_LIMITS, consumeRateLimit } from "@/lib/security/rate-limit";
+import { adminText } from "@/lib/i18n/portal/admin";
+import { privilegedClient, writeAuditLog } from "@/lib/admin/server-utils";
 import { BLOG_IMAGE_MAX_BYTES } from "./blog-image-rules";
+import { BLOG_IMAGE_BUCKET, sweepUnusedBlogImages } from "./blog-image-cleanup";
 
 /**
  * Photos for blog posts. They go to the public blog-images bucket under the author's own folder.
@@ -15,7 +18,7 @@ import { BLOG_IMAGE_MAX_BYTES } from "./blog-image-rules";
  * the browser reports), and uploads are rate limited per member.
  */
 
-const BUCKET = "blog-images";
+const BUCKET = BLOG_IMAGE_BUCKET;
 const EXTENSIONS = { "image/webp": "webp", "image/jpeg": "jpg", "image/png": "png", "image/gif": "gif" } as const;
 type ImageType = keyof typeof EXTENSIONS;
 
@@ -40,6 +43,34 @@ async function ensureBucket(admin: AdminClient) {
     allowedMimeTypes: Object.keys(EXTENSIONS),
   });
   if (error && !/already exists/i.test(error.message)) throw error;
+}
+
+/**
+ * Moderators' sweep: deletes photos that no post uses and that are older than a day (younger ones
+ * may belong to a draft the editor has not saved yet).
+ */
+export async function sweepUnusedBlogImagesAction(): Promise<ActionResult<{ checked: number; removed: number }>> {
+  return guardedAction<{ checked: number; removed: number }>(async () => {
+    const actor = await requirePermission("blog.moderate");
+    const t = adminText[await getServerLocale()];
+    const admin = await privilegedClient();
+
+    const result = await sweepUnusedBlogImages(admin);
+    if (result.removed > 0) {
+      try {
+        await writeAuditLog(admin, {
+          actorId: actor.id,
+          action: "blog.images.sweep",
+          targetType: "blog_post",
+          targetId: null,
+          details: { checked: result.checked, removed: result.removed },
+        });
+      } catch (auditError) {
+        console.error("[blog] audit log for photo sweep failed", auditError);
+      }
+    }
+    return { success: true, data: result, message: t.blogList.cleanupDone(result.removed, result.checked) };
+  });
 }
 
 export async function uploadBlogImageAction(formData: FormData): Promise<ActionResult<{ url: string }>> {

@@ -111,6 +111,8 @@ Kayıt formunda iki bot tuzağı var: insanların görmediği gizli bir alan ve 
 
 9. dosyadaki `blog-images` deposu herkese açık okunur, çünkü yayındaki yazılar fotoğrafları bu adresten gösterir. Dosya listesini herkese açan bir okuma kuralı bilerek yok. Fotoğraflar `blog.write` yetkisi gereken bir sunucu işlemiyle yüklenir: dosyanın gerçek türüne bakılır (JPG, PNG, WebP, GIF) ve boyutu en fazla 4 MB olabilir. Vercel 4,5 MB'tan büyük istekleri reddettiği için sınır 4 MB; editör büyük telefon fotoğraflarını yüklemeden önce küçültür. Dosya kurulmadan ilk yükleme yapılırsa sunucu depoyu kendisi açar, ama yazar klasörü kuralları yalnızca bu dosyayla gelir.
 
+Kullanılmayan fotoğraflar iki yoldan silinir. Bir yazı silinince, yalnızca o yazının kullandığı fotoğraflar (kapak dahil) da silinir; aynı fotoğraf başka bir yazıya kopyalanmışsa kalır. Yazıdan çıkarılan veya yüklenip hiç kaydedilmeyen fotoğraflar için `blog.moderate` yetkisi olanlar **Yönetici Konsolu > Blog** sayfasındaki **Kullanılmayan fotoğrafları temizle** düğmesini kullanır. Bu düğme hiçbir yazının (taslaklar dahil) kullanmadığı ve bir günden eski dosyaları siler; bir günlük süre, editörün henüz kaydetmediği yeni yüklemeleri korur. Silinen dosya sayısı denetim günlüğüne yazılır.
+
 8. dosya, Supabase Security Advisor uyarılarının kapatılabilenlerini kapatır. Kalan uyarılar bilerek bırakıldı: `has_role`, `is_admin`, `has_permission` ve `member_contact` fonksiyonlarını giriş yapmış üyeler çalıştırabilmeli, çünkü üyelerin satır güvenliği kuralları bu fonksiyonları onların adına çağırır.
 
 ## Bilinen sınırlar

@@ -29,6 +29,7 @@ import {
   sanitizeBlogDoc,
   serializeBlogDoc,
 } from "./blog-doc";
+import { blogImagePathsIn, removeUnusedBlogImages } from "./blog-image-cleanup";
 import { RATE_LIMITS, consumeRateLimit } from "@/lib/security/rate-limit";
 import type { BlogPostItem, BlogCommentItem } from "./blog-data";
 import {
@@ -455,7 +456,7 @@ export async function deleteBlogPostAction(slug: string): Promise<ActionResult> 
 
     const admin = await privilegedClient();
     const { data: post, error: readError } = await (admin.from("blog_posts") as any)
-      .select("id, slug, title, author_id, status")
+      .select("id, slug, title, author_id, status, content, cover_image")
       .eq("slug", slug)
       .maybeSingle();
     if (readError) throw readError;
@@ -466,6 +467,14 @@ export async function deleteBlogPostAction(slug: string): Promise<ActionResult> 
 
     const { error } = await (admin.from("blog_posts") as any).delete().eq("id", post.id);
     if (error) throw error;
+
+    // Photos only this post used go with it. A failure here never undoes the delete; the
+    // moderators' sweep picks up anything left behind.
+    try {
+      await removeUnusedBlogImages(admin, [...blogImagePathsIn(post.content), ...blogImagePathsIn(post.cover_image)]);
+    } catch (cleanupError) {
+      console.error("[blog] photo cleanup after post delete failed", cleanupError);
+    }
 
     try {
       await writeAuditLog(admin, {

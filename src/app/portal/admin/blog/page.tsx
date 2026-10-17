@@ -10,6 +10,7 @@ import { formatDate } from "@/lib/i18n/format";
 import { adminText } from "@/lib/i18n/portal/admin";
 import { blogWriterText } from "@/lib/i18n/portal/blog-writer";
 import AdminBlogDeleteButton from "@/components/portal/AdminBlogDeleteButton";
+import AdminBlogImageSweepButton from "@/components/portal/AdminBlogImageSweepButton";
 import { EmptyState, PageHeader, focusRing } from "../_components/AdminUi";
 import { MemberName } from "@/components/portal/MemberCard";
 
@@ -44,6 +45,7 @@ export default async function AdminBlogListPage() {
         subtitle={t.subtitle}
         actions={
           <>
+            {canModerate && <AdminBlogImageSweepButton />}
             {canModerate && (
               <Link
                 href="/portal/admin/blog/yorumlar"

@@ -128,6 +128,7 @@ const tr = {
       "blog.comment.flag": "Yorum işaretlendi",
       "blog.comment.unflag": "Yorum işareti kaldırıldı",
       "blog.comment.delete": "Yorum silindi",
+      "blog.images.sweep": "Kullanılmayan blog fotoğrafları temizlendi",
       "application.approved": "Başvuru onaylandı",
       "application.rejected": "Başvuru reddedildi",
     } as Record<string, string>,
@@ -166,6 +167,12 @@ const tr = {
     deleteLabel: (title: string) => `${title} yazısını sil`,
     confirmDelete: "Evet, sil",
     deleting: "Siliniyor",
+    cleanup: "Kullanılmayan fotoğrafları temizle",
+    cleanupHint: "Hiçbir yazının kullanmadığı ve bir günden eski fotoğrafları depodan siler.",
+    cleaning: "Temizleniyor",
+    cleanupDone: (removed: number, checked: number) =>
+      removed === 0 ? `${checked} fotoğraf kontrol edildi, silinecek fotoğraf yok.` : `${checked} fotoğraftan ${removed} tanesi silindi.`,
+    cleanupFailed: "Fotoğraflar temizlenemedi.",
   },
 
   categories: {
@@ -467,6 +474,7 @@ const en: typeof tr = {
       "blog.comment.flag": "Comment flagged",
       "blog.comment.unflag": "Comment flag cleared",
       "blog.comment.delete": "Comment deleted",
+      "blog.images.sweep": "Unused blog photos cleaned up",
       "application.approved": "Application approved",
       "application.rejected": "Application rejected",
     },
@@ -505,6 +513,12 @@ const en: typeof tr = {
     deleteLabel: (title: string) => `Delete ${title}`,
     confirmDelete: "Yes, delete",
     deleting: "Deleting",
+    cleanup: "Clean up unused photos",
+    cleanupHint: "Deletes photos that no post uses and that are more than a day old.",
+    cleaning: "Cleaning up",
+    cleanupDone: (removed: number, checked: number) =>
+      removed === 0 ? `Checked ${checked} photos, nothing to delete.` : `Deleted ${removed} of ${checked} photos.`,
+    cleanupFailed: "The photos could not be cleaned up.",
   },
 
   categories: {

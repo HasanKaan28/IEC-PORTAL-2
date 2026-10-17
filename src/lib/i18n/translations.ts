@@ -140,7 +140,7 @@ const tr = {
     description:
       "Uluslararası Saraybosna Üniversitesi (IUS) Mühendislik ve Doğa Bilimleri Fakültesi (FENS) öğrenci mühendislik kulübü.",
     country: "Bosna-Hersek",
-    sourceCode: "Sitenin kaynak kodu (GitHub)",
+    linkedin: "LinkedIn sayfamız",
     whatsapp: "WhatsApp topluluğu",
     explore: "Keşfet",
     membership: "Üyelik Başvurusu",
@@ -318,7 +318,7 @@ const en: Dictionary = {
     description:
       "The student engineering club of the Faculty of Engineering and Natural Sciences (FENS) at the International University of Sarajevo (IUS).",
     country: "Bosnia and Herzegovina",
-    sourceCode: "Website source code (GitHub)",
+    linkedin: "Our LinkedIn page",
     whatsapp: "WhatsApp community",
     explore: "Explore",
     membership: "Membership Application",

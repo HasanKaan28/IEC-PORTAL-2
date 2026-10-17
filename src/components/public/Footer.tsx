@@ -2,12 +2,13 @@
 
 import React from "react";
 import Link from "next/link";
-import { Github, MessageCircle, Shield, Award } from "lucide-react";
+import { Linkedin, MessageCircle, Shield, Award } from "lucide-react";
 import { useLocale } from "@/lib/i18n/locale-context";
 import ClubLogo from "@/components/shared/ClubLogo";
 
-const SOURCE_CODE_URL = "https://github.com/HasanKaan28/IEC-PORTAL-2";
-const WHATSAPP_COMMUNITY_URL = "https://chat.whatsapp.com/LKMpyfm7K5R3F0rXezcXXN";
+const CLUB_EMAIL = "iusengclub@gmail.com";
+const LINKEDIN_URL = "https://www.linkedin.com/company/ius-engineering-club/";
+const WHATSAPP_COMMUNITY_URL = "https://chat.whatsapp.com/K80chftue3D4szXyT93mvv";
 const FENS_URL = "https://www.ius.edu.ba/en/faculty-engineering-and-natural-sciences";
 
 const linkClass = "hover:text-slate-900 transition-colors";
@@ -30,21 +31,21 @@ export default function Footer() {
             <p>Hrasnička Cesta 15, 71210 Ilidža, Sarajevo</p>
             <p>{t.footer.country}</p>
             <p>
-              <a href="mailto:engineering-club@ius.edu.ba" className={linkClass}>
-                engineering-club@ius.edu.ba
+              <a href={`mailto:${CLUB_EMAIL}`} className={linkClass}>
+                {CLUB_EMAIL}
               </a>
             </p>
           </address>
 
           <div className="flex items-center gap-3 pt-1">
             <a
-              href={SOURCE_CODE_URL}
+              href={LINKEDIN_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="p-2.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors"
-              aria-label={t.footer.sourceCode}
+              aria-label={t.footer.linkedin}
             >
-              <Github className="w-4 h-4" aria-hidden="true" />
+              <Linkedin className="w-4 h-4" aria-hidden="true" />
             </a>
             <a
               href={WHATSAPP_COMMUNITY_URL}

@@ -41,7 +41,7 @@ export interface LegalDictionary {
   cookies: LegalDocument;
 }
 
-const CONTACT_EMAIL = "engineering-club@ius.edu.ba";
+const CONTACT_EMAIL = "iusengclub@gmail.com";
 
 const tr: LegalDictionary = {
   kvkk: {
